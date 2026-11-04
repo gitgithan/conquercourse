@@ -16,6 +16,7 @@
 ## What the player does
 - Picks one of the 19 recorded game objects in `public/assets/objects/`, drags the typed height, and switches each of the seven bake steps off.
 - Reads the facts after the bake: height, length and depth, scale factor, faces, lowest point, off-centre distance, lean.
+- Turns the raw lift about the vertical (0 to 179 degrees) and watches "Face the side camera" turn it back; with that step off the object stays cut across.
 - Drags the typed height of the monkey bars and sees the bar grow to 52 m (the thin-bar lesson).
 - Reads what one object cost in seconds and money, as recorded.
 
@@ -44,7 +45,8 @@
 - **Overlaps, linked and not repeated:** Lab 4 (which photos are safe; the mask thresholds), Lab 5 (one photo gives no depth, which is why the size comes from a typed or typical height), Lab 10 (whether a detector points at the right part, after the object exists).
 
 ## How we prove the lesson is right
-- `tests/lab-lift.test.ts` (19 tests):
+- `tests/lab-lift.test.ts` (23 tests):
+  - For any turn of the raw lift, with "face the side camera" on the baked length, depth and height equal the recorded ones; with it off a turn that is not a quarter turn changes them.
   - The recorded bench stands on the ground, is centred, is under 6,000 faces and is as tall as its record says.
   - For four recorded objects, unbake then bake returns the recorded height, length and depth, stands on the ground, centres, and caps the faces.
   - Each of the six geometry steps, switched off, breaks the bench in the way the table above says (lean, side, footprint, floating, raw faces, raw size).

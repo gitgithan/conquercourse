@@ -1,7 +1,8 @@
 import { labsOn } from './labs';
 import { soundButton, startAudio } from './audio';
 import { mountWorldGallery } from './world-picker';
-import { LAB_LIST, PIPELINES, labsOfPipeline } from './labs-series';
+import { LAB_GROUPS, LAB_LIST, TIERS } from './labs-series';
+import { mountLabFlow } from './lab-flow';
 
 // CC-118: one bar on every Lab page that lists the 12 Labs, marks the one you are in and switches with one click.
 // A switch is a plain link, so the browser itself closes the old Lab (workers, listeners, audio) and the Dojo music rule for lab-* modes runs again on the new page.
@@ -22,6 +23,8 @@ const BAR_HEIGHT = 44;
 /** Mount the bar on a Lab page; pass the Lab's mode (the same text as its root id). Does nothing when the Labs are switched off. */
 export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boolean = labsOn()): HTMLElement | null {
   if (!labsEnabled || labNumber(mode) === 0) return null;
+  const labRoot = host.querySelector<HTMLElement>('#' + mode);
+  if (labRoot) queueMicrotask(() => mountLabFlow(labRoot, mode)); // the Lab builds its page right after this call
   const style = document.createElement('style');
   style.textContent = `
     #labs-nav{position:fixed;top:0;left:0;right:0;height:${BAR_HEIGHT}px;z-index:40;display:flex;gap:6px;align-items:center;padding:0 10px;background:#17201d;color:#fff;font:13px/1.2 system-ui,sans-serif;box-sizing:border-box}
@@ -33,7 +36,7 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
     #labs-nav a[aria-disabled=true]{opacity:.4;pointer-events:none}
     #labs-nav .list{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:thin}
     #labs-nav .list a{padding:5px 7px}
-    #labs-nav .group{color:#9fd8c9;font-weight:700;white-space:nowrap;padding:0 4px 0 10px;border-left:1px solid #4a5650;margin-left:4px}#labs-nav .group:first-child{border-left:0;margin-left:0}`;
+    #labs-nav .group{color:#9fd8c9;font-weight:700;white-space:nowrap;padding:0 4px 0 10px;border-left:1px solid #4a5650;margin-left:4px}#labs-nav .group:first-child{border-left:0;margin-left:0}#labs-nav .group.tier{color:#ffd27a;text-transform:uppercase;letter-spacing:.04em}#labs-nav .group.sub{color:#9fd8c9;font-weight:600}#labs-nav .group.gap{color:#8a958f;font-weight:400}`;
   document.head.appendChild(style);
   const nav = document.createElement('nav');
   nav.id = 'labs-nav';
@@ -52,17 +55,22 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   nextA.id = 'labs-next';
   const list = document.createElement('div');
   list.className = 'list';
-  for (const p of PIPELINES) { // group headings: the numbers stay as the stable ids, the order of the buttons follows the pipelines
-    const items = labsOfPipeline(p.id);
-    if (!items.length) continue;
-    const h = document.createElement('span');
-    h.className = 'group'; h.textContent = p.title; h.dataset.group = p.id;
-    list.appendChild(h);
-    for (const { n, lab } of items) {
-      const a = link(`${n}. ${lab.name}`, lab.mode, `Lab ${n}: ${lab.name} (${p.title}${lab.stage ? ', ' + lab.stage : ''})`);
-      a.dataset.lab = lab.mode; a.title = `${p.title}: ${lab.stage}`;
-      if (lab.mode === mode) { a.setAttribute('aria-current', 'page'); a.removeAttribute('href'); }
-      list.appendChild(a);
+  for (const t of TIERS) { // two tiers (Foundations, Pipelines), each with sub-headers; the numbers stay the stable ids
+    const th = document.createElement('span');
+    th.className = 'group tier'; th.textContent = t.title; th.dataset.tier = t.id;
+    list.appendChild(th);
+    for (const g of LAB_GROUPS.filter((x) => x.tier === t.id)) {
+      const h = document.createElement('span');
+      h.className = 'group sub'; h.textContent = g.title; h.dataset.group = g.id;
+      list.appendChild(h);
+      if (!g.modes.length) { const gap = document.createElement('span'); gap.className = 'group gap'; gap.textContent = '(no Lab planned)'; list.appendChild(gap); }
+      for (const m of g.modes) {
+        const lab = LAB_LIST.find((l) => l.mode === m)!, n = LAB_LIST.indexOf(lab) + 1;
+        const a = link(`${n}. ${lab.name}`, lab.mode, `Lab ${n}: ${lab.name} (${t.title}: ${g.title})`);
+        a.dataset.lab = lab.mode; a.title = `${t.title}: ${g.title}`;
+        if (lab.mode === mode) { a.setAttribute('aria-current', 'page'); a.removeAttribute('href'); }
+        list.appendChild(a);
+      }
     }
   }
   // Courses: the same gallery the other pages open, so a Lab is never a dead end (picking a course leaves the Lab)

@@ -12,6 +12,28 @@
   - It is listed so the series stays honest.
 - Labs 13 to 15 (motion, lift, collision) are numbered in the order they landed.
 
+## Two tiers (numbers and URLs never change)
+- Tier 1, Foundations: the skills the game stands on.
+  - Search and learn: Lab 1, Lab 2, Lab 12, Lab 9.
+  - See the world: Lab 4, Lab 5, Lab 10.
+  - Move and measure: Lab 3, Lab 6, Lab 7, Lab 8.
+  - Trust the result: Lab 11.
+- Tier 2, Pipelines: how a photo, a video and a run became part of the game, in the order the data flows.
+  - Photo to course object: Lab 14, then Lab 15.
+  - Video to motion: Lab 13.
+  - Run to shared link: no Lab planned (owner decision: not visual enough); its stages and the Foundation Labs it uses are listed.
+  - More Labs join at the end of the list as one line each; Lab 16 (map to lane) and Lab 17 (idea to course) get their own sub-headers.
+- The groups are one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; the bar, the Courses picker and this page follow it.
+
+## How the Labs hand over to each other
+- A pipeline Lab opens with a "from" chip and "uses: Lab N" chips for the Foundation Labs it relies on, and ends with a "next" button.
+  - Photo to course object: Lab 14 uses Labs 4, 5, 10; next is Lab 15, which uses Lab 9.
+  - Video to motion: Lab 13 uses Labs 8 and 3.
+- A Foundation Lab opens with "used in:" chips that name the pipeline stages that rely on it.
+  - Lab 8 is used in Video to motion: Smooth and Gate.
+- The stage map is `PIPELINE_MAP` in `src/ui/labs-series.ts`; the chips are one small module (`src/ui/lab-flow.ts`), tested in `tests/lab-flow.test.ts`.
+- Inside a Lab the steps read top to bottom, and each step shows what it hands to the next one.
+
 ## 1. Photo to course object
 *A street or park photo becomes an object on a course that the simulator can prove.*
 

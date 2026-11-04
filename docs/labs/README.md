@@ -5,7 +5,9 @@
 *Every Lab doc has the same four sections: How it was designed, How we prove the lesson is right, Limits, How to make the lesson better.*
 *The plan and the rules for all Labs are in [university-labs](../university-labs.md).*
 
-*Read in series order: [the series map](pipelines.md) says which Lab teaches which stage, and which stages have no Lab yet.*
+*Read in series order: [the series map](pipelines.md) says which Lab teaches which stage, and which stages have no Lab (the run pipeline has none planned).*
+*Two tiers: Foundations (four sub-headers) and Pipelines (three).*
+*Pipeline Labs show "from", "uses" and "next"; Foundation Labs show "used in" (see [the series map](pipelines.md)).*
 *The numbers are the stable ids; the order below is the order the pipelines are taught.*
 
 ### Photo to course object
@@ -52,11 +54,11 @@
 - The controls sit at our setting; Run stays for trying your own.
 
 ## Moving between Labs
-- Every Lab page has a bar across the top with all the Labs by number and name, under a heading for each pipeline; the current one is highlighted.
+- Every Lab page has a bar across the top with all the Labs by number and name, under a tier heading (Foundations, Pipelines) and a sub-header; the current one is highlighted.
 - One click on a name opens that Lab; Previous and Next step along the list (no wrap at the ends).
 - The keys `[` and `]` do the same when you are not typing in a box.
 - Each switch is a link, so the browser closes the old Lab fully (workers, listeners, audio) and the Dojo music rule runs again on the new page.
-- The grouping is one list, `src/ui/labs-series.ts` (`{mode, name, pipeline, stage}`); a new Lab is one line there plus its card in the picker.
+- The grouping is one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; a new Lab is one line there plus its card in the picker.
 - The Courses picker shows the same groups ("Labs: Photo to course object" and so on).
 - The bar is one file, `src/ui/labs-nav.ts`, mounted by one line in each Lab; it is hidden when the labs switch is off (`?labs=0`).
 

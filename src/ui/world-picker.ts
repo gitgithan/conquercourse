@@ -55,11 +55,11 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   ]],
 ];
 
-// CC-133: the Labs card list is split into the pipeline sections (same cards, same numbers; order inside a section is the number order)
+// CC-133: the Labs cards are split into two tiers with sub-headers (same cards, same numbers)
 {
   const at = DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs'));
   const cards = DEMO_GROUPS[at][1];
-  const parts: [string, Demo[]][] = PIPELINES.map((p) => [`Labs: ${p.title}`, labsOfPipeline(p.id).flatMap(({ lab }) => cards.filter((c) => c[0] === lab.mode))] as [string, Demo[]]).filter(([, d]) => d.length);
+  const parts: [string, Demo[]][] = LAB_GROUPS.map((g) => [`Labs, ${TIERS.find((t) => t.id === g.tier)!.title}: ${g.title}`, g.modes.flatMap((m) => cards.filter((c) => c[0] === m))] as [string, Demo[]]).filter(([, d]) => d.length);
   DEMO_GROUPS.splice(at, 1, ...parts);
 }
 
@@ -69,7 +69,7 @@ DEMO_GROUPS.splice(DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs')), 0, ['Do
 
 import { EXPERIMENTS } from '../sim/experiments';
 import { labsOn } from './labs';
-import { PIPELINES, labsOfPipeline } from './labs-series';
+import { LAB_GROUPS, TIERS } from './labs-series';
 import { applyStats, loadStats, statsOn } from './course-stats';
 import { growthOn, mountGrowth } from './growth-strip';
 import { showWorldStats } from './world-stats';

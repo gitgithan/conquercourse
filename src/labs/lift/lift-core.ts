@@ -52,6 +52,28 @@ export function unbake(baked: Mesh, r: UnbakeRecipe): Raw {
   return { mesh, rawFaces: r.rawFaces, layoutPitchDeg: r.pitchDeg };
 }
 
+/** The same raw lift, turned a further `extraDeg` about the vertical (the Lab's turn slider). The "face the side camera" step turns it back; with that step off the object stays cut across. */
+export const withExtraYaw = (r: UnbakeRecipe, extraDeg: number): UnbakeRecipe => ({ ...r, yawDeg: r.yawDeg + extraDeg });
+
+/** One real raw lift as kept in public/assets/lab/lift/raw (index.json holds the numbers; the .bin holds the decimated mesh and its vertex colours). */
+export interface RawPackMeta { name: string; label: string; file: string; kib: number; photo_credit: string; licence: string; typed_height_m: number; scale_source: string; raw_height: number; raw_faces: number; drawn_faces: number; tilt_deg: number; yaw_deg_recorded: number; bake_factor: number; lift_seconds: number; usd_estimate: number }
+/** Read a .bin written by scripts/lab-lift-rawpack.py: u32 vertices, u32 faces, float32 xyz, uint8 rgb, uint16 indices. Colours come back per triangle (the mean of its three corners). */
+export function parseRawPack(buf: ArrayBuffer): { mesh: Mesh; tri: string[] } {
+  const dv = new DataView(buf), nv = dv.getUint32(0, true), nf = dv.getUint32(4, true);
+  const positions: number[] = new Array(nv * 3), indices: number[] = new Array(nf * 3), rgb = new Uint8Array(buf, 8 + nv * 12, nv * 3);
+  for (let i = 0; i < nv * 3; i++) positions[i] = dv.getFloat32(8 + i * 4, true);
+  const at = 8 + nv * 15;
+  for (let i = 0; i < nf * 3; i++) indices[i] = dv.getUint16(at + i * 2, true);
+  const tri: string[] = [];
+  for (let t = 0; t < nf; t++) { let r = 0, g = 0, b = 0; for (let k = 0; k < 3; k++) { const v = indices[t * 3 + k]; r += rgb[v * 3]; g += rgb[v * 3 + 1]; b += rgb[v * 3 + 2]; } tri.push(`rgb(${Math.round(r / 3)},${Math.round(g / 3)},${Math.round(b / 3)})`); }
+  return { mesh: { positions, indices }, tri };
+}
+/** A real raw lift, turned `extraDeg` about its own vertical (z) axis: the Lab's turn slider on real data. Orientation, size and tilt are the lift's own. */
+export function rawFromPack(mesh: Mesh, meta: RawPackMeta, extraDeg: number): Raw {
+  const c = Math.cos(rad(extraDeg)), s = Math.sin(rad(extraDeg));
+  return { mesh: map(mesh, (x, y, z) => [x * c - y * s, x * s + y * c, z]), rawFaces: meta.raw_faces, layoutPitchDeg: meta.tilt_deg };
+}
+
 export interface BakeOptions { label: string; typedHeight: number | null; steps: Steps }
 export interface BakeResult { mesh: Mesh; size: [number, number, number]; heightM: number; scaleSource: string; factor: number; faces: number; minY: number; centreOffset: number; tiltDeg: number; yawDeg: number }
 
