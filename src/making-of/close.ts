@@ -33,7 +33,7 @@ async function main() {
   const ninjaUrl = q.get('ninja') || undefined;
   // the ninja first (spot 0), then Pip and Juno, then the eight of the starter cast
   const who: { rookie: 'a' | 'b'; url?: string }[] = [{ rookie: 'a', url: ninjaUrl }, { rookie: 'a' }, { rookie: 'b' }, ...cast.map((c) => ({ rookie: 'a' as const, url: castUrl(c.id) }))];
-  const actors = [];
+  const actors: Awaited<ReturnType<typeof createRookieActor>>[] = [];
   for (let i = 0; i < SPOTS.length; i++) {
     const a = await createRookieActor(scene, { rookie: who[i].rookie, url: who[i].url, fit: !!who[i].url });
     a.object.visible = false; actors.push(a);
