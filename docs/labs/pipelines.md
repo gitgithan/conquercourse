@@ -23,6 +23,7 @@
   - Photo to course object: Lab 14, then Lab 15.
   - Video to motion: Lab 13.
   - Idea to course: Lab 16 (design partner loop).
+  - Know the limits: Lab 21 (what the model cannot do).
   - More Labs join at the end of the list as one line each; Lab 16 (idea to course) and Lab 18 (map to lane) get their own sub-headers.
 - The groups are one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; the bar, the Courses picker and this page follow it.
 
@@ -67,6 +68,15 @@
 | Lab 2, Optimization | Choosing the best settings after the proof (plans, windows, drone and rope settings) |
 | Lab 12, Reinforcement learning | Learning a run from points; shows what the replay and the hash would have to check |
 
+## Know the limits
+*Every model fails somewhere; the product sorts the failures and covers them.*
+
+| Stage | What happens | Lab that teaches it | How well |
+|---|---|---|---|
+| Failures | Real failures are sorted into bins (uses Lab 4) | Lab 21, What the model cannot do | Teaches |
+| Check | A gate's limit is tuned for precision and recall (uses Lab 10) | Lab 21 | Teaches (14 photos) |
+| Fall back | The cheapest safe design is chosen (uses Lab 9) | Lab 21 | Teaches |
+
 ## Map to lane
 - Lab 18, [World Slicer: map to lane](slicer.md), teaches the six steps from a pin on a recorded OpenStreetMap area to a lane the simulator proves.
 - It uses Lab 15 (the simulator proves it), Lab 9 (propose, then throw out) and Lab 1 (the proof search).
@@ -93,6 +103,7 @@
 | 16 | Design partner loop | Idea | Fix it |
 | 18 | World Slicer: map to lane | Map to lane | Slice, Prove (the whole pipeline) |
 | 20 | Spike the riskiest call first | Methods | Plan |
+| 21 | What the model cannot do | Limits | Check |
 
 ## Gaps, shown honestly
 - Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).

@@ -32,6 +32,7 @@ export const MODE_LOADERS: Record<string, ScreenLoader> = {
   'lab-slicer': async (h) => (await import('./modes/lab-slicer')).startLabSlicer(h),
   'lab-determinism': async (h) => (await import('./modes/lab-determinism')).startLabDeterminism(h),
   'lab-spike': async (h) => (await import('./modes/lab-spike')).startLabSpike(h),
+  'lab-limits': async (h) => (await import('./modes/lab-limits')).startLabLimits(h),
   'lab-timing': async (h) => (await import('./modes/lab-timing')).startLabTiming(h),
   'labs-map': async (h) => (await import('./modes/labs-map')).startLabsMap(h),
   communities: async (h, q) => (await import('./modes/community-flow')).startCommunityFlow(h, q),

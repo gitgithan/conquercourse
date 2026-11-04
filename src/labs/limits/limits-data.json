@@ -1,0 +1,314 @@
+{
+  "about": "Built by scripts/lab-limits-build.py from data/eval/cc-upload-hard-set, data/eval/demo-lifts and data/eval/bar-motion. Nothing here is made up.",
+  "gate": [
+    {
+      "photo": "bollard-street",
+      "rating": "usable",
+      "note": "clean, rust and bands kept; a person in the photo was blurred",
+      "extent_aspect": 0.29,
+      "mask_aspect": 0.261,
+      "ratio": 1.111,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bollard-row-edge",
+      "rating": "usable",
+      "note": "crisp steel bollard; capped top slightly cut",
+      "extent_aspect": 0.424,
+      "mask_aspect": 0.511,
+      "ratio": 0.83,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bike-shelter",
+      "rating": "partly",
+      "note": "roof and racks present but a see-through lattice; fragile to collide with",
+      "extent_aspect": 1.585,
+      "mask_aspect": 1.342,
+      "ratio": 1.181,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bike-rack-tangle",
+      "rating": "bad",
+      "note": "bikes lost, only a flat grid of bars",
+      "extent_aspect": 0.993,
+      "mask_aspect": 0.725,
+      "ratio": 1.37,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bin-scooters",
+      "rating": "usable",
+      "note": "bin shape right, scooters left out",
+      "extent_aspect": 0.581,
+      "mask_aspect": 0.544,
+      "ratio": 1.068,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bin-snow",
+      "rating": "usable",
+      "note": "right shape and size; front grille ragged",
+      "extent_aspect": 0.724,
+      "mask_aspect": 0.806,
+      "ratio": 0.898,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bench-dusk",
+      "rating": "usable",
+      "note": "real bench from a dark photo",
+      "extent_aspect": 2.24,
+      "mask_aspect": 1.137,
+      "ratio": 1.97,
+      "game_says_bad": false
+    },
+    {
+      "photo": "bench-backlit",
+      "rating": "usable",
+      "note": "real bench against the light",
+      "extent_aspect": 2.216,
+      "mask_aspect": 1.234,
+      "ratio": 1.796,
+      "game_says_bad": false
+    },
+    {
+      "photo": "skate-stairs",
+      "rating": "bad",
+      "note": "two disjoint slabs, stairs lost; lift check flagged it",
+      "extent_aspect": 6.25,
+      "mask_aspect": 1.977,
+      "ratio": 3.161,
+      "game_says_bad": true
+    },
+    {
+      "photo": "calisthenics-berlin",
+      "rating": "usable",
+      "note": "4 posts and 3 bars, right height",
+      "extent_aspect": 0.546,
+      "mask_aspect": 0.523,
+      "ratio": 1.044,
+      "game_says_bad": false
+    },
+    {
+      "photo": "fitness-fence",
+      "rating": "usable",
+      "note": "frame and wheel recognisable",
+      "extent_aspect": 0.603,
+      "mask_aspect": 0.612,
+      "ratio": 0.985,
+      "game_says_bad": false
+    },
+    {
+      "photo": "fitness-macombs",
+      "rating": "partly",
+      "note": "one arm of the frame only, 0.11 m deep, thin",
+      "extent_aspect": 0.278,
+      "mask_aspect": 0.28,
+      "ratio": 0.993,
+      "game_says_bad": false
+    },
+    {
+      "photo": "railing-statue",
+      "rating": "partly",
+      "note": "only one rail caught, thin but placeable",
+      "extent_aspect": 1.56,
+      "mask_aspect": 1.134,
+      "ratio": 1.376,
+      "game_says_bad": false
+    },
+    {
+      "photo": "hydrant-cars",
+      "rating": "usable",
+      "note": "good hydrant from a tiny box, a car plate blurred",
+      "extent_aspect": 0.514,
+      "mask_aspect": 0.35,
+      "ratio": 1.469,
+      "game_says_bad": false
+    }
+  ],
+  "finder": {
+    "outlines": [
+      {
+        "label": "pole",
+        "score": 0.69,
+        "box": [
+          549,
+          265,
+          576,
+          891
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.68,
+        "box": [
+          1019,
+          304,
+          1043,
+          825
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.67,
+        "box": [
+          233,
+          288,
+          260,
+          854
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.66,
+        "box": [
+          1199,
+          318,
+          1224,
+          797
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.66,
+        "box": [
+          209,
+          336,
+          231,
+          782
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.66,
+        "box": [
+          36,
+          340,
+          60,
+          767
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.62,
+        "box": [
+          395,
+          379,
+          414,
+          721
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.59,
+        "box": [
+          255,
+          393,
+          271,
+          712
+        ]
+      },
+      {
+        "label": "pole",
+        "score": 0.58,
+        "box": [
+          517,
+          325,
+          554,
+          680
+        ]
+      },
+      {
+        "label": "wall",
+        "score": 0.52,
+        "box": [
+          0,
+          496,
+          145,
+          573
+        ]
+      },
+      {
+        "label": "overhead bars",
+        "score": 0.46,
+        "box": [
+          252,
+          288,
+          554,
+          315
+        ]
+      },
+      {
+        "label": "wall",
+        "score": 0.38,
+        "box": [
+          998,
+          438,
+          1120,
+          597
+        ]
+      }
+    ],
+    "best_iou_with_bar_patterns": {
+      "loops_top": 0.0225,
+      "left_grid": 0.0526
+    }
+  },
+  "hang_samples": {
+    "gate_pass": 3,
+    "bar_check_ok": 0,
+    "of": 8,
+    "rows": [
+      {
+        "seed": 7,
+        "gate_pass": true,
+        "bar_ok": false,
+        "grip_error_m": 1.032
+      },
+      {
+        "seed": 8,
+        "gate_pass": false,
+        "bar_ok": false,
+        "grip_error_m": 1.153
+      },
+      {
+        "seed": 9,
+        "gate_pass": false,
+        "bar_ok": false,
+        "grip_error_m": 1.139
+      },
+      {
+        "seed": 10,
+        "gate_pass": true,
+        "bar_ok": false,
+        "grip_error_m": 1.043
+      },
+      {
+        "seed": 11,
+        "gate_pass": true,
+        "bar_ok": false,
+        "grip_error_m": 1.041
+      },
+      {
+        "seed": 12,
+        "gate_pass": false,
+        "bar_ok": false,
+        "grip_error_m": 1.184
+      },
+      {
+        "seed": 13,
+        "gate_pass": false,
+        "bar_ok": false,
+        "grip_error_m": 1.175
+      },
+      {
+        "seed": 14,
+        "gate_pass": false,
+        "bar_ok": false,
+        "grip_error_m": 1.167
+      }
+    ]
+  }
+}
