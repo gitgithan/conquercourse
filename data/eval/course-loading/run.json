@@ -1,0 +1,325 @@
+{
+  "date": "2026-11-04",
+  "source_commit": "af0d15ac608383d6512f6521649b223873882706",
+  "scope": "Investigation only; timing probes and prototype applied to a separate VM copy, no game changes.",
+  "environment": {
+    "vm_vcpu": 8,
+    "vm_ram_gb": 32,
+    "node": "22.23.4",
+    "playwright": "1.64.1",
+    "rendering": "Chromium headless, SwiftShader WebGL2",
+    "viewport": [
+      1280,
+      800
+    ]
+  },
+  "method": {
+    "samples": "One sequence per variant; these are diagnostic observations, not latency percentiles.",
+    "metric": "Navigation start to end of the first application render callback.",
+    "context_release_control": "18526 ms browser evaluation roundtrip to pause old RAF and request WEBGL_lose_context; excludes an additional 1000 ms wait before the next navigation. It shifts the wait, rather than eliminating it."
+  },
+  "laptop_at_start": {
+    "logical_cpus": 16,
+    "ram_total_mib": 7523,
+    "load_average_1m": 35.92,
+    "swap_used_mib": 1667,
+    "sample_cpu_idle_percent": 1,
+    "active_work": "Concurrent headless rendering, ffmpeg and Node processes."
+  },
+  "laptop_server_samples_seconds": {
+    "html": [
+      1.225408,
+      0.037938,
+      0.029697
+    ],
+    "main_module": [
+      0.060019,
+      0.218018,
+      0.019839
+    ],
+    "small_motion_asset": [
+      0.15012,
+      0.0255,
+      0.032141
+    ]
+  },
+  "results": {
+    "profile-built": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 1593,
+          "main_enter_ms": 340,
+          "renderer_init_ms": 39,
+          "runner_wait_ms": 283,
+          "first_frame_work_ms": 761,
+          "html_ttfb_ms": 15.8,
+          "completed_resource_count": 88,
+          "transfer_bytes": 1856965,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 19691,
+          "main_enter_ms": 18061,
+          "renderer_init_ms": 86,
+          "runner_wait_ms": 376,
+          "first_frame_work_ms": 871,
+          "html_ttfb_ms": 12.5,
+          "completed_resource_count": 90,
+          "transfer_bytes": 29404,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "montmartre-gallery",
+          "first_frame_ms": 18648,
+          "main_enter_ms": 17567,
+          "renderer_init_ms": 29,
+          "runner_wait_ms": 308,
+          "first_frame_work_ms": 670,
+          "html_ttfb_ms": 14.3,
+          "completed_resource_count": 92,
+          "transfer_bytes": 171883,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-repeat-gallery",
+          "first_frame_ms": 19347,
+          "main_enter_ms": 17666,
+          "renderer_init_ms": 68,
+          "runner_wait_ms": 381,
+          "first_frame_work_ms": 985,
+          "html_ttfb_ms": 6.5,
+          "completed_resource_count": 90,
+          "transfer_bytes": 27000,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    },
+    "profile-clean": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 1578,
+          "main_enter_ms": 288,
+          "renderer_init_ms": 35,
+          "runner_wait_ms": 330,
+          "first_frame_work_ms": 742,
+          "html_ttfb_ms": 5.4,
+          "completed_resource_count": 89,
+          "transfer_bytes": 1857265,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 24755,
+          "main_enter_ms": 23122,
+          "renderer_init_ms": 39,
+          "runner_wait_ms": 373,
+          "first_frame_work_ms": 945,
+          "html_ttfb_ms": 12.1,
+          "completed_resource_count": 150,
+          "transfer_bytes": 47404,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "montmartre-gallery",
+          "first_frame_ms": 20289,
+          "main_enter_ms": 19046,
+          "renderer_init_ms": 65,
+          "runner_wait_ms": 304,
+          "first_frame_work_ms": 777,
+          "html_ttfb_ms": 14.4,
+          "completed_resource_count": 92,
+          "transfer_bytes": 171883,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    },
+    "profile-context-loss": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 1865,
+          "main_enter_ms": 281,
+          "renderer_init_ms": 46,
+          "runner_wait_ms": 366,
+          "first_frame_work_ms": 903,
+          "html_ttfb_ms": 8.6,
+          "completed_resource_count": 88,
+          "transfer_bytes": 1856965,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 1688,
+          "main_enter_ms": 243,
+          "renderer_init_ms": 70,
+          "runner_wait_ms": 297,
+          "first_frame_work_ms": 904,
+          "html_ttfb_ms": 14.9,
+          "completed_resource_count": 90,
+          "transfer_bytes": 29404,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    },
+    "profile-dev": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 5514,
+          "main_enter_ms": 4157,
+          "renderer_init_ms": 71,
+          "runner_wait_ms": 287,
+          "first_frame_work_ms": 729,
+          "html_ttfb_ms": 346.2,
+          "completed_resource_count": 249,
+          "transfer_bytes": 10528133,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 21958,
+          "main_enter_ms": 20426,
+          "renderer_init_ms": 33,
+          "runner_wait_ms": 210,
+          "first_frame_work_ms": 982,
+          "html_ttfb_ms": 19.1,
+          "completed_resource_count": 250,
+          "transfer_bytes": 76200,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "montmartre-gallery",
+          "first_frame_ms": 17413,
+          "main_enter_ms": 16122,
+          "renderer_init_ms": 38,
+          "runner_wait_ms": 308,
+          "first_frame_work_ms": 814,
+          "html_ttfb_ms": 10.4,
+          "completed_resource_count": 250,
+          "transfer_bytes": 303121,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-repeat-gallery",
+          "first_frame_ms": 21541,
+          "main_enter_ms": 20059,
+          "renderer_init_ms": 71,
+          "runner_wait_ms": 283,
+          "first_frame_work_ms": 875,
+          "html_ttfb_ms": 6.7,
+          "completed_resource_count": 250,
+          "transfer_bytes": 71400,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    },
+    "profile-gallery-guard": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 1736,
+          "main_enter_ms": 249,
+          "renderer_init_ms": 48,
+          "runner_wait_ms": 405,
+          "first_frame_work_ms": 826,
+          "html_ttfb_ms": 5.1,
+          "completed_resource_count": 88,
+          "transfer_bytes": 1856979,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 15331,
+          "main_enter_ms": 13670,
+          "renderer_init_ms": 54,
+          "runner_wait_ms": 397,
+          "first_frame_work_ms": 976,
+          "html_ttfb_ms": 17.4,
+          "completed_resource_count": 90,
+          "transfer_bytes": 29403,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "montmartre-gallery",
+          "first_frame_ms": 11857,
+          "main_enter_ms": 10558,
+          "renderer_init_ms": 54,
+          "runner_wait_ms": 294,
+          "first_frame_work_ms": 834,
+          "html_ttfb_ms": 6.5,
+          "completed_resource_count": 92,
+          "transfer_bytes": 171883,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    },
+    "profile-pause": {
+      "cases": [
+        {
+          "case": "first-course-cold",
+          "first_frame_ms": 1736,
+          "main_enter_ms": 277,
+          "renderer_init_ms": 46,
+          "runner_wait_ms": 346,
+          "first_frame_work_ms": 806,
+          "html_ttfb_ms": 6.1,
+          "completed_resource_count": 88,
+          "transfer_bytes": 1856965,
+          "searches_started": 1,
+          "backend": "webgl2"
+        },
+        {
+          "case": "training-gallery",
+          "first_frame_ms": 17038,
+          "main_enter_ms": 15304,
+          "renderer_init_ms": 58,
+          "runner_wait_ms": 294,
+          "first_frame_work_ms": 1115,
+          "html_ttfb_ms": 7.2,
+          "completed_resource_count": 90,
+          "transfer_bytes": 29404,
+          "searches_started": 0,
+          "backend": "webgl2"
+        },
+        {
+          "case": "montmartre-gallery",
+          "first_frame_ms": 15218,
+          "main_enter_ms": 13838,
+          "renderer_init_ms": 46,
+          "runner_wait_ms": 326,
+          "first_frame_work_ms": 888,
+          "html_ttfb_ms": 7.7,
+          "completed_resource_count": 92,
+          "transfer_bytes": 171883,
+          "searches_started": 0,
+          "backend": "webgl2"
+        }
+      ],
+      "page_errors": []
+    }
+  }
+}
