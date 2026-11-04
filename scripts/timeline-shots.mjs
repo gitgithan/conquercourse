@@ -26,7 +26,7 @@ try {
   await page.goto(url('?at=1')); await models(8); await page.waitForTimeout(2500);
   await shot('3-stage');
   await page.goto(url('?at=0.3')); await models(0); await page.waitForTimeout(600);
-  await page.locator('.card').nth(12).focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(500);
+  await page.evaluate(() => { const c = [...document.querySelectorAll('.card')].find((e) => e.style.visibility === 'visible' && +e.style.opacity > 0.9) || document.querySelector('.card[style*="visible"]'); c.click(); }); await page.waitForTimeout(800);
   await shot('panel');
   await page.keyboard.press('Escape');
   // no-freeze check: hold W from the start and compare a picture every 120 ms
