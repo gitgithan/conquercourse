@@ -1,11 +1,11 @@
 // "Latest creations": the newest 24 characters (objects lifted from photos live in Community, not here), a picker for the runner, and the form that makes a new character (CC-108).
-import { addBadge, saysOn } from '../ui/says';
+import { addBadge } from '../ui/says';
 import { closeOnBackdrop } from '../ui/backdrop';
 import { jobProgress } from '../ui/job-progress';
 import { CHARACTER_STEPS, PRIVATE_DAYS, type CharacterCard } from './steps';
 import { promptProblem, cleanPrompt } from './prompt';
 import { refusalWords } from '../slice/stages';
-import { castOn, loadCast } from './cast';
+import { CAST_BASE, castOn, loadCast } from './cast';
 import { turnstileToken } from '../ui/turnstile';
 
 const STYLE = `
@@ -24,6 +24,10 @@ const STYLE = `
 #chars .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}#chars .tools input{flex:0 1 200px;min-width:120px}#chars .tools button,#chars .pager button{border:1px solid #17201d;background:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font:600 13px system-ui}#chars .tools button[aria-pressed=true]{background:#0f6b5c;border-color:#0f6b5c;color:#fff}#chars .pager{display:flex;gap:8px;align-items:center}
 #chars .only{font-size:12px;color:#7a4a00}#chars h3{margin:0;font-size:15px}#chars .left{font-size:13px;color:#4a554f;align-self:center}#chars .ask{font-size:12px;display:grid;gap:3px}
 #chars .msg{min-height:1.2em;font-size:14px}#chars .msg.bad{color:#9b2c1d}`;
+
+/** Juno is the built-in Rookie B: a card in the picker beside Pip, picked by the Course itself (never loaded as a made character). */
+export const JUNO_ID = 'rookie-b';
+const JUNO: CharacterCard = { id: JUNO_ID, kind: 'character', name: 'Juno', prompt: 'The Rookie B: violet top, a bun and an orange headband.', provider: 'starter', route: 'A', bytes: 0, faces: 0, picks: 0, keeper: true, ts: '', mine: false, thumb: `${CAST_BASE}/juno.webp` };
 
 export interface PanelOptions { current: string | null; onPick: (card: CharacterCard | null) => void; fetcher?: typeof fetch; parent?: HTMLElement }
 
@@ -87,7 +91,7 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
       const g = Object.assign(doc.createElement('div'), { className: 'grid' }); for (const c of data.mine) g.append(card(c)); mineBox.append(g);
     } else mineBox.hidden = true;
     if (!data.items.length && !starter.length) { grid.append(Object.assign(doc.createElement('p'), { textContent: search.value.trim() ? 'Nothing with that name.' : kind === 'character' ? 'No characters shared yet. Make one, then press Publish.' : 'No objects yet.' })); }
-    if (kind === 'character' && page === 0 && !search.value.trim()) grid.append(card(null));
+    if (kind === 'character' && page === 0 && !search.value.trim()) { grid.append(card(null)); grid.append(card(JUNO)); }
     prev.disabled = page === 0; next.disabled = !data.more; pageNo.textContent = `Page ${page + 1}`; pager.hidden = page === 0 && !data.more;
     for (const c of starter) grid.append(card(c));
     for (const c of data.items) grid.append(card(c));
@@ -95,8 +99,8 @@ export function openCharacterPanel(o: PanelOptions): { close(): void; el: HTMLEl
 
   function card(c: CharacterCard | null): HTMLElement {
     const el = doc.createElement('div'); el.className = 'card'; el.dataset.on = String((c?.id ?? null) === current); el.dataset.id = c?.id ?? 'rookie';
-    if (c) el.append(Object.assign(doc.createElement('img'), { src: c.thumb, alt: c.name, width: 96, height: 96 }));
-    el.append(Object.assign(doc.createElement('b'), { textContent: c ? c.name : saysOn() ? 'Pip, the Rookie' : 'The Rookie', title: c?.prompt ?? '' }));
+    el.append(Object.assign(doc.createElement('img'), { src: c ? c.thumb : `${CAST_BASE}/pip.webp`, alt: c ? c.name : 'Pip', width: 96, height: 96 }));
+    el.append(Object.assign(doc.createElement('b'), { textContent: c ? c.name : 'Pip', title: c?.prompt ?? '' })); // Pip is the built-in Rookie A: the null card
     const use = Object.assign(doc.createElement('button'), { type: 'button', textContent: (c?.id ?? null) === current ? 'Running as' : kind === 'object' ? 'Look' : 'Play as' });
     use.disabled = !!c && c.kind === 'object';
     use.onclick = () => { current = c?.id ?? null; o.onPick(c); load(); };

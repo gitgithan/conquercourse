@@ -6,7 +6,7 @@ import { createRookieActor } from '../../render/actor';
 import { lookSwitchOn, lookUrl } from '../../render/look';
 import { softenPlayer } from '../../ui/ghost-look';
 import { charactersOn, fetchCharacterUrl, guardOn, saveChoice, savedChoice, tooSlow, watchFrames } from '../../characters/runner';
-import { openCharacterPanel } from '../../characters/panel';
+import { JUNO_ID, openCharacterPanel } from '../../characters/panel';
 import { castOn, loadCast } from '../../characters/cast';
 import { pageSearch } from '../../flags';
 
@@ -109,7 +109,7 @@ export function createRunnerLook(deps: LookDeps): RunnerLook {
     const cb = document.createElement('button');
     cb.id = 'characters-btn'; cb.textContent = 'Characters'; cb.title = 'Latest creations: pick a runner or make one';
     cb.style.cssText = 'font:600 13px system-ui,sans-serif;border:2px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 10px;cursor:pointer';
-    cb.onclick = () => { cb.blur(); openCharacterPanel({ current: characterId, onPick: (c) => { void wearCharacter(c?.id ?? null).then(paintPick); } }); };
+    cb.onclick = () => { cb.blur(); openCharacterPanel({ current: characterId ?? (choice === 'b' && !custom ? JUNO_ID : null), onPick: (c) => { if (!c || c.id === JUNO_ID) { characterId = null; saveChoice(null); void loadRookie(c ? 'b' : 'a').then(paintPick); return; } void wearCharacter(c.id).then(paintPick); } }); };
     pick.appendChild(cb);
   }
   paintPick();
