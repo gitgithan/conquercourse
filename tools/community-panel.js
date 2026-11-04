@@ -39,6 +39,19 @@ if (location.hash.startsWith('#community-')) {
 let focusedCommunity = null;
 const originalNodeStyles = new Map(nodesDS.get().map(n => [String(n.id), {color: structuredClone(n.color), font: structuredClone(n.font), borderWidth: n.borderWidth ?? 1.5}]));
 const originalEdgeStyles = new Map(edgesDS.get().map(e => [e.id, {color: structuredClone(e.color), width: e.width}]));
+const edgeScreenPx = new Map();
+let edgeZoomQueued = false;
+function keepEdgeWidthOnScreen() {
+  if (edgeZoomQueued) return;
+  edgeZoomQueued = true;
+  requestAnimationFrame(() => {
+    edgeZoomQueued = false;
+    const s = network.getScale();
+    edgesDS.update(edgesDS.get().map(e => ({id:e.id, width:(edgeScreenPx.get(e.id) || 1) / s})));
+  });
+}
+['zoom','animationFinished','stabilized','resize'].forEach(ev => network.on(ev, keepEdgeWidthOnScreen));
+setTimeout(keepEdgeWidthOnScreen, 1500);
 function highlightCommunity(nodeId) {
   focusedCommunity = nodeId == null ? null : String(nodeId);
   const neighbors = focusedCommunity == null ? new Set() : new Set(network.getConnectedNodes(focusedCommunity).map(String));
@@ -55,8 +68,10 @@ function highlightCommunity(nodeId) {
     const rootStyle = getComputedStyle(document.documentElement);
     color.color = rootStyle.getPropertyValue('--edge').trim() || color.color;
     color.highlight = color.hover = rootStyle.getPropertyValue('--edge-hot').trim() || color.color;
-    color.opacity = prominent ? (focusedCommunity == null ? 0.8 : 1) : 0.07;
-    return {id:e.id,color,width:focusedCommunity != null && prominent ? 2.6 : (focusedCommunity == null ? 1.4 : 0.6)};
+    color.opacity = prominent ? (focusedCommunity == null ? 0.38 : 0.9) : 0.05;
+    // Width is in screen pixels (owner, 2026-11-04): zooming in must not fatten the lines, so they thin out and labels stay readable.
+    edgeScreenPx.set(e.id, focusedCommunity != null && prominent ? 2 : (focusedCommunity == null ? 1 : 0.5));
+    return {id:e.id,color,width:edgeScreenPx.get(e.id) / network.getScale()};
   }));
   if (focusedCommunity != null) network.selectNodes([focusedCommunity], false);
 }
