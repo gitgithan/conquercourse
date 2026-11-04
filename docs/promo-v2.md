@@ -87,7 +87,8 @@
 ## Scene 2 clips (promo v2b)
 
 - Scene 2 (Create your obstacles) is filmed apart, into `../conquercourse-assets/promo-v2b/`; plan and layout rule: [promo storyboard](promo-storyboard.md).
-- Capture: `scripts/promo-v2/scene2-community.mjs` (2a, 2b, real app, finder answered by the prepared SAM 3 result) and `ROW=1 node scripts/promo-v2/lift.mjs` (2c).
+- Capture: `scripts/promo-v2/scene2-community.mjs` (2a, real app, finder answered by the prepared SAM 3 result).
+- 2b and 2c are cut from the clean `promo-v2/lift/clip.mp4` (the earlier film's 0:52 to 1:02, owner's pick, 2026-11-05): source 0 to 8.4 s in 2 s, then 8.4 to 14.4 s in 3 s, with the bottom overlay and top-left chip burned in again (ffmpeg `drawtext`, same layout as the build step).
 - Build: `node scripts/promo-v2-scene2-build.mjs` retimes the frames by the game clock and burns the bottom overlay and the top-left chip.
 - Layout proof: `python3 scripts/promo-v2/layout-check.py`.
 - The click marker is `scripts/promo-v2/marker.mjs`.
@@ -102,7 +103,8 @@
 
 - Scripts: `scripts/promo-v2/scene1.mjs` (clips a, b, c) and `scripts/promo-v2/open-run.mjs`; params in `scripts/promo-v2/params/scene1.json` and `open-run.json`.
 - Every click shows a big yellow ring over the cursor, drawn into the frames by `CLICK_MARKER` in `scripts/promo-v2/lib.mjs` (`S.pressAt`, `S.clickSel`).
-- 1a "Drop a pin anywhere": globe, zoom to the top level, pin at the prepared Shibuya course, then a live Mapillary photo.
+- 1a "Drop a pin anywhere" (3.4 s): globe until Earth fills the screen, then a jump cut to street level, pin at the prepared Shibuya course, then a live Mapillary photo.
+  - The flat-map zoom and its 17 flickering tile frames are cut (owner, 2026-11-05); the part after the jump runs at about 1.3x.
   - The pin coordinates are the place file's own (`public/assets/places/shibuya-tokyo.json`: 35.6595, 139.7005), so the pin lands on the course.
   - The film shows a live Mapillary photo under Mapillary's terms; we do not store it.
 - 1b "Slice this place": the real slice, played in real time and sped up.
