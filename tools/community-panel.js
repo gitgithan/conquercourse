@@ -47,7 +47,7 @@ function keepEdgeWidthOnScreen() {
   requestAnimationFrame(() => {
     edgeZoomQueued = false;
     const s = network.getScale();
-    edgesDS.update(edgesDS.get().map(e => ({id:e.id, width:(edgeScreenPx.get(e.id) || 1) / s})));
+    edgesDS.update(edgesDS.get().map(e => ({id:e.id, width:(edgeScreenPx.get(e.id) || 0.5) / s})));
   });
 }
 ['zoom','animationFinished','stabilized','resize'].forEach(ev => network.on(ev, keepEdgeWidthOnScreen));
@@ -70,7 +70,7 @@ function highlightCommunity(nodeId) {
     color.highlight = color.hover = rootStyle.getPropertyValue('--edge-hot').trim() || color.color;
     color.opacity = prominent ? (focusedCommunity == null ? 0.38 : 0.9) : 0.05;
     // Width is in screen pixels (owner, 2026-11-04): zooming in must not fatten the lines, so they thin out and labels stay readable.
-    edgeScreenPx.set(e.id, focusedCommunity != null && prominent ? 2 : (focusedCommunity == null ? 1 : 0.5));
+    edgeScreenPx.set(e.id, focusedCommunity != null && prominent ? 1 : (focusedCommunity == null ? 0.5 : 0.25));
     return {id:e.id,color,width:edgeScreenPx.get(e.id) / network.getScale()};
   }));
   if (focusedCommunity != null) network.selectNodes([focusedCommunity], false);
