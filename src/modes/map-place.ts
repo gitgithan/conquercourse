@@ -110,6 +110,12 @@ export function installPlaces(ctx: PlaceCtx) {
     list.replaceChildren(...groups.flatMap((g) => [...(g.title && gallery ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
     readyEl.replaceChildren(head, list);
     if (gallery) readyEl.open = true;
+    if (gallery && !document.getElementById('ready-gallery-btn')) { // owner request 2026-11-04: the ready places as a full-screen gallery over the map, not only a small side list
+      const big = Object.assign(document.createElement('button'), { type: 'button', id: 'ready-gallery-btn', textContent: `Browse ${shown.length} ready places` });
+      big.style.cssText = 'display:block;width:100%;margin:6px 0;padding:9px 12px;font:700 14px system-ui,sans-serif;color:#fff;background:#2f7d5b;border:0;border-radius:10px;cursor:pointer';
+      big.onclick = () => openReadyGallery(groups, card, shown.length);
+      readyEl.before(big);
+    }
     dset('readyPlaces', shown.length); dset('readyPlacesAll', index.length);
   })();
 
@@ -374,4 +380,29 @@ export function installPlaces(ctx: PlaceCtx) {
     return s ? ` ${s.name} is ready here: Build loads it at once.` : '';
   }
   return { obtain, finish, setStep, snapNote, prefetch, ready: loadIndex };
+}
+
+
+// A full-screen gallery of the ready places over the dimmed map (the map stays visible behind it). A card click picks the place and closes it.
+function openReadyGallery(groups: { title: string; items: ReadyIndexEntry[] }[], card: (p: ReadyIndexEntry) => HTMLElement, n: number): HTMLElement {
+  const old = document.getElementById('ready-gallery'); if (old) return old;
+  const shade = document.createElement('div'); shade.id = 'ready-gallery'; shade.className = 'mp'; shade.setAttribute('role', 'dialog'); shade.setAttribute('aria-label', 'Ready places');
+  shade.style.cssText = 'position:fixed;inset:0;z-index:80;background:#0e1412a6;backdrop-filter:blur(3px);display:flex;align-items:stretch;justify-content:center;padding:28px;font-family:system-ui,sans-serif';
+  const style = document.createElement('style');
+  style.textContent = '#ready-gallery .panel{background:#f6f8f5;color:#17201d;border-radius:18px;width:min(1400px,100%);display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:18px 22px;box-shadow:0 20px 60px #0007}#ready-gallery .top{display:flex;justify-content:space-between;align-items:center;gap:12px}#ready-gallery h2{margin:0;font-size:26px}#ready-gallery .top p{margin:2px 0 0;color:#44504a;font-size:14px}#ready-gallery .gal{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:none;overflow:auto;margin:0;padding:4px;align-content:start;grid-auto-rows:max-content}#ready-gallery .gal .ph{aspect-ratio:3/2}#ready-gallery .gal .nm{font-size:16px;padding:4px 10px 0}#ready-gallery .gal .ct{font-size:13px;padding:0 10px}#ready-gallery .gal .bd{padding:2px 10px 8px;font-size:12px}#ready-gallery .gal .gh{font-size:16px;padding-top:10px}#ready-gallery .gal button.card:hover{border-color:#2f7d5b;transform:translateY(-2px)}';
+  const panel = document.createElement('div'); panel.className = 'panel';
+  const top = document.createElement('div'); top.className = 'top';
+  const head = document.createElement('div'); head.innerHTML = '<h2>Ready places</h2><p></p>'; head.querySelector('p')!.textContent = `${n} real places, built once, that load at once. Click one: the map flies there and Build is one press away.`;
+  const close = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Close' });
+  close.style.cssText = 'font:700 15px system-ui,sans-serif;padding:8px 18px;border-radius:999px;border:3px solid #17201d;background:#fffdf7;cursor:pointer';
+  top.append(head, close);
+  const grid = document.createElement('div'); grid.className = 'gal';
+  grid.replaceChildren(...groups.flatMap((g) => [...(g.title ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
+  const shut = () => { shade.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') shut(); };
+  grid.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('button.card')) setTimeout(shut, 0); });
+  close.onclick = shut; shade.addEventListener('mousedown', (e) => { if (e.target === shade) shut(); });
+  document.addEventListener('keydown', onKey);
+  panel.append(top, grid); shade.append(style, panel); document.body.append(shade); close.focus();
+  return shade;
 }
