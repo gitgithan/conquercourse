@@ -1,0 +1,107 @@
+{
+  "date": "2026-11-05",
+  "sourceCommit": "b27488a489067101c8595d17ffd3ae7058153ccc",
+  "question": "Which work survives a course switch, and what happens when old course resources are not closed?",
+  "method": {
+    "kind": "Deterministic teaching model",
+    "inputs": "An already-loaded course, three boolean choices, illustrative per-resource units",
+    "units": "Not milliseconds or measured MB",
+    "animation": "90 ms per illustrative work unit, or immediate with reduced motion; not measured load time",
+    "recordedRealTimings": "Separate observations from data/eval/course-loading/run.json, not predicted by this model",
+    "modelCalls": 0,
+    "newVMs": 0
+  },
+  "outputs": {
+    "ourNextSwitch": {
+      "workUnits": 9,
+      "reused": [
+        "renderer",
+        "assets"
+      ],
+      "replaced": [
+        "scene",
+        "controls",
+        "worker"
+      ],
+      "activeUnits": 26,
+      "leftoverUnits": 0,
+      "switches": 1
+    },
+    "rebuildEverything": {
+      "workUnits": 31,
+      "reused": [],
+      "replaced": [
+        "renderer",
+        "assets",
+        "scene",
+        "controls",
+        "worker"
+      ],
+      "activeUnits": 26,
+      "leftoverUnits": 0,
+      "switches": 1
+    },
+    "after20CleanSwitches": {
+      "activeUnits": 26,
+      "leftoverUnits": 0
+    },
+    "after3UncleanSwitches": {
+      "activeUnits": 26,
+      "leftoverUnits": 18
+    },
+    "cleanupAfterEarlierLeaks": {
+      "workUnits": 9,
+      "reused": [
+        "renderer",
+        "assets"
+      ],
+      "replaced": [
+        "scene",
+        "controls",
+        "worker"
+      ],
+      "activeUnits": 26,
+      "leftoverUnits": 18,
+      "switches": 4
+    },
+    "reset": {
+      "activeUnits": 26,
+      "leftoverUnits": 0
+    }
+  },
+  "validation": {
+    "modelTests": "5 invariant tests across all policies and repeated switches",
+    "browser": "Desktop checks of immediate changes, IDs, leaks, cleanup, reset, replay, scrubber, resource inspection, original experiment and feature opt-out",
+    "fullSuite": "Not rerun by this recording command; see README for verification results",
+    "evidence": [
+      "docs/evidence/lab-wait-reuse.png",
+      "docs/evidence/lab-wait-reuse-leftovers.png"
+    ]
+  },
+  "verification": {
+    "fullSuite": {
+      "command": "npm run test:quick -- --maxWorkers=5",
+      "passed": 3175,
+      "failed": 1,
+      "expectedFail": 9,
+      "skipped": 4,
+      "filesPassed": 324,
+      "filesFailed": 1,
+      "durationSeconds": 448.75,
+      "failure": "Pre-existing raw URL read in welcome.ts bypassed the shared flags helper."
+    },
+    "correction": "Use pageQuery() for the welcome-screen URL read; all 29 focused policy, welcome and model checks passed afterward.",
+    "browserChecksPassed": 29,
+    "browserErrors": 0,
+    "productionBuild": "passed",
+    "typecheck": "passed",
+    "viewport": [
+      1280,
+      900
+    ],
+    "reducedMotion": "passed",
+    "keyboardChoices": "passed",
+    "oldExperiment": "passed",
+    "featureOptOut": "passed"
+  }
+}

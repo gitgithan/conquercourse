@@ -978,3 +978,11 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | File | What | Made | How | Cost | Licence and notes |
 |---|---|---|---|---|---|
 | `docs/evidence/course-runtime-reuse-1280.png` | Desktop Course after in-place switching, Back/Forward and a failed-fetch retry | 2026-11-05 | Real Chromium screenshot at 1280 × 800 on the existing test VM | No model calls or new VM | Ours (UI/game); existing place-photo credits remain visible and their original terms still apply; evidence only |
+
+
+## Hide the wait: resource reuse evidence (2026-11-05)
+
+| File | What | Made | How | Cost | Licence and notes |
+|---|---|---|---|---|---|
+| `docs/evidence/lab-wait-reuse.png` | Default visual reuse/cleanup experiment with live choices and resource identities | 2026-11-05 | Real Chromium capture at 1280 × 900 on the existing test VM | No model call or new VM | Ours; UI and schematic drawings from our code |
+| `docs/evidence/lab-wait-reuse-leftovers.png` | Red leftovers after an unclean switch, with work stages and resource history | 2026-11-05 | Same real browser sequence | As above | Ours |
