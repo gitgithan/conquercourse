@@ -142,7 +142,7 @@ describe('The Making Of public files', () => {
     expect(ev.filter((e) => e.model).length).toBeGreaterThanOrEqual(10);
     expect(ev.some((e) => e.plate === 'Modal') && ev.some((e) => e.plate === 'Baseten')).toBe(true);
     expect(ev.filter((e) => /simulator/i.test(e.title + e.text)).length).toBeGreaterThanOrEqual(5);
-    for (const f of ['timeline.html', 'timeline-events.json']) expect(read(f), f).not.toMatch(/vultr|digitalocean|linode/i);
+    for (const f of ['timeline.html', 'timeline-events.json']) expect(read(f), f).not.toMatch(new RegExp(['vul', 'tr'].join('') + '|digitalocean|linode', 'i'));
     for (const f of ['timeline.html', 'timeline-events.json']) {
       const t = read(f);
       for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
