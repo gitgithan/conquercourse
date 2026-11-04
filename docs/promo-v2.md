@@ -127,8 +127,4 @@
   - The stepped clock is unchanged, so the pictures show the same game moments.
 - GPU: T4 by default (starts at once); `FILM_GPU=L4` queued for over 10 minutes on 2026-11-05.
   - Cost: T4 about $0.59 per hour, so the 55 s captures below cost about $0.01 each; with start-up and the image build, a clip is well under $0.05.
-- Measured (2026-11-05, T4):
-  - Entrance: 150 frames, same marks, capture 58 s; frame difference to the VM film: 0.5 mean grey level, 0.02 % of pixels differ by more than 40.
-  - Scene 1b: 251 frames, marks identical (2.4, 7.97, 8.37), capture 53 s (map tiles load from Modal); 0.1 to 0.4 % of pixels differ by more than 40 (map tiles).
-  - VM reference: the slicer segment took about 17 minutes for 51 s of film (see above).
 - Three at a time: the function is capped at `max_containers=3`.
