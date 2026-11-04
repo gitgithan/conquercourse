@@ -107,7 +107,7 @@ export const MAKING_OF_CARDS: [string, string, string, string][] = [
   ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', 'making-site-map'],
   ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
   ['/making-of/code-map.html', 'Code map', 'The whole codebase as a graph, grouped into communities you can open one by one.', 'making-code-map'],
-  ['/making-of/timeline.html', 'Timeline', 'Walk a tunnel of cards, six kinds of moments in time order, and step out onto the Training course.', 'making-timeline'],
+  ['/making-of/timeline.html', 'The Grand Entrance', 'Walk a tunnel of cards, six kinds of moments in time order, and step out onto the Training course.', 'making-timeline'],
 ];
 /** CC-133: the Timeline card is shown by default; ?timeline=0 hides it (the page itself stays reachable). */
 export const timelineCardOn = (params: URLSearchParams): boolean => params.get('timeline') !== '0';

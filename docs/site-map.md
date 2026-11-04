@@ -37,8 +37,8 @@
     - How to get there: Courses picker, group "Make your own".
     - Leads to: The Course (play), World Slicer, World Editor, Coaster builder
   - **The Making Of**
-    - You do: You open the maps of how the game was made, the site map and the course map, as ordinary pages.
-    - How to get there: Courses picker, last group "The Making Of" (`?making=0` hides the two map cards; the story page stays at `/making-of/`, linked from the maps).
+    - You do: You open the pages on how the game was made (site map, course map, code map and The Grand Entrance tunnel) as ordinary pages.
+    - How to get there: Courses picker, last group "The Making Of" (`?making=0` hides these cards, `?timeline=0` only The Grand Entrance card; the story page stays at `/making-of/`, linked from the maps).
     - Leads to: Courses picker, The Course (play)
 - **The Course (play)**
   - You do: You run, jump, hang, swing and climb a small runner to the finish.
