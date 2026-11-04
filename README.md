@@ -140,6 +140,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Bonus: Best Agentic Use-Case | bonus | A loop that proposes a course, tests it with the simulator, repairs it and stops when it is proven | [Best Agentic Use-Case](#-best-agentic-use-case) |
 | Bonus: Most Viral | bonus | A short challenge link and a 15 second clip, with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
 | Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
+| Bonus: Best Creative Build | bonus | Anyone can type a sentence and get a playable character: Muse Image paints it, SAM 3.1 cuts it out, SAM 3D Objects makes the mesh, and one fixed skeleton and one set of physics keep every character fair. Real parks, streets and photos become courses too | [Characters (UGC)](#user-made-characters-and-pieces-ugc), [Meta tool use](#meta-tool-use) |
 
 ## 🏗️ Architecture at a glance
 - One page of the whole codebase: what runs where, and who pays.
@@ -628,6 +629,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - **Use of Meta AI tooling:** ten Meta models and services (SAM 3 and 3.1, SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Llama 3, Muse Spark Open, Muse Spark, Muse Image, MusicGen, Mapillary; Muse Wonder is development only and not counted), each doing one visible job; the models propose and the simulator decides.
 - **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
 - **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
+- **Best Creative Build (bonus):** a player's sentence becomes a character through Muse Image, SAM 3.1 and SAM 3D Objects; real photos, parks and streets become courses; one skeleton and one set of physics keep it fair ([characters](#user-made-characters-and-pieces-ugc)).
 - Details for every criterion: [docs/hackathon.md](docs/hackathon.md).
 
 ### 🔓 Open weights split
