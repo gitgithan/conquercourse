@@ -10,8 +10,9 @@ import courseJson from '../src/course/default-course.json';
 import { loadDemo as load } from './helpers/course';
 
 describe('two ways on the drum lane and in the end report', () => {
-  it('the switch is off unless paths=1', () => {
-    expect(pathsOn(new URLSearchParams(''))).toBe(false);
+  it('fork display is on by default and can be explicitly hidden', () => {
+    expect(pathsOn(new URLSearchParams(''))).toBe(true);
+    expect(pathsOn(new URLSearchParams('fork=0'))).toBe(false);
     expect(pathsOn(new URLSearchParams('paths=1'))).toBe(true);
   });
   it('drumsForPaths gives drums for both ways, tagged by route', () => {
