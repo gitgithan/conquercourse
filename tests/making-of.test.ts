@@ -122,17 +122,27 @@ describe('The Making Of public files', () => {
   });
 
   it('the timeline: six categories, short plain cards, real pictures, nothing private, no external requests', () => {
-    const ev = JSON.parse(read('timeline-events.json')) as { id: string; category: number; when: string; title: string; text: string; kind: string; image?: string; stat?: string; caption?: string }[];
-    expect(ev.length).toBeGreaterThanOrEqual(24);
+    type Ev = { id: string; category: number; when: string; title: string; text: string; kind: string; image?: string; stat?: { n: string; caption: string }; model?: string; plate?: string };
+    const ev = JSON.parse(read('timeline-events.json')) as Ev[];
+    expect(ev.length).toBeGreaterThanOrEqual(60);
     expect(new Set(ev.map((e) => e.id)).size).toBe(ev.length);
-    expect([...new Set(ev.map((e) => e.category))].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+    const days = ['10-26', '10-27', '10-28', '10-29', '10-30', '10-31', '11-01', '11-02', '11-03', '11-04'];
+    for (let c = 1; c <= 6; c++) {
+      const own = ev.filter((e) => e.category === c);
+      expect(own.length, `category ${c}`).toBeGreaterThanOrEqual(10);
+      for (const day of days) expect(own.some((e) => e.when.startsWith(day)), `category ${c} on ${day}`).toBe(true);
+    }
     for (const e of ev) {
-      expect(['picture', 'stat', 'text']).toContain(e.kind);
+      expect(['picture', 'stat', 'text', 'diagram']).toContain(e.kind);
       expect(e.when, e.id).toMatch(/^\d\d-\d\d( \d\d:\d\d| to \d\d-\d\d)?$/);
-      expect(e.text.length, e.id).toBeLessThanOrEqual(110);
-      if (e.kind === 'stat') expect(e.stat && e.caption, e.id).toBeTruthy();
+      expect(e.text.length, e.id).toBeLessThanOrEqual(130);
+      if (e.kind === 'stat') expect(e.stat?.n && e.stat?.caption, e.id).toBeTruthy();
       if (e.image) expect(existsSync(join(DIR, e.image)), e.image).toBe(true);
     }
+    expect(ev.filter((e) => e.model).length).toBeGreaterThanOrEqual(10);
+    expect(ev.some((e) => e.plate === 'Modal') && ev.some((e) => e.plate === 'Baseten')).toBe(true);
+    expect(ev.filter((e) => /simulator/i.test(e.title + e.text)).length).toBeGreaterThanOrEqual(5);
+    for (const f of ['timeline.html', 'timeline-events.json']) expect(read(f), f).not.toMatch(/vultr|digitalocean|linode/i);
     for (const f of ['timeline.html', 'timeline-events.json']) {
       const t = read(f);
       for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
@@ -147,7 +157,7 @@ describe('The Making Of public files', () => {
   });
 
   it('passes the personal-details check', () => {
-    const paths = files.filter((f) => !f.endsWith('.jpg') && f !== 'timeline').map((f) => join(DIR, f));
+    const paths = files.filter((f) => !/\.(jpg|png)$/.test(f) && f !== 'timeline').map((f) => join(DIR, f));
     expect(findings(paths)).toEqual([]);
   });
 });

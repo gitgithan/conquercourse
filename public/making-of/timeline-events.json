@@ -1,308 +1,1017 @@
 [
   {
-    "id": "m1",
+    "id": "c1-01",
     "category": 1,
-    "when": "10-27 04:17",
-    "title": "The first commit",
-    "text": "The plan, the two Rookie characters and the physics sayings.",
-    "kind": "text"
+    "when": "10-26 20:57",
+    "title": "First Meta model call: SAM 3.1",
+    "text": "SAM 3.1 outlines obstacles in 10 park photos. The very first Meta model we ran.",
+    "kind": "text",
+    "model": "SAM 3.1",
+    "commit": "4702e68a"
   },
   {
-    "id": "m2",
+    "id": "c6-01",
+    "category": 6,
+    "when": "10-26 21:29",
+    "title": "Kimodo job on Modal",
+    "text": "A cloud GPU job (one L4) writes new moves from text when the mocap library has none.",
+    "kind": "text",
+    "plate": "Modal",
+    "commit": "25dc0a57"
+  },
+  {
+    "id": "x-16",
+    "category": 3,
+    "when": "10-26 21:29",
+    "title": "First moves, checked for realism",
+    "text": "Starter move clips only play if they pass a plausibility check, so every motion on screen looks real.",
+    "kind": "text",
+    "commit": "888779cd"
+  },
+  {
+    "id": "c1-03",
+    "category": 1,
+    "when": "10-26 22:08",
+    "title": "First video becomes motion",
+    "text": "SAM 3D Body reads a person in video into 30 joints. The cloud GPU job runs on Modal.",
+    "kind": "text",
+    "model": "SAM 3D Body",
+    "plate": "Modal",
+    "commit": "528b22f3"
+  },
+  {
+    "id": "c2-02",
+    "category": 2,
+    "when": "10-26 22:08",
+    "title": "Video to motion pipeline",
+    "text": "A filmed move becomes a 30-joint skeleton clip. Faces are masked before anything is measured.",
+    "kind": "diagram",
+    "model": "SAM 3D Body",
+    "plate": "Modal",
+    "commit": "528b22f3"
+  },
+  {
+    "id": "c4-01",
+    "category": 4,
+    "when": "10-26 22:08",
+    "title": "Gate refuses bad video motion",
+    "text": "Four stock clips went through. Two failed the physics check, so they never reached the game.",
+    "kind": "stat",
+    "stat": {
+      "n": "2 of 4",
+      "caption": "clips refused by the gate"
+    },
+    "model": "SAM 3D Body",
+    "plate": "Modal",
+    "commit": "5c821d3d"
+  },
+  {
+    "id": "c5-01",
+    "category": 5,
+    "when": "10-26 22:08",
+    "title": "Faces masked before anything else",
+    "text": "Before the computer reads a video of a person, it hides every face first.",
+    "kind": "diagram",
+    "commit": "5c821d3d"
+  },
+  {
+    "id": "c6-02",
+    "category": 6,
+    "when": "10-26 22:08",
+    "title": "Video to motion on Modal",
+    "text": "A Modal app masks faces, then SAM 3D Body reads a body from each frame.",
+    "kind": "diagram",
+    "model": "SAM 3D Body",
+    "plate": "Modal",
+    "commit": "528b22f3"
+  },
+  {
+    "id": "c2-03",
+    "category": 2,
+    "when": "10-27 10:36",
+    "title": "Simulator ticks at 120 Hz",
+    "text": "The game world moves in fixed 1/120 s steps. Each law is tested against its closed form.",
+    "kind": "stat",
+    "stat": {
+      "n": "120 Hz",
+      "caption": "fixed physics tick"
+    },
+    "commit": "57f3f9ff"
+  },
+  {
+    "id": "x-01",
+    "category": 2,
+    "when": "10-27 10:36",
+    "title": "The simulator is born",
+    "text": "The simulator is the game's physics engine. It runs on a fixed 1/120 s clock.",
+    "kind": "text",
+    "commit": "57f3f9ff"
+  },
+  {
+    "id": "x-11",
     "category": 1,
     "when": "10-27 11:56",
     "title": "The Dojo opens",
-    "text": "Five experiments you can play with: guess, then run.",
-    "kind": "picture",
-    "image": "../assets/thumbs/dojo-gap.webp"
+    "text": "The Dojo has experiments from the simulator: turn the knobs, guess, then run.",
+    "kind": "text",
+    "commit": "a3286e5b"
   },
   {
-    "id": "m3",
+    "id": "c1-07",
     "category": 1,
     "when": "10-27 13:43",
-    "title": "A photo becomes a 3D object",
-    "text": "SAM 3 cuts the thing out and SAM 3D Objects lifts it to 3D.",
-    "kind": "text"
+    "title": "First photo becomes a 3D object",
+    "text": "SAM 3 cuts the object out of a photo. SAM 3D Objects lifts it into 3D, on Modal.",
+    "kind": "text",
+    "model": "SAM 3 + SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "e14e2e3c"
   },
   {
-    "id": "m4",
+    "id": "c2-04",
+    "category": 2,
+    "when": "10-27 13:43",
+    "title": "Photo becomes a 3D object",
+    "text": "One park photo is cut out and lifted into a solid 3D shape. It lands in the editor at real size.",
+    "kind": "picture",
+    "image": "timeline/monkey-bars-preview-then-lift-input.jpg",
+    "model": "SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "e14e2e3c"
+  },
+  {
+    "id": "c5-02",
+    "category": 5,
+    "when": "10-27 13:43",
+    "title": "Photo masks use SAM 3",
+    "text": "Photos get a privacy mask first. Then SAM 3 cuts out the object we want.",
+    "kind": "diagram",
+    "model": "SAM 3",
+    "plate": "Modal",
+    "commit": "e14e2e3c"
+  },
+  {
+    "id": "c6-04",
+    "category": 6,
+    "when": "10-27 13:43",
+    "title": "Photo to object on Modal",
+    "text": "A photo is cut out by SAM 3 on an L4, then SAM 3D Objects lifts it to 3D on an L40S.",
+    "kind": "diagram",
+    "model": "SAM 3 and SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "e14e2e3c"
+  },
+  {
+    "id": "c3-01",
+    "category": 3,
+    "when": "10-27 19:12",
+    "title": "Pick a place on a map",
+    "text": "Choose a spot on a real map. Its buildings become a course piece.",
+    "kind": "text",
+    "commit": "f616a28f"
+  },
+  {
+    "id": "c4-02",
+    "category": 4,
+    "when": "10-27 21:19",
+    "title": "Trampoline cue flashed too early",
+    "text": "The hint popped up before the rope was behind you. Now it waits until the rope is passed.",
+    "kind": "text",
+    "commit": "fc33afe1"
+  },
+  {
+    "id": "x-08",
     "category": 1,
-    "when": "10-27 15:05",
-    "title": "First public site",
-    "text": "Live on Cloudflare Pages, with a feedback button.",
-    "kind": "text"
+    "when": "10-27 22:44",
+    "title": "World Editor opens",
+    "text": "Place pieces on a plan view, scale them to real size, turn and move them.",
+    "kind": "text",
+    "commit": "52f32076",
+    "image": "timeline/editor-screen.jpg"
   },
   {
-    "id": "m5",
+    "id": "c4-03",
+    "category": 4,
+    "when": "10-27 23:27",
+    "title": "Domes threw jumpers back",
+    "text": "A jump from the rising side snapped to the platform edge. Fixed, with tests.",
+    "kind": "text",
+    "commit": "bb2357a9"
+  },
+  {
+    "id": "c3-03",
+    "category": 3,
+    "when": "10-27 23:50",
+    "title": "Photo objects join the editor",
+    "text": "Objects lifted from real photos drop in at real size. The best lane is measured to match.",
+    "kind": "text",
+    "model": "SAM 3D Objects",
+    "commit": "6ad62102"
+  },
+  {
+    "id": "c1-10",
     "category": 1,
-    "when": "10-29 06:25",
-    "title": "Muse Wonder checks the simulator",
-    "text": "It read our physics and checked 21 claims. 13 were real.",
-    "kind": "stat",
-    "stat": "13 of 21",
-    "caption": "claims were real; 2 were fixed at once"
+    "when": "10-28 01:03",
+    "title": "First Muse Spark Open helper",
+    "text": "A course-design partner suggests pieces for your world. It runs on Baseten.",
+    "kind": "text",
+    "model": "Muse Spark Open",
+    "plate": "Baseten",
+    "commit": "4cb7394b"
   },
   {
-    "id": "m6",
+    "id": "c2-05",
+    "category": 2,
+    "when": "10-28 01:03",
+    "title": "Design partner on Baseten",
+    "text": "An open AI model suggests course ideas. The simulator still checks every suggestion.",
+    "kind": "text",
+    "model": "Muse Spark Open",
+    "plate": "Baseten",
+    "commit": "4cb7394b"
+  },
+  {
+    "id": "c6-06",
+    "category": 6,
+    "when": "10-28 01:03",
+    "title": "Muse Spark Open on Baseten",
+    "text": "The course-design partner calls Muse Spark Open through Baseten. The key stays on the server.",
+    "kind": "text",
+    "model": "Muse Spark Open",
+    "plate": "Baseten",
+    "commit": "4cb7394b"
+  },
+  {
+    "id": "x-09",
     "category": 1,
-    "when": "11-01 18:55",
-    "title": "The character maker names its models",
-    "text": "The badge shows Muse Image, SAM 3.1 and SAM 3D Objects.",
-    "kind": "text"
+    "when": "10-28 09:38",
+    "title": "World Slicer: first cut",
+    "text": "The World Slicer cuts a real place at one height and shows the lane at that height.",
+    "kind": "text",
+    "commit": "ef77bc34",
+    "image": "timeline/slicer-screen.jpg"
   },
   {
-    "id": "t1",
+    "id": "c6-07",
+    "category": 6,
+    "when": "10-28 13:33",
+    "title": "Pose-conditioned Kimodo on Modal",
+    "text": "Hand-set key poses go to Kimodo on Modal, and the gate checks what comes back.",
+    "kind": "text",
+    "plate": "Modal",
+    "commit": "93e94509"
+  },
+  {
+    "id": "x-02",
     "category": 2,
-    "when": "10-28 02:31",
-    "title": "Monkey bars",
-    "text": "Bars in the air: grab, hang like a pendulum, pump, let go.",
-    "kind": "picture",
-    "image": "../assets/thumbs/dojo-bars.webp"
+    "when": "10-28 13:44",
+    "title": "Simulator proves a course",
+    "text": "Shift+I runs one ideal run through every obstacle. If the simulator can clear it, the course is fair.",
+    "kind": "text",
+    "commit": "bbe79eae"
   },
   {
-    "id": "t2",
-    "category": 2,
-    "when": "10-28 14:25",
-    "title": "Full-circle swings",
-    "text": "On the lache bar the body can turn all the way round.",
-    "kind": "stat",
-    "stat": "5.5",
-    "caption": "body weights of grip: the most a full circle asks for"
-  },
-  {
-    "id": "t3",
-    "category": 2,
-    "when": "10-29 05:18",
-    "title": "Lab 1: four search engines",
-    "text": "Greedy, beam, A* and exhaustive search run on the real simulator.",
-    "kind": "picture",
-    "image": "../assets/thumbs/lab-search.webp"
-  },
-  {
-    "id": "t4",
-    "category": 2,
-    "when": "11-03 14:36",
-    "title": "The fork course",
-    "text": "Two lanes over one picture: a bench lane and a pole-and-bulb lane.",
-    "kind": "picture",
-    "image": "../assets/thumbs/fork-bench-bulb.webp"
-  },
-  {
-    "id": "t5",
-    "category": 2,
-    "when": "11-04 16:05",
-    "title": "Lab 18: World Slicer",
-    "text": "From a map to a lane, with the simulator trying it.",
-    "kind": "picture",
-    "image": "../assets/thumbs/lab-slicer.webp"
-  },
-  {
-    "id": "u1",
-    "category": 3,
-    "when": "10-29 18:46",
-    "title": "A warmer Dojo",
-    "text": "A warm light look, four steps and one graph.",
-    "kind": "text"
-  },
-  {
-    "id": "u2",
-    "category": 3,
-    "when": "10-31 15:05",
-    "title": "Make your own, in five steps",
-    "text": "Photo, Mark, Segment, Choose, Make.",
-    "kind": "picture",
-    "image": "timeline/stepper-mark.jpg"
-  },
-  {
-    "id": "u3",
-    "category": 3,
-    "when": "11-01 17:52",
-    "title": "A clearer cut slider",
-    "text": "It now says: Hide everything below this height.",
-    "kind": "text"
-  },
-  {
-    "id": "u4",
-    "category": 3,
-    "when": "11-03 01:44",
-    "title": "A new sound for the Dojo and Labs",
-    "text": "A xylophone cave loop, made by us, replaced a track we could not use.",
-    "kind": "picture",
-    "wave": [
-      0.24,
-      0.19,
-      0.15,
-      0.21,
-      0.15,
-      0.15,
-      0.14,
-      0.17,
-      0.17,
-      0.17,
-      0.2,
-      0.17,
-      0.19,
-      0.17,
-      0.17,
-      0.19,
-      0.21,
-      0.14,
-      0.1,
-      0.11,
-      0.07,
-      0.06,
-      0.08,
-      0.08,
-      0.08,
-      0.08,
-      0.1,
-      0.15,
-      0.15,
-      0.23,
-      0.19,
-      0.2,
-      0.16,
-      0.16,
-      0.16,
-      0.19,
-      0.16,
-      0.18,
-      0.18,
-      0.18,
-      0.16,
-      0.19,
-      0.17,
-      0.17,
-      0.18,
-      0.18,
-      0.2,
-      0.19
-    ]
-  },
-  {
-    "id": "u5",
-    "category": 3,
-    "when": "11-04 23:18",
-    "title": "A calmer code map",
-    "text": "Thinner edges and a slider that hides small groups.",
-    "kind": "text"
-  },
-  {
-    "id": "b1",
+    "id": "c4-04",
     "category": 4,
     "when": "10-28 16:14",
-    "title": "The vault teleport",
-    "text": "The runner jumped in a blink. Now position and speed stay smooth every tick.",
+    "title": "No teleport in the vault",
+    "text": "The vault now moves smoothly every tick. 36 test cases watch for jumps.",
     "kind": "stat",
-    "stat": "36",
-    "caption": "vault cases tested for no teleport"
+    "stat": {
+      "n": "36",
+      "caption": "vault cases tested"
+    },
+    "commit": "15556587"
   },
   {
-    "id": "b2",
+    "id": "c3-04",
+    "category": 3,
+    "when": "10-28 20:02",
+    "title": "40 editor buttons became 8",
+    "text": "One top bar, one Add piece menu, one More menu. The editor stopped feeling crowded.",
+    "kind": "stat",
+    "stat": {
+      "n": "8",
+      "caption": "controls, down from 40 buttons"
+    },
+    "commit": "8e6b860a"
+  },
+  {
+    "id": "x-07",
+    "category": 3,
+    "when": "10-28 20:34",
+    "title": "Courses screen gets pictures",
+    "text": "The Courses screen shows a picture card for every world.",
+    "kind": "text",
+    "commit": "59e61259",
+    "image": "timeline/courses-screen.png"
+  },
+  {
+    "id": "c4-05",
     "category": 4,
-    "when": "10-29 22:51",
-    "title": "The ghost hid the player",
-    "text": "The ghost covered the player's colours, so it is now drawn behind.",
-    "kind": "text"
+    "when": "10-28 22:21",
+    "title": "Early roll presses ignored",
+    "text": "Pressing X too soon used to count. Now only the last 0.15 s before landing does.",
+    "kind": "text",
+    "commit": "a1c2d200"
   },
   {
-    "id": "b3",
-    "category": 4,
-    "when": "11-03 18:36",
-    "title": "A key clash",
-    "text": "T was the right hand on the bars, so the Dojo key moved to L.",
-    "kind": "text"
-  },
-  {
-    "id": "b4",
-    "category": 4,
-    "when": "11-03 19:41",
-    "title": "Floor in the gaps",
-    "text": "The fork course had floor between the benches. Now there are pits.",
-    "kind": "picture",
-    "image": "timeline/fork-pits.jpg"
-  },
-  {
-    "id": "b5",
-    "category": 4,
-    "when": "10-29 07:17",
-    "title": "Repeated pictures in a clip",
-    "text": "The proof clip now takes every frame and checks for repeats.",
-    "kind": "text"
-  },
-  {
-    "id": "p1",
+    "id": "c5-03",
     "category": 5,
-    "when": "10-26 22:08",
-    "title": "Faces masked first",
-    "text": "Faces are hidden before any motion is read from the first clips.",
-    "kind": "text"
+    "when": "10-28 22:40",
+    "title": "Street photos only if people-free",
+    "text": "Live street photos show only when the check finds nobody in them.",
+    "kind": "diagram",
+    "commit": "1ecfd085"
   },
   {
-    "id": "p2",
+    "id": "c2-07",
+    "category": 2,
+    "when": "10-29 02:44",
+    "title": "Ghost replays the ideal run",
+    "text": "A see-through runner repeats the best run on the same clock. A gap in words shows how far behind you are.",
+    "kind": "picture",
+    "image": "timeline/ghost-vault-sheet.jpg",
+    "commit": "5e13c736"
+  },
+  {
+    "id": "c2-08",
+    "category": 2,
+    "when": "10-29 03:32",
+    "title": "Captured vault and climb ship",
+    "text": "Two real filmed moves pass the gate and play in the game. Run, leap and hang come from motion-capture files.",
+    "kind": "text",
+    "model": "SAM 3D Body",
+    "commit": "528d3e63"
+  },
+  {
+    "id": "c5-04",
+    "category": 5,
+    "when": "10-29 04:43",
+    "title": "Unsafe photos are rejected",
+    "text": "If hiding people fails, the photo is thrown out. Masked copies are never stored.",
+    "kind": "stat",
+    "stat": {
+      "n": "65",
+      "caption": "Edinburgh photos kept"
+    },
+    "commit": "720bdbca"
+  },
+  {
+    "id": "x-12",
+    "category": 1,
+    "when": "10-29 05:24",
+    "title": "Labs: the first Lab page",
+    "text": "Labs let you try the ideas yourself. Lab 1 is Search, with the simulator as the test bed.",
+    "kind": "text",
+    "commit": "11e97984",
+    "image": "timeline/labs-screen.png"
+  },
+  {
+    "id": "c1-14",
+    "category": 1,
+    "when": "10-29 06:25",
+    "title": "Muse Wonder reviews the simulator",
+    "text": "It checked 21 claims about our physics. 13 were real, 2 were fixed.",
+    "kind": "stat",
+    "stat": {
+      "n": "21",
+      "caption": "claims checked"
+    },
+    "model": "Muse Wonder",
+    "commit": "5cc67132"
+  },
+  {
+    "id": "c4-06",
+    "category": 4,
+    "when": "10-29 06:25",
+    "title": "Muse Wonder reviews the simulator",
+    "text": "It made 21 claims. 13 were real bugs, 7 false alarms, 1 unclear. Two fixed at once.",
+    "kind": "stat",
+    "stat": {
+      "n": "13",
+      "caption": "real findings of 21 claims"
+    },
+    "model": "Muse Wonder",
+    "commit": "5cc67132"
+  },
+  {
+    "id": "c1-15",
+    "category": 1,
+    "when": "10-29 06:26",
+    "title": "MusicGen writes the first music",
+    "text": "Five original loops, one for each screen. Made from text prompts.",
+    "kind": "text",
+    "model": "Meta MusicGen",
+    "commit": "607368ed"
+  },
+  {
+    "id": "c6-08",
+    "category": 6,
+    "when": "10-29 06:26",
+    "title": "Music loops from MusicGen",
+    "text": "Five original loops, one per screen, were made by MusicGen on a Modal GPU.",
+    "kind": "text",
+    "model": "Meta MusicGen",
+    "plate": "Modal",
+    "commit": "607368ed"
+  },
+  {
+    "id": "c6-09",
+    "category": 6,
+    "when": "10-29 13:44",
+    "title": "Muse Spark Open checks uploads",
+    "text": "Baseten answers ok, review or block for each uploaded photo. Errors count as review.",
+    "kind": "text",
+    "model": "Muse Spark Open",
+    "plate": "Baseten",
+    "commit": "36d1058f"
+  },
+  {
+    "id": "c3-06",
+    "category": 3,
+    "when": "10-29 18:46",
+    "title": "Dojo gets a new look",
+    "text": "Warm light theme, four steps and one graph. Press T to open the course picker.",
+    "kind": "picture",
+    "image": "timeline/cc-146-dojo-swing-round.png",
+    "commit": "6d0378e2"
+  },
+  {
+    "id": "x-04",
+    "category": 5,
+    "when": "10-29 21:05",
+    "title": "Server replays your run",
+    "text": "The simulator runs again on the server to check a run. Real clears are far under its time limit.",
+    "kind": "text",
+    "commit": "7b7364c5"
+  },
+  {
+    "id": "c3-08",
+    "category": 3,
+    "when": "10-29 23:21",
+    "title": "Course music loops smoothly",
+    "text": "MusicGen music cut to 5 whole bars at 140 bpm. The tail fades into the start.",
+    "kind": "stat",
+    "stat": {
+      "n": "8.57 s",
+      "caption": "seamless music loop"
+    },
+    "model": "Meta MusicGen",
+    "commit": "30e74044"
+  },
+  {
+    "id": "x-03",
+    "category": 4,
+    "when": "10-29 23:39",
+    "title": "Simulator trial counts fixed",
+    "text": "The ideal-run search now counts the run-in to the bars, so the simulator tries the right plans.",
+    "kind": "text",
+    "commit": "5349c33d"
+  },
+  {
+    "id": "c2-09",
+    "category": 2,
+    "when": "10-30 03:22",
+    "title": "Forks get an ideal run each",
+    "text": "A course can split into two routes. The search proves a best run for both.",
+    "kind": "text",
+    "commit": "aac22c55"
+  },
+  {
+    "id": "c1-16",
+    "category": 1,
+    "when": "10-30 03:30",
+    "title": "Photo to 3D object, for everyone",
+    "text": "Players can turn a photo into a piece online. With limits and a safety check.",
+    "kind": "text",
+    "model": "SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "99fcccc9"
+  },
+  {
+    "id": "c6-11",
+    "category": 6,
+    "when": "10-30 03:30",
+    "title": "Player photos reach Modal",
+    "text": "Submit and status routes send a photo to the Modal lift, with limits and a safety check first.",
+    "kind": "diagram",
+    "model": "SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "99fcccc9"
+  },
+  {
+    "id": "c4-10",
+    "category": 4,
+    "when": "10-30 04:11",
+    "title": "Skip leak closed on lanes",
+    "text": "A platform could be used without standing on its gate. Now it is solid only after that.",
+    "kind": "text",
+    "commit": "dfa1498e"
+  },
+  {
+    "id": "x-15",
+    "category": 4,
+    "when": "10-30 12:36",
+    "title": "Upload service crash loop fixed",
+    "text": "A setting that sometimes existed made the live upload service crash again and again. It is now always set.",
+    "kind": "text",
+    "commit": "676ca9aa"
+  },
+  {
+    "id": "c6-13",
+    "category": 6,
+    "when": "10-30 12:46",
+    "title": "Live upload checked on preview",
+    "text": "A real photo went through a real Modal lift and was placed with its credit.",
+    "kind": "text",
+    "model": "SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "a512e4fc"
+  },
+  {
+    "id": "c5-05",
     "category": 5,
     "when": "10-30 14:38",
-    "title": "No personal details in the repo",
-    "text": "A rule and an automatic check keep them out.",
-    "kind": "text"
+    "title": "A robot checks for personal details",
+    "text": "A test hunts for emails, home folders and addresses before anything is shared.",
+    "kind": "text",
+    "commit": "65f02eab"
   },
   {
-    "id": "p3",
+    "id": "c5-06",
+    "category": 5,
+    "when": "10-30 17:01",
+    "title": "Privacy check also reads pictures",
+    "text": "It now looks inside pictures for GPS spots and serial numbers, and in commit messages.",
+    "kind": "text",
+    "commit": "612f6add"
+  },
+  {
+    "id": "c3-09",
+    "category": 3,
+    "when": "10-30 19:47",
+    "title": "Leaderboard of verified runs",
+    "text": "Players get a tag and a personal best. Only checked runs are listed.",
+    "kind": "picture",
+    "image": "timeline/cc-108-board-podium-1280.png",
+    "commit": "21eb1473"
+  },
+  {
+    "id": "c5-07",
+    "category": 5,
+    "when": "10-30 19:59",
+    "title": "Players keyed by a one-way code",
+    "text": "The server keeps a scrambled code, not your address.",
+    "kind": "diagram",
+    "commit": "8feafc3d"
+  },
+  {
+    "id": "c3-10",
+    "category": 3,
+    "when": "10-30 22:17",
+    "title": "World stats on the picker",
+    "text": "The course picker shows players and runs in the last 24 hours.",
+    "kind": "picture",
+    "image": "timeline/cc-108-world-strip.png",
+    "commit": "8ca98b3c"
+  },
+  {
+    "id": "c2-11",
+    "category": 2,
+    "when": "10-31 07:15",
+    "title": "Rope: hold E to stay on",
+    "text": "Catching and releasing a rope now follows the key. The ideal run and all golden traces were rebuilt.",
+    "kind": "text",
+    "commit": "b92b24ee"
+  },
+  {
+    "id": "c5-08",
+    "category": 5,
+    "when": "10-31 12:59",
+    "title": "On the board only if you click",
+    "text": "A run is public only when you press Publish. Unpublished runs keep no name.",
+    "kind": "picture",
+    "image": "timeline/cc-108-name-box.png",
+    "commit": "b5326a5f"
+  },
+  {
+    "id": "x-10",
+    "category": 3,
+    "when": "10-31 13:45",
+    "title": "Community is one flow",
+    "text": "The Community screen gets tabs, then one stepper: Photo, Mark, Segment, Choose, Make.",
+    "kind": "text",
+    "commit": "73e4d8fa",
+    "image": "timeline/community-screen.png"
+  },
+  {
+    "id": "x-06",
+    "category": 1,
+    "when": "10-31 14:54",
+    "title": "Home screen: the welcome park",
+    "text": "The Home screen opens on a 3D park, two Rookies and four doors into the game.",
+    "kind": "text",
+    "commit": "2df783d4"
+  },
+  {
+    "id": "c1-18",
+    "category": 1,
+    "when": "10-31 17:15",
+    "title": "First Muse Image character",
+    "text": "Muse Image draws a character that becomes playable. Eight were tried.",
+    "kind": "text",
+    "model": "Muse Image",
+    "commit": "a93961a2"
+  },
+  {
+    "id": "c6-14",
+    "category": 6,
+    "when": "10-31 17:57",
+    "title": "Modal jobs report real stages",
+    "text": "The progress bar follows the real GPU stages. Limit refusals say how long to wait.",
+    "kind": "text",
+    "plate": "Modal",
+    "commit": "8659a867"
+  },
+  {
+    "id": "c1-19",
+    "category": 1,
+    "when": "10-31 18:13",
+    "title": "Leaderboard opens",
+    "text": "One shared list, top 100, Chase Ghost on every row. Shown on the four listed courses.",
+    "kind": "picture",
+    "image": "timeline/cc-108-board-top100.png",
+    "commit": "fc7bb7a3"
+  },
+  {
+    "id": "c4-13",
+    "category": 4,
+    "when": "10-31 22:15",
+    "title": "Fast cart no longer flies off",
+    "text": "Tall coasters now end in a dead flat run-out, so there is no bump to fly off.",
+    "kind": "picture",
+    "image": "timeline/cc-244-runout-before-after.png",
+    "commit": "421ad1d5"
+  },
+  {
+    "id": "c4-12",
+    "category": 4,
+    "when": "10-31 22:58",
+    "title": "Person-for-scale was off its ring",
+    "text": "A clone kept the old bones, so the figure sat away from its ring. Redrawn right.",
+    "kind": "picture",
+    "image": "timeline/cc-96-person-before-after.png",
+    "commit": "a435d6c5"
+  },
+  {
+    "id": "c6-15",
+    "category": 6,
+    "when": "10-31 23:47",
+    "title": "Every AI call written down",
+    "text": "One page lists the prompt, input, output and model of each call, plus Baseten cold-start timing.",
+    "kind": "stat",
+    "stat": {
+      "n": "1",
+      "caption": "page for all LLM calls"
+    },
+    "model": "Muse Spark Open",
+    "plate": "Baseten",
+    "commit": "8630e997"
+  },
+  {
+    "id": "c3-11",
+    "category": 3,
+    "when": "10-31 23:58",
+    "title": "Voice badges say who talks",
+    "text": "Every helper wears a badge: Simulator, Course Agent, Cutter and more. You always know who is speaking.",
+    "kind": "text",
+    "commit": "c8f8df89"
+  },
+  {
+    "id": "c2-14",
+    "category": 2,
+    "when": "11-01 00:02",
+    "title": "A character learns the course",
+    "text": "Lab 12 lets a game character learn the trap course. It uses the same simulator as the game.",
+    "kind": "picture",
+    "image": "timeline/lab-rl-alive-hack.png",
+    "commit": "8577fa13"
+  },
+  {
+    "id": "c1-20",
+    "category": 1,
+    "when": "11-01 03:01",
+    "title": "All 12 Labs get one bar",
+    "text": "Every Lab by number and name, with Previous and Next. Labs are on by default.",
+    "kind": "text",
+    "commit": "3babad91"
+  },
+  {
+    "id": "c5-09",
     "category": 5,
     "when": "11-01 05:54",
-    "title": "Street photos, live only",
-    "text": "We use Mapillary's own blur, skip close-ups and never store the pictures.",
-    "kind": "picture",
-    "diagram": "mapillary"
-  },
-  {
-    "id": "p4",
-    "category": 5,
-    "when": "11-01 00:00",
-    "title": "A smaller promise",
-    "text": "Photo to course was cut, so the game asks for less.",
-    "kind": "text"
-  },
-  {
-    "id": "x1",
-    "category": 6,
-    "when": "10-27 04:17",
-    "title": "Rules and linked issues",
-    "text": "CLAUDE.md sets the rules, and every task links to what it needs.",
-    "kind": "text"
-  },
-  {
-    "id": "x2",
-    "category": 6,
-    "when": "10-27 12:05",
-    "title": "One command to ship",
-    "text": "Test, rebase, open a pull request, merge.",
-    "kind": "text",
-    "lines": [
-      "$ ship",
-      "tests ........ ok",
-      "rebase ....... ok",
-      "pull request . opened",
-      "merge ........ done"
-    ]
-  },
-  {
-    "id": "x3",
-    "category": 6,
-    "when": "11-04 23:18",
-    "title": "A map of the whole code",
-    "text": "Every file and how they connect, in groups you can open.",
-    "kind": "picture",
-    "image": "../assets/thumbs/making-code-map.webp"
-  },
-  {
-    "id": "x4",
-    "category": 6,
-    "when": "10-27 to 11-05",
-    "title": "Rented test machines",
-    "text": "Cloud machines ran our tests and renders.",
+    "title": "Mapillary blur plus a size rule",
+    "text": "We trust Mapillary's face blur and also drop photos with a big close-up person.",
     "kind": "stat",
-    "stat": "8",
-    "caption": "cloud machines counted on 11-05, some only short-lived"
+    "stat": {
+      "n": "0.2",
+      "caption": "max person height, share of photo"
+    },
+    "commit": "2f7cebfa"
+  },
+  {
+    "id": "c6-18",
+    "category": 6,
+    "when": "11-01 16:30",
+    "title": "Films recorded on Modal",
+    "text": "One spec file per shot, recorded in real time on Modal machines.",
+    "kind": "text",
+    "plate": "Modal",
+    "commit": "69c62b0d"
+  },
+  {
+    "id": "c3-13",
+    "category": 3,
+    "when": "11-01 18:55",
+    "title": "Character maker names its models",
+    "text": "The badge lists Muse Image, SAM 3.1 and SAM 3D Objects. Players see what built their character.",
+    "kind": "text",
+    "model": "Muse Image",
+    "commit": "977f155b"
+  },
+  {
+    "id": "c4-16",
+    "category": 4,
+    "when": "11-01 20:07",
+    "title": "Slicer and Editor now agree",
+    "text": "Every lane with a path matched in both tools, 844 of 844. Two stale tests fixed.",
+    "kind": "stat",
+    "stat": {
+      "n": "844/844",
+      "caption": "lanes agree"
+    },
+    "commit": "a267f269"
+  },
+  {
+    "id": "c3-14",
+    "category": 3,
+    "when": "11-02 00:19",
+    "title": "Shared links still show welcome",
+    "text": "A link with a ref or analytics flag still opens the welcome screen.",
+    "kind": "text",
+    "commit": "dc076897"
+  },
+  {
+    "id": "x-14",
+    "category": 5,
+    "when": "11-02 13:43",
+    "title": "One shared limit and access check",
+    "text": "Server routes use one request limit and one access check, so no route is left out.",
+    "kind": "text",
+    "commit": "8962ded5"
+  },
+  {
+    "id": "c4-17",
+    "category": 4,
+    "when": "11-02 13:54",
+    "title": "Stale test expectations updated",
+    "text": "Tests still expected old answers after planned changes. Updated and golden hashes regenerated.",
+    "kind": "text",
+    "commit": "7499fef0"
+  },
+  {
+    "id": "c1-22",
+    "category": 1,
+    "when": "11-02 22:23",
+    "title": "Whole world fingerprinted every tick",
+    "text": "Every shipped course is checked tick by tick. A safety net for tidying the code.",
+    "kind": "text",
+    "commit": "731ccb45"
+  },
+  {
+    "id": "c2-16",
+    "category": 2,
+    "when": "11-02 22:23",
+    "title": "Whole world fingerprinted",
+    "text": "Every tick of every shipped course is hashed. Refactors cannot silently change the physics.",
+    "kind": "text",
+    "commit": "731ccb45"
+  },
+  {
+    "id": "c6-20",
+    "category": 6,
+    "when": "11-02 22:23",
+    "title": "Every tick fingerprinted",
+    "text": "A test hashes the whole world after every tick on every shipped course, as a safety net.",
+    "kind": "text",
+    "commit": "731ccb45"
+  },
+  {
+    "id": "c5-12",
+    "category": 5,
+    "when": "11-03 01:23",
+    "title": "MIT code, licence for each asset",
+    "text": "The code is MIT. Every picture, sound and model has its own licence.",
+    "kind": "text",
+    "commit": "3bebc1cf"
+  },
+  {
+    "id": "x-13",
+    "category": 1,
+    "when": "11-03 02:32",
+    "title": "The Making Of opens",
+    "text": "A public section with the site map and the course map, both downloadable.",
+    "kind": "text",
+    "commit": "55829a1c",
+    "image": "timeline/making-of-screen.png"
+  },
+  {
+    "id": "c4-19",
+    "category": 4,
+    "when": "11-03 03:03",
+    "title": "Fix it worker path was wrong",
+    "text": "After the editor split, a path pointed one folder too high. A new test checks every such path.",
+    "kind": "text",
+    "commit": "b234810e"
+  },
+  {
+    "id": "c6-24",
+    "category": 6,
+    "when": "11-03 13:20",
+    "title": "SAM 3 mask back on an L4",
+    "text": "The mask step runs on an L4 and scales down after 60 s to save GPU time.",
+    "kind": "text",
+    "model": "SAM 3",
+    "plate": "Modal",
+    "commit": "0dd2cc7d"
+  },
+  {
+    "id": "c3-15",
+    "category": 3,
+    "when": "11-03 13:45",
+    "title": "Meet the crew",
+    "text": "Ten animated character cards with names. A Make a character button sits beside them.",
+    "kind": "picture",
+    "image": "timeline/cc-243-crew-cards-1280.png",
+    "model": "Muse Image",
+    "commit": "8b0b186f"
+  },
+  {
+    "id": "c1-24",
+    "category": 1,
+    "when": "11-03 16:59",
+    "title": "Same result on every machine",
+    "text": "Node 22, Node 24 and workerd agree on every outcome. A test of the simulator.",
+    "kind": "stat",
+    "stat": {
+      "n": "7,525",
+      "caption": "cross-hardware runs"
+    },
+    "commit": "7c61007b"
+  },
+  {
+    "id": "x-05",
+    "category": 2,
+    "when": "11-03 16:59",
+    "title": "Simulator: 7,525 runs agree",
+    "text": "Different machines gave identical outcomes in 7,525 simulator runs.",
+    "kind": "stat",
+    "stat": {
+      "n": "7,525",
+      "caption": "simulator runs, same result"
+    },
+    "commit": "7c61007b"
+  },
+  {
+    "id": "c2-20",
+    "category": 2,
+    "when": "11-03 17:40",
+    "title": "Ideal run takes the bars",
+    "text": "The search learned the first-rung hang, kip and release. It now clears monkey-bar courses.",
+    "kind": "picture",
+    "image": "timeline/lab-search.png",
+    "commit": "7884985d"
+  },
+  {
+    "id": "c5-13",
+    "category": 5,
+    "when": "11-03 18:22",
+    "title": "SAM 3 does the privacy masking",
+    "text": "The spec now says the privacy mask is SAM 3, running on a small cloud GPU.",
+    "kind": "diagram",
+    "model": "SAM 3",
+    "plate": "Modal",
+    "commit": "6d5d4cca"
+  },
+  {
+    "id": "c5-14",
+    "category": 5,
+    "when": "11-03 18:22",
+    "title": "Safety check results told honestly",
+    "text": "The safety check flagged 37 of 38 bad cases. Child safety is listed as untested.",
+    "kind": "stat",
+    "image": "timeline/cc-120-block-message.png",
+    "stat": {
+      "n": "37 / 38",
+      "caption": "must-flag cases caught"
+    },
+    "commit": "d07b9858"
+  },
+  {
+    "id": "c6-25",
+    "category": 6,
+    "when": "11-03 19:34",
+    "title": "Pipelines table names Modal",
+    "text": "The mask runs on an L4 and the 3D lift on an L40S.",
+    "kind": "text",
+    "model": "SAM 3 and SAM 3D Objects",
+    "plate": "Modal",
+    "commit": "8034ba7b"
+  },
+  {
+    "id": "c3-16",
+    "category": 3,
+    "when": "11-03 22:38",
+    "title": "Twelve real parkour parks, ready",
+    "text": "Pick a real park by region and country. Each one is tied to a mapped area.",
+    "kind": "stat",
+    "stat": {
+      "n": "12",
+      "caption": "ready parkour parks"
+    },
+    "commit": "6f2e044e"
+  },
+  {
+    "id": "c2-21",
+    "category": 2,
+    "when": "11-04 02:21",
+    "title": "Monkey bars from a CC0 lift",
+    "text": "A real photo gives the skin; measured rungs give the physics. A role-first clean-up measures only what is needed.",
+    "kind": "picture",
+    "image": "timeline/monkey-bars-preview-then-lift-input.jpg",
+    "model": "SAM 3D Objects",
+    "commit": "40f48924"
+  },
+  {
+    "id": "c5-15",
+    "category": 5,
+    "when": "11-04 09:26",
+    "title": "Person-checked street photos live",
+    "text": "Street photos show live with credit and licence. We never copy them into the game.",
+    "kind": "diagram",
+    "commit": "7f9c7c67"
+  },
+  {
+    "id": "c1-25",
+    "category": 1,
+    "when": "11-04 15:59",
+    "title": "Lab 16: the system design finale",
+    "text": "Drag blocks into a flow and watch it work or fail. The last Lab.",
+    "kind": "text",
+    "commit": "eaf80b3f"
+  },
+  {
+    "id": "c4-21",
+    "category": 4,
+    "when": "11-04 16:09",
+    "title": "Labs map no longer jumps",
+    "text": "The reason panel has a fixed height, so hovering never moves the map.",
+    "kind": "text",
+    "commit": "6032860e"
+  },
+  {
+    "id": "c2-23",
+    "category": 2,
+    "when": "11-04 16:20",
+    "title": "Lab 19: determinism",
+    "text": "A Lab shows why the same inputs give the same run. It joined the 22 Labs.",
+    "kind": "picture",
+    "image": "timeline/lab-determinism.png",
+    "commit": "3a94434d"
+  },
+  {
+    "id": "c6-27",
+    "category": 6,
+    "when": "11-04 22:17",
+    "title": "Code map snapshot refreshed",
+    "text": "383 communities can be opened one by one, and the README links the map.",
+    "kind": "picture",
+    "image": "timeline/drilldown.png",
+    "stat": {
+      "n": "383",
+      "caption": "code communities"
+    },
+    "commit": "0e05626d"
+  },
+  {
+    "id": "c3-17",
+    "category": 3,
+    "when": "11-04 22:53",
+    "title": "Code map you can read",
+    "text": "Edges are dimmer and keep their width while you zoom. Labels stay easy to read.",
+    "kind": "picture",
+    "image": "timeline/drilldown.png",
+    "commit": "48e6a6a8"
   }
 ]
