@@ -47,7 +47,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   // one switch for the by-move view: on by default, the button flips it, and ?bymove=0 starts with it off
   let byMove = (() => { try { return pageQuery().get('bymove') !== '0' && localStorage.getItem('cc-pb-bymove') !== '0'; } catch { return true; } })();
   const viewBtn = h('button', { class: 'pb-view', type: 'button', id: 'pbbymove' });
-  viewBtn.onclick = () => { byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
+  viewBtn.onclick = () => { if (section !== 'real') { section = 'real'; byMove = true; } else byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
   bar.insertBefore(viewBtn, search);
   let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section | 'shared' | 'mine' = 'real', shown = pieces[0];
   const tabBtn = new Map<Section | 'shared' | 'mine', HTMLButtonElement>();
@@ -93,8 +93,8 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     };
     // the Real objects tab can group its pieces by the move that gets past them (CC-110); the cards stay in the same order for the arrow keys
     const grouped = !q && section === 'real' && byMove;
-    viewBtn.style.display = !q && section === 'real' ? '' : 'none';
-    viewBtn.textContent = byMove ? 'Show all together' : 'Group by move';
+    viewBtn.style.display = !q ? '' : 'none'; // always there beside the tabs (owner 2026-11-05); from another tab it jumps to Real objects, grouped
+    viewBtn.textContent = byMove && section === 'real' ? 'Show all together' : 'Group by move';
     const sharedP = sharedOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'shared pieces'.includes(q));
     // each group shows a dozen at a time, never the whole list; search results from the community store come from the server one page at a time
     const mineShown = mine.slice(0, shownMine), sharedShown = sharedP.slice(0, shownShared);
