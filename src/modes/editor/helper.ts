@@ -17,6 +17,9 @@ import { parseReply, worldBrief } from '../../slice/designer';
 import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../../slice/preview';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
 import { closeShortcut } from '../../slice/shortcut-close';
+import { easierWorkers } from './easier-workers';
+import { easierProgress } from './easier-progress';
+import { flag } from '../../flags';
 import { makeItEasier } from '../../slice/easier';
 import { el } from './dom';
 import type { Tools } from './tools';
@@ -85,6 +88,7 @@ export function createHelper(env: HelperEnv) {
   }
   findRoutesBtn.onclick = lookForRoutes;
   function closeRoute(s: Shortcut) {
+    cancelEasier();
     reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     setTimeout(() => {
       const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, r = closeShortcut(ed.pieces as P[], now, s);
@@ -139,6 +143,7 @@ export function createHelper(env: HelperEnv) {
     return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
+    cancelEasier();
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Working it out…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(async () => {
@@ -157,22 +162,59 @@ export function createHelper(env: HelperEnv) {
       showProposal(prop);
     }, 30);
   }
-  // Make it easier: the simulator knows the lane clears, but the hardest press is narrow; try the smallest changes near the obstacle and show the first that widens it
-  function runEasier() {
+  let easierSession: { cancel: () => void } | null = null;
+  function cancelEasier(message?: string) {
+    easierSession?.cancel(); easierSession = null;
+    document.documentElement.dataset.easierRunning = '';
+    if (message) { reply.className = 'reply muted'; reply.textContent = message; }
+  }
+  async function runEasier() {
+    cancelEasier(); closePreview();
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
-    reply.className = 'reply'; reply.textContent = 'Looking for the smallest change that makes the hardest press easier… (up to ' + (ed.pieces.some(isHold) ? '2 minutes' : '40 seconds') + ')';
-    setTimeout(async () => {
-      const c0 = courseNow(), lane = { angle: ed.angle, offset: ed.offset, level: ed.level };
-      const at = ed.pieces.find((q) => q.id === ed.selected);
+    const pool = easierWorkers(2), signal = { cancelled: false };
+    const session = { cancel: () => { signal.cancelled = true; pool.cancel(); } }; easierSession = session;
+    document.documentElement.dataset.easierRunning = '1';
+    reply.className = 'reply';
+    const c0 = courseNow(), lane = { angle: ed.angle, offset: ed.offset, level: ed.level };
+    const pieces = ed.pieces.map((p) => ({ ...p }));
+    const visible = flag('easierview') === '1' || (import.meta.env.DEV && flag('easierview') !== '0');
+    const progress = visible ? easierProgress(reply, c0, () => cancelEasier('Search cancelled. Nothing changed.')) : null;
+    if (!progress) {
+      reply.replaceChildren();
+      el('div', reply, { text: 'Trying small changes with the simulator…', id: 'easierstatus' });
+      el('button', reply, { text: 'Cancel search', id: 'canceleasier' }).onclick = () => cancelEasier('Search cancelled. Nothing changed.');
+    }
+    try {
+      const at = pieces.find((q) => q.id === ed.selected);
       const x = at ? xOfPiece(at, c0) : handoff?.x ?? c0.startX;
-      const r = await makeItEasier(ed.pieces, lane, x, { courseOf: courseFor, xOf: (q) => xOfPiece(q, c0) }, undefined, (n, total) => { reply.textContent = `Trying change ${n} of ${total}…`; });
+      const r = await makeItEasier(pieces, lane, x, {
+        courseOf: courseFor, xOf: (q) => xOfPiece(q, c0),
+        search: async (course) => {
+          const cached = previewSearch.proofFor(course); if (cached && (!cached.cleared || cached.timingWindows || (!course.holds?.length && !course.bars?.length && !course.trebuchet && !course.band && !course.recoil && !course.drone))) return cached;
+          const proof = await pool.search(course);
+          if (signal.cancelled) throw new Error('cancelled');
+          previewSearch.rememberProof(course, proof); return proof;
+        },
+      }, undefined, (n, total) => {
+        const status = document.getElementById('easierstatus');
+        if (status && !visible) status.textContent = `Trying change ${n} of ${total}…`;
+      }, { concurrency: 2, targetLimiting: true, signal, onCandidate: (p) => progress?.update(p) });
+      if (signal.cancelled) return;
+      if (JSON.stringify(searchInput(courseNow())) !== JSON.stringify(searchInput(c0))) { cancelEasier('The layout changed, so the search was cancelled.'); return; }
       document.documentElement.dataset.easier = r.proposal ? '1' : '0';
       if (!r.proposal) { reply.className = 'reply muted'; reply.textContent = r.note; return; }
-      ed.leadText = '';
-      showProposal(r.proposal);
-    }, 30);
+      // The winner can be older than the bounded cache. Keep its complete proof immediately before preview.
+      if (r.course && r.proof) previewSearch.rememberProof(r.course, r.proof);
+      ed.leadText = ''; showProposal(r.proposal);
+    } catch (error) {
+      if (!signal.cancelled) { reply.className = 'reply bad'; reply.textContent = error instanceof Error ? error.message : 'The simulator could not finish. Try again.'; }
+    } finally {
+      pool.cancel();
+      if (easierSession === session) { easierSession = null; document.documentElement.dataset.easierRunning = ''; }
+    }
   }
   function showProposal(pr: Proposal) {
+    cancelEasier();
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     ed.proposal = pr;
     renderProposal(); updatePreview();
@@ -269,6 +311,7 @@ export function createHelper(env: HelperEnv) {
     }
   }
   async function askPartner(text: string) {
+    cancelEasier();
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Thinking…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
@@ -292,9 +335,15 @@ export function createHelper(env: HelperEnv) {
   whatBtn.onclick = () => void askPartner(ed.verdict.startsWith('The simulator can clear') ? 'The lane clears. Suggest one change that makes it more interesting to run.' : 'The lane does not clear. What should I change?');
   // the editor calls this after every change: a verdict of "cannot" is old now, and an open preview no longer fits
   const onChanged = () => {
+    if (easierSession) cancelEasier('The layout changed, so the search was cancelled.');
     if (reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }
     if (ed.proposal) closePreview('The layout changed, so the preview was closed.');
   };
+  // Some lane/device controls draw live and verify on release without calling changed().
+  const editInput = (event: Event) => { if (event.target instanceof Node && !helper.contains(event.target)) onChanged(); };
+  root.addEventListener('input', editInput); root.addEventListener('change', editInput);
+  const removal = new MutationObserver(() => { if (!helper.isConnected) { cancelEasier(); removal.disconnect(); } });
+  removal.observe(document.body, { childList: true, subtree: true });
   return { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runFix, runEasier, showProposal, closePreview, ghostData, onChanged };
 }
 export type Helper = ReturnType<typeof createHelper>;

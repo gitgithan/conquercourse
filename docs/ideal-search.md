@@ -4,6 +4,15 @@
 - Every number below comes from a repo file, or from the code itself (a count of trials a loop makes).
 - Anything we did not measure says "not measured".
 
+## Make it easier implementation update (2026-11-04)
+
+- Make it easier now reuses complete exact-course proofs, retains the winner, evaluates candidates off the UI thread and supports cancellation.
+- Optional candidate cards show the layouts being tried and their simulator verdicts.
+- Candidate order follows the limiting measured obstacle, then edit cost.
+- The [before/after and dependency diagrams](easier-search.md) explain what each change unblocks.
+- The [local benchmark and prefix investigation](../data/eval/easier-search/README.md) compare candidate workers with the existing timing-trial pool.
+- The investigation below is historical; its repeated-search findings describe the earlier implementation.
+
 ## Editor proof handoff update (2026-11-04)
 - Preview and the main editor now share complete results for the same search input.
 - Apply and Play reuse a preview's successful run without another ideal-run search.

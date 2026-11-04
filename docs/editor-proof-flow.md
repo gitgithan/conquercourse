@@ -99,3 +99,11 @@ flowchart LR
 
 - [Live run record](../data/eval/partner-proof-handoff/README.md) records the two real model calls and their validation results.
 - Screenshots: [checking](evidence/partner-proof/checking.jpg), [verified](evidence/partner-proof/verified.jpg), [applied](evidence/partner-proof/applied.jpg).
+
+## Make it easier proof source
+
+- The current lane proof includes full `timingWindows` for selecting the hardest obstacle, alongside the filtered positional `windows` used by the drawing.
+- Make it easier reads that proof and evaluates changed courses in cancellable workers.
+- The winner's complete proof is inserted into the same cache used by Preview, Apply and Play.
+- No additional winner search is needed when the proposed course matches.
+- [Before/after, blockers and measurements](easier-search.md).

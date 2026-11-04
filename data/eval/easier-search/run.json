@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-04",
+  "purpose": "Compare candidate-level parallel search with timing-trial parallel search, and test safe identical-course prefix reuse",
+  "baseRevision": "eb9e5ee6",
+  "command": "npx tsx scripts/bench-easier.ts /tmp/easier-scores.json",
+  "inputs": [
+    "public/assets/demo/lane-2.course.json",
+    "public/assets/demo/lache.course.json",
+    "public/assets/demo/bars.course.json"
+  ],
+  "methods": [
+    "serial TypeScript search",
+    "one bundled candidate worker",
+    "two bundled candidate workers",
+    "two workers in the existing timing-trial pool"
+  ],
+  "repeats": 3,
+  "candidateCount": 8,
+  "methodOrder": "Rotated each repeat",
+  "startup": "Included in each measured worker method; bundles built once per process",
+  "prefixScope": "41 plans on the identical course, differing only in their final jump threshold",
+  "correctness": "Ordered plan/window/verdict hashes for every candidate; complete final-world and event hashes for prefix replay",
+  "paidModelCalls": 0,
+  "rawOutput": "Local temporary benchmark logs; no personal paths or raw logs tracked",
+  "backgroundLoad": "Exploratory local development run: browser QA and typecheck overlapped some samples. Not an isolated performance lab."
+}

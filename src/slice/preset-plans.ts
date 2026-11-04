@@ -6,7 +6,7 @@ import STORED from './preset-plans.json';
 
 // CC-243: the ideal run of each ready-made editor course, found ahead of time (npm run plans:presets) so the editor shows its verdict at once and the Course gets the plan with the hand-off.
 // The key is a hash of the lane's course; a change to a preset, an object or the physics changes it, and tests/preset-plans.test.ts then fails until the plans are made again.
-export interface PresetPlan { key: string; cleared: boolean; plan?: Plan; windows?: Window[]; routes?: Route[]; shortcuts?: Shortcut[] }
+export interface PresetPlan { key: string; cleared: boolean; plan?: Plan; windows?: Window[]; timingWindows?: Window[]; routes?: Route[]; shortcuts?: Shortcut[] }
 
 /** The key of a course for the stored plans: what the search sees (the pieces' course), not where it was cut from. */
 /** The course as the search sees it: where it was cut from, the floor choice and the designed shortcuts do not change the search. */

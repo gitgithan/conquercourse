@@ -1,0 +1,238 @@
+{
+  "date": "2026-11-04",
+  "cpu": "AMD Ryzen 7 PRO 250 w/ Radeon 780M Graphics",
+  "logicalCpus": 16,
+  "node": "v24.20.0",
+  "workers": 2,
+  "repeats": 3,
+  "candidates": 8,
+  "includesStartup": true,
+  "inputs": {
+    "lane-2": {
+      "courseHash": "891a78bfdaf8481a",
+      "editedPlatform": 3,
+      "x0Offsets": [
+        -0.05,
+        -0.1,
+        -0.15000000000000002,
+        -0.2,
+        -0.25,
+        -0.30000000000000004,
+        -0.35000000000000003,
+        -0.4
+      ]
+    },
+    "lache": {
+      "courseHash": "4fa34777dab8cf48",
+      "editedPlatform": 3,
+      "x0Offsets": [
+        -0.05,
+        -0.1,
+        -0.15000000000000002,
+        -0.2,
+        -0.25,
+        -0.30000000000000004,
+        -0.35000000000000003,
+        -0.4
+      ]
+    },
+    "bars": {
+      "courseHash": "e262eb1dbb9563fa",
+      "editedPlatform": 1,
+      "x0Offsets": [
+        -0.05,
+        -0.1,
+        -0.15000000000000002,
+        -0.2,
+        -0.25,
+        -0.30000000000000004,
+        -0.35000000000000003,
+        -0.4
+      ]
+    }
+  },
+  "courses": {
+    "lane-2": {
+      "timings": {
+        "serial": [
+          2036,
+          1827,
+          1995
+        ],
+        "singleWorker": [
+          876,
+          857,
+          829
+        ],
+        "candidateWorkers": [
+          624,
+          614,
+          576
+        ],
+        "timingTrialPool": [
+          644,
+          599,
+          612
+        ]
+      },
+      "medianMs": {
+        "serial": 1995,
+        "singleWorker": 857,
+        "candidateWorkers": 614,
+        "timingTrialPool": 612
+      },
+      "sameAnswers": true,
+      "answerHashes": [
+        "326c98ca840123b7",
+        "32907d24e209402e",
+        "32907d24e209402e",
+        "a4729ddc7e392492",
+        "cf7225cc5ca14fba",
+        "6f2e8df29ec96b0c",
+        "d2f89a756a921f83",
+        "d2f89a756a921f83"
+      ]
+    },
+    "lache": {
+      "timings": {
+        "serial": [
+          8673,
+          10920,
+          9606
+        ],
+        "singleWorker": [
+          2710,
+          3264,
+          2841
+        ],
+        "candidateWorkers": [
+          1776,
+          2150,
+          1950
+        ],
+        "timingTrialPool": [
+          1873,
+          2029,
+          2272
+        ]
+      },
+      "medianMs": {
+        "serial": 9606,
+        "singleWorker": 2841,
+        "candidateWorkers": 1950,
+        "timingTrialPool": 2029
+      },
+      "sameAnswers": true,
+      "answerHashes": [
+        "0878d6f23f1f3d3f",
+        "0878d6f23f1f3d3f",
+        "04f145465dc9a719",
+        "28af661c3228fefb",
+        "1de77b479a25d9f5",
+        "757a9c06f93d021e",
+        "a51c54547215b6a0",
+        "3b1f77b881c9c6f8"
+      ]
+    },
+    "bars": {
+      "timings": {
+        "serial": [
+          38793,
+          38371,
+          44443
+        ],
+        "singleWorker": [
+          11940,
+          12727,
+          12647
+        ],
+        "candidateWorkers": [
+          7394,
+          8252,
+          8382
+        ],
+        "timingTrialPool": [
+          8602,
+          10442,
+          10275
+        ]
+      },
+      "medianMs": {
+        "serial": 38793,
+        "singleWorker": 12647,
+        "candidateWorkers": 8252,
+        "timingTrialPool": 10275
+      },
+      "sameAnswers": true,
+      "answerHashes": [
+        "e350b7f4f80b0abb",
+        "d4270328bc96c066",
+        "40ddce25cb7df477",
+        "1f8cc1d941fdc908",
+        "3103c666042d04ee",
+        "27ba868d0bb34c1f",
+        "27ba868d0bb34c1f",
+        "9bf20e77d323e089"
+      ]
+    }
+  },
+  "prefix": {
+    "lane-2": {
+      "variants": 41,
+      "fullMs": [
+        31,
+        41,
+        44
+      ],
+      "prefixMs": [
+        24,
+        16,
+        12
+      ],
+      "fullMedianMs": 41,
+      "prefixMedianMs": 16,
+      "fullTicks": 19598,
+      "reusedTicks": 5598,
+      "sharedTicks": 350,
+      "exactFullRunMatch": true
+    },
+    "lache": {
+      "variants": 41,
+      "fullMs": [
+        88,
+        98,
+        184
+      ],
+      "prefixMs": [
+        77,
+        75,
+        65
+      ],
+      "fullMedianMs": 98,
+      "prefixMedianMs": 75,
+      "fullTicks": 54489,
+      "reusedTicks": 31009,
+      "sharedTicks": 587,
+      "exactFullRunMatch": true
+    },
+    "bars": {
+      "variants": 41,
+      "fullMs": [
+        145,
+        136,
+        144
+      ],
+      "prefixMs": [
+        184,
+        114,
+        153
+      ],
+      "fullMedianMs": 144,
+      "prefixMedianMs": 153,
+      "fullTicks": 50639,
+      "reusedTicks": 44319,
+      "sharedTicks": 158,
+      "exactFullRunMatch": true
+    }
+  }
+}
