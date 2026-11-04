@@ -1,0 +1,153 @@
+{
+  "res": {
+    "home": {
+      "title": "ConquerCourse",
+      "buttons": [
+        "Courses",
+        "Dojo (L)",
+        "Ideal run (I)",
+        "Edit this course",
+        "Whole course (Shift+I)",
+        "Customize background",
+        "Characters",
+        "Rotate Camera (C)",
+        "Debug (B)",
+        "▾ Fastest runs",
+        "Today",
+        "This week"
+      ]
+    },
+    "training-run": {
+      "endScreen": true,
+      "secs": 50,
+      "fastestCardMidRun": null,
+      "fastestCardAtEnd": null,
+      "cardTopRightMidRun": false,
+      "cardVisibleAtEnd": false,
+      "reportText": "Looking ahead (F) Time of day Morning Noon Golden hour Dusk Courses Drums (G) A big drop is coming: hold X as you land to roll Firm landing. Time 34.7 s · 223 m of 223 m You made it! Press R to run it again. You made it in 34.0 s. ━ You Icons: where you jumped, vaulted, climbed, grabbed or rolled Yo",
+      "leaderboardCalls": [
+        [
+          "/api/course-stats GET",
+          200
+        ],
+        [
+          "/api/course-event POST",
+          200
+        ]
+      ]
+    },
+    "volume": {
+      "buttons": [
+        "soundbutton|Sound: on (M)|true|1130,676|🔊",
+        "music-button|Music is on, press to turn off (M)|true|10,616|",
+        "cc-feedback-btn|null|null|1166,675|Feedback"
+      ],
+      "click": {
+        "s0": "Music is on, press to turn off (M)",
+        "p0": "true",
+        "s1": "Music is off, press to turn on (M)",
+        "p1": "false"
+      },
+      "mKeyRestores": true,
+      "toggledByClick": true
+    },
+    "music": {
+      "files": [
+        "course.ogg:200"
+      ],
+      "storedMusicAfterLoad": null,
+      "pathBeforeClick": "autoplay",
+      "pathAfterClick": "none",
+      "dataMusic": "none"
+    },
+    "courses-overlay": {
+      "cards": [
+        "Courses",
+        "Training course: every move",
+        "Cannonballs: slip between the shots",
+        "Two ways: swing high or drop low",
+        "First course: the basicsYou are here",
+        "Cannon: aim it, fire it, roll out of the landing",
+        "Make me a new course (random)",
+        "Dojo: Cannon: the best angle",
+        "Course map"
+      ],
+      "urlAfterPick": "/?welcome=0",
+      "fastestRunsVisible": true,
+      "leaderboardRequests": [
+        "/api/leaderboard?course=default%2Ffirst&hash=rja576&window=day&me=ID",
+        "/api/leaderboard?recent=1"
+      ],
+      "leaderboardRead": {
+        "status": 200,
+        "body": "{\"course\":\"default/first\",\"window\":\"day\",\"top\":[],\"players\":0,\"mine\":null,\"resetAt\":1793836800000,\"previous\":null}"
+      }
+    }
+  },
+  "log": {
+    "home": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/course-event POST": 200,
+        "/api/leaderboard GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/challenge-course GET": 200,
+        "/api/course-stats GET": 200,
+        "/api/world-stats GET": 200,
+        "/api/daily-stats GET": 200
+      }
+    },
+    "training": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/challenge-course GET": 200,
+        "/api/course-stats GET": 200,
+        "/api/course-event POST": 200,
+        "/api/world-stats GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/daily-stats GET": 200
+      }
+    },
+    "volume": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/leaderboard GET": 200,
+        "/api/course-stats GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/challenge-course GET": 200,
+        "/api/world-stats GET": 200,
+        "/api/course-event POST": 200,
+        "/api/daily-stats GET": 200
+      }
+    },
+    "music": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/course-stats GET": 200,
+        "/api/course-event POST": 200,
+        "/api/challenge-course GET": 200,
+        "/api/leaderboard GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/world-stats GET": 200,
+        "/api/daily-stats GET": 200
+      }
+    },
+    "courses": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/course-event POST": 200,
+        "/api/leaderboard GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/challenge-course GET": 200,
+        "/api/course-stats GET": 200,
+        "/api/world-stats GET": 200,
+        "/api/daily-stats GET": 200
+      }
+    }
+  }
+}

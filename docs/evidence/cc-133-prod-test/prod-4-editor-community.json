@@ -1,0 +1,94 @@
+{
+  "res": {
+    "editor": {
+      "topPlanButton": "Top plan -> 3D view",
+      "addPiecesBenchVisible": false,
+      "movesText": "button visible",
+      "movesPanel": "moves visible=true",
+      "improveMenuVisible": true
+    },
+    "community": {
+      "tabs": [
+        "Explore",
+        "Make your own"
+      ],
+      "explore": "Community Explore Make your own Now make your own Start with a photo of a place you know. The finder outlines the things in it, you click the one you want, and it becomes a 3D piece you can place in the World Editor. Courses are made in the World Slicer and th",
+      "imagesLoaded": "6/6",
+      "makeOwnText": "Community Explore Make your own 1. Photo 2. Pick 3. Make Step 1. Pick a photo A photo of a place you know: a park, a street, a playground. People in it are blurred, and the photo is not kept on our side. Or try one of ours:",
+      "samples": 4,
+      "afterSample": "Community Explore Make your own 1. Photo 2. Pick 3. Make Step 2. Pick the things Cutter Powered by SAM 3 The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. When the outlines show up, you click the one you want. If the thing you want is not outline",
+      "buttons": [
+        "tab-explore|Explore",
+        "tab-make|Make your own",
+        "step-photo|1. Photo",
+        "step-segment|2. Pick",
+        "step-make|3. Make",
+        "cseg|Segment Objects",
+        "cmark|Mark it yourself",
+        "cback|Back",
+        "cnext|Next: Make"
+      ]
+    },
+    "segment-once": {
+      "markZone": true,
+      "afterDraw": "Community Explore Make your own 1. Photo 2. Pick 3. Make Step 2. Pick the things Cutter Powered by SAM 3 The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. When the outlines show up, you click the one you want. If the thing you want is not outline",
+      "buttons": [
+        "tab-explore|Explore",
+        "tab-make|Make your own",
+        "step-photo|1. Photo",
+        "step-segment|2. Pick",
+        "step-make|3. Make",
+        "cseg|Segment Objects",
+        "cmark|Mark it yourself",
+        "|bar",
+        "|bench",
+        "|pole",
+        "|other",
+        "markuse|Use this box",
+        "markredo|Draw it again",
+        "markcancel|Cancel",
+        "cback|Back",
+        "cnext|Next: Make"
+      ],
+      "segmentRequests": [],
+      "segmentCalls": [],
+      "messages": [
+        "The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. When the outlines show up, you click the one you want. If the thing you want is not outlined, press Mark it yourself and drag a box round it. It usually takes under a minute; the first one after a quiet spell can take a bit longer.",
+        "Cutting out your bench. Nothing is made yet."
+      ],
+      "turnstileFrame": false
+    }
+  },
+  "log": {
+    "editor": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/funnel-event POST": 200,
+        "/api/community-items GET": 200
+      }
+    },
+    "community": {
+      "errors": [
+        "console: %c%d font-size:0;color:transparent NaN",
+        "console: %c%d font-size:0;color:transparent NaN",
+        "console: %c%o font-size:0;color:transparent {}",
+        "console: %c%o font-size:0;color:transparent {}",
+        "console: Connecting to 'data:,' violates the following Content Security Policy directive: \"connect-src 'self' https://hagen.challenges.cloudflare.com",
+        "console: Connecting to 'data:,' violates the following Content Security Policy directive: \"connect-src 'self' https://hagen.challenges.cloudflare.com",
+        "console: Connecting to 'data:,' violates the following Content Security Policy directive: \"connect-src 'self' https://hagen.challenges.cloudflare.com",
+        "console: Fetch API cannot load data:,. Refused to connect because it violates the document's Content Security Policy."
+      ],
+      "bad": [
+        "FAILED https://brunhild.challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/i/a5545a8e5e2ff876/Cmubx3y net::ERR_NAME_NOT_RESOLVED",
+        "401 https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/pat/a5545a8e5e2ff876/1793803016311/c371063c3f"
+      ],
+      "api": {
+        "/api/funnel-event POST": 200,
+        "/api/community-items GET": 200,
+        "/api/segment POST": 200,
+        "/api/turnstile-key GET": 200
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "res": {
+    "dojo": {
+      "lessonText": "TRAIN SLOW. RUN FAST. The Dojo T: back to courses Back to the Course Gap jump Start here Warped wall Start here Rope swing Start here Trampoline Start here Land",
+      "sliders": [
+        "knob-speed|2-10=7",
+        "knob-jump|1-8=4.5"
+      ],
+      "textChangedAfterSlider": true,
+      "sliderNow": "8.4"
+    },
+    "labs-ik": {
+      "before": "0.6 How crouched the body is: 0.60",
+      "after": "0.1 How crouched the body is: 0.10",
+      "labelUpdated": true,
+      "canvasChanged": true,
+      "labsPanel": "You can: Drag the bar in the picture, or use the arrow keys. Change the damping, the crouch slider and the joint limits. Press Slide the bar out to the breaking point. You take away: An arm can only reach so far; past its limits the pose breaks, so the game must check it. used in: Video to motion: Clip Back to the game Posing a character Showing our setting, already run. Change a control and press Run to try your own. The goal: put the Rookie's hand on a bar or a ledge, and find the exact place where the pose breaks. Drag the bar in the picture, or use the arrow keys. The arm is solved by the same code the game uses to put hands on a ledge. Your choices Two-bone (the game) Damped least squar",
+      "labLinks": [
+        "?mode=lab-motion&labs=1&welcome=0",
+        "?mode=lab-search&labs=1&welcome=0",
+        "?mode=lab-optimization&labs=1&welcome=0",
+        "?mode=lab-rl&labs=1&welcome=0",
+        "?mode=lab-gentest&labs=1&welcome=0",
+        "?mode=lab-wait&labs=1&welcome=0",
+        "?mode=lab-vision&labs=1&welcome=0",
+        "?mode=lab-camera&labs=1&welcome=0",
+        "?mode=lab-detector&labs=1&welcome=0",
+        "?mode=lab-ik&labs=1&welcome=0",
+        "?mode=lab-integration&labs=1&welcome=0",
+        "?mode=lab-timing&labs=1&welcome=0",
+        "?mode=lab-signal&labs=1&welcome=0",
+        "?mode=lab-hashing&labs=1&welcome=0",
+        "?mode=lab-determinism&labs=1&welcome=0",
+        "?mode=lab-spike&labs=1&welcome=0",
+        "?mode=lab-lift&labs=1&welcome=0",
+        "?mode=lab-collision&labs=1&welcome=0",
+        "?mode=lab-motion&labs=1&welcome=0",
+        "?mode=lab-partner&labs=1&welcome=0",
+        "?mode=lab-slicer&labs=1&welcome=0",
+        "?mode=lab-limits&labs=1&welcome=0",
+        "?mode=lab-systemdesign&labs=1&welcome=0",
+        "?mode=lab-optimization&labs=1&welcome=0",
+        "?mode=lab-vision&labs=1&welcome=0"
+      ]
+    },
+    "another-lab": {
+      "mode": "lab-search",
+      "text": "You can: Move the beam width, the three \"value\" sliders and the budget. Press Run the search, then Play it back. You take away: How you look decides if you find a clear run, and every extra look costs time. Try: Set the beam width to 1, run, then rai",
+      "controls": 5
+    }
+  },
+  "log": {
+    "dojo": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/funnel-event POST": 200
+      }
+    },
+    "lab-ik": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/funnel-event POST": 200
+      }
+    },
+    "lab-other": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/funnel-event POST": 200
+      }
+    }
+  }
+}
