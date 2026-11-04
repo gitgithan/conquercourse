@@ -108,6 +108,7 @@ export function startLabsMap(host: HTMLElement): { backend: 'canvas2d' } {
     #labs-map .edge.uses{stroke:${TEAL}}#labs-map .edge.flow{stroke:${ORANGE};stroke-dasharray:6 4}
     #labs-map svg.focused .dim{opacity:.14}#labs-map svg.focused .edge.hot{opacity:1;stroke-width:3}
     #labs-map svg .node,#labs-map svg .edge{transition:opacity .12s}
+    #labs-map #lmap-says{height:112px;overflow:auto;box-sizing:border-box}
     #labs-map #lmap-says ul{margin:4px 0 0;padding-left:18px}#labs-map #lmap-says i{color:#52605a}
   `;
   root.append(style);
