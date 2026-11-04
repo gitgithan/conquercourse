@@ -28,7 +28,10 @@ async function clipA() {
   await S.rec(3.2); S.mark('progress');
   const msg = () => p.evaluate(() => document.querySelector('#chars .msg')?.textContent ?? '');
   // the wait itself is trimmed: the clock runs, no pictures are taken
-  const ok = await S.until(() => /ready|already made|Could not|too long|Stopped/.test(document.querySelector('#chars .msg')?.textContent ?? ''), 'generation', 900000);
+  const evid = setInterval(() => p.screenshot({ path: `${out}/diag-${Date.now()}.png` }).catch(() => {}), 20000);
+  p.on('console', (m) => /error|warn/.test(m.type()) && console.log('console', m.text().slice(0, 200)));
+  const ok = await S.until(() => /ready|already made|Could not|too long|Stopped/.test(document.querySelector('#chars .msg')?.textContent ?? ''), 'generation', 420000);
+  clearInterval(evid);
   const said = await msg(); console.log('generation said:', said);
   if (!ok || /Could not|too long|Stopped/.test(said)) throw new Error('generation failed: ' + said);
   await S.rec(1.8); S.mark('ready');
