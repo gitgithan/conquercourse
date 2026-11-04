@@ -1,0 +1,34 @@
+{
+  "segment": "scene1",
+  "note": "promo storyboard scene 1: clips 1a (drop a pin), 1b (slice), 1c (cut a height, send to the World Editor)",
+  "url": "/?mode=map&welcome=0&hooks=1&slicehow=0&backend=webgl2&sunat=noon&photodots=1",
+  "placeFile": "public/assets/places/shibuya-tokyo.json",
+  "a": {
+    "clip": "1a-drop-a-pin",
+    "overlay": "Drop a pin anywhere",
+    "startCenter": [-40, 18],
+    "startZoom": 0.9,
+    "endZoom": 16.4,
+    "zoomSecs": 3.4,
+    "glideSecs": 0.7,
+    "photoHold": 1.1,
+    "targetSecs": 3.9
+  },
+  "b": {
+    "clip": "1b-slice-this-place",
+    "overlay": "Slice this place",
+    "zoom": 16,
+    "targetSecs": 2.9
+  },
+  "c": {
+    "clip": "1c-cut-a-height",
+    "overlay": "Cut a height",
+    "zoom": 16,
+    "cutUp": 28,
+    "cutDown": 4,
+    "slideSecs": 1.6,
+    "scrollSecs": 1.2,
+    "editorHold": 1.4,
+    "targetSecs": 7.6
+  }
+}

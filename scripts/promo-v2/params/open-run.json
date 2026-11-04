@@ -1,0 +1,31 @@
+{
+  "segment": "open_run",
+  "note": "scene 0b-0e. Times are FINAL seconds; speed is the retime factor (game seconds per final second).",
+  "url": "/?course=/assets/demo/training.course.json&bot=ideal&ghost=bot&botlag=120&cam=first&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+  "speed": 1.6,
+  "firstSecs": 1.2,
+  "dragStart": 1.4,
+  "angleDeg": 45,
+  "dragSecs": 0.9,
+  "angleHold": 0.35,
+  "backSecs": 0.9,
+  "debugAt": 3.0,
+  "endSecs": 7.6,
+  "overlays": [
+    {
+      "text": "Chase your friend or the ideal run from simulator",
+      "from": 0.0,
+      "to": 1.9
+    },
+    {
+      "text": "Rotate camera (C key or mouse)",
+      "from": 1.9,
+      "to": 3.0
+    },
+    {
+      "text": "Debug view (B) to predict where you land",
+      "from": 3.0,
+      "to": 7.4
+    }
+  ]
+}
