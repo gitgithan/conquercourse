@@ -48,6 +48,19 @@
 - **9.
   - In the simulator:** the row goes into a course like the demo course and the recorded ideal-run keys clear it in 914 ticks.
 
+## Step 10: Skin versus collider
+- **The idea:** a photo becomes a skin (what the player sees), never a collision shape; the collider is a simple shape the simulator can trust (see [lessons](../lessons.md), "The body and obstacles" and "Photos to 3D objects", and [lessons-obstacle-creation](../lessons-obstacle-creation.md)).
+- **The widget:** a real lifted object (skate box, gabion wall or picnic table from `public/assets/objects/`) is drawn side-on with what the ball collides with on top.
+  - One ball is dropped on the left end and pushed to 1.5 m/s along the object at 120 Hz; it is a sphere of 10 cm against triangles.
+  - The same run is played on the lift and on the same photo lifted again (every point moved by up to 5 mm, a seeded draw).
+- **The toggle:** "Collide with the skin" uses every triangle (or a thinner skin from the detail slider); "Collide with the collider" uses a box with each side rounded to the 5 cm cell.
+- **What you see:** snags (the ball is slowed below 85% of its speed on contact), jitter (how much the ball's height bends from tick to tick, in mm), the run hash (1 mm steps) and the cost (triangles x ticks checks).
+- **The detail slider:** fewer triangles cost less but the surface gets lumpier; clustering is a simple vertex-grid merge, so some detail levels bring a new snag.
+- **The challenge:** pick, from five colliders, the one that keeps the run identical.
+  - It must give the same hash on both lifts, the ball must get across, and its top must sit within 3 cm of the skin's top.
+  - Only the box rounded to 5 cm passes: the skin and the thinner skin change with the lift, the tight box moves with every lift, the loose box gives the same run but a top one metre too high.
+- **Code:** `src/labs/collision/skin-collider.ts` (pure, tested) and `src/labs/collision/skin-widget.ts` (the card).
+
 ## Break it
 - **A rung is missed:** one peak is removed; the copied mesh has a double gap, the fitted row is the same 9 rungs.
 - **A rung is split:** one extra peak half way between two rungs.
@@ -70,13 +83,14 @@
 - **Order of the screen and why:** the step picture first, the table of all nine steps next, the comparison after, the simulator last, and the equations behind a button.
 
 ## How we prove the lesson is right
-- `tests/lab-collision.test.ts` (27 tests) pins:
+- `tests/lab-collision.test.ts` (36 tests) pins:
   - the Saienji lift gives 9 rungs, 0.575 m apart, at 2.08 m, and the step-by-step run equals `roleCollider`.
   - 15 rung peaks about 0.29 m apart, which the 0.3 m limit turns into every second rung.
   - the double-gap and half-gap rounding in `regulariseRungs`, and `GAP_MIN` and `GAP_MAX` in `fitRow`.
   - determinism, including the seeded wobble.
   - the break-it cases: a missed rung and a 3 cm wobble (five seeds) leave the fitted row at 9 rungs and 0.575 m; every break leaves the fitted row regular and legal while the copied row is not.
   - the fitted row builds the demo course, the recorded keys clear it, and `searchIdealRun` clears it.
+  - Step 10: a flat box gives a flat run (rests 10 cm radius above the top); the run is deterministic; on every shipped object the skin does not keep the run across a second lift and the 5 cm box does; exactly one of the five colliders passes the challenge; the cost is triangles x ticks.
 - What would make the Lab's claim false: a break that makes the fitted row irregular or illegal (the test loops over all of them), or a step-by-step run that differs from `roleCollider`.
 - Browser check: `scripts/lab-collision-check.mjs` opens the page at 1280 px and fails on a page error or an empty output.
 - Picture: [the Lab at 1280 px](../evidence/cc-133-pipeline-labs/lab-collision.png).
@@ -97,6 +111,12 @@
 - One lift: the other bar photos in `data/eval/bar-photos` are not shown.
 - The recorded keys were found for the unbroken row; a changed row is also tried with a fresh search, which is not run on open.
 - The Lab says nothing about the quality of the lift itself (the 3D model step is the stage before).
+
+- Step 10 limits:
+  - The ball rolls on one middle line and only feels the surface along the run and up; real bodies are wider.
+  - The 5 mm re-lift is a seeded wobble of every point, not a second real model run; a real second lift would also change the shape.
+  - The snapped box only works for box-like objects (a round log or a bench with a backrest are not shown; their skin run does not even get across).
+  - Detail uses vertex clustering, not a quality mesh reducer.
 
 ## How to make the lesson better
 1. Break the mesh, not the peaks: delete a rung's triangles, fuse two with a bridge, add noise to the points, and run the whole chain.
