@@ -1,0 +1,16 @@
+{
+  "segment": "course_run",
+  "replaces": "jump + debug_run (old film: the lifted bench and bulb course run with the debug view)",
+  "url": "/?course=/assets/demo/fork-bench-bulb.course.json&bot=ideal&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+  "sideSecs": 4.4,
+  "angleSecs": 4.4,
+  "frontSecs": 4.4,
+  "hideControls": true,
+  "tags": [
+    {
+      "text": "SAM 3 cut-out + SAM 3D Objects (Meta)",
+      "note": "whole segment: the objects in the run came from the photo lift"
+    }
+  ],
+  "rate": 0.5
+}

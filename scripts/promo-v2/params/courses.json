@@ -1,0 +1,1 @@
+{ "segment": "courses", "replaces": "courses (old film: Courses card scroll)", "url": "/?welcome=0&hooks=1&backend=webgl2&sunat=noon", "holdStart": 0.6, "scrollSecs": 5.0, "holdEnd": 0.4, "fromGroup": "Dojo (", "toGroup": "Labs, Foundations: Search" }

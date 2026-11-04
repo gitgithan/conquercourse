@@ -1,0 +1,117 @@
+<!doctype html><meta charset="utf-8"><title>promo v2 photo lift</title>
+<style>
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#cfd9e6;font-family:system-ui,sans-serif}
+#bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,#eef2f8 0%,#bccadc 70%,#a3b3c9 100%)}
+#photo{position:absolute;transform-origin:0 0;will-change:transform,opacity;box-shadow:0 18px 50px #0005}
+#photo img{display:block;width:100%;height:100%}
+#dim{position:absolute;inset:0;background:#0a1220}
+.box{position:absolute;border:5px solid #ffd23f;box-shadow:0 0 16px #ffd23f99;box-sizing:border-box;opacity:0}
+.tag{position:absolute;background:#ffd23f;color:#222;font-weight:700;padding:2px 12px;border-radius:6px;white-space:nowrap;opacity:0}
+.mask{position:absolute;left:0;top:0;opacity:0;mix-blend-mode:normal}
+.card{position:absolute;overflow:hidden;border:4px solid #fff;border-radius:8px;box-shadow:0 12px 36px #0006;opacity:0;background:#fff}
+.card canvas{position:absolute;left:0;top:0}
+.label{position:absolute;font-weight:700;font-size:34px;color:#1d2a3d;opacity:0;white-space:nowrap;transform:translateX(-50%)}
+#gl{position:absolute;inset:0;pointer-events:none}
+#credit{position:absolute;left:128px;top:896px;font-size:22px;color:#33415a}
+</style>
+<div id="bg"></div>
+<div id="photo"><img id="pimg" src="photo.jpg"><div id="dim" style="opacity:0"></div></div>
+<canvas id="gl" width="1920" height="1080"></canvas>
+<div id="credit">Photo: Jonn Leffmann, Wikimedia Commons, CC BY 3.0. People are blurred before anything else happens.</div>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+const W = 1920, H = 1080, PW = 1280, PH = 655, S = 1.3;
+const PX = (W - PW * S) / 2, PY = 40;
+const OBJ = [
+  { id: 'p1_bench_left', label: 'bench', box: [438, 488, 702, 600], slot: [330, 560, 360, 230] },
+  { id: 'p1_bench_right', label: 'bench', box: [788, 484, 1050, 596], slot: [740, 560, 360, 230] },
+  { id: 'p1_pole', label: 'pole', box: [165, 48, 211, 632], slot: [1090, 540, 150, 440] },
+  { id: 'p1_light_bulbs', label: 'string of light bulbs', box: [0, 70, 1280, 150], slot: [1560, 560, 320, 320] },
+];
+const ease = (x) => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => ease((t - a) / (b - a));
+const mix = (a, b, u) => a + (b - a) * u;
+const photo = document.getElementById('photo'); photo.style.cssText += `left:${PX}px;top:${PY}px;width:${PW * S}px;height:${PH * S}px`;
+const dim = document.getElementById('dim');
+const load = (src) => new Promise((r) => { const i = new Image(); i.onload = () => r(i); i.src = src; });
+const base = await load('photo.jpg');
+for (const o of OBJ) {
+  o.mask = await load(o.id + '-mask.png');
+  const [x0, y0, x1, y1] = o.box; o.bw = x1 - x0; o.bh = y1 - y0;
+  // box + tag on the photo
+  o.boxEl = document.createElement('div'); o.boxEl.className = 'box'; Object.assign(o.boxEl.style, { left: PX + x0 * S + 'px', top: PY + y0 * S + 'px', width: o.bw * S + 'px', height: o.bh * S + 'px' });
+  o.tagEl = document.createElement('div'); o.tagEl.className = 'tag'; o.tagEl.textContent = o.label; o.tagEl.style.cssText += `font-size:28px;left:${PX + x0 * S}px;top:${PY + y1 * S + 8}px`;
+  if (o.id === 'p1_light_bulbs') { o.tagEl.style.top = PY + y0 * S - 46 + 'px'; o.tagEl.style.left = PX + 520 * S + 'px'; }
+  // tinted mask over the whole photo
+  const c = document.createElement('canvas'); c.width = PW; c.height = PH; c.className = 'mask'; c.style.cssText += `left:${PX}px;top:${PY}px;width:${PW * S}px;height:${PH * S}px`;
+  const g = c.getContext('2d'); g.drawImage(o.mask, 0, 0); g.globalCompositeOperation = 'source-in'; g.fillStyle = '#ffd23f'; g.fillRect(0, 0, PW, PH);
+  // grey-scale masks: white = object, black = nothing; turn black into transparent first
+  const d = new ImageData(PW, PH); const m = document.createElement('canvas'); m.width = PW; m.height = PH; const mg = m.getContext('2d'); mg.drawImage(o.mask, 0, 0);
+  const md = mg.getImageData(0, 0, PW, PH).data; for (let i = 0; i < PW * PH; i++) { const v = md[i * 4]; d.data[i * 4] = 255; d.data[i * 4 + 1] = 210; d.data[i * 4 + 2] = 63; d.data[i * 4 + 3] = v > 127 ? 175 : 0; }
+  g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, PW, PH); g.putImageData(d, 0, 0);
+  o.maskEl = c;
+  // card: the cut-out (photo inside the mask), drawn at slot size
+  const [sx, sy, sw, sh] = o.slot; const k = Math.min(sw / o.bw, sh / o.bh); o.cw = o.bw * k; o.ch = o.bh * k;
+  o.card = document.createElement('div'); o.card.className = 'card'; o.card.style.cssText += `width:${o.cw}px;height:${o.ch}px`;
+  const cc = document.createElement('canvas'); cc.width = o.bw; cc.height = o.bh; cc.style.width = o.cw + 'px'; cc.style.height = o.ch + 'px';
+  const cg = cc.getContext('2d'); cg.fillStyle = '#e7ecf3'; cg.fillRect(0, 0, o.bw, o.bh);
+  const tmp = document.createElement('canvas'); tmp.width = o.bw; tmp.height = o.bh; const tg = tmp.getContext('2d'); tg.drawImage(base, x0, y0, o.bw, o.bh, 0, 0, o.bw, o.bh);
+  tg.globalCompositeOperation = 'destination-in'; const mm = document.createElement('canvas'); mm.width = o.bw; mm.height = o.bh; const mmg = mm.getContext('2d'); mmg.drawImage(o.mask, x0, y0, o.bw, o.bh, 0, 0, o.bw, o.bh);
+  const mmd = mmg.getImageData(0, 0, o.bw, o.bh); for (let i = 0; i < o.bw * o.bh; i++) { const v = mmd.data[i * 4]; mmd.data[i * 4 + 3] = v > 127 ? 255 : 0; } mmg.putImageData(mmd, 0, 0);
+  tg.drawImage(mm, 0, 0); cg.drawImage(tmp, 0, 0); o.card.append(cc);
+  o.lab = document.createElement('div'); o.lab.className = 'label'; o.lab.textContent = o.label;
+  document.body.append(o.boxEl, o.tagEl, c, o.card, o.lab);
+}
+// 3D
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), alpha: true, antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H, false); renderer.setClearColor(0, 0);
+const scene = new THREE.Scene(); const FOV = 30, D = 20; const cam = new THREE.PerspectiveCamera(FOV, W / H, 0.1, 100); cam.position.set(0, 0, D);
+const wpp = 2 * D * Math.tan(FOV * Math.PI / 360) / H; // world units per pixel at z = 0
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.6)); const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(4, 8, 10); scene.add(sun);
+const gl = new GLTFLoader();
+for (const o of OBJ) {
+  const g = await gl.loadAsync(o.id + '.glb'); o.pivot = new THREE.Group(); const m = g.scene; o.pivot.add(m);
+  const bb = new THREE.Box3().setFromObject(m); const c = bb.getCenter(new THREE.Vector3()); m.position.sub(c);
+  o.size = bb.getSize(new THREE.Vector3()); scene.add(o.pivot); o.pivot.visible = false;
+}
+const ground = new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshBasicMaterial({ color: 0x1d2a3d, transparent: true, opacity: 0 })); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+function place(o, cx, cy, boxW, boxH, scale, yaw, alpha) { // centre in screen px, fit into boxW x boxH
+  const k = Math.min(boxW / o.size.x, boxH / o.size.y) * wpp * scale; o.pivot.scale.setScalar(k);
+  o.pivot.position.set((cx - W / 2) * wpp, (H / 2 - cy) * wpp, 0); o.pivot.rotation.set(0.12, yaw, 0); o.pivot.visible = alpha > 0.01;
+  o.pivot.traverse((n) => { if (n.material) { n.material.transparent = true; n.material.opacity = alpha; } });
+}
+const dur = 19.2;
+window.__t = (t) => {
+  // photo layer
+  const photoA = 1 - seg(t, 8.0, 9.0);
+  photo.style.opacity = photoA; dim.style.opacity = 0.5 * seg(t, 4.6, 5.4);
+  document.getElementById('credit').style.opacity = photoA;
+  OBJ.forEach((o, i) => {
+    const b0 = 1.0 + i * 0.75, bu = seg(t, b0, b0 + 0.6);
+    o.boxEl.style.opacity = bu * photoA * (1 - seg(t, 4.6, 5.2)); o.tagEl.style.opacity = seg(t, b0 + 0.4, b0 + 0.8) * photoA * (1 - seg(t, 5.8, 6.4));
+    o.boxEl.style.transform = `scale(${mix(1.06, 1, bu)})`; o.boxEl.style.transformOrigin = '50% 50%';
+    o.maskEl.style.opacity = seg(t, 4.6 + i * 0.12, 5.2 + i * 0.12) * photoA * (1 - seg(t, 6.6, 7.4));
+    // card: lifts from its box position to its slot
+    const [sx, sy] = o.slot; const bx = PX + (o.box[0] + o.bw / 2) * S, by = PY + (o.box[1] + o.bh / 2) * S;
+    const u = seg(t, 6.0 + i * 0.15, 7.4 + i * 0.15), sc = mix(S, 1, u);
+    const cw = o.cw, ch = o.ch; const cx = mix(bx, sx, u), cy = mix(by, sy, u);
+    const cardA = seg(t, 5.8 + i * 0.15, 6.2 + i * 0.15) * (1 - seg(t, 8.6, 9.4));
+    o.card.style.opacity = cardA; o.card.style.width = mix(o.bw * S, cw, u) + 'px'; o.card.style.height = mix(o.bh * S, ch, u) + 'px';
+    o.card.firstChild.style.width = mix(o.bw * S, cw, u) + 'px'; o.card.firstChild.style.height = mix(o.bh * S, ch, u) + 'px';
+    o.card.style.left = cx - mix(o.bw * S, cw, u) / 2 + 'px'; o.card.style.top = cy - mix(o.bh * S, ch, u) / 2 + 'px';
+    // model: appears where the card was, turns slowly; bench 0 is the star later
+    let alpha = seg(t, 8.4, 9.4), cxm = sx, cym = sy, bw = o.slot[2], bh = o.slot[3], scl = 1, yaw = (t - 8.4) * 0.5 + i;
+    const star = i === 0;
+    const f = seg(t, 11.0, 12.4); // others leave, star moves to the middle and grows
+    if (star) { cxm = mix(sx, W / 2, f); cym = mix(sy, 520, f); scl = mix(1, 2.3, f); yaw = (t - 8.4) * 0.5 + mix(0, 0, f); if (t > 12.4) yaw = 0.35 + (t - 12.4) / 5.4 * Math.PI * 2; }
+    else alpha *= 1 - f;
+    if (t > 17.4) { const e = seg(t, 17.4, 18.8); if (star) { cxm = mix(W / 2, 330, e); cym = mix(520, 700, e); scl = mix(2.3, 0.9, e); } else { alpha = seg(t, 17.6, 18.6) * e; cxm = sx; cym = mix(700, sy + 140, 1); scl = 0.8; } }
+    place(o, cxm, cym, bw, bh, scl, yaw, alpha);
+    o.lab.style.opacity = (seg(t, 9.0, 9.6) * (1 - f) + (star ? f * (1 - seg(t, 17.4, 18))  : 0)); o.lab.style.left = (star ? cxm : sx) + 'px'; o.lab.style.top = (star ? 880 : sy + o.slot[3] / 2 + 24) + 'px';
+  });
+  renderer.render(scene, cam);
+};
+window.__dur = dur; window.__ready = true; window.__t(0);
+</script>
