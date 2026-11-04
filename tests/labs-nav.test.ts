@@ -48,12 +48,15 @@ describe('labs bar', () => {
     }
     expect(layout.map((t) => t.id)).toEqual(TIERS.map((t) => t.id).filter((id) => layout.some((t) => t.id === id)));
   });
-  it('draws a labelled row per tier, wrapping chips, and sizes the Labs under it with one shared variable', () => {
+  it('is a slim bar (current Lab, Labs button, Previous, Next, Courses) and sizes the Labs under it with one shared variable', () => {
     const src = readFileSync('src/ui/labs-nav.ts', 'utf8');
-    expect(src).toContain("row.className = 'tier'");
-    expect(src).toContain("box.className = 'group'");
-    expect(src).toContain('flex-wrap:wrap');
+    expect(src).toContain("labsBtn.id = 'labs-open'");
+    expect(src).toContain('mountLabsPanel(host');
     expect(src).toContain("'var(--labs-nav-h)'");
+    expect(src).not.toContain('labs-map-link'); // the separate Map link is gone
+    expect(src).not.toContain("row.className = 'tier'"); // the multi-row strip is gone
+    const h = /FALLBACK_HEIGHT = (\d+)/.exec(src);
+    expect(Number(h![1])).toBeLessThanOrEqual(40); // the Labs get their vertical space back (the strip was 96)
     expect(readFileSync('src/ui/world-picker.ts', 'utf8')).toContain('LAB_GROUPS');
   });
   it('numbers a Lab from 1 and gives 0 to anything else', () => {

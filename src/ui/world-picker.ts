@@ -67,7 +67,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
   const at = DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs'));
   const cards = DEMO_GROUPS[at][1];
   const parts: [string, Demo[]][] = LAB_GROUPS.map((g) => [`Labs, ${TIERS.find((t) => t.id === g.tier)!.title}: ${g.title}`, g.modes.flatMap((m) => cards.filter((c) => c[0] === m))] as [string, Demo[]]).filter(([, d]) => d.length);
-  DEMO_GROUPS.splice(at, 1, ['Labs, the map', [['labs-map', 'Map of the Labs', 'Every Lab as a box in a tree: point at one to see the Labs it uses and the Labs that use it.']]], ...parts);
+  DEMO_GROUPS.splice(at, 1, ...parts); // the map is the Labs panel on every Lab page now (CC-133), not a card
 }
 
 // CC-200: one card for each Dojo lesson, just above the Labs; a card opens that lesson (?mode=dojo&ex=<id>)
