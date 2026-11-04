@@ -12,17 +12,22 @@ const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '
 const url = (q) => `http://localhost:${port}/making-of/timeline.html${q}`;
 try {
   await new Promise((r) => setTimeout(r, 4000));
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  const models = (n) => page.waitForFunction((n) => { const w = window.CCWalk; return w && w.pip && w.juno && w.crew.filter(Boolean).length >= n; }, n, { timeout: 240000 }); // the 3D walkers have loaded
   const shot = async (name) => { await page.screenshot({ path: `${out}/${name}.png` }); };
-  await page.goto(url('')); await page.waitForTimeout(1200);
+  await page.goto(url('')); await models(0); await page.waitForTimeout(800);
   await shot('1-start');
-  await page.goto(url('?at=0.5')); await page.waitForTimeout(500);
+  await page.goto(url('?at=0.06')); await models(0); await page.waitForTimeout(500);
   await page.keyboard.down('w'); await page.waitForTimeout(700); await shot('2-mid'); await page.keyboard.up('w');
-  await page.goto(url('?gate=5')); await page.waitForTimeout(900);
+  await page.goto(url('?gate=5')); await models(0); await page.waitForTimeout(900);
   await shot('2b-day-gate');
-  await page.goto(url('?at=1')); await page.waitForTimeout(1200);
+  await page.goto(url('?at=1')); await models(8); await page.waitForTimeout(2500);
   await shot('3-stage');
+  await page.goto(url('?at=0.3')); await models(0); await page.waitForTimeout(600);
+  await page.locator('.card').nth(12).focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(500);
+  await shot('panel');
+  await page.keyboard.press('Escape');
   // no-freeze check: hold W from the start and compare a picture every 120 ms
   await page.goto(url('')); await page.waitForTimeout(800);
   await page.keyboard.down('w');
