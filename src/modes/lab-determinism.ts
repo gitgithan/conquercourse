@@ -93,6 +93,7 @@ export function startLabDeterminism(host: HTMLElement): { backend: "canvas2d" } 
           ${pinBox("ld-b-pin")}
           <p class="small" style="margin:0">Machine A is the clean reference. Pins apply to both.</p></div>
         <div style="min-width:0">
+          <p class="small" id="ld-b-real" style="margin:0 0 4px"></p>
           <p class="big" id="ld-b-first" style="margin:0 0 4px"></p>
           <canvas id="ld-b-strip" width="${W}" height="96"></canvas>
           <p class="small" style="margin:2px 0 8px">Top: machine A. Middle: machine B. Bottom: green where the fingerprints agree, red where they do not.</p>
@@ -105,6 +106,7 @@ export function startLabDeterminism(host: HTMLElement): { backend: "canvas2d" } 
     <div class="card"><h2>Challenge: three machines, every frame, the fewest pins</h2>
       <div class="lv" id="ld-lv"></div>
       <p class="small" id="ld-story" style="margin:6px 0 0"></p>
+      <p class="small" style="margin:2px 0 0">Every level runs on the Plank bridge and has an answer; the Lab tries every pin set to find the fewest.</p>
       <div id="ld-chips"></div>
       <div class="split">
         <div>${pinBox("ld-c-pin")}
@@ -120,6 +122,11 @@ export function startLabDeterminism(host: HTMLElement): { backend: "canvas2d" } 
       <table><thead><tr><th>Course</th><th>Stored trace (ticks:hash)</th><th>This browser</th><th></th></tr></thead><tbody id="ld-trace"></tbody></table>
       <p class="small bad" id="ld-trace-note" style="margin:6px 0 0"></p>
       <p class="small" style="margin:6px 0 0">The stored traces are tests/golden/sim-trace.json: the whole world after every tick, hashed, for the stored best run of each course.</p></div>
+    <div class="card" id="ld-real"><h2>Real machines</h2>
+      <p class="small" id="ld-real-note" style="margin:0 0 8px"></p>
+      <table><thead><tr><th>Engine</th><th>Where, CPU</th><th>Runs the same as the reference</th><th>First differing frame</th></tr></thead><tbody id="ld-real-t"></tbody></table></div>
+    <div class="card" id="ld-found"><h2>A real difference we found</h2>
+      <div id="ld-found-says" class="small"></div></div>
     <div class="card"><h2>The maths</h2><div class="eq" id="ld-eq"></div></div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
@@ -132,6 +139,7 @@ A number near a rounding edge can still land on the other side: a grid g hides a
 
   // ---- state ----
   const cache = new Map<string, Raw>();
+  let chCourse: CourseData | null = null, chKeys: RunnerInput[] = []; // the challenge always runs on the Plank bridge, so every level has an answer
   let course: CourseData | null = null, courseId = DEFAULT_COURSE, keys: RunnerInput[] = [], keyBySum: number[] = [];
   const B: Machine = { name: "Machine B", rounding: "fused", drift: 0.002, order: "shuffled", seed: 2 };
   const pinsB: Pins = { fixed: true, ordered: true, grid: 0.01 };
@@ -141,6 +149,11 @@ A number near a rounding edge can still land on the other side: a grid g hides a
   const rawOf = (m: Machine, fixed: boolean): Raw => {
     const k = `${courseId}|${m.rounding}|${fixed ? 0 : m.drift}|${m.seed}|${fixed}`;
     let r = cache.get(k); if (!r) { r = runMachine(course!, keys, m, fixed); cache.set(k, r); }
+    return r;
+  };
+  const rawOfC = (m: Machine, fixed: boolean): Raw => {
+    const k = `ch|${m.name}|${m.rounding}|${fixed ? 0 : m.drift}|${m.seed}|${fixed}`;
+    let r = cache.get(k); if (!r) { r = runMachine(chCourse!, chKeys, m, fixed); cache.set(k, r); }
     return r;
   };
   const readPins = (p: string, into: Pins) => {
@@ -198,7 +211,7 @@ A number near a rounding edge can still land on the other side: a grid g hides a
 
   function drawChallenge() {
     const L = LEVELS.find((l) => l.id === levelId)!;
-    const raws = L.machines.map((m) => rawOf(m, pinsC.fixed)), j = judge(raws, L.machines, pinsC);
+    const raws = L.machines.map((m) => rawOfC(m, pinsC.fixed)), j = judge(raws, L.machines, pinsC);
     const ctx = ($("ld-c-strip") as HTMLCanvasElement).getContext("2d")!;
     ctx.clearRect(0, 0, W, 120);
     j.runs.forEach((r, i) => hashRow(ctx, i * 26, 22, r.hashes));
@@ -252,6 +265,27 @@ A number near a rounding edge can still land on the other side: a grid g hides a
     $("ld-trace-note").textContent = diff.length ? `Different here: ${diff.map((c) => c.title).join(", ")}. Same keys, same number of frames, but this browser's maths (sin and cos) rounds some last digits another way than the machine that stored the trace. This is the lesson, live.` : "";
   }
 
+  // the real machines: recorded at build time by data/eval/cc-133-determinism-real, shown as they were recorded
+  interface RealMachine { id: string; engine: string; arch: string; cpu: string | null; where: string; runs: number; same: number; mathDiffers: string[]; differing: { run: string; firstFrame: number | null; frames: number }[] }
+  interface RealData { recorded: string; reference: string; machines: RealMachine[] }
+  let real: RealData | null = null;
+  const realLabel = (m: RealMachine) => `${m.engine} (${m.arch})`;
+  function drawReal() {
+    if (!real) { $("ld-real-note").textContent = "The recorded real-machine results could not be loaded."; return; }
+    const ref = real.machines.find((m) => m.id === real!.reference)!;
+    $("ld-real-note").textContent = `Recorded on ${real.recorded}, not run in your browser. Every row replays the same stored courses (${ref.runs} runs: the stored best line and one key mash of each course) and is compared, frame by frame, with ${realLabel(ref)}.`;
+    $("ld-real-t").innerHTML = real.machines.map((m) => `<tr data-machine="${esc(m.id)}"><td>${esc(m.engine)}</td><td>${esc(m.where)}, ${esc(m.arch)}${m.cpu ? ", " + esc(m.cpu) : ""}</td><td class="${m.same === m.runs ? "ok" : "bad"}">${m.same} of ${m.runs}</td><td class="mono">${m.differing.length ? esc(m.differing.slice(0, 3).map((d) => `${d.run.replace(/\.course\.json$/, "")}: frame ${d.firstFrame}`).join("; ")) + (m.differing.length > 3 ? ` (and ${m.differing.length - 3} more)` : "") : "none"}</td></tr>`).join("");
+    const bad = real.machines.filter((m) => m.differing.length);
+    const link = bad.length ? `Real machines that disagreed: ${bad.map((m) => realLabel(m)).join(", ")}. See the table below.` : `No real machine disagreed (${real.machines.length} machines, same answers on every frame).`;
+    $("ld-b-real").innerHTML = `${esc(link)} <a href="#ld-real">Real machines</a>`;
+    const lache = bad.map((m) => ({ m, d: m.differing.filter((d) => d.run.includes("lache")) })).filter((x) => x.d.length);
+    $("ld-found-says").innerHTML = bad.length ? `<p style="margin:0 0 6px"><b>What:</b> the same keys give a different hash on ${bad.map((m) => esc(realLabel(m))).join(", ")}, while the number of frames and the outcome stay the same.</p>
+      <p style="margin:0 0 6px"><b>Where:</b> ${lache.length ? `for example the swing (lache) course on ${lache.map((x) => `${esc(realLabel(x.m))}, first at frame ${x.d[0].firstFrame}`).join("; ")}. ` : ""}It shows in the table above.</p>
+      <p style="margin:0 0 6px"><b>Why:</b> ${esc(bad.map((m) => `${m.engine}: ${m.mathDiffers.join(", ")}`).join("; "))} give another last digit than the reference for the same input. Adding, multiplying, dividing and square roots are fixed by the standard, so a course that uses only those matches everywhere.</p>
+      <p style="margin:0"><b>Why it is not a bug in this Lab:</b> the Lab only replays and hashes. Every machine had the same keys and ended the same way with the same number of frames; only the last digits of some Math functions differ. To compare exact bits across engines, the game has to pin the numbers (the pins above).</p>` : `<p style="margin:0">We looked for a real difference on ${real.machines.length} real machines and found none: every frame of every run matched.</p>`;
+  }
+  void fetch("/assets/lab/determinism-real.json").then((r) => r.json()).then((d) => { real = d as RealData; drawReal(); }).catch(() => { real = null; drawReal(); });
+
   // ---- wiring ----
   const redrawB = () => { readPins("ld-b-pin", pinsB); B.rounding = ($("ld-b-round") as HTMLSelectElement).value as Rounding; B.order = ($("ld-b-order") as HTMLSelectElement).value as Order; B.drift = Number(($("ld-b-drift") as HTMLInputElement).value) / 100; $("ld-b-drift-v").textContent = `${(B.drift * 100).toFixed(2)} %`; drawB(); };
   const redrawC = () => { readPins("ld-c-pin", pinsC); drawChallenge(); };
@@ -260,9 +294,8 @@ A number near a rounding edge can still land on the other side: a grid g hides a
     wrap.querySelectorAll<HTMLButtonElement>("#ld-lv button").forEach((b) => b.setAttribute("aria-pressed", String(Number(b.dataset.level) === id)));
     $("ld-story").textContent = L.story;
     $("ld-chips").innerHTML = L.machines.map((m) => `<span class="chip">${esc(m.name)}: ${m.rounding === "exact" ? "exact" : m.rounding === "fused" ? "fused" : "32-bit"}${m.drift ? `, clock late ${(m.drift * 100).toFixed(1)} %` : ""}${m.order === "shuffled" ? ", own walk order" : ""}</span>`).join("");
-    fewest = undefined; const t = fewestPins(course!, keys, L); fewest = t ? { fewest: t.fewest } : null;
+    fewest = undefined; const t = fewestPins(chCourse!, chKeys, L); fewest = t ? { fewest: t.fewest } : null;
     drawChallenge();
-    if (fewest === null) $("ld-c-says").textContent += " On this course no rounding grid hides every flip (a number sits on a rounding edge): try the plank.";
   };
   $("ld-lv").innerHTML = LEVELS.map((l) => `<button data-level="${l.id}" aria-pressed="false">Level ${l.id}: ${esc(l.title)}</button>`).join("");
   $("ld-lv").addEventListener("click", (e) => { const b = (e.target as HTMLElement).closest("button"); if (b) pickLevel(Number(b.dataset.level)); });
@@ -285,6 +318,7 @@ A number near a rounding edge can still land on the other side: a grid g hides a
       ($("ld-course") as HTMLSelectElement).value = courseId;
       ($("ld-b-round") as HTMLSelectElement).value = B.rounding; ($("ld-b-order") as HTMLSelectElement).value = B.order; ($("ld-b-drift") as HTMLInputElement).value = String(B.drift * 100);
       writePins("ld-b-pin", pinsB); writePins("ld-c-pin", pinsC);
+      chCourse = await load("plank"); chKeys = recordKeys(chCourse);
       await useCourse(courseId);
       drawTraces();
       for (const c of COURSES) { const cd = await load(c.id); tracesDone.set(c.id, traceOfPlan(cd)); drawTraces(); await new Promise((r) => setTimeout(r)); }
