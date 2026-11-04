@@ -24,7 +24,8 @@
 
 ## Files
 - Big files are outside git in `../conquercourse-assets/cc-133-char-grid/` with `SHA256SUMS`: the grid mp4, the nine take folders (pictures) and the nine cell clips.
-- Tracked here: `poster.jpg` (one frame of the grid, under 300 KB), `post.md` (the LinkedIn and Twitter drafts), `run.json`, `scripts/compose.sh`.
+- Tracked here: `run.json`, `scripts/compose.sh`.
+- Not tracked (owner, 2026-11-04): the clips, the poster and the post text; they are in `../conquercourse-assets/social/char-grid/` and `../conquercourse-assets/cc-133-char-grid/`.
 
 ## Known gaps
 - The cells are a short window (2.5 s) and the characters are small in a wide Course view; the crop is a 1.2 times enlargement, so it is soft.
