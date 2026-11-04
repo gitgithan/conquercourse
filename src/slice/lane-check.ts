@@ -1,3 +1,5 @@
+import { searchActivity } from './search-activity';
+
 // CC-243: what the World Editor's lane check is doing, as plain states the page can show (idle, searching, done, cancelled, timed out).
 // No browser and no worker in here: the editor feeds it the clock and the worker's progress, and draws what it says.
 
@@ -33,12 +35,11 @@ export function progressText(s: LaneState, now: number): string {
   if (s.kind !== 'searching') return '';
   const secs = seconds(now - s.startedAt);
   const so = `${secs} ${secs === 1 ? 'second' : 'seconds'} so far`;
-  const p = s.progress;
-  return p ? `Searching for a way through: step ${p.step} of ${p.of}, ${so}` : `Searching for a way through: ${so}`;
+  return `${searchActivity(s.progress).stage} ${so}.`;
 }
 
 /** How full the bar is, 0 to 1; null when the search has not reported a measure (the bar then just moves). */
-export const barFraction = (s: LaneState): number | null => (s.kind === 'searching' && s.progress && s.progress.of > 0 ? Math.min(1, Math.max(0, s.progress.step / s.progress.of)) : null);
+export const barFraction = (s: LaneState): number | null => s.kind === 'searching' ? searchActivity(s.progress).fraction : null;
 
 /** The final state in a word, and the sentence that goes with it. */
 export function finalText(s: LaneState): { word: string; line: string } | null {

@@ -321,7 +321,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const simSays = simSaysPanel('editor');
   if (simSays) {
     lanePanel.prepend(simSays.el); // drawLanePanel puts it back first each time it redraws the panel
-    const sync = () => { const w = editorWords(lanePanel.querySelector('#verdict')?.textContent ?? '', document.documentElement.dataset.laneState ?? 'idle'); simSays.set(w.state, w.state === 'checking' && document.documentElement.dataset.laneProgress ? `${w.words} ${document.documentElement.dataset.laneProgress}.` : w.words); };
+    const sync = () => { const w = editorWords(lanePanel.querySelector('#verdict')?.textContent ?? '', document.documentElement.dataset.laneState ?? 'idle'); simSays.set(w.state, w.words); };
     new MutationObserver(sync).observe(lanePanel, { childList: true, subtree: true, characterData: true });
     sync();
   }
@@ -401,6 +401,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
     void startCourse(document.body, withProof(course));
   };
   const laneCheck = createLaneCheck({
+    course: courseNow,
     stopWorker: stopSearch,
     playAnyway: () => { stopSearch(); launchCourse(courseNow()); }, // no plan goes along: the Course searches in its own worker and shows its own progress
     checkAgain: () => verify(0),

@@ -299,3 +299,11 @@
 - For future videos, use highlights on the original UI; do not add enlarged duplicate views (owner preference).
 - Put each applied change on its own line, separately from the simulator verdict.
 - Make it easier candidate cards show layout search, while an AI proposal uses a single-preview check; explain the distinction.
+
+### Show the search task, not only a step count (2026-11-04)
+
+- The worker already reported which obstacle it was testing; the main lane panel discarded that label and showed only a count.
+- Name the movement timings and show the reported position on a fixed lane diagram.
+- Put activity above the lane controls so progress is visible without scrolling.
+- A fixed diagram explains where calculation is happening without pretending to show individual simulator trials.
+- Share task descriptions between the main simulator and AI Preview so they explain the same worker messages consistently.

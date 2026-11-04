@@ -181,3 +181,30 @@ flowchart LR
 
 - [Improve menu with engine labels](evidence/editor-action-engines-menu.jpg).
 - [Course help with model attribution beside the AI input](evidence/editor-action-engines-panel.jpg).
+
+## What the main editor simulator is searching
+
+- [Live search activity screenshot](evidence/editor-search-activity.jpg).
+
+- The main Simulator panel now names the actual worker batch: jump and grab timings, vault and climb timings, bar swing and reach timings, or trebuchet release timings.
+- A small side view highlights the reported take-off edge or obstacle in gold, at its position along the lane.
+- The layout stays fixed; the simulator tries movement timings through it.
+- The diagram is an overview of the checked lane, not an animation of individual trial runs.
+- Activity sits above the lane controls so it stays visible while a search is running.
+- The elapsed clock and current obstacle count remain visible.
+- The bar measures obstacles in the current pass, not time remaining; a final whole-course replay is indeterminate until the verdict arrives.
+- Main lane checks and AI Preview share the same descriptions of worker batches.
+- Cancel stops the worker and hides the active diagram; Check again starts a fresh check.
+- Completion hides the activity and publishes the simulator result.
+- Cached proofs still finish immediately without a new search.
+
+```mermaid
+flowchart LR
+  A["Edit the lane"] --> B["Worker tries movement timings"]
+  B --> C["Reports obstacle and position"]
+  C --> D["Panel names the task<br/>Lane diagram marks the location"]
+  B --> E["Replay complete course"]
+  E --> F["Simulator verdict<br/>Activity hidden"]
+  D --> G["Cancel"]
+  G --> H["Stop worker<br/>Lane remains not checked"]
+```

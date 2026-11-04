@@ -851,3 +851,9 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | File | What | Made | How | Cost | Licence and notes |
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/editor-apply-only.jpg` | Applied course change while remaining in the editor | 2026-11-04 | Local Playwright desktop capture at 1280 px with the real simulator | None; no model request | Ours; documentation evidence only |
+
+## Simulator search activity (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-search-activity.jpg` | Real worker search task and gold location marker in the editor's lane overview | 2026-11-04 | Local Playwright capture at 1280 px; edited Hang Bar and Lache course, real simulator | None; no model calls | Ours; documentation evidence only |
