@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { defineConfig, type Plugin } from 'vite';
 import { askSpark, MAX_BODY } from './functions/api/designer';
@@ -87,8 +87,21 @@ const photosDev = (): Plugin => ({
 const slowFiles: string[] = JSON.parse(readFileSync('tests/slow.json', 'utf8'));
 const tier = process.env.CC_TESTS;
 
+// CC-133: only for `npm run deploy:preview` (PREVIEW_PAGES=1): the place skin page and the saved map extras it reads, so the ground colour can be seen on the preview site. The real site build has neither.
+const previewPages = (): Plugin => ({
+  name: 'preview-pages',
+  generateBundle() {
+    for (const dir of ['cc-178-places', 'cc-133-ground-colour']) {
+      const d = `data/eval/${dir}/skin`;
+      if (existsSync(d)) for (const f of readdirSync(d)) if (f.endsWith('-osm.json')) this.emitFile({ type: 'asset', fileName: `${d}/${f}`, source: readFileSync(`${d}/${f}`) });
+    }
+  },
+});
+const PREVIEW_PAGES = process.env.PREVIEW_PAGES === '1';
+
 export default defineConfig({
-  plugins: [designerDev(), placesDev(), photosDev()],
+  plugins: [designerDev(), placesDev(), photosDev(), ...(PREVIEW_PAGES ? [previewPages()] : [])],
+  build: PREVIEW_PAGES ? { rollupOptions: { input: { main: 'index.html', placeSkin: 'place-skin.html' } } } : {},
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
   // CC-133: the place scenery page ships too, so the preview site can show the photo facade
   build: { rollupOptions: { input: { main: 'index.html', 'place-skin': 'place-skin.html' } } },

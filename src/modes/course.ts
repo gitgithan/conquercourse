@@ -61,6 +61,7 @@ import { slugOfCourse } from '../ui/place-photos';
 import { mountLivePhotos } from '../ui/live-photos';
 import { mountFurniture } from '../render/furniture-view';
 import { mountBackdrop } from '../render/backdrop-view';
+import { courseSkyOn, installSkyLight, shadowsOn, timeOfDayPicker, type SkyLight } from '../render/sky-light';
 import { FURNITURE_ON } from '../world/furniture';
 import { ballsOn, BALL_LAUNCHERS } from '../sim/shots';
 import { installGraphStudio } from './graph-studio';
@@ -124,6 +125,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const cam = await createCourseCamera({ host, renderer, scene, course, params, st, body: () => bodyMesh!, facing: () => facing, actor: () => actor, say: (t, n) => sayNow(t, n) });
   const { camera, frontCam } = cam;
   const built = buildCourseScene(scene, course, params);
+  // CC-133: a real sky, sun, fog and soft shadows (src/render/sky-light.ts); off, the flat light above stays exactly as it was
+  const sky: SkyLight | null = courseSkyOn(params) ? installSkyLight(THREE as never, scene as never, { lat: Number(params.get('sunlat') ?? 48.85) || 48.85, preset: params.get('sunat') ?? (() => { try { return localStorage.getItem('cc.sunat'); } catch { return null; } })(), shadows: shadowsOn(params), renderer: renderer as never, far: camera.far, mirrorSouth: true }) : null;
+  let skyN = 0;
+  if (sky) host.appendChild(timeOfDayPicker(sky, () => undefined, 'left:10px;bottom:10px'));
   const { trackView, plankView, hazard, floor, chunks, ropeLen } = built;
   const views = createViews(course, built);
   const shotPreview = views.shotPreview;
@@ -153,7 +158,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
   if (placeSlug && pageQuery().get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
   if (placeSlug && FURNITURE_ON(pageQuery())) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
-  { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
+  { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd).then((h) => { if (h?.lat != null) sky?.setPlace(h.lat); }); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
   const sayer = createSay(params, st);
   const say = sayer.say;
   sayNow = say;
@@ -377,6 +382,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     cam.update(); // the camera (and the film camera) for this picture
     floor.update(now / 1000);
     if (chunks.length > 8) cullFar(chunks, camera.position, 260); // far chunks of a big place are not drawn
+    if (sky) { // CC-133: the dome follows the camera, the shadow box follows the runner, and new meshes (a place loads late) join the shadows
+      sky.follow(camera.position);
+      if (sky.shadows) { if (skyN++ % 30 === 0) sky.mark(scene as never); sky.fitShadow(body.position as never, 45); }
+    }
     perf.renderStart();
     if (fxPipe) fxPipe.render(); else renderer.render(scene, camera);
     st.clip.hook?.(); // the clip takes this picture before the front inset is drawn over it

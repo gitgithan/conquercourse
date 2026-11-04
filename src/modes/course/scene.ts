@@ -18,6 +18,7 @@ import { buildPlanks } from '../../render/plank';
 import { chunked, mergeStatic, type Part } from '../../render/static-merge';
 import { rungX } from '../../sim/bars';
 import { groundAt } from '../../sim/terrain';
+import { courseSkyOn } from '../../render/sky-light';
 
 export const LANE_DEPTH = 2; // m, how thick the blocks and the wall are across the screen: thin enough that a camera ahead of the runner cannot hide them behind the block face
 
@@ -40,10 +41,12 @@ export interface CourseScene {
 
 // The still part of the world: the lights, the bars, the coaster, the decks, the editor's pieces, the floor, the wall and the rope. The order of the adds is the order of the picture.
 export function buildCourseScene(scene: THREE.Scene, course: CourseData, params: URLSearchParams): CourseScene {
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x6b7f5a, 1.7));
-  const sun = new THREE.DirectionalLight(0xffffff, 2.2);
-  sun.position.set(20, 40, 30);
-  scene.add(sun);
+  if (!courseSkyOn(params)) { // CC-133: with the sky-light switch on, src/render/sky-light.ts lights the scene instead
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x6b7f5a, 1.7));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+    sun.position.set(20, 40, 30);
+    scene.add(sun);
+  }
 
   // ground: platforms are boxes, water fills the gaps
   const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a3 });

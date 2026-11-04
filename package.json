@@ -18,7 +18,7 @@
     "plans": "tsx scripts/plans.ts",
     "plans:presets": "tsx scripts/preset-plans.ts",
     "deploy": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch main",
-    "deploy:preview": "npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
+    "deploy:preview": "PREVIEW_PAGES=1 npm run build && wrangler pages deploy dist --project-name conquercourse --branch preview",
     "feedback": "node scripts/feedback-summary.mjs",
     "feedback:rows": "node scripts/feedback-rows.mjs",
     "community": "node scripts/community-review.mjs",

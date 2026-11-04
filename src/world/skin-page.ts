@@ -5,8 +5,9 @@ import { buildSkin, skinFromQuery, SKY_COLOUR, type SkinOsm } from './skin';
 import { pageQuery } from '../flags';
 import { buildingStyleOn } from './building-style';
 import { FACADES, facadeOn } from './facade';
+import { groundColourOn } from '../slice/ground-colour';
 
-const q = pageQuery(), slug = q.get('place') ?? 'montmartre-paris', skin = skinFromQuery(q, 'full');
+const q = pageQuery(), gc = groundColourOn(q, location.hostname), slug = q.get('place') ?? 'montmartre-paris', skin = skinFromQuery(q, 'full');
 let az = Number(q.get('az') ?? 35), el = Number(q.get('el') ?? 32), dist = Number(q.get('dist') ?? 230);
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(1); renderer.shadowMap.enabled = skin === 'full'; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -20,16 +21,22 @@ scene.add(sun);
 const place = (window as unknown as { __skin: unknown }).__skin = { ready: false, stats: null as unknown, ms: 0 };
 function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam.position.set(Math.sin(a) * Math.cos(e) * dist, Math.sin(e) * dist, Math.cos(a) * Math.cos(e) * dist); cam.lookAt(0, 8, 0); renderer.render(scene, cam); }
 (async () => {
-  // the dev server serves the saved map data from data/eval; the shipped copy (Bryant Park) is under assets/places/skin
-  let res = await fetch(`/data/eval/cc-178-places/skin/${slug}-osm.json`);
-  if (!res.ok || (res.headers.get('content-type') ?? '').includes('html')) res = await fetch(`/assets/places/skin/${slug}-osm.json`);
+  // CC-133: with the ground colour on, the file with the extra ground tags is used when there is one; off, the saved CC-178 file as always (the shipped copy, Bryant Park, is under assets/places/skin)
+  const first = gc ? 'cc-133-ground-colour' : 'cc-178-places', second = gc ? 'cc-178-places' : 'cc-133-ground-colour';
+  const ok = (r: Response) => r.ok && (r.headers.get('content-type') ?? '').includes('json');
+  let res = await fetch(`/data/eval/${first}/skin/${slug}-osm.json`);
+  if (!ok(res)) res = await fetch(`/data/eval/${second}/skin/${slug}-osm.json`);
+  if (!ok(res)) res = await fetch(`/assets/places/skin/${slug}-osm.json`);
   const osm = (await res.json()) as SkinOsm;
+  // the ground heights only shade the slope (colour); the page's scene stays flat as before
+  let ground: { radius: number; step: number; n: number; h: number[] } | null = null;
+  if (gc) { try { const pl = await (await fetch(`/assets/places/${slug}.json`)).json(); if (pl.ground) ground = { radius: pl.radius, ...pl.ground }; } catch { /* no heights: no slope shade */ } }
   // CC-133: the real photo facade (switch facade: on in dev and on the preview site, off on production; ?facade=1 or 0 forces it)
   const facades = facadeOn(q.get('facade'), location.hostname) ? await Promise.all(FACADES.filter((f) => f.place === slug).map(async (spec) => ({ spec, texture: (() => { const t = new THREE.TextureLoader().load(spec.image, () => frame()); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; })() }))) : [];
-  const t0 = performance.now(), { group, stats } = buildSkin(osm, { skin, facades, style: buildingStyleOn(q, location.hostname) });
+  const t0 = performance.now(), { group, stats } = buildSkin(osm, { skin, facades, style: buildingStyleOn(q, location.hostname), groundColour: gc, slopeGround: gc ? ground : null });
   scene.add(group); frame();
-  Object.assign(place, { ready: true, stats, ms: Math.round(performance.now() - t0) });
-  (document.getElementById('note') as HTMLElement).textContent = `${slug} · skin=${skin} · ${stats.buildings} buildings, ${stats.land} land shapes, ${stats.roads} roads, ${stats.trees} trees · built in ${Math.round(performance.now() - t0)} ms · © OpenStreetMap contributors${stats.facades ? ' · library facade photo: Bestbudbrian, CC BY-SA 3.0, Wikimedia Commons' : ''}`;
+  Object.assign(place, { ready: true, groundColour: gc, stats, ms: Math.round(performance.now() - t0) });
+  (document.getElementById('note') as HTMLElement).textContent = `${slug} · skin=${skin} · ${stats.buildings} buildings, ${stats.land} land shapes, ${stats.roads} roads, ${stats.trees} trees · built in ${Math.round(performance.now() - t0)} ms · ground colour ${gc ? 'on' : 'off'} · © OpenStreetMap contributors${stats.facades ? ' · library facade photo: Bestbudbrian, CC BY-SA 3.0, Wikimedia Commons' : ''}`;
   if (q.has('hidenote')) (document.getElementById('note') as HTMLElement).style.display = 'none';
 })();
 let drag: { x: number; y: number } | null = null;

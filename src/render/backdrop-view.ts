@@ -11,13 +11,13 @@ import { FILM_MIN_SCALE, FURNITURE_ENABLED } from '../world/furniture';
 import type { Ground } from '../world/terrain';
 import { groundAt } from '../sim/terrain';
 
-export interface BackdropHandle { group: THREE.Group; buildings: number; furniture: number; destroy(): void }
+export interface BackdropHandle { lat: number | null; group: THREE.Group; buildings: number; furniture: number; destroy(): void }
 
 const get = async <T>(f: typeof fetch, url: string): Promise<T | null> => { try { const r = await f(url); return r.ok ? ((await r.json()) as T) : null; } catch { return null; } };
 
 export async function mountBackdrop(scene: THREE.Scene, course: { terrain: Parameters<typeof groundAt>[0] }, slug: string, f: typeof fetch = fetch): Promise<BackdropHandle | null> {
   const frame = await get<BackdropFrame>(f, `/assets/demo/hero-${slug}.backdrop.json`);
-  const place = await get<{ radius: number; ground?: { step: number; n: number; h: number[] } }>(f, `/assets/places/${slug}.json`);
+  const place = await get<{ lat?: number; radius: number; ground?: { step: number; n: number; h: number[] } }>(f, `/assets/places/${slug}.json`);
   const osm = await get<SkinOsm>(f, `/data/eval/cc-178-places/skin/${slug}-osm.json`);
   if (!frame || !place) return null;
   const rf = rigidFrame(frame), root = new THREE.Group(), turned = new THREE.Group(), inner = new THREE.Group();
@@ -40,5 +40,5 @@ export async function mountBackdrop(scene: THREE.Scene, course: { terrain: Param
   }
   scene.add(root);
   document.documentElement.dataset.backdrop = `${buildings}b${furniture}f`;
-  return { group: root, buildings, furniture, destroy() { root.removeFromParent(); root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.geometry.dispose(); (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => x.dispose()); } }); } };
+  return { lat: place.lat ?? null, group: root, buildings, furniture, destroy() { root.removeFromParent(); root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh) { m.geometry.dispose(); (Array.isArray(m.material) ? m.material : [m.material]).forEach((x) => x.dispose()); } }); } };
 }

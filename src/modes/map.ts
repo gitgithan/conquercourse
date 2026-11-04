@@ -270,6 +270,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       setShrink(k0);
       const name = (o.name || ($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${o.lat.toFixed(3)},${o.lon.toFixed(3)}`).slice(0, 40);
       const m = osmToMesh(o.answer, o.lat, o.lon, k0, o.ground);
+      try { sessionStorage.setItem('cc.map.sun', JSON.stringify({ lat: o.lat, lon: o.lon })); } catch { /* private window */ } // CC-133: where the place is, so the editor's sun is the real one
       if (!S2) storePiece(m, name); // CC-211: the editor gets the place only after the simulator has proved a lane on it
       const lane0 = setLane;
       const laneOut = S2 ? (l: PlaceLane | null) => { if (l?.cleared) { storePiece(osmToMesh(o.answer, o.lat, o.lon, l.shrink, o.ground), name); lane0(l); } else sessionStorage.removeItem(PIECE_KEY); } : lane0;

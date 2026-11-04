@@ -56,7 +56,7 @@ async function courseFromUrl(): Promise<CourseData | undefined> {
 }
 const mode = pageQuery().get('mode') ?? 'course';
 const heroSlug = /^hero:([\w-]+)$/.exec(pageQuery().get('start') ?? '')?.[1]; // CC-238: the film's editor start scene
-if (mode === 'editor' && heroSlug) { try { sessionStorage.setItem('cc.map.piece', JSON.stringify(await (await import('./slice/hero-start')).heroStart(heroSlug, fetch, pageQuery().get('box') === '1', Number(pageQuery().get('boxscale') ?? 1), Number(pageQuery().get('boxacross') ?? 0)))); } catch { /* the editor opens on its own world */ } }
+if (mode === 'editor' && heroSlug) { try { const hs = await (await import('./slice/hero-start')).heroStart(heroSlug, fetch, pageQuery().get('box') === '1', Number(pageQuery().get('boxscale') ?? 1), Number(pageQuery().get('boxacross') ?? 0)); sessionStorage.setItem('cc.map.piece', JSON.stringify(hs)); if (hs.place) sessionStorage.setItem('cc.map.sun', JSON.stringify(hs.place)); } catch { /* the editor opens on its own world */ } }
 const loader = Object.hasOwn(MODE_LOADERS, mode) ? MODE_LOADERS[mode] : undefined; // every word but the default Course is in the table (src/main-loaders.ts)
 const game = loader ? await loader(document.body, pageQuery()) : await startCourse(document.body, await courseFromUrl());
 document.documentElement.dataset.backend = game.backend;

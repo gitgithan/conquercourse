@@ -255,6 +255,11 @@
   - What they hold: the Overpass answer, ground heights and the best lane for Piazza San Marco, Plaza Mayor, Place des Vosges, Trafalgar Square, Covent Garden, Washington Square, Union Square, Old Town Square, Piazza Navona, Nyhavn and Boston Common
   - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-29
   - Licence: © OpenStreetMap contributors, ODbL 1.0; terrain as above
+- **Ground-colour map extras** (`data/eval/cc-133-ground-colour/skin/*-osm.json`, CC-133; kept out of git, copy and checksums in `../conquercourse-assets/eval-full/cc-133-ground-colour/`)
+  - What they hold: land-use, park, water, paving and road-surface shapes for six places (Montmartre, Circular Quay, Bellingham, Bryant Park, Retiro Park, Gerlev), used only to paint the ground colour
+  - Source: the Overpass API, fetched 2026-11-04, no key (`scripts/skin-fetch.ts`)
+  - Licence: © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright); the credit is printed on the place page and the evidence pictures under `docs/evidence/cc-133-realism/` carry it
+  - Used by: `src/world/skin.ts`, `src/slice/ground-colour.ts`, `place-skin.html`; copied into the preview site only
 - **Eighteen new Ready places** (`public/assets/places/*.json` and `tiles/*.svg`, CC-90)
   - What they hold: the Overpass answer, ground heights and the best lane for Jordaan, Stephansplatz, Grand-Place, Krakow Main Square, Castle Hill Budapest, Gamla Stan, Temple Bar, Plaka, Stradun, Galata, Gastown, Zocalo, Caminito, Bukchon, Senate Square, Tallinn Old Town, Bo-Kaap and Bryggen
   - Source: built with `scripts/make-places.ts` from the Overpass and AWS Terrain Tiles sources above, fetched 2026-11-01
@@ -806,3 +811,4 @@
 | `docs/promo/poster.jpg` (1280 px, about 100 KB) | One frame of the promo, the picture that opens the video in the README | 2026-11-04 | `ffmpeg -ss 20 -frames:v 1` on the promo | Ours | Frame of our own recording |
 
 Photo dots on the Slicer map (CC-133): no new files; the dots and cones are drawn from the allow-lists above, and a click shows the picture live from Mapillary's own address with the creator and licence (nothing stored or copied).
+| `docs/evidence/cc-133-realism/*.png` | 1280 px screenshots of sky light and ground colour, off and on (Montmartre, Gerlev, Bryant Park) | ours, drawn from map data © OpenStreetMap contributors (ODbL 1.0) | https://www.openstreetmap.org/copyright | ODbL 1.0 (map shapes), ours (pictures) | Evidence only; credit "© OpenStreetMap contributors" |
