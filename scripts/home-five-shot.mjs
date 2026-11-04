@@ -9,7 +9,7 @@ try {
   await new Promise((r) => setTimeout(r, 4000));
   const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  await page.goto(`http://localhost:${port}/?entrance=1&tourstep=600&music=0`);
+  await page.goto(`http://localhost:${port}/?tour=1&entrance=1&tourstep=600&music=0`);
   await page.waitForSelector('#tour', { timeout: 120000 });
   for (let i = 0; i < 4; i++) { await page.click('#tour-next'); await page.waitForTimeout(300); }
   await page.waitForSelector('#tour .place.wide');
