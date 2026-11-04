@@ -24,7 +24,7 @@
   - Then the film cuts to the Grand Entrance.
   - At most 1 second fully still, so a small movement starts at once or by the half second.
 - The same screen is reused as the end card, with the website link added.
-- A new logo file is needed; it gets a row in `docs/ASSETS.md` before the film uses it.
+- Logo: the existing `public/brand/conquercourse-logo.svg` (owner, 2026-11-05: good already); it already has a row in `docs/ASSETS.md`, so no new asset.
 - **Music lane:** not decided.
 
 ## Scene 0: The Grand Entrance, then the run (12 s, decided)
