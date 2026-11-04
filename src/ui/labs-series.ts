@@ -11,7 +11,7 @@ export const PIPELINES: readonly { id: Pipeline; title: string; stages: readonly
   { id: 'methods', title: 'Methods behind all three', stages: [] },
 ];
 
-// Numbers 1 to 12 are fixed; the three new Labs (collision, lift, motion) are added below as 13 to 15 when their branches land.
+// Numbers 1 to 12 are fixed; 13 (motion), 14 (lift) and 15 (collision) followed in the order they landed. A new Lab is one line at the end.
 export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-search', name: 'Search', pipeline: 'methods', stage: 'Search' },
   { mode: 'lab-optimization', name: 'Optimization', pipeline: 'methods', stage: 'Optimize' },
