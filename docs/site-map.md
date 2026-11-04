@@ -151,7 +151,7 @@
     - Leads to: The Course (play)
 - **University Labs**
   - You do: You explore twelve bigger ideas, such as search or camera maths, and equations are allowed here.
-  - How to get there: Courses picker, group "Labs (university level)".
+  - How to get there: Courses picker, the "Labs:" groups (one per pipeline).
   - Leads to: Courses picker
   - **A Lab**
     - You do: You change settings and read the numbers in one hands-on page.

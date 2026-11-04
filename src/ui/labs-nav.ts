@@ -1,23 +1,11 @@
 import { labsOn } from './labs';
 import { soundButton, startAudio } from './audio';
 import { mountWorldGallery } from './world-picker';
+import { LAB_LIST, PIPELINES, labsOfPipeline } from './labs-series';
 
 // CC-118: one bar on every Lab page that lists the 12 Labs, marks the one you are in and switches with one click.
 // A switch is a plain link, so the browser itself closes the old Lab (workers, listeners, audio) and the Dojo music rule for lab-* modes runs again on the new page.
-export const LABS: readonly { mode: string; name: string }[] = [
-  { mode: 'lab-search', name: 'Search' },
-  { mode: 'lab-optimization', name: 'Optimization' },
-  { mode: 'lab-ik', name: 'Posing a character' },
-  { mode: 'lab-vision', name: 'Computer vision' },
-  { mode: 'lab-camera', name: 'Camera and perspective' },
-  { mode: 'lab-integration', name: 'Numerical integration' },
-  { mode: 'lab-timing', name: 'Statistics of timing' },
-  { mode: 'lab-signal', name: 'Signal processing' },
-  { mode: 'lab-gentest', name: 'Generate and test' },
-  { mode: 'lab-detector', name: 'Evaluating a detector' },
-  { mode: 'lab-hashing', name: 'Verification and hashing' },
-  { mode: 'lab-rl', name: 'Reinforcement learning' },
-];
+export const LABS: readonly { mode: string; name: string }[] = LAB_LIST; // number = place in the list (stable); the sections come from labs-series.ts
 
 export const labNumber = (mode: string): number => LABS.findIndex((l) => l.mode === mode) + 1; // 0 when it is not a Lab
 export const labHref = (mode: string): string => `?mode=${mode}&labs=1&welcome=0`;
@@ -44,7 +32,8 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
     #labs-nav a[aria-current=page]{background:#0f6b5c;border-color:#0f6b5c;font-weight:700}
     #labs-nav a[aria-disabled=true]{opacity:.4;pointer-events:none}
     #labs-nav .list{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:thin}
-    #labs-nav .list a{padding:5px 7px}`;
+    #labs-nav .list a{padding:5px 7px}
+    #labs-nav .group{color:#9fd8c9;font-weight:700;white-space:nowrap;padding:0 4px 0 10px;border-left:1px solid #4a5650;margin-left:4px}#labs-nav .group:first-child{border-left:0;margin-left:0}`;
   document.head.appendChild(style);
   const nav = document.createElement('nav');
   nav.id = 'labs-nav';
@@ -63,11 +52,18 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   nextA.id = 'labs-next';
   const list = document.createElement('div');
   list.className = 'list';
-  for (const [i, lab] of LABS.entries()) {
-    const a = link(`${i + 1}. ${lab.name}`, lab.mode, `Lab ${i + 1}: ${lab.name}`);
-    a.dataset.lab = lab.mode;
-    if (lab.mode === mode) { a.setAttribute('aria-current', 'page'); a.removeAttribute('href'); }
-    list.appendChild(a);
+  for (const p of PIPELINES) { // group headings: the numbers stay as the stable ids, the order of the buttons follows the pipelines
+    const items = labsOfPipeline(p.id);
+    if (!items.length) continue;
+    const h = document.createElement('span');
+    h.className = 'group'; h.textContent = p.title; h.dataset.group = p.id;
+    list.appendChild(h);
+    for (const { n, lab } of items) {
+      const a = link(`${n}. ${lab.name}`, lab.mode, `Lab ${n}: ${lab.name} (${p.title}${lab.stage ? ', ' + lab.stage : ''})`);
+      a.dataset.lab = lab.mode; a.title = `${p.title}: ${lab.stage}`;
+      if (lab.mode === mode) { a.setAttribute('aria-current', 'page'); a.removeAttribute('href'); }
+      list.appendChild(a);
+    }
   }
   // Courses: the same gallery the other pages open, so a Lab is never a dead end (picking a course leaves the Lab)
   const gallery = mountWorldGallery(host, { current: { value: null }, place: 'display:none' });

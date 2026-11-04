@@ -69,7 +69,7 @@ try {
   await offList.waitForTimeout(2500);
   const open2 = await offList.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => /^Courses/.test(x.textContent ?? '')); if (b) { b.click(); return true; } return false; });
   await offList.waitForTimeout(800);
-  check('Courses list has no Lab with labs off', open2 && (await offList.$('.wg-card[data-value=lab-search]')) === null && !(await offList.textContent('body')).includes('Labs (university level)'));
+  check('Courses list has no Lab with labs off', open2 && (await offList.$('.wg-card[data-value=lab-search]')) === null && !(await offList.textContent('body')).includes('Labs: '));
 
   check('no page errors', errors.length === 0, errors.join(' | '));
   await browser.close();
