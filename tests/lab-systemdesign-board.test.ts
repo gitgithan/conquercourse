@@ -5,7 +5,7 @@ import { BRIEFS, PBLOCKS, SLOTS, SLOT_IDS, STARTER, blocksOf, cleanDesign, desig
 import { LAB_LIST, labName, labNumberOf } from "../src/ui/labs-series";
 import { blockById } from "../src/labs/systemdesign/blocks";
 
-// Lab 18 block board: pure scoring, a 3-step hint ladder for every misfit, and more than one good design.
+// System design block board: pure scoring, a 3-step hint ladder for every misfit, and more than one good design.
 const online = (o: Partial<Design> = {}): Design => ({ photo: "link", find: "cutout", lift: "ondemand", place: "runtime", wait: "warmup", collider: "box", sim: "fixed", search: "pruned", share: "keys", ...o });
 const kiosk = (o: Partial<Design> = {}): Design => online({ place: "build", photo: "blur", wait: "progress", ...o });
 const m = (d: Design, b: BriefId, id: string) => score(d, b).meters.find((x) => x.id === id)!;

@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { BLOCKS, BLOCK_IDS, blockById } from "../src/labs/systemdesign/blocks";
 import { REAL, SCENARIOS, diffFromReal, failureOutcome, judge } from "../src/labs/systemdesign/judge";
 
-// Lab 18 (System design): the judge is deterministic and pinned to docs/lessons.md and the numbers in docs/model-limits.md.
+// System design Lab: the judge is deterministic and pinned to docs/lessons.md and the numbers in docs/model-limits.md.
 const state = (v: ReturnType<typeof judge>, id: string) => v.rules.find((r) => r.id === id)?.state;
-describe("Lab 18: blocks", () => {
+describe("System design Lab: blocks", () => {
   it("ids are unique, every block cites a source, and prices match the docs", () => {
     expect(new Set(BLOCK_IDS).size).toBe(BLOCKS.length);
     for (const b of BLOCKS) expect(b.source.length, b.id).toBeGreaterThan(5);
@@ -15,7 +15,7 @@ describe("Lab 18: blocks", () => {
     expect(blockById("sam3")!.cold).toBe(14); expect(blockById("sam3d")!.cold).toBe(46);
   });
 });
-describe("Lab 18: the judge", () => {
+describe("System design: the judge", () => {
   it("the real design clears every scenario and passes every lesson that applies", () => {
     for (const s of SCENARIOS) { const v = judge(s.id, [...REAL]); expect(v.cleared, s.id + JSON.stringify(v.checks.filter((c) => !c.ok))).toBe(true); expect(v.lessonsPassed).toBe(v.lessonsTotal); }
     expect(diffFromReal([...REAL])).toEqual({ missing: [], extra: [] });

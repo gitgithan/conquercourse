@@ -1,4 +1,4 @@
-// Lab 18 (System design), the block board: nine slots of OUR real pipeline, each with three blocks that could fit.
+// The System design Lab, the block board: nine slots of OUR real pipeline, each with three blocks that could fit.
 // score() is pure and deterministic (no model, no clock): the same choices always give the same meters.
 // Numbers: the cut-out and lift seconds and prices are the Lab's recorded data (blocks.ts, from docs/model-limits.md); a number we never recorded is marked `est`.
 import { blockById } from "./blocks";

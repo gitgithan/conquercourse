@@ -3,7 +3,7 @@ import { askPartner, MAX_TOKENS } from "../functions/api/design-partner";
 import { cleanLayout, cleanReply, layoutPrompt, nearestRecorded, RECORDED } from "../src/labs/systemdesign/partner-core";
 import { REAL } from "../src/labs/systemdesign/judge";
 
-// Lab 18 partner: a fake model only. No paid call is made here.
+// System design partner: a fake model only. No paid call is made here.
 type Sent = { max_tokens: number; messages: { content: string }[] };
 const fake = (reply: string | null, ok = true) => {
   const f = (async (_u: unknown, init: RequestInit) => { f.last = JSON.parse(String(init.body)) as Sent; return { ok, status: ok ? 200 : 500, json: async () => ({ choices: [{ message: { content: reply } }] }) } as Response; }) as typeof fetch & { last?: Sent };

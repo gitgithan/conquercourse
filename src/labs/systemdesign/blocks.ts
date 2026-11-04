@@ -1,4 +1,4 @@
-// Lab 18 (System design): the blocks a player can drag. Every number below comes from a doc or a recorded run; the `source` says which.
+// System design Lab: the blocks a player can drag. Every number below comes from a doc or a recorded run; the `source` says which.
 // Numbers that are arithmetic on a recorded price are marked "derived". Where nothing was recorded the field is 0 and `note` says "not recorded".
 export type Where = "browser" | "edge" | "gpu" | "api" | "cpu";
 export type Job = "blur" | "cutout" | "lift" | "safety" | "motion" | "style" | "collider" | "prove";

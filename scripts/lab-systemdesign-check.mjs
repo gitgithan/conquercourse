@@ -1,4 +1,4 @@
-// Lab 18 (system design) in the browser at 1280 px: off without the labs switch; blocks drop into nine cards; Run moves the meters; a misfit opens a three-step hint ladder; a second good design is offered; the partner falls back to a recorded example when the server has no key.
+// The system design Lab in the browser at 1280 px: off without the labs switch; blocks drop into nine cards; Run moves the meters; a misfit opens a three-step hint ladder; a second good design is offered; the partner falls back to a recorded example when the server has no key.
 // Screenshots go to test-results/lab-systemdesign/. A live partner call is never made here (the route is stubbed).
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

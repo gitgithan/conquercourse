@@ -1,4 +1,4 @@
-// Lab 18: the design partner. ONE short critique of a block layout by Muse Spark Open, never a chat. Pure helpers shared by the page and the server function.
+// System design Lab: the design partner. ONE short critique of a block layout by Muse Spark Open, never a chat. Pure helpers shared by the page and the server function.
 import { BLOCK_IDS, blockById } from "./blocks";
 import { judge, scenarioById, SCENARIOS, REAL } from "./judge";
 
