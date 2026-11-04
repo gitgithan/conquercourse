@@ -14,9 +14,14 @@
 - How does a photo of a real thing become a game object of the right size, standing the right way, and what was each bake step for?
 
 ## What the player does
-- Picks one of the 19 recorded game objects in `public/assets/objects/`, drags the typed height, and switches each of the seven bake steps off.
+- Picks one of the 19 real lifts in `public/assets/lab/lift/real/` (photo, cut-out, raw lift and bake, all recorded), drags the typed height, and switches each of the seven bake steps off.
 - Reads the facts after the bake: height, length and depth, scale factor, faces, lowest point, off-centre distance, lean.
-- Turns the raw lift about the vertical (0 to 179 degrees) and watches "Face the side camera" turn it back; with that step off the object stays cut across.
+- Spins the lifted object in 3D with the mouse (`src/labs/lift/orbit-view.ts`).
+  - Drag the raw picture to turn the raw lift; the turn slider (0 to 359 degrees) moves with it, because both hold the same number.
+  - Drag the baked picture to walk around the baked object; the camera never changes the object.
+  - Wheel or the zoom buttons zoom, arrow keys turn and tip, "Reset view" puts everything back.
+  - A ground grid and an orange arrow show where the side camera sits and which way it looks.
+- Turns the raw lift about the vertical (0 to 359 degrees) and watches "Face the side camera" turn it back; with that step off the object stays cut across.
 - Drags the typed height of the monkey bars and sees the bar grow to 52 m (the thin-bar lesson).
 - Reads what one object cost in seconds and money, as recorded.
 
