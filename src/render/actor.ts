@@ -1,8 +1,8 @@
 // The Rookie as an actor the Course can drive (CC-31): give it the simulator's state every tick, it poses the model.
 // Local frame while posing: x forward, y up from the surface under the feet, z toward the camera; the group
 // is then moved to the feet position and turned for the direction of travel.
-import { Box3, Group, Vector3, type Object3D, type Scene } from 'three/webgpu';
-import { clipDuration, loadClip, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
+import { Box3, Group, Vector3, type Mesh, type SkinnedMesh, type Object3D, type Scene } from 'three/webgpu';
+import { clipDuration, loadClip, loadClipUrl, parseClip, sampleClip, type Clip, type Phase } from '../motion/clip';
 import { vaultPose, type VaultRig } from '../motion/vault-pose';
 import { MOTION_TABLE, MY_MOVE_BASE, capturedClipsFrom, moveProgress, myMoveFrom, myMoveIsPlayable, rollLookFrom, type RollLook } from '../motion/motion-table';
 import { clipToWorld } from '../motion/pose';
@@ -13,6 +13,7 @@ import {
   runSeconds, runWeight, type ActorState, type ClipKind,
 } from '../motion/actor-pose';
 import { loadRookie, type RookieId } from './rookie';
+import { disposeGeometry, disposeTexture } from './shared-assets';
 import type { Obstacle } from '../course/collide';
 import { anticipation, getReady, ik2, ledgeReach } from '../motion/compose';
 import { settleNeck } from '../motion/neck';
@@ -56,16 +57,14 @@ interface Pose {
 
 export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; url?: string; fit?: boolean }): Promise<RookieActor> {
   const phases: Phase[] = ['run', 'leap', 'land', 'swing'];
-  const [run, leap, land, swing] = await Promise.all(phases.map((p) => loadClip(p)));
-  const reach: Clip = parseClip(await (await fetch('/assets/motion/reach.json')).json());
-  // the roll clip is optional: until one passes the gate and the move check, the roll is drawn as a tuck (src/motion/motion-table.ts)
-  let rollClip: Clip | null = null;
-  try {
-    const r = await fetch('/assets/motion/roll.json');
-    if (r.ok) rollClip = parseClip(await r.json());
-  } catch { /* no roll clip yet */ }
-  // "My move" (CC-222): behind ?mymove=<id>, a clip made from the player's film takes the roll slot, but only if it passed the gate and the roll check
-  let myMove = false;
+  const capturedClips = typeof location === 'undefined' || capturedClipsFrom(location.search);
+  const optional = (name: string) => loadClipUrl(`/assets/motion/${name}.json`).catch(() => null);
+  const [[run, leap, land, swing], reach, shippedRoll, slideClip, hurtClip, climbClip, vaultClip] = await Promise.all([
+    Promise.all(phases.map((p) => loadClip(p))), loadClipUrl('/assets/motion/reach.json'),
+    optional('roll'), optional('slide'), optional('hurt'),
+    capturedClips ? optional('climb') : null, capturedClips ? optional('vault') : null,
+  ]);
+  let rollClip = shippedRoll, myMove = false;
   const myId = typeof location === 'undefined' ? null : myMoveFrom(location.search);
   if (myId) {
     try {
@@ -74,33 +73,6 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
       if (myMoveIsPlayable(raw)) { rollClip = parseClip(raw); myMove = true; }
     } catch { /* the shipped roll stays */ }
   }
-  // the slide clip is optional: without one, the slide is drawn as the bone-built crouch
-  let slideClip: Clip | null = null;
-  try {
-    const r = await fetch('/assets/motion/slide.json');
-    if (r.ok) slideClip = parseClip(await r.json());
-  } catch { /* no slide clip yet */ }
-  // the hurt clip is optional too: without it the fall is built from bones (crumple into the tuck, lie flat, get up slowly)
-  let hurtClip: Clip | null = null;
-  try {
-    const r = await fetch('/assets/motion/hurt.json');
-    if (r.ok) hurtClip = parseClip(await r.json());
-  } catch { /* no hurt clip yet */ }
-  // the captured climb and vault clips play by default; ?clips=0 shows the bone-built poses (the contact-point vault and the hang-to-stand climb)
-  const capturedClips = typeof location === 'undefined' || capturedClipsFrom(location.search);
-  // the captured climb and vault clips are optional too: without one, the climb is the hang-to-stand blend and the vault the contact-point pose
-  let climbClip: Clip | null = null;
-  try {
-    if (!capturedClips) throw new Error('off');
-    const r = await fetch('/assets/motion/climb.json');
-    if (r.ok) climbClip = parseClip(await r.json());
-  } catch { /* no climb clip yet */ }
-  let vaultClip: Clip | null = null;
-  try {
-    if (!capturedClips) throw new Error('off');
-    const r = await fetch('/assets/motion/vault.json');
-    if (r.ok) vaultClip = parseClip(await r.json());
-  } catch { /* no vault clip yet */ }
   let hurtLook: 'auto' | 'bones' = typeof location === 'undefined' ? 'auto' : new URLSearchParams(location.search).get('hurt') === 'bones' ? 'bones' : 'auto';
   let rollLook: RollLook = typeof location === 'undefined' ? 'auto' : rollLookFrom(location.search);
   const rookie = await loadRookie(opts.rookie, run.names, run.parents, undefined, opts.url, opts.fit ?? false);
@@ -631,10 +603,13 @@ export async function createRookieActor(scene: Scene, opts: { rookie: RookieId; 
     dispose() {
       scene.remove(group);
       group.traverse((o) => {
-        const m = o as unknown as { geometry?: { dispose(): void }; material?: { dispose(): void } | { dispose(): void }[] };
-        m.geometry?.dispose();
-        if (Array.isArray(m.material)) m.material.forEach((x) => x.dispose());
-        else m.material?.dispose();
+        const m = o as Mesh;
+        (o as SkinnedMesh).skeleton?.dispose();
+        if (m.geometry) disposeGeometry(m.geometry);
+        for (const material of m.material ? (Array.isArray(m.material) ? m.material : [m.material]) : []) {
+          for (const value of Object.values(material)) if (value?.isTexture) disposeTexture(value);
+          material.dispose();
+        }
       });
     },
   };

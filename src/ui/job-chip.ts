@@ -25,7 +25,7 @@ export function mountJobChip(root: HTMLElement, mode: string, f: typeof fetch = 
   const store = browserStore();
   if (!readJobs(store).length) return;
   const a = document.createElement('a');
-  a.className = 'job-chip'; a.href = MAKE_HREF; a.dataset.testid = 'job-chip';
+  a.dataset.coursePersistent = ''; a.className = 'job-chip'; a.href = MAKE_HREF; a.dataset.testid = 'job-chip';
   a.style.cssText = 'position:fixed;right:12px;bottom:12px;z-index:60;background:#1c2a3a;color:#fff;padding:8px 14px;border-radius:999px;font:14px system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 8px #0006';
   root.appendChild(a);
   const tick = async (): Promise<void> => {

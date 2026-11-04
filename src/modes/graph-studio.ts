@@ -1,3 +1,4 @@
+import { courseLifetime, courseListen, courseTimeout, courseInterval, courseObserve } from './course/lifetime';
 import { addBadge } from '../ui/says';
 import type { CourseData } from '../course/course';
 import { gapSpecs } from '../sim/needs';
@@ -23,6 +24,7 @@ type Verdict = { state: 'working' } | { state: 'clears'; seconds: number } | { s
 const COLOURS = { ink: '#17201d', teal: '#0f6b5c', ghost: '#9aa5a0', deck: '#cbd5cd', water: '#b7d3ee', warn: '#b45309', bad: '#dc2626', good: '#16a34a' };
 
 export function installGraphStudio(hooks: StudioHooks): void {
+  courseLifetime()?.own(() => open?.close());
   let open: { close: () => void } | null = null;
   const chip = document.createElement('button');
   chip.id = 'graphchip';
@@ -32,7 +34,7 @@ export function installGraphStudio(hooks: StudioHooks): void {
   chip.onclick = () => toggle();
   document.body.append(chip);
   const showChip = () => { chip.style.display = !open && editable(hooks.env().course) && hooks.chipWhen() ? 'block' : 'none'; };
-  setInterval(showChip, 500);
+  courseInterval(showChip, 500);
 
   function toggle() {
     if (open) { open.close(); return; }
@@ -42,14 +44,14 @@ export function installGraphStudio(hooks: StudioHooks): void {
     chip.style.display = 'none';
   }
   // capture phase: while the studio is open the game must not hear any key (typing a number must not jump)
-  addEventListener('keydown', (e) => {
+  courseListen(window, 'keydown', (e) => {
     const t = e.target as HTMLElement | null;
     const typing = !!t && (/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.isContentEditable);
     if (typing) return;
     if (e.code === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); e.stopImmediatePropagation(); toggle(); return; }
     if (open) { e.stopImmediatePropagation(); if (e.code === 'Escape') open.close(); }
   }, true);
-  addEventListener('keyup', (e) => { if (open) e.stopImmediatePropagation(); }, true);
+  courseListen(window, 'keyup', (e) => { if (open) e.stopImmediatePropagation(); }, true);
 }
 
 function start(env: StudioEnv, onClose: () => void): { close: () => void } {
@@ -187,7 +189,7 @@ function start(env: StudioEnv, onClose: () => void): { close: () => void } {
     clearTimeout(timer);
     draw();
     const mine = edited;
-    timer = window.setTimeout(() => {
+    timer = courseTimeout(() => {
       // the quick part: how hard is the hardest gap, from the same jump physics the Course uses
       try {
         const gs = gapSpecs(mine).sort((a, b) => b.needed - a.needed)[0];
@@ -259,7 +261,7 @@ function start(env: StudioEnv, onClose: () => void): { close: () => void } {
   };
 
   fit();
-  new ResizeObserver(() => { fit(); draw(); }).observe(root);
+  courseObserve(new ResizeObserver(() => { fit(); draw(); }), root);
   draw();
   // the baseline verdict (the course as it was) and the first verdict for the edited course are the same until something is dragged
   void ask(original, 'base').then((v) => { baseline = v; if (edited === original) verdict = v; draw(); });

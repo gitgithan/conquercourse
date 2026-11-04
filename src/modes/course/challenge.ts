@@ -1,3 +1,4 @@
+import { courseLifetime } from './lifetime';
 import type { CourseData } from '../../course/course';
 import { startXOf } from '../../sim/replay';
 import { lookOfParam } from '../../ui/ghost-look';
@@ -26,6 +27,7 @@ export interface ChallengeDeps {
 // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
 export function openChallengeLink(deps: ChallengeDeps): void {
   const { course, params, st, botMode, feed, ghostCtl } = deps;
+  const life = courseLifetime();
   // A challenge link (CC-128): the sender's keys are played in the simulator, and that run becomes the ghost to beat.
   const copyHere = async () => { // the link of this page, so a phone can send it to a computer
     const btn = [...document.querySelectorAll<HTMLButtonElement>('#challenge-banner button')].find((x) => /Copy link|Link copied|Link ready/.test(x.textContent ?? ''));
@@ -36,6 +38,7 @@ export function openChallengeLink(deps: ChallengeDeps): void {
   if (challengeParam && isOldLongLink(params)) showBanner(OLD_LINK_WORDS, [], 20000); // CC-219: only short links are made and opened; an old long address says so in one line
   else if (challengeParam) {
     void openChallenge(course, challengeParam).then((c) => {
+      if (life?.closed) return;
       if (document.documentElement.dataset.madeRefused) { showBanner(challengeWords('too-big'), [], 20000); return; } // the course in the link could not be opened (CC-136)
       if (!c.ok) {
         const offer = offersIdeal(c.why) && ghostCtl ? [{ label: 'Chase the ideal run instead', go: () => { ghostCtl()?.chaseIdeal(); document.getElementById('challenge-banner')?.remove(); } }] : [];

@@ -1,3 +1,4 @@
+import { courseTimeout, courseLifetime } from './lifetime';
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../../course/course';
 import { makeObstacle } from '../../course/collide';
@@ -31,6 +32,8 @@ export interface RunnerLook {
 
 export function createRunnerLook(deps: LookDeps): RunnerLook {
   const { scene, course, params, body } = deps;
+  const life = courseLifetime();
+  life?.own(() => actor?.dispose());
   const setActor = deps.setActor;
   let actor: Actor | null = null; // kept in step with the Course's copy through setActor
   let choice: 'a' | 'b' = 'a';
@@ -43,6 +46,7 @@ export function createRunnerLook(deps: LookDeps): RunnerLook {
   async function loadRookie(which: 'a' | 'b', wear = false, url?: string) {
     try {
       const next = await createRookieActor(scene, { rookie: which, url: url ?? (wear ? lookUrl(look ?? 'custom') : undefined), fit: !!url });
+      if (life?.closed) { next.dispose(); return false; }
       actor?.dispose();
       softenPlayer(next.object); // CC-180
       actor = next; setActor(next); body.visible = false; choice = which; custom = wear || !!url;
@@ -56,18 +60,20 @@ export function createRunnerLook(deps: LookDeps): RunnerLook {
   const charNote = document.createElement('div');
   charNote.id = 'charnote'; charNote.style.cssText = 'position:fixed;right:262px;top:52px;font:600 13px system-ui,sans-serif;background:#fff;border:1px solid #17201d;border-radius:8px;padding:4px 10px;display:none';
   document.body.appendChild(charNote);
-  const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) setTimeout(() => { charNote.style.display = 'none'; }, 6000); };
+  const noteLine = (t: string) => { charNote.textContent = t; charNote.style.display = t ? 'block' : 'none'; if (t) courseTimeout(() => { charNote.style.display = 'none'; }, 6000); };
   const keepChoice = params.get('nosave') === '1'; // ?nosave=1: a demo frame (the Parts gallery) wears a character without touching the player's saved choice or the pick count
   const remember = (id: string | null) => { if (!keepChoice) saveChoice(id); };
   async function wearCharacter(id: string | null) {
+    if (life?.closed) return;
     if (!id) { characterId = null; remember(null); await loadRookie(choice); return; }
     const got = await fetchCharacterUrl(id, fetch, castOn() ? await loadCast() : []);
+    if (life?.closed) return;
     if ('error' in got) { noteLine(got.error); characterId = null; remember(null); return; }
     const ok = await loadRookie('a', false, got.url);
     if (!ok) { noteLine('That character would not load. You are running as the Rookie.'); await loadRookie(choice); characterId = null; remember(null); return; }
     characterId = id; remember(id);
     if (!keepChoice) void fetch('/api/character', { method: 'POST', body: JSON.stringify({ action: 'pick', id }) }).catch(() => undefined);
-    if (guardOn()) watchFrames(90, (ms) => { if (characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
+    if (guardOn()) watchFrames(90, (ms) => { if (!life?.closed && characterId === id && tooSlow(ms)) { noteLine('Your computer is slow with this character, so you are back to the Rookie.'); void wearCharacter(null); } });
   }
   // choose your runner: the male or the female Rookie (remembered between visits)
   const pick = document.createElement('div');

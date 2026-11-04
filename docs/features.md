@@ -9,6 +9,7 @@
 ## 1. Play the Course
 | Feature | What the player sees | Turn it on | Diagram or doc |
 |---|---|---|---|
+| Reuse course runtime | Choosing another course keeps the renderer and loaded default character/motion assets; the old course stops and its controls are removed | On by default; `?courseswitch=0` uses full navigation | [method and before/after flow](../data/eval/course-loading/README.md) |
 | Deterministic physics | A runner that moves the same way every time | Always on | [pipelines 7](meta-ai-pipelines.md#7-not-ai-but-the-core-of-the-game), [SPEC 8](spec/SPEC.md) |
 | Moves: run, jump, hold, vault, climb, roll | Captured vault and climb clips play by default | Keys above; `?clips=0` shows the built poses | [pipelines 2](meta-ai-pipelines.md#2-video-to-motion-sam-3-sam-3d-body-mhr), [motion pipeline](motion-pipeline.md) |
 | Generated motion | Run, leap and hang motion from text, shown only after the plausibility check | Always on | [pipelines 3](meta-ai-pipelines.md#3-generated-motion-kimodo-with-a-llama-3-encoder) |

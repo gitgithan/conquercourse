@@ -8,18 +8,20 @@ export interface PoolWorker { post(m: ToWorker): void; listen(cb: (m: FromWorker
 
 export class IdealPool {
   private workers: PoolWorker[];
-  private waiting = new Map<PoolWorker, (m: FromWorker) => void>();
+  private waiting = new Map<PoolWorker, { resolve(m: FromWorker): void; reject(e: Error): void }>();
+  private closed = false;
   private spent = 0; // simulated ticks the current search has used (every worker's answer says what it cost)
   constructor(spawn: () => PoolWorker, readonly size: number) {
     this.workers = Array.from({ length: Math.max(1, size) }, () => {
       const w = spawn();
-      w.listen((m) => { const f = this.waiting.get(w); this.waiting.delete(w); f?.(m); });
+      w.listen((m) => { const f = this.waiting.get(w); this.waiting.delete(w); f?.resolve(m); });
       return w;
     });
   }
 
   private call(w: PoolWorker, m: ToWorker): Promise<FromWorker> {
-    return new Promise((resolve) => { this.waiting.set(w, resolve); w.post(m); });
+    if (this.closed) return Promise.reject(new Error('cancelled'));
+    return new Promise((resolve, reject) => { this.waiting.set(w, { resolve, reject }); w.post(m); });
   }
 
   private async evaluate(jobs: Job[], signal?: { cancelled: boolean }, budget?: number): Promise<number[]> {
@@ -45,5 +47,10 @@ export class IdealPool {
     return driveAsync(searchGen(course, opts), (jobs) => this.evaluate(jobs, signal, opts.budget), this.workers.length * 6, onBatch);
   }
 
-  close(): void { this.workers.forEach((w) => w.stop()); }
+  close(): void {
+    this.closed = true;
+    this.workers.forEach((w) => w.stop());
+    for (const pending of this.waiting.values()) pending.reject(new Error('cancelled'));
+    this.waiting.clear();
+  }
 }

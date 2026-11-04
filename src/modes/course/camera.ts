@@ -1,3 +1,4 @@
+import { courseListen } from './lifetime';
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../../course/course';
 import { filmShotOf, type FilmShot } from '../../film/camera';
@@ -88,8 +89,8 @@ export async function createCourseCamera(deps: CameraDeps): Promise<CourseCamera
   const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
   const dom = renderer.domElement;
   let dragging: { x: number; y: number } | null = null;
-  dom.addEventListener('pointerdown', (e) => { if (e.button === 0) { dragging = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; } });
-  dom.addEventListener('pointermove', (e) => {
+  courseListen(dom, 'pointerdown', (e) => { if (e.button === 0) { dragging = { x: e.clientX, y: e.clientY }; dom.setPointerCapture(e.pointerId); dom.style.cursor = 'grabbing'; } });
+  courseListen(dom, 'pointermove', (e) => {
     if (!dragging) return;
     const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
     dragging = { x: e.clientX, y: e.clientY };
@@ -97,10 +98,10 @@ export async function createCourseCamera(deps: CameraDeps): Promise<CourseCamera
     else { orbit.yaw = clamp(orbit.yaw - dx * 0.006, -1.4, 1.4); orbit.pitch = clamp(orbit.pitch + dy * 0.004, -0.5, 1.0); }
   });
   const stopDrag = () => { dragging = null; dom.style.cursor = 'grab'; };
-  dom.addEventListener('pointerup', stopDrag); dom.addEventListener('pointercancel', stopDrag);
-  dom.addEventListener('wheel', (e) => { e.preventDefault(); if (camMode !== 'first') orbit.zoom = clamp(orbit.zoom * Math.exp(e.deltaY * 0.001), FACE_END, 1.7); }, { passive: false });
-  dom.addEventListener('dblclick', resetOrbit);
-  dom.addEventListener('contextmenu', (e) => e.preventDefault());
+  courseListen(dom, 'pointerup', stopDrag); courseListen(dom, 'pointercancel', stopDrag);
+  courseListen(dom, 'wheel', (e) => { e.preventDefault(); if (camMode !== 'first') orbit.zoom = clamp(orbit.zoom * Math.exp(e.deltaY * 0.001), FACE_END, 1.7); }, { passive: false });
+  courseListen(dom, 'dblclick', resetOrbit);
+  courseListen(dom, 'contextmenu', (e) => e.preventDefault());
   dom.style.cursor = 'grab';
 
   function update(): void {

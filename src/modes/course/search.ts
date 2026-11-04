@@ -1,3 +1,4 @@
+import { courseLifetime } from './lifetime';
 import type { CourseData } from '../../course/course';
 import { IdealPool } from '../../sim/ideal-pool';
 import { searchIdealRun } from '../../sim/ideal';
@@ -14,6 +15,8 @@ const IGNORED = /^(Shift|Control|Alt|Meta|CapsLock)/;
 // One search at a time (the workers hold one course); each waits for the one before. Nothing here runs a search on the page's thread unless there are no workers at all.
 export function createSearch(params?: URLSearchParams): RunSearch {
   const panelOn = !params || params.get('searchpanel') !== '0'; // CC-133: ?searchpanel=0 hides the progress panel
+  const life = courseLifetime();
+  life?.own(() => idealPool?.close());
   let idealPool: IdealPool | null = null;
   let poolQueue: Promise<unknown> = Promise.resolve();
   const stats: SearchStats = { started: 0, joined: 0, reused: 0, panels: 0 };
@@ -31,6 +34,7 @@ export function createSearch(params?: URLSearchParams): RunSearch {
     } catch { return Promise.resolve(searchIdealRun(c)); } // no worker here: search on the page's thread
   };
   return shareSearches(raw, {
+    signal: life?.controller.signal,
     stats,
     openPanel: panelOn ? (onCancel) => openSearchPanel(onCancel) : undefined,
     onKeyCancel: (cancelIdeal) => {

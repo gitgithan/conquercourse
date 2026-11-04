@@ -1,3 +1,4 @@
+import { courseListen, courseTimeout, courseInterval, courseObserve } from '../modes/course/lifetime';
 // The board of the fastest verified runs on a course, and your own best time (CC-108). Tags are three letters the player chose; no name, no account.
 // The server fills the board only from runs it played again with the simulator (functions/api/leaderboard.ts). See docs/challenge.md, Part 4.
 import { secondsText } from './course-stats';
@@ -175,7 +176,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
     renderRows(list, top, rank, hooks.onView, hooks); place.textContent = placeText({ ...d, mine: { rank, ticks: p.ticks }, players: p.players ?? d.players + (d.mine ? 0 : 1) });
     show(shown);
   };
-  document.addEventListener(PUBLISHED_EVENT, onPublished);
+  courseListen(document, PUBLISHED_EVENT, onPublished);
   // Your best: one line that is redrawn whenever a run is cleared or published, and when the server answers (never kept from the first draw)
   const bestEl = document.createElement('div'); bestEl.id = 'report-best'; bestEl.style.cssText = 'font-weight:800;color:#7a5a00;background:#fff1b8;border-radius:999px;padding:3px 10px;margin-top:4px;display:none;width:fit-content'; box.appendChild(bestEl);
   const paintBest = (): void => {
@@ -183,7 +184,7 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
     bestEl.textContent = b ? `⭐ Your best: ${secondsText(b)}` : ''; bestEl.style.display = b ? 'inline-block' : 'none';
   };
   const onBest = (): void => { if (!box.isConnected) { document.removeEventListener(BEST_EVENT, onBest); return; } paintBest(); };
-  document.addEventListener(BEST_EVENT, onBest);
+  courseListen(document, BEST_EVENT, onBest);
   paintBest();
   show('day');
   return box;
@@ -209,9 +210,9 @@ export function boardCorner(key: string, hash: string, me = '', hooks: BoardHook
     card.style.top = `${under}px`; card.style.maxHeight = `${Math.max(room, 36)}px`;
   };
   const foldHere = fold; fold = (open: boolean): void => { foldHere(open); place(); };
-  place(); window.addEventListener('resize', place);
-  if (typeof ResizeObserver !== 'undefined') for (const id of RIGHT_COLUMN) { const e = document.getElementById(id); if (e) new ResizeObserver(place).observe(e); }
-  setTimeout(place, 600); setTimeout(place, 2500); // the buttons appear a moment after the card
+  place(); courseListen(window, 'resize', place);
+  if (typeof ResizeObserver !== 'undefined') for (const id of RIGHT_COLUMN) { const e = document.getElementById(id); if (e) courseObserve(new ResizeObserver(place), e); }
+  courseTimeout(place, 600); courseTimeout(place, 2500); // the buttons appear a moment after the card
   if (window.innerHeight - 150 - 230 < 200) fold(false); // little room: start as the pill
   return card;
 }
@@ -236,9 +237,9 @@ export function newsStrip(): HTMLElement {
       seen = `${r.ts}${r.course}${r.ticks}`;
       text.textContent = `${r.nick || 'Ninja'} just set ${secondsText(r.ticks)} on ${nameOfCourse(r.course)}`;
       el.style.display = 'flex'; el.style.opacity = '1'; clearTimeout(hide);
-      hide = window.setTimeout(() => { el.style.opacity = '0'; window.setTimeout(() => { if (el.style.opacity === '0') el.style.display = 'none'; }, 700); }, 12000);
+      hide = courseTimeout(() => { el.style.opacity = '0'; courseTimeout(() => { if (el.style.opacity === '0') el.style.display = 'none'; }, 700); }, 12000);
     } catch { /* no news is fine */ }
   };
-  void poll(); window.setInterval(() => void poll(), 60_000);
+  void poll(); courseInterval(() => void poll(), 60_000);
   return el;
 }

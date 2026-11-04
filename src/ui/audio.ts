@@ -51,6 +51,7 @@ function context(): AudioLike | null {
 }
 
 // Call once per page: audio wakes on the first key press, and M mutes.
+let audioKeysInstalled = false;
 export function startAudio(): () => void {
   try { muted = localStorage.getItem('cc.muted') === '1'; } catch { /* ok */ }
   const onKey = (e: KeyboardEvent) => {
@@ -60,8 +61,9 @@ export function startAudio(): () => void {
     if (c?.state === 'suspended') void c.resume?.();
     if (e.code === 'KeyM' && !e.repeat && !e.ctrlKey && !e.metaKey && !e.altKey) { setMuted(!muted); paintButton(); }
   };
-  addEventListener('keydown', onKey);
-  return () => removeEventListener('keydown', onKey);
+  if (audioKeysInstalled) return () => undefined;
+  audioKeysInstalled = true; addEventListener('keydown', onKey);
+  return () => { removeEventListener('keydown', onKey); audioKeysInstalled = false; };
 }
 
 let button: HTMLButtonElement | null = null;

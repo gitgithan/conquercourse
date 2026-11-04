@@ -1,3 +1,4 @@
+import { courseTimeout } from './lifetime';
 import type { CourseData } from '../../course/course';
 import { newWorld, type GameEvent } from '../../sim/world';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
@@ -97,7 +98,7 @@ export function createIdealRun(deps: IdealDeps) {
   function stopWholeIdeal() {
     st.idealWhole = false; idealPending = 0; idealToken++; idealSignal.cancelled = true;
     if (!botMode) st.plan = null;
-    st.idealNote = 'Your turn.'; setTimeout(() => { if (st.idealNote === 'Your turn.') st.idealNote = ''; }, 2500);
+    st.idealNote = 'Your turn.'; courseTimeout(() => { if (st.idealNote === 'Your turn.') st.idealNote = ''; }, 2500);
   }
   function demoEnd() {
     const whole = st.idealWhole; st.idealNote = '';

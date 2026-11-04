@@ -59,7 +59,7 @@ export function mountSiteNav(parent: HTMLElement, mode: string | null = flag('mo
   const own = document.getElementById('courses-btn') ? null : mountWorldGallery(parent, { current: currentWorld(pageQuery()), place: 'display:none' });
   const openGallery = () => { if (own) own.open(); else document.getElementById('courses-btn')?.click(); };
   const bar = document.createElement('nav');
-  bar.id = 'sitenav'; bar.setAttribute('aria-label', 'Main features');
+  bar.dataset.coursePersistent = ''; bar.id = 'sitenav'; bar.setAttribute('aria-label', 'Main features');
   for (const f of FEATURES) {
     const tab = f.href === null ? document.createElement('button') : Object.assign(document.createElement('a'), { href: f.href });
     tab.textContent = f.label; tab.title = f.hint; tab.dataset.feature = f.id;

@@ -30,7 +30,7 @@ const reduced = (): boolean => typeof matchMedia === 'function' && matchMedia('(
 
 /** Shows the prize and resolves when the person presses one of its buttons (or Escape). */
 export function openPrize(p: PrizeInput): Promise<PrizeEnd> {
-  if (!styled) { styled = true; document.head.append(Object.assign(document.createElement('style'), { textContent: STYLE })); }
+  if (!styled) { styled = true; document.head.append(Object.assign(document.createElement('style'), { id: 'prize-style', textContent: STYLE })); }
   return new Promise((done) => {
     const shade = Object.assign(document.createElement('div'), { className: 'prize', id: 'prize' });
     shade.setAttribute('role', 'dialog'); shade.setAttribute('aria-label', `${p.view ? 'Piece' : 'Your new piece'}: ${p.name}`);

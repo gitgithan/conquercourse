@@ -1,3 +1,4 @@
+import { openCourseHref } from './course-navigation';
 // One list of worlds and one way to jump between them, shared by the Course and every other mode (CC-89).
 // A value is a course path, or one of the words in WORD_VALUES, or empty for the stock course.
 import { BOARD_COURSES } from '../share/board-courses';
@@ -419,7 +420,7 @@ export function mountWorldGallery(parent: HTMLElement, o: { current: { value: st
     overlay = document.createElement('div'); overlay.id = 'world-gallery'; modalAttrs(overlay); overlay.setAttribute('aria-label', 'Courses');
     const g = buildGallery({
       current: o.current, onClose: close,
-      onPick: (v) => { if (v === 'stay' || v === o.current.value) { close(); return; } if (!mayLeaveCourse()) return; (o.onPick ?? ((w) => { location.href = worldHref(w); }))(v); },
+      onPick: (v) => { if (v === 'stay' || v === o.current.value) { close(); return; } if (!mayLeaveCourse()) return; (o.onPick ?? ((w) => { openCourseHref(worldHref(w)); }))(v); close(); },
     });
     overlay.append(g.el);
     overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) close(); });

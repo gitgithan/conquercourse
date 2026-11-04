@@ -1,3 +1,4 @@
+import { courseListen } from '../modes/course/lifetime';
 import * as THREE from 'three/webgpu';
 import type { CourseData } from '../course/course';
 import { heightAt } from '../sim/terrain';
@@ -86,7 +87,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
   const applyStatic = () => { for (const l of groundLines) l.visible = L.ground; box.visible = feet.visible = L.body; };
   panel.onLayer = applyStatic; applyStatic();
   panel.onClose = () => { const btn = document.getElementById('debugbtn'); if (btn) btn.click(); else view.toggle(); };
-  window.addEventListener('keydown', (e) => { if (e.code === 'Escape' && shown) panel.onClose(); });
+  courseListen(window, 'keydown', (e) => { if (e.code === 'Escape' && shown) panel.onClose(); });
 
   const view: DebugView = {
     toggle() { shown = !shown; group.visible = shown; panel.show(shown); tick = -1; return shown; },
