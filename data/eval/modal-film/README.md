@@ -24,7 +24,9 @@
 - The browser reports "ANGLE (NVIDIA ... Tesla T4 ...)", not SwiftShader.
 - Entrance frame 0 differs on 7.6 % of pixels, because it shows the model still loading.
 - The VM film of the Entrance ended with `done:false`; the Modal one ends with `done:true`.
-- VM comparison: the slicer segment took about 17 minutes on a VM for 51 s of film (`docs/promo-v2.md`); no VM time was recorded for the other two clips, so no exact speedup is claimed.
+- The 17-minute VM figure is for a different clip: the slicer flight segment (51 s of film, `docs/promo-v2.md`).
+  - That segment was not re-filmed on Modal, so it is not a like-for-like comparison.
+  - No VM time was recorded for the Entrance or Scene 1b, so no speedup is claimed; a like-for-like test (the slicer segment on Modal) is still to do.
 - Cost: T4 is about $0.59 an hour, so about $0.01 per minute of capture; a whole clip with start-up is under $0.05; the one-time image build was a few cents.
 
 ## Problems and fixes

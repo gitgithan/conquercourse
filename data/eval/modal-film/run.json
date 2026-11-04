@@ -9,6 +9,6 @@
     { "name": "scene1-b", "frames": 251, "capture_s": 52.7, "startup_s": 3.6, "marks_identical": true, "pct_pixels_over_40": "0.1 to 0.4" }
   ],
   "cost_usd_per_minute_capture": 0.01,
-  "vm_reference": "slicer segment about 17 min for 51 s of film (docs/promo-v2.md)",
+  "vm_reference": "slicer segment about 17 min for 51 s of film (docs/promo-v2.md); a different clip, not re-filmed on Modal, so not like-for-like",
   "outputs_outside_git": "../conquercourse-assets/promo-v2b-modal/"
 }
