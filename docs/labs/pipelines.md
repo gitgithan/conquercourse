@@ -114,3 +114,9 @@
 - Run: no Lab opens a real share link or shows the server's replay check.
 - Labs 4 and 10 both sit at "Cut-out" and neither cuts a game object out of a photo: Lab 4 hides people, Lab 10 scores a recorded detector.
 - See [the overlap audit](overlap-audit.md) for topics several Labs repeat.
+
+## Lab 13 now mounts Labs 8 and 3
+- The Smoothing and Gate steps open Lab 8's sliders and gate table, from the same panel code.
+- The Retarget step opens Lab 3's bone solver, from the same panel code.
+- Labs 8 and 3 still work on their own pages.
+- Picture: `docs/evidence/cc-133-pipeline-labs/lab-motion-woven.png`.

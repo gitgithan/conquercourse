@@ -102,4 +102,13 @@
   - The clip's person has other leg lengths, so every position is scaled so the legs match, and the Rookie's bones are turned to point where the joints are.
 - Tick: the pose shown is read from the simulator's tick count, never from a timer.
 - Where this Lab sits: stage 2 of 3, after the photo-to-course Labs and before running, recording and sharing a run.
-
+- Clock: a typed-in rate is a second clock, and the gate finds it out because gravity is a clock too (shown on the shipped leap, a clean clip with a clear jump).
+- Soft rules: the shipped CMU clips are not smoothed by Step 3 at all, and the filmed ones were smoothed when they were made, so on a clean clip the change is small.
+  - On the clip with the stretching arm, one length per bone fixes the first column.
+- Repairs: only small ones are allowed before the gate.
+- The last four rows of the gate table are shipped clips changed in one way (so each rule can be seen failing); they are not recorded failures.
+- Recorded run: the filmed jump roll went through the pipeline's own Python gate before it was ever played; both numbers were printed by that run, not by the page.
+  - The repair lifted the sunk feet (5.4 cm to 0).
+    - It cannot invent a falling arc, so the whole film stays held back, and only a trimmed piece (the crouch clip) was kept.
+- Woven panels: Step 3 and Step 4 open Lab 8's panel (smoothing sliders, jitter and lag, gate table) and Step 5 opens Lab 3's panel (bone solver); both are the same modules the old Labs use (`src/labs/signal/panel.ts`, `src/labs/ik/panel.ts`).
+  - The panel brings its own clips (Lab 8's and Lab 3's lists), not the clip picked at the top of Lab 13.

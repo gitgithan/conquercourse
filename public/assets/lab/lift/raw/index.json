@@ -15,7 +15,7 @@
       "raw_faces": 206670,
       "drawn_faces": 6000,
       "tilt_deg": 6.17,
-      "yaw_deg_recorded": 0.0,
+      "yaw_deg_recorded": 0,
       "baked_extents_m": {
         "x": 1.775,
         "y": 0.8,
@@ -39,7 +39,7 @@
       "raw_faces": 201196,
       "drawn_faces": 5999,
       "tilt_deg": 5.31,
-      "yaw_deg_recorded": 0.0,
+      "yaw_deg_recorded": 0,
       "baked_extents_m": {
         "x": 1.791,
         "y": 0.8,
@@ -57,7 +57,7 @@
       "kib": 79,
       "photo_credit": "Jonn Leffmann, Dansbana, Ystad",
       "licence": "CC BY 3.0",
-      "typed_height_m": 4.0,
+      "typed_height_m": 4,
       "scale_source": "typed",
       "raw_height": 1.0002,
       "raw_faces": 16204,
@@ -66,12 +66,12 @@
       "yaw_deg_recorded": 100.5,
       "baked_extents_m": {
         "x": 0.438,
-        "y": 4.0,
+        "y": 4,
         "z": 0.436
       },
       "bake_factor": 3.9991,
       "mask_how": "text",
-      "lift_seconds": 8.0,
+      "lift_seconds": 8,
       "usd_estimate": 0.0049
     },
     {
@@ -87,7 +87,7 @@
       "raw_faces": 35968,
       "drawn_faces": 5998,
       "tilt_deg": 1.65,
-      "yaw_deg_recorded": 0.0,
+      "yaw_deg_recorded": 0,
       "baked_extents_m": {
         "x": 5.425,
         "y": 0.251,
@@ -111,7 +111,7 @@
       "raw_faces": 56912,
       "drawn_faces": 5998,
       "tilt_deg": 0.34,
-      "yaw_deg_recorded": 12.0,
+      "yaw_deg_recorded": 12,
       "baked_extents_m": {
         "x": 5.29,
         "y": 2.2,
@@ -119,7 +119,7 @@
       },
       "bake_factor": 5.2309,
       "mask_how": "box-prompt",
-      "lift_seconds": 9.0,
+      "lift_seconds": 9,
       "usd_estimate": 0.005
     },
     {
@@ -135,7 +135,7 @@
       "raw_faces": 57036,
       "drawn_faces": 6000,
       "tilt_deg": 0.46,
-      "yaw_deg_recorded": 89.0,
+      "yaw_deg_recorded": 89,
       "baked_extents_m": {
         "x": 5.659,
         "y": 2.203,
@@ -167,7 +167,7 @@
       },
       "bake_factor": 3.5452,
       "mask_how": "box-prompt",
-      "lift_seconds": 9.0,
+      "lift_seconds": 9,
       "usd_estimate": 0.005
     },
     {
@@ -183,7 +183,7 @@
       "raw_faces": 41184,
       "drawn_faces": 6000,
       "tilt_deg": 0.52,
-      "yaw_deg_recorded": 179.0,
+      "yaw_deg_recorded": 179,
       "baked_extents_m": {
         "x": 8.221,
         "y": 2.202,
