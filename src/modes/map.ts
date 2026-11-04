@@ -51,7 +51,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const style = document.createElement('style');
   style.textContent = `
     .mp{font:14px/1.35 system-ui,sans-serif;color:#17201d;position:fixed;inset:0;display:grid;grid-template-columns:minmax(0,1fr) 510px}
-    .mp .map{min-width:0;min-height:0}.mp .side{padding:10px;display:grid;gap:8px;align-content:start;background:#eef1ec;overflow:auto}
+    .mp .map{min-width:0;min-height:0}.mp .side{padding:10px;display:flex;flex-direction:column;gap:8px;background:#eef1ec;overflow:auto}.mp .side>*{flex:none}
+    .mp .stk{position:sticky;top:-10px;z-index:7;margin:-10px -10px 0;padding:10px 10px 6px;background:#eef1ec;display:grid;gap:6px;box-shadow:0 4px 8px -6px rgba(23,32,29,.35)}.mp .stk:not(:has(> :not([hidden]))){display:none}.mp .stk .simsays,.mp .stk .yp{position:static;margin:0}
     .mp h1{margin:0;font-size:18px}.mp .muted{color:#58635d;font-size:12px}.mp label{display:grid;gap:1px;font-size:13px}.mp input[type=range]{width:100%;margin:0}
     .mp button,.mp input[type=search],.mp a.btn{font:inherit;border:1px solid #b9c2bb;background:#fff;color:#17201d;border-radius:8px;padding:4px 9px;cursor:pointer;text-decoration:none;box-sizing:border-box}
     .mp input[type=search]{width:100%;cursor:text}.mp .go{background:#0f6b5c;color:#fff;border-color:#0f6b5c;font-weight:700}.mp button:disabled{opacity:.5;cursor:default}
@@ -343,7 +344,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
 
   // CC-243: the Simulator speaks here too, at the top of the slicer panel, and follows the lane as the cut height or the line changes
   const simSays = simSaysPanel('slicer');
-  if (simSays) { simSays.el.hidden = true; side.prepend(simSays.el); const w = slicerWords('idle'); simSays.set(w.state, w.words); } // first in the side panel, which scrolls: the strip sticks to its top once a lane is read
+  const stk = document.createElement('div'); stk.className = 'stk'; side.prepend(stk); stk.append($('yourplace')); // CC-133: the Simulator card and Your place stay on screen however far the panel scrolls
+  if (simSays) { simSays.el.hidden = true; stk.prepend(simSays.el); const w = slicerWords('idle'); simSays.set(w.state, w.words); } // first in the side panel, which scrolls: the strip sticks to its top once a lane is read
   let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
   function invalidateShownLane() {
     ++laneToken; sliceWorker?.terminate(); sliceWorker = null;
