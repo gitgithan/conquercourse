@@ -241,6 +241,7 @@ export async function createCourseSession(host: HTMLElement, course: CourseData 
   const botState = { next: 0, caught: null as number | null, bedAt: null as number | null };
   if (params.get('bot') === 'ideal') st.plan = startAt === undefined && course.plan ? course.plan : searchIdealRun(startAt === undefined ? course : { ...course, startX: startAt }).plan;
 
+  { const lag = Number(params.get('botlag') ?? 0); if (st.plan && lag > 0) st.plan = { ...st.plan, startDelay: (st.plan.startDelay ?? 0) + Math.round(lag) }; } // ?botlag=N: the bot stands still N ticks first (120 a second), so the ghost runs ahead of it (for film)
   if (params.get('bot') === 'shortcut') { const list = course.shortcuts?.length ? course.shortcuts : findShortcutsNow(course); if (list[0]) st.plan = list[0].plan; else st.plan = course.plan ?? searchIdealRun(course).plan; }
   const botMode = params.get('bot') === 'ideal' || params.get('bot') === 'shortcut';
   const viewHooks = (): BoardHooks => createViewHooks(course, () => ghostCtl);

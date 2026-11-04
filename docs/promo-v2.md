@@ -97,3 +97,18 @@
 
 - Mapillary street photos, Muse Spark Open design partner, SAM 3 cut-out and SAM 3D Objects, SAM 3D Body (on the lache), and MusicGen for the score, all "(Meta)".
 - Photo: Jonn Leffmann, Wikimedia Commons, CC BY 3.0.
+
+## Scene 1 and the run opening (filmed 2026-11-05)
+
+- Scripts: `scripts/promo-v2/scene1.mjs` (clips a, b, c) and `scripts/promo-v2/open-run.mjs`; params in `scripts/promo-v2/params/scene1.json` and `open-run.json`.
+- Every click shows a big yellow ring over the cursor, drawn into the frames by `CLICK_MARKER` in `scripts/promo-v2/lib.mjs` (`S.pressAt`, `S.clickSel`).
+- 1a "Drop a pin anywhere": globe, zoom to the top level, pin at the prepared Shibuya course, then a live Mapillary photo.
+  - The pin coordinates are the place file's own (`public/assets/places/shibuya-tokyo.json`: 35.6595, 139.7005), so the pin lands on the course.
+  - The film shows a live Mapillary photo under Mapillary's terms; we do not store it.
+- 1b "Slice this place": the real slice, played in real time and sped up.
+- 1c "Cut a height": the height slider up and down, back to the default, scroll, "Send to World Editor", the editor with the world fitted.
+- Run opening: first person with the ghost ahead (`?botlag=N` delays the ghost bot by N ticks), camera turns to side view, B at 3 s, the ideal run clears the Warped Wall.
+- Overlay layout rule (owner, 2026-11-05): overlay text at the bottom of the frame, blue Meta model chips top left, never overlapping; the manifest records both positions.
+- Capture lessons:
+  - Another agent's vite can hold a port: use `--strictPort` and check the page served is yours.
+  - Software GL on a shared VM is slow; run one clip per VM.
