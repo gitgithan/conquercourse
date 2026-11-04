@@ -23,6 +23,14 @@ case "$command_name" in
     "$cli" tree --graph graphify-out/graph.json --root . --label ConquerCourse
     "$cli" export callflow-html --graph graphify-out/graph.json --lang en --output graphify-out/architecture.html
     ;;
+  drilldown)
+    # The community drill-down page: names, then the explorer panel, using the Python inside the Graphify tool install.
+    py=$(dirname "$(readlink -f "$cli")")/python
+    if [[ ! -x "$py" ]]; then py=$(uv tool dir 2>/dev/null)/graphifyy/bin/python; fi
+    python3 tools/name-communities.py
+    rm -f graphify-out/community-names.membership
+    "$py" tools/community-explorer.py "$@"
+    ;;
   query|explain|path|affected|god-nodes)
     if [[ ! -f graphify-out/graph.json ]]; then
       echo 'Build this worktree index first: bash tools/codegraph.sh refresh' >&2
@@ -30,5 +38,5 @@ case "$command_name" in
     fi
     "$cli" "$command_name" "$@" --graph graphify-out/graph.json
     ;;
-  *) echo 'Usage: bash tools/codegraph.sh {refresh|visualize|query|explain|path|affected|god-nodes} [args]' >&2; exit 2 ;;
+  *) echo 'Usage: bash tools/codegraph.sh {refresh|visualize|drilldown|query|explain|path|affected|god-nodes} [args]' >&2; exit 2 ;;
 esac

@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 
 const port = process.env.PORT ?? '5174';
-const PAGES = { 'making-site-map': '/making-of/site-map.html', 'making-course-map': '/making-of/course-map.html' };
+const PAGES = { 'making-site-map': '/making-of/site-map.html', 'making-course-map': '/making-of/course-map.html', 'making-code-map': '/making-of/code-map.html' };
 const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
 try {
   await new Promise((r) => setTimeout(r, 3000));

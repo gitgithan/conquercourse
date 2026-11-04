@@ -132,5 +132,7 @@ Installing extras does not activate paid APIs, connect accounts, download infere
 - `docs/codegraph/architecture.html` shows call-flow diagrams.
 - `docs/codegraph/GRAPH_REPORT.md` lists hubs and communities.
 - Community names come from `tools/name-communities.py`, which reads each community's busiest files; there are no model calls.
-- Rebuild: `bash tools/codegraph.sh refresh`, `bash tools/codegraph.sh visualize`, `python3 tools/name-communities.py`, then `rm -f graphify-out/community-names.membership` and run `tools/community-explorer.py` with the Graphify tool's own Python.
+- Rebuild in three commands: `bash tools/codegraph.sh refresh`, `bash tools/codegraph.sh visualize`, `bash tools/codegraph.sh drilldown`.
+  - `drilldown` names the communities, clears the membership cache and runs `tools/community-explorer.py` with the Python inside the Graphify tool install.
+  - Then copy `graphify-out/graph.html` to `docs/codegraph/graph.html` and to `public/making-of/code-map.html` (the app's Code map page).
 - Refreshing takes about 15 minutes on a laptop for the first full build; later builds reuse the cache.

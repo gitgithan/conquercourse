@@ -22,7 +22,7 @@ const DENY: [string, RegExp][] = [
 
 describe('The Making Of public files', () => {
   it('has the three pages and no data file', () => {
-    expect([...files].sort()).toEqual(['course-map.html', 'index.html', 'site-map.html']);
+    expect([...files].sort()).toEqual(['code-map.html', 'course-map.html', 'index.html', 'site-map.html']);
     expect(files.some((f) => f.endsWith('.json'))).toBe(false);
   });
 
@@ -41,6 +41,12 @@ describe('The Making Of public files', () => {
       expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
     });
   }
+
+  it('the code map is the drill-down graph page and the index links to it', () => {
+    const t = read('code-map.html');
+    expect(t).toContain('community-panel:start');
+    expect(read('index.html')).toContain('href="code-map.html"');
+  });
 
   it('the index links to the live game page "How a course is made" with a relative link', () => {
     const t = read('index.html');
