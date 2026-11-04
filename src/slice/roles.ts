@@ -2,6 +2,7 @@ import type { CourseData } from '../course/course';
 import { searchIdealRun } from '../sim/ideal';
 import { groundAt } from '../sim/terrain';
 import { DEFAULT_WALL } from '../sim/wall';
+import { isPolePiece, polesOf, withPoles } from './pole-world';
 import { barsOf, toBarRuns } from './bars-world';
 import { lanePlanks } from './plank-world';
 import { holdsOf, isHold, type P } from './holds-world';
@@ -74,7 +75,7 @@ function extendTop(course: CourseData, xFace: number, minLen: number): void {
 // ---- the course a world makes, with its roles ----
 export interface RoleBuild { course: CourseData; notes: string[]; length: number } // notes: why a role could not be used; length: metres of ground in the lane
 export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): RoleBuild {
-  const ground = pieces.filter((p) => !isHold(p) && p.role !== 'rope' && p.role !== 'bar'); // bars and rope anchors are not ground
+  const ground = pieces.filter((p) => !isHold(p) && !isPolePiece(p) && p.role !== 'rope' && p.role !== 'bar'); // bars and rope anchors are not ground
   const pr = laneProfile(ground, lane);
   const walls = pieces.filter((p) => p.role === 'wall' && inLane(p, lane)), beds = pieces.filter((p) => p.role === 'trampoline' && inLane(p, lane)), ropes = pieces.filter((p) => p.role === 'rope' && inLane(p, lane));
   const rows = barsOf(pieces, lane);
@@ -107,6 +108,8 @@ export function roleCourse(pieces: P[], lane: LaneSetting, name = 'My world'): R
     course.rope = { anchorX: r2(toX(uMap, f.u)), anchorY: r2(f.top), length: 9 };
     if (f.top < 4) notes.push('The rope anchor is low: the runner needs it about 6.6 m up.');
   }
+  const poles = polesOf(pieces, lane);
+  if (poles.length) return { course: withPoles(course, poles.map((q) => ({ x: toX(uMap, q.u), top: q.top }))), notes, length: pr.length };
   return { course, notes, length: pr.length };
 }
 

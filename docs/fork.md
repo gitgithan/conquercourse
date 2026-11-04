@@ -90,7 +90,10 @@ Serves the demo beat for demo photo 1 (a dance floor with two benches and a pole
 - Shared files touched (small): `src/sim/world.ts` (one mode, one entry block, one step function), `src/sim/ideal.ts` (3 lines: hold E while climbing the pole), `src/sim/branches.ts` (poles in `own`), `src/course/{course,schema,modes}.ts`, `src/motion/actor-state.ts` (a pole climber uses the hanging pose for now), `src/ui/paths.ts` (`fork=1` turns on the same fork display as `paths=1`).
 
 ## Honest limits
-- The editor cannot draw two lanes yet; the fork course is built by script.
+- The editor now has a Climbing pole piece (CC-133, behind `?fork=1`): the pole, the bars after it and any floor under the bars make the same fork, and the check proves both lanes (`proveEditorCourse` in `src/sim/fork.ts`).
+  - The editor course drops `jumpKeep` when it has a pole (the bars would otherwise make the 3 m start gap too costly to jump).
+  - The "mixed" route (drop from the bars onto a bench) is not built: the proof still reads two lanes.
+  - Evidence: `docs/evidence/cc-133-editor-pole/editor.png`; test: `tests/editor-pole.test.ts`.
   - The strip, the drums and the end report already show a fork (`CC-225`).
 - The pole climber is drawn with the bar-hanging pose; a climbing pose needs its own clip.
 - Bars are the existing swinging bars.

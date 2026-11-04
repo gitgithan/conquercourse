@@ -67,6 +67,22 @@ export function searchBulbLane(sub: CourseData): { plan: Plan; cleared: boolean;
   const pole = sub.climbPoles?.[0], holds = sub.holds ?? [];
   if (!pole || !holds.length) return null;
   const plan: Plan = { jumpXs: [], releaseAfter: 60, bouncePress: 8, climbXs: [pole.x - 0.4], hands: true, hangTicks: holds.map(() => 90) };
+  // gaps on the plain ground before the pole and after the last bar (an editor course has one at its start and one before its finish): jump each at the take-off
+  // that gets furthest. A course with no such gap is untouched, and the gaps under the bars are the bars' own business.
+  const plats = [...sub.terrain.platforms].sort((a, b) => a.x0 - b.x0), lastBar = holds[holds.length - 1].x;
+  const jumpGaps = (before: boolean) => {
+    for (let i = 0; i + 1 < plats.length; i++) {
+      const ok = before ? plats[i + 1].x0 <= pole.x + 0.5 && plats[i].x1 < pole.x - 0.5 : plats[i].x1 > lastBar + 0.5;
+      if (!ok || plats[i + 1].x0 - plats[i].x1 < 0.5) continue;
+      let best = -Infinity, at = plats[i].x1 - 0.3;
+      for (let d = 0.05; d <= 1.2; d += 0.05) {
+        const x = Math.round((plats[i].x1 - d) * 100) / 100, sc = scoreBulb(sub, { ...plan, jumpXs: [...plan.jumpXs, x].sort((a, b) => a - b) });
+        if (sc > best) { best = sc; at = x; }
+      }
+      plan.jumpXs = [...plan.jumpXs, at].sort((a, b) => a - b);
+    }
+  };
+  jumpGaps(true);
   const tryAll = (k: number, values: number[]) => {
     let best = -Infinity, at = plan.hangTicks![k];
     for (const t of values) {
@@ -78,6 +94,7 @@ export function searchBulbLane(sub: CourseData): { plan: Plan; cleared: boolean;
   const range = (a: number, b: number, step: number) => Array.from({ length: Math.floor((b - a) / step) + 1 }, (_, i) => a + i * step);
   for (let k = 0; k < holds.length; k++) tryAll(k, range(0, 300, 6));
   for (let k = 0; k < holds.length; k++) tryAll(k, range(Math.max(0, plan.hangTicks![k] - 8), plan.hangTicks![k] + 8, 1));
+  jumpGaps(false);
   const r = playPlan(sub, plan);
   if (r.world.outcome !== 'cleared') return { plan, cleared: false, ticks: r.world.runner.tick, narrowestMs: 0 };
   // the room for error on each bar: how many ticks either side of the ideal still clear the whole lane
@@ -115,4 +132,17 @@ export function proveFork(course: CourseData): ProvedLane[] {
   const fast = fastestRoute(b);
   if (fast) course.plan = fast.plan;
   return out;
+}
+
+/** The editor's proof for a course with a climbing pole (CC-133): a fork is proved lane by lane; a pole with no fork is the bulb search on the whole course.
+ *  Clear means every lane clears. The course's plan is the fastest cleared lane, and the lanes (with their stored lines) come back as `branches`. */
+export function proveEditorCourse(course: CourseData): { cleared: boolean; plan?: Plan; branches?: Branch[] } {
+  const c: CourseData = JSON.parse(JSON.stringify(course));
+  if (c.branches?.length) {
+    const lanes = proveFork(c);
+    const fast = fastestRoute(c.branches[0]);
+    return { cleared: lanes.length > 0 && lanes.every((l) => l.cleared) && !!fast, plan: fast?.plan, branches: c.branches };
+  }
+  const f = searchBulbLane(c);
+  return { cleared: !!f?.cleared, plan: f?.cleared ? f.plan : undefined };
 }

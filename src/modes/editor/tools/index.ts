@@ -4,6 +4,7 @@ import { size } from '../../../slice/world';
 import type { P } from '../state';
 import { barTool, coasterTool, lacheTool, plankTool, ropeTool, stacksTool } from './simple';
 import { barsTool } from './bars';
+import { poleTool } from './pole';
 import { bandTool, droneTool, recoilTool, trebuchetTool } from './devices';
 import type { FixEnv, PieceTool, ToolCtx } from './types';
 
@@ -16,7 +17,7 @@ export function createTools(base: Omit<ToolCtx, 'nextX' | 'nextLaneU' | 'addBarP
   const nextLaneU = () => { const c = Math.cos(ed.angle), s = Math.sin(ed.angle); return ed.pieces.reduce((r, p) => Math.max(r, p.x * c + p.z * s + (size(p.mesh).w * p.scale) / 2), 0) + 3; };
   const addBarPiece = (x: number, y: number, z = 0): P => { const q: P = { ...newPiece('Bar', barMesh(), { x, z }), src: 'hold:bar', y }; ed.pieces.push(q); ed.selected = q.id; return q; };
   const ctx: ToolCtx = { ...base, nextX, nextLaneU, addBarPiece };
-  const list: PieceTool[] = [barTool, coasterTool, lacheTool, ropeTool, trebuchetTool, recoilTool, bandTool, droneTool, stacksTool, plankTool, barsTool].map((make) => make(ctx));
+  const list: PieceTool[] = [barTool, coasterTool, lacheTool, ropeTool, trebuchetTool, recoilTool, bandTool, droneTool, stacksTool, plankTool, barsTool, poleTool].map((make) => make(ctx));
   const fixers = list.filter((t) => t.fix).sort((a, b) => (a.fixOrder ?? 9) - (b.fixOrder ?? 9));
   return {
     list, addBarPiece,

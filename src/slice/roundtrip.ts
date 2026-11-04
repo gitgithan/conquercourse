@@ -2,6 +2,7 @@ import { parseTrackSrc, trackPiece } from './track-world';
 import type { CourseData, CourseSource } from '../course/course';
 import { deviceMesh } from './device';
 import { barsPiece, barsSpecOf, barsSrc, RUNG_THICK } from './bars-world';
+import { polePiece, poleTopOf } from './pole-world';
 import { barMesh } from './holds-world';
 import { pieceFromSrc } from './layout-draft';
 import { LIBRARY } from './shapes';
@@ -82,6 +83,7 @@ export function piecesFromSource(list: CourseSource['pieces']): (Piece & { src?:
     else if (q.src.startsWith('box:')) p = pieceFromSrc(q.src, at);
     else if (q.src.startsWith('track:')) { const pts = parseTrackSrc(q.src); if (pts) p = trackPiece(pts, at); }
     else if (barsSpecOf(q.src)) p = barsPiece(barsSpecOf(q.src)!, at);
+    else if (q.src.startsWith('pole:')) p = polePiece(poleTopOf(q.src), at)
     else if (q.src === 'hold:bar') p = { ...newPiece('Bar', barMesh(), at), src: q.src };
     else { const id = q.src === 'dome' ? 'block' : q.src; /* the dome piece was removed (CC-96): an old world keeps a block in its place */ const l = LIBRARY.find((x) => x.id === id); if (l) p = { ...newPiece(l.label, l.mesh(), at), src: id }; }
     if (p) out.push({ ...p, y: q.y, yaw: q.yaw, scale: q.scale, ...(q.role ? { role: q.role as Piece['role'] } : {}) });

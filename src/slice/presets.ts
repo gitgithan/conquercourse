@@ -12,6 +12,8 @@ const at = (file: string, x: number, o: Partial<PresetPiece> = {}): PresetPiece 
 const fork = (file: string, x: number, y: number): PresetPiece => ({ src: `obj:../demo/fork-objects/${file}.glb`, x, z: 0, y, yaw: 0, scale: 1, decor: true, stay: true });
 // the fork course's ground, the same decks and bench tops as the saved course (the photo objects above are only what you see)
 const forkDecks = [raw('box:20.3:0.5:1.8', 0.15, -0.5), raw('box:20:0.5:1.8', 36, -0.5)];
+// the bulb lane: a climbing pole and the bar row it hands over to (the same numbers as the saved fork course)
+const forkBars = Array.from({ length: 8 }, (_, i) => raw('hold:bar', 10.4 + 2 * i, 4.26));
 const forkBenches = [13.7, 18.3, 22.9].map((x) => raw('box:2.4:0.45:1.8', x, 0));
 
 export const PRESETS: Preset[] = [
@@ -28,8 +30,8 @@ export const PRESETS: Preset[] = [
     pieces: [raw(COASTER_START, 11), raw('box:10:0.4:2', 32, -0.8)],
   },
   {
-    id: 'fork', label: 'Bench lane, with the bulb lane in view (clears)', note: 'The simulator runs and vaults the three park benches. The pole and the bulb bars above them are the other way across: the editor shows that lane, and the Course walks it.',
-    pieces: [...forkDecks, ...forkBenches, fork('fork-bench', 13.7, -3), fork('fork-bench', 18.3, -3), fork('fork-bench', 22.9, -3), fork('fork-pole', 10, 0), fork('fork-bulbs', 17.4, 3.286)],
+    id: 'fork', label: 'Bench lane, with the bulb lane in view (clears)', note: 'The simulator runs and vaults the three park benches. The pole and the bulb bars above them are the other way across: the check proves that lane too, and the ghost can run either.',
+    pieces: [...forkDecks, ...forkBenches, fork('fork-bench', 13.7, -3), fork('fork-bench', 18.3, -3), fork('fork-bench', 22.9, -3), raw('pole:4.3', 10, 0), ...forkBars, fork('fork-bulbs', 17.4, 3.286)],
   },
   {
     id: 'failing', label: 'Broken park (needs a repair)', note: 'The same kind of objects, but a gap is too wide and a wall too tall. Choose Find a repair to let the simulator search for changes.',
