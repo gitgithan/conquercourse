@@ -7,8 +7,9 @@ import * as THREE from 'three/webgpu';
 import { createRookieActor, type ActorState, type RookieActor } from '../render/actor';
 import { CAST_BASE, castUrl } from '../characters/cast';
 import { pageQuery } from '../flags';
+import { promoFraction, promoStride, promoPeakSpeed, PROMO_SECONDS } from './promo-walk';
 
-export interface WalkInput { moving: boolean; juno: boolean; crew: number } // crew: 0 not there yet, 1 arrived
+export interface WalkInput { moving: boolean; juno: boolean; crew: number; t?: number } // t: promo film time in seconds (then the legs follow the clock, not the picture count) // crew: 0 not there yet, 1 arrived
 interface Walker { actor: RookieActor; x: number; tick: number }
 
 const FACE_AWAY = Math.PI / 2; // the actor faces +x; this turns it to walk away from the camera (-z)
@@ -48,12 +49,15 @@ async function start(): Promise<void> {
   };
   const api = {
     pip: false, juno: false, crew: [] as boolean[],
+    ready: false, // true once Pip, Juno and all eight have been tried; the promo film waits for it before its clock starts
+    promo: pageQuery().get('promo') === '1',
+    promoSeconds: PROMO_SECONDS, promoFraction, promoPeakSpeed,
     update(inp: WalkInput) {
       const arrive = ease(inp.crew), settled = inp.crew >= 0.98;
       const run = (w: Walker, moving: boolean, x: number, z: number, show: boolean) => {
         w.actor.object.visible = show;
         if (!show) return;
-        if (moving) { w.x += 0.05; w.tick += 1; }
+        if (inp.t !== undefined) { w.tick = Math.floor(promoStride(inp.t)); w.x = w.tick * 0.05; } else if (moving) { w.x += 0.05; w.tick += 1; }
         const s: ActorState = { tick: w.tick, x: w.x, y: 0, vx: moving ? 2.4 : 0, vy: 0, grounded: true, mode: 'run', squat: false, landedTicksAgo: null, facing: 1 };
         w.actor.update(s);
         w.actor.object.position.set(x, 0, z);
@@ -80,5 +84,6 @@ async function start(): Promise<void> {
     try { crewW[i] = await add('a', castUrl(cast[i].id)); api.crew[i] = true; } catch { crewW[i] = null; api.crew[i] = false; }
     told();
   }
+  api.ready = true; told();
 }
 start().catch(() => { /* the page keeps its flat figures */ });

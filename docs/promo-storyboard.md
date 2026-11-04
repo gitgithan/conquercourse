@@ -31,7 +31,7 @@
 
 | Part | Time | What the viewer sees | Overlay |
 |---|---|---|---|
-| 0a | 0 to 5 s | The Grand Entrance tunnel: starts slow, speeds up, reaches the end at 5 s | none |
+| 0a | 0 to 5 s | The Grand Entrance tunnel: starts slow, speeds up, reaches the stage at exactly 5.0 s (150 pictures at 30 fps, measured; the tunnel is 40,680 page units long, the peak speed 16,272 units a second at 4 s, then a 1 s ease into the stage). Pip and Juno are 3D and walking from the first picture; the other eight walk in at the end. Made with `?promo=1` on `public/making-of/timeline.html` and `scripts/promo-v2/entrance.mjs`; the clip is `promo-v2b/entrance/clip.mp4` | none |
 | 0b | 5 to 12 s | First person on the track; the ghost runs away ahead | "Chase your friend or the ideal run from simulator" |
 | 0c | during the run | The camera rotates to about 45 degrees, then ends in side view | "Rotate camera (C key or mouse)" |
 | 0d | 8 s (3 s into the run) | Debug view turns on | "Debug view (B) to predict where you land" |
