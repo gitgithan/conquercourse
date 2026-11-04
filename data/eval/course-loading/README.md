@@ -40,7 +40,7 @@ flowchart TD
 - New scene materials can still need shader compilation; a first visit still initializes the renderer and loads assets.
 - The gallery pauses scene updates and rendering, rather than only pausing physics.
 - Browser Back/Forward selects the corresponding course without replacing the renderer.
-- Failed course fetches leave the existing course available; a construction failure falls back to reloading the selected URL.
+- Failed gallery-course fetches leave the existing course available; a construction or history-load failure falls back to reloading the selected URL.
 - Other modes and special film/effects/trail/automatic-clip/explicit-touch pages continue to use document navigation.
 - `?courseswitch=0` opts out of in-place switching and is retained on subsequent gallery selections.
 - Default model templates share geometry and textures; player and ghost skeletons and materials remain independent.
@@ -156,3 +156,12 @@ Explicitly losing the context is also not a complete fix; it can simply move the
 - Each variant has one sequence; results are not median or p95 estimates.
 - Chromium used software WebGL rendering on a VM. Absolute GPU times cannot be transferred to the user's physical GPU.
 - The production build was served locally on the VM; this was not an end-to-end CDN benchmark of the deployed site.
+
+
+## Final validation
+
+- TypeScript and the production build passed.
+- Full suite: **3,168 passed**, 9 expected failures, 4 skipped; one generated site-map freshness check failed because its HTML lagged its Markdown source.
+- Regenerated the site-map, including the new course-loading UX; all **24 document/registry checks passed** on rerun.
+- The real Vite and optimized-build browser sequences both passed with no page errors.
+- All golden search comparisons and stored per-tick physics traces passed.

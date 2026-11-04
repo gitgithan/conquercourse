@@ -458,6 +458,27 @@
     "deployment": "No deployment; optimized build served locally on the worker.",
     "additional_model_calls": 0,
     "new_vms": 0,
-    "validation": "TypeScript and initial production build passed; browser checks passed in dev and optimized build; final full suite running on rebased source."
+    "validation": {
+      "typecheck": "passed",
+      "production_build": "passed",
+      "full_suite": {
+        "command": "npm run test:quick -- --maxWorkers=3",
+        "passed": 3168,
+        "failed": 1,
+        "expected_fail": 9,
+        "skipped": 4,
+        "files_passed": 322,
+        "files_failed": 1,
+        "duration_seconds": 694.82,
+        "failure": "Generated site-map HTML lagged the Markdown source."
+      },
+      "resolution": "Regenerated the site-map from its Markdown source; all 24 generated-document, doc-link, formatting, style and switch-registry checks passed on rerun.",
+      "browser_dev": "passed",
+      "browser_optimized_build": "passed",
+      "golden_search": "passed",
+      "stored_physics_traces": "passed",
+      "verified_code_commit": "f634bf2a",
+      "corrected_doc_checks_passed": 24
+    }
   }
 }
