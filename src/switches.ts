@@ -83,7 +83,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'lon', default: 'none', doc: "map longitude", quiet: false },
   { name: 'look', default: 'none', doc: "a character look file", quiet: false },
   { name: 'made', default: 'none', doc: "a course made in the editor, carried in the link", quiet: false },
-  { name: 'entrance', default: 'on in dev and preview, off on the live site', doc: "1 or 0: The Grand Entrance, the fifth card of the first-visit tour (it opens the tunnel page of the Making Of)", quiet: false },
+  { name: 'entrance', default: 'on', doc: "0 hides The Grand Entrance, the fifth card of the first-visit tour (it opens the tunnel page of the Making Of)", quiet: false },
   { name: 'timeline', default: 'on', doc: "0 hides The Grand Entrance card of The Making Of in the Courses picker", quiet: false },
   { name: 'making', default: 'on', doc: "0 hides the Site map and Course map cards of The Making Of (the Parts card there has its own switch, parts)", quiet: false },
   { name: 'markbox', default: 'on', doc: "0 hides the Mark it yourself box tool in the Community Pick step", quiet: false },
