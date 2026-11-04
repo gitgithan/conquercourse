@@ -31,6 +31,7 @@ export const MODE_LOADERS: Record<string, ScreenLoader> = {
   'lab-systemdesign': async (h) => (await import('./modes/lab-systemdesign')).startLabSystemdesign(h),
   'lab-slicer': async (h) => (await import('./modes/lab-slicer')).startLabSlicer(h),
   'lab-timing': async (h) => (await import('./modes/lab-timing')).startLabTiming(h),
+  'labs-map': async (h) => (await import('./modes/labs-map')).startLabsMap(h),
   communities: async (h, q) => (await import('./modes/community-flow')).startCommunityFlow(h, q),
   gallery: async (h, q) => (await import('./modes/community-flow')).startCommunityFlow(h, q),
   park: async (h, q) => (await import('./modes/community-flow')).startCommunityFlow(h, q),
