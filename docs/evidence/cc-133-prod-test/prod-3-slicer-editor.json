@@ -1,0 +1,151 @@
+{
+  "res": {
+    "gallery": {
+      "cards": [
+        "montmartre-paris",
+        "shibuya-tokyo",
+        "edinburgh-old-town",
+        "valletta-harbour-malta",
+        "speicherstadt-hamburg",
+        "alfama-lisbon",
+        "parc-guell-barcelona",
+        "dolores-park-san-francisco",
+        "piazza-san-marco-venice",
+        "stephansplatz-vienna",
+        "main-square-krakow",
+        "castle-hill-budapest",
+        "gamla-stan-stockholm",
+        "temple-bar-dublin",
+        "plaka-athens",
+        "galata-istanbul",
+        "caminito-buenos-aires",
+        "bukchon-seoul",
+        "bryggen-bergen",
+        "gerlev-parkour-park",
+        "zollverein-parkour-essen",
+        "regents-park-london",
+        "lakeside-garden-skatepark",
+        "plaza-parkour-cochabamba"
+      ],
+      "shibuya": true
+    },
+    "pick-slice": {
+      "tiltDefault": "0",
+      "tiltAfterFlight": "72",
+      "mapPitch": 72,
+      "flightDone": "1",
+      "lane": "clearable"
+    },
+    "photo-dot": {
+      "dotsRendered": 1,
+      "panelOpen": false,
+      "imageNaturalWidth": null,
+      "apiCalls": []
+    },
+    "send-to-editor": {
+      "url": "/?mode=editor",
+      "laneKeys": [
+        "angle",
+        "offset",
+        "level"
+      ],
+      "pieces": "67"
+    },
+    "editor-tabs": {
+      "tabs": [
+        "addpiece|+ Add pieces ▾",
+        "pbtab-mine|My pieces",
+        "pbbymove|Show all together",
+        "|Stone-basket wall",
+        "add-bench|Bench",
+        "add-low-wall|Low wall",
+        "add-block|Block",
+        "add-steps|Steps",
+        "add-rail|Rail",
+        "add-brick|Toy brick",
+        "addbar|Bar",
+        "addcoaster|Coaster",
+        "addlache|Lache pair",
+        "addrope|Rope swing",
+        "addtreb|Trebuchet",
+        "addcannon|Cannon",
+        "addrecoil|Launcher",
+        "addband|Band",
+        "adddrone|Drone",
+        "addplank|Plank",
+        "addstack-3-3-3|3-3-3",
+        "addstack-3-6-3|3-6-3",
+        "addstack-6-6|6-6",
+        "addstack-1-10-1|1-10-1",
+        "addstack-cycle|Cycle (3-6-3, 6-6)",
+        "fixmenubtn|Improve▾",
+        "fixmenu-what|Ask AI for ideasMuse S",
+        "fitview|Fit",
+        "viewmode|Top plan",
+        "movesbtn|Moves",
+        "suggest|Ask AI for more ideas",
+        "preview-check-action|Stop check",
+        "what|Ask AI for ideas"
+      ],
+      "clicked": {
+        "Add pieces": "World Editor Back to the Course Ready-made courses… Hang bar and Lache (clears) Park run (clears) Coaster to a deck (cle",
+        "Moves": "World Editor Back to the Course Ready-made courses… Hang bar and Lache (clears) Park run (clears) Coaster to a deck (cle",
+        "Improve": "World Editor Back to the Course Ready-made courses… Hang bar and Lache (clears) Park run (clears) Coaster to a deck (cle",
+        "Top view": "not found"
+      }
+    }
+  },
+  "log": {
+    "slicer": {
+      "errors": [],
+      "bad": [
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/32/22.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/32/23.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/32/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/31/23.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/31/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/33/23.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/33/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/32/25.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/16/11.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/16/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/15/11.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/15/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/17/11.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/17/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/16/10.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/16/13.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/4/4.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/4/3.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/4/2.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/5/3.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/5/2.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/3/3.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/3/2.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/3/4/1.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/28/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/27/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/28/13.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/27/13.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/28/11.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/27/11.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/29/12.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/5/29/13.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/55/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/56/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/57/24.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/56/25.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/57/25.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/55/25.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/56/26.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/natural_earth/ne2sr/6/57/26.png net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/planet/20261101_080013_pt/14/14549/6452.pbf net::ERR_ABORTED",
+        "FAILED https://tiles.openfreemap.org/planet/20261101_080013_pt/14/14549/6452.pbf net::ERR_ABORTED"
+      ],
+      "api": {
+        "/api/funnel-event POST": 200,
+        "/api/community-items GET": 200
+      }
+    }
+  }
+}

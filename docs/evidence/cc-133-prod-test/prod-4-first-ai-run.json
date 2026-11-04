@@ -1,0 +1,57 @@
+{
+  "res": {
+    "editor": {
+      "topPlanButton": "Top plan -> 3D view",
+      "moves": "opened (text present)",
+      "addPiecesBenchVisible": false,
+      "improveMenuVisible": true,
+      "askAiStatus": 200,
+      "askAiReply": "Muse Spark Open suggested changes. The simulator checks them when you preview.Preview 1 suggested change"
+    },
+    "community": {
+      "tabs": [
+        "Explore",
+        "Make your own"
+      ],
+      "explore": "Community Explore Make your own Now make your own Start with a photo of a place you know. The finder outlines the things in it, you click the one you want, and it becomes a 3D piece you can place in the World Editor. Courses are made in the World Slicer and th",
+      "imagesLoaded": "6/6",
+      "makeOwnText": "Community Explore Make your own 1. Photo 2. Pick 3. Make Step 1. Pick a photo A photo of a place you know: a park, a street, a playground. People in it are blurred, and the photo is not kept on our side. Or try one of ours:",
+      "samples": 4,
+      "afterSample": "Community Explore Make your own 1. Photo 2. Pick 3. Make Step 2. Pick the things Cutter Powered by SAM 3 The finder looks at the whole photo and outlines the separate things in it: a bench, stairs, a railing. When the outlines show up, you click the one you want. If the thing you want is not outline",
+      "buttons": [
+        "tab-explore|Explore",
+        "tab-make|Make your own",
+        "step-photo|1. Photo",
+        "step-segment|2. Pick",
+        "step-make|3. Make",
+        "cseg|Segment Objects",
+        "cmark|Mark it yourself",
+        "cback|Back",
+        "cnext|Next: Make"
+      ]
+    },
+    "segment-once": {
+      "finderButton": "Segment Objects",
+      "note": "not clicked automatically here; see README"
+    }
+  },
+  "log": {
+    "editor": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/community-items GET": 200,
+        "/api/funnel-event POST": 200,
+        "/api/designer POST": 200
+      }
+    },
+    "community": {
+      "errors": [],
+      "bad": [],
+      "api": {
+        "/api/funnel-event POST": 200,
+        "/api/community-items GET": 200
+      }
+    }
+  }
+}
