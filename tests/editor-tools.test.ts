@@ -12,7 +12,7 @@ function rig() {
 
 describe('editor piece tools', () => {
   it('the toolbar order is the page order, with stacks before the plank', () => {
-    expect(rig().tools.list.map((t) => t.id)).toEqual(['bar', 'coaster', 'lache', 'rope', 'trebuchet', 'recoil', 'band', 'drone', 'stacks', 'plank', 'bars']);
+    expect(rig().tools.list.map((t) => t.id)).toEqual(['bar', 'coaster', 'lache', 'rope', 'trebuchet', 'recoil', 'band', 'drone', 'stacks', 'plank', 'bars', 'pole']);
   });
   it('Fix it asks plank, drone, launcher, then band', () => {
     const t = rig().tools.list.filter((x) => x.fix).sort((a, b) => (a.fixOrder ?? 9) - (b.fixOrder ?? 9)).map((x) => x.id);

@@ -26,5 +26,25 @@
   "errors": [],
   "cancelMs": 212,
   "heartbeatTicksDuring600ms": 12,
-  "workersCreated": 3
+  "workersCreated": 3,
+  "validation": {
+    "focused_tests_passed": 26,
+    "typecheck": "passed",
+    "build": "passed",
+    "full_suite": {
+      "files_passed": 323,
+      "files_failed": 5,
+      "tests_passed": 3195,
+      "tests_failed": 5,
+      "expected_failures": 9,
+      "skipped": 4
+    },
+    "corrections": "JSON formatting, stale toolbar/default-fork expectations, and registry rows for existing film switches",
+    "remaining_baseline_failure": {
+      "test": "fork preset clearance",
+      "result": "cleared true, test timeout",
+      "isolated_duration_ms": 149609,
+      "existing_timeout_ms": 120000
+    }
+  }
 }

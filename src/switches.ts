@@ -17,6 +17,8 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'bg', default: 'sky blue', doc: "six hex digits set the sky colour", quiet: false },
   { name: 'board', default: 'on', doc: "0 hides the leaderboard", quiet: false },
   { name: 'body', default: 'none', doc: "a made character file to wear in the demo", quiet: false },
+  { name: 'botlag', default: '0', doc: "extra bot start delay in simulation ticks for filming", quiet: false },
+  { name: 'ninja', default: 'none', doc: "character GLB URL for the crowd and closing film stages", quiet: false },
   { name: 'bot', default: 'off', doc: "ideal or shortcut lets the bot play the Course", quiet: false },
   { name: 'box', default: 'off', doc: "1 starts the editor with the hero scene as a box; the film overlay also reads comma numbers", quiet: false },
   { name: 'boxacross', default: '0', doc: "sideways offset of the box in the editor start", quiet: false },

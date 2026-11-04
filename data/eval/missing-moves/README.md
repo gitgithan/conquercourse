@@ -60,3 +60,16 @@ flowchart TD
 - Physics cost is unchanged: this fix improves responsiveness and control, not the search algorithm.
 - A deadline can stop a nearly finished proof; its unfinished candidate is not presented as verified.
 - Lesson: test cancellation while the expensive operation is still running, and inspect the screenshot; a progress element can exist yet be outside the visible scroll area.
+
+## Validation record
+
+- Focused role/client suite: 26 tests passed, including equivalence with the existing simulator search.
+- Real browser: 12 heartbeat ticks during 600 ms of physics; Cancel responded in 212 ms; all 11 lifecycle/visibility checks passed with no page errors.
+- Typecheck and production build passed.
+- Full suite ran all 328 files: 323 passed; five failures were investigated rather than hidden.
+- Three promo JSON formatting failures were corrected; stale pole-toolbar and default-fork expectations were updated; existing `botlag` and `ninja` film switches were registered.
+- Targeted reruns pass those corrected checks, plus documentation and privacy guards.
+- Remaining unrelated baseline limitation: the fork preset reports `cleared: true` but takes 149.6 seconds in the isolated rerun, exceeding its existing 120-second test limit.
+- No timeout was raised and no physics assertion was removed; the full suite therefore remains non-green because of that preset timing limit.
+- A tracked-file hash comparison confirmed the VM's runtime source matched the branch before diagnosing baseline failures.
+- Raw captures and logs are retained outside git under the sibling assets folder's `eval-full/missing-moves/`, with checksums.
