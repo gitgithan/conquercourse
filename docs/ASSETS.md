@@ -992,3 +992,9 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 |---|---|---|---|---|---|
 | `docs/evidence/lab-wait-reuse.png` | Default visual reuse/cleanup experiment with live choices and resource identities | 2026-11-05 | Real Chromium capture at 1280 × 900 on the existing test VM | No model call or new VM | Ours; UI and schematic drawings from our code |
 | `docs/evidence/lab-wait-reuse-leftovers.png` | Red leftovers after an unclean switch, with work stages and resource history | 2026-11-05 | Same real browser sequence | As above | Ours |
+
+## Missing-move search evidence (2026-11-05)
+
+| File | What | Made | How | Cost | Licence and notes |
+|---|---|---|---|---|---|
+| `docs/evidence/missing-moves-search.png` | Visible candidate, progress and Cancel while real role physics runs | 2026-11-05 | Chromium screenshot at 1280 × 900 on the existing test worker; palette compression | No model call or new VM | Ours; editor UI and generated box fixture; evidence only |

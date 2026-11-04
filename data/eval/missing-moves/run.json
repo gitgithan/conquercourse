@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-05",
+  "environment": {
+    "cpu_count": 8,
+    "ram_gb": 32,
+    "browser": "Chromium headless with SwiftShader WebGL2",
+    "viewport": [
+      1280,
+      900
+    ]
+  },
+  "method": "One real-simulator browser sequence; script records heartbeat, cancellation and lifecycle checks. Not a latency percentile.",
+  "checks": {
+    "dedicated roles worker started": true,
+    "UI heartbeat advances during real simulator work": true,
+    "candidate text explains the work": true,
+    "cancel is responsive": true,
+    "role worker terminated": true,
+    "cancel message is visible": true,
+    "progress and cancel visible in panel": true,
+    "closing Moves stops the search": true,
+    "editing invalidates the old search": true,
+    "old search cannot repaint stale suggestions": true,
+    "no page errors": true
+  },
+  "errors": [],
+  "cancelMs": 212,
+  "heartbeatTicksDuring600ms": 12,
+  "workersCreated": 3
+}

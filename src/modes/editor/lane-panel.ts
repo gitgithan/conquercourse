@@ -24,7 +24,7 @@ export interface LanePanelEnv {
   searchClearable: (course: CourseData) => Promise<boolean | null>;
   laneCheck: LaneCheck; verifyVersion: () => number;
   draw: () => void; drawProfile: () => void; save: () => void; verify: () => void;
-  remember: () => void; interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
+  invalidateMoves: () => void; remember: () => void; interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
 }
 
 // The lane panel: the sliders, "Find the best lane", "Play this lane", the floor choice, "Test from the selected piece" and the verdict.
@@ -38,7 +38,7 @@ export function createLanePanel(env: LanePanelEnv) {
     const slider = (label: string, id: string, min: number, max: number, step: number, get: () => number, set: (v: number) => void, fmt: (v: number) => string) => {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });
       const i = el('input', l, { type: 'range', id, min: String(min), max: String(max), step: String(step), value: String(get()) });
-      i.oninput = () => { set(Number(i.value)); l.firstChild!.textContent = `${label}: ${fmt(get())}`; draw(); drawProfile(); };
+      i.oninput = () => { set(Number(i.value)); env.invalidateMoves(); l.firstChild!.textContent = `${label}: ${fmt(get())}`; draw(); drawProfile(); };
       i.onchange = () => { env.remember(); save(); verify(); };
     };
     slider('Turn about the start', 'angle', 0, 180, 5, () => Math.round((ed.angle * 180) / Math.PI), (v) => { turnLane(ed, (v * Math.PI) / 180, laneProfile(ground(), ed)); const sideways = lanePanel.querySelector<HTMLInputElement>('#offset'); if (sideways) { sideways.min = String(Math.min(-30, Math.floor(ed.offset))); sideways.max = String(Math.max(30, Math.ceil(ed.offset))); sideways.value = String(ed.offset); sideways.parentElement!.firstChild!.textContent = `Sideways: ${ed.offset.toFixed(1)} m`; } ed.pieces.filter(isDevice).forEach((p) => { p.yaw = ed.angle; }); }, (v) => `${v}°`);
@@ -53,7 +53,7 @@ export function createLanePanel(env: LanePanelEnv) {
       let pick: (typeof found)[number] | null = null;
       for (const c of found) { if (await searchClearable(laneCourseAt({ angle: c.angle, offset: c.offset, level: c.level })) === true) { pick = c; break; } } // each is proved on the same course the lane check uses (roles, bars and machines too), so the answer matches what the check says afterwards
       if (!pick) { ed.verdict = 'No lane the simulator can clear was found: try other pieces or levels.'; drawLanePanel(); return; }
-      ed.start = undefined; ed.angle = pick.angle; ed.offset = pick.offset; ed.level = pick.level; ed.verdict = '';
+      ed.start = undefined; ed.angle = pick.angle; ed.offset = pick.offset; ed.level = pick.level; env.invalidateMoves(); ed.verdict = '';
       save(); drawLanePanel(); draw(); drawProfile(); verify();
     };
     const play = el('button', lanePanel, { text: 'Play this lane', className: 'go', id: 'play' });
@@ -76,7 +76,7 @@ export function createLanePanel(env: LanePanelEnv) {
     const floorRow = el('label', lanePanel, { className: 'muted', text: 'Floor you must not touch: ' }); floorRow.style.cssText = 'display:flex;align-items:center;gap:6px'; // one line, not two (the panel must fit at 1024 x 640)
     const floorSel = el('select', floorRow, { id: 'floor', title: 'What is painted under the gaps (the run ends the same way on every floor)' });
     for (const h of HAZARDS) floorSel.add(new Option(HAZARD_INFO[h].label, h, false, h === ed.floorChoice));
-    floorSel.onchange = () => { ed.floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = ed.floorChoice; save(); };
+    floorSel.onchange = () => { env.invalidateMoves(); ed.floorChoice = floorSel.value as Hazard; document.documentElement.dataset.floor = ed.floorChoice; save(); };
     const testBtn = el('button', lanePanel, { text: 'Test from the selected piece', id: 'testhere', title: 'Start the runner a few metres before the selected piece and play from there' });
     testBtn.onclick = () => {
       const q = ed.pieces.find((x) => x.id === ed.selected);

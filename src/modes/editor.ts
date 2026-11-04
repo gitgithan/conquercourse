@@ -426,7 +426,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const { sx, sz, wx, wz } = planDraw;
   function draw() { planDraw.draw(); }
 
-  const lanePanelUi = createLanePanel({ ed, lanePanel, root, style, remember, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyUi.verifyVersion(), draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
+  const lanePanelUi = createLanePanel({ invalidateMoves: () => movesUi.onChanged(), ed, lanePanel, root, style, remember, simSays, ground, courseNow, laneCourseAt, barsNow, searchClearable, laneCheck, verifyVersion: () => verifyUi.verifyVersion(), draw, drawProfile, save, verify, interruptSearch, launchCourse, persistHist });
   const planMouse = attachPlanMouse({ ed, plan, multiOn, wx, wz, chosen, chooseMany, moveWith, draw, drawProfile, drawPanel, changed: () => changed() });
   function fitAll() {
     const ps = ed.pieces.filter((q) => !isSizeReference(q) || ed.pieces.length === 1);

@@ -49,7 +49,7 @@ export function createMoves(env: MovesEnv) {
     if (ed.movesBusy) return;
     const token = ++generation;
     ed.movesBusy = only === undefined ? 'the world' : ed.pieces.find((p) => p.id === only)?.name ?? 'this piece';
-    ed.movesList = null; message = ''; progress = null; started = performance.now(); renderMoves();
+    ed.movesList = null; message = ''; progress = null; started = performance.now(); renderMoves(); movesBox.scrollTop = 0;
     heartbeat = setInterval(paintProgress, 500);
     task = rolesInWorker(coursePieces(), laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}), progress: (p) => { if (generation === token) { progress = p; paintProgress(); } } });
     try {
@@ -75,6 +75,14 @@ export function createMoves(env: MovesEnv) {
     const hd = el('div', movesBox, { className: 'row' });
     el('strong', hd, { text: 'Moves in this world' });
     el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { document.documentElement.dataset.dock = ''; movesBox.classList.add('closed'); stop('Search cancelled.'); movesBtn.setAttribute('aria-pressed', 'false'); };
+    if (ed.movesBusy) {
+      const box = el('div', movesBox, { className: 'sg' });
+      const status = el('div', box, { id: 'moves-search-status' }); status.setAttribute('role', 'status');
+      const bar = el('progress', box, { id: 'moves-search-progress' }); bar.style.width = '100%'; bar.setAttribute('aria-label', 'Changes tried');
+      el('div', box, { className: 'muted', text: 'You can keep editing. Editing or closing Moves cancels this search; nothing changes until Preview and Apply.' });
+      el('button', box, { id: 'moves-search-cancel', text: 'Cancel search' }).onclick = () => stop('Search cancelled. No changes made.');
+      paintProgress();
+    }
     const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!ed.trebuchetKg });
     document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
     for (const m of status) {
@@ -97,16 +105,7 @@ export function createMoves(env: MovesEnv) {
       pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
       const what = el('button', row, { text: 'What could this be?', id: 'whatcould' }); what.disabled = !!ed.movesBusy; what.onclick = () => void findWays(sel.id);
     }
-    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
-    if (ed.movesBusy) {
-      (movesBox.querySelector('#findways') as HTMLButtonElement).disabled = true;
-      const box = el('div', movesBox, { className: 'sg' });
-      const status = el('div', box, { id: 'moves-search-status' }); status.setAttribute('role', 'status');
-      const bar = el('progress', box, { id: 'moves-search-progress' }); bar.style.width = '100%'; bar.setAttribute('aria-label', 'Changes tried');
-      el('div', box, { className: 'muted', text: 'You can keep editing. Editing or closing Moves cancels this search; nothing changes until Preview and Apply.' });
-      el('button', box, { id: 'moves-search-cancel', text: 'Cancel search' }).onclick = () => stop('Search cancelled. No changes made.');
-      paintProgress();
-    }
+    const find = el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }); find.disabled = !!ed.movesBusy; find.onclick = () => findWays();
     if (message) el('div', movesBox, { className: 'sg', text: message });
     if (ed.movesList) {
       el('strong', movesBox, { text: ed.movesList.label });

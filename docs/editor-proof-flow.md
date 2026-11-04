@@ -237,3 +237,15 @@ flowchart LR
   E --> F["Simulator checks exact preview"]
   F --> G["Apply when ready"]
 ```
+
+## Missing-move suggestions
+
+- Moves → Find ways to add the missing moves tests possible roles for the current pieces in a dedicated simulator worker.
+- This does not call Muse Spark Open.
+- The panel shows the candidate being tested, candidate count, completed verified suggestions and elapsed time.
+- Starting a search reveals the progress and Cancel control at the top of Moves.
+- Cancel, closing Moves, editing the world or lane, and leaving the editor terminate obsolete work.
+- A page-side 40-second limit can interrupt an individual long proof and keeps only completed verified suggestions.
+- Worker failures show an error; they never fall back to simulation on the page thread.
+- Show it opens the shared Preview and Apply workflow; the search itself changes no pieces.
+- [Before/after diagrams and real-browser verification](../data/eval/missing-moves/README.md).
