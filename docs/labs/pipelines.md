@@ -22,6 +22,7 @@
   - Photo to course object: Lab 14, then Lab 15.
   - Video to motion: Lab 13.
   - Run to shared link: no Lab planned (owner decision: not visual enough); its stages and the Foundation Labs it uses are listed.
+  - Idea to course: Lab 16 (design partner loop).
   - More Labs join at the end of the list as one line each; Lab 16 (map to lane) and Lab 17 (idea to course) get their own sub-headers.
 - The groups are one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; the bar, the Courses picker and this page follow it.
 
@@ -68,6 +69,16 @@
 | 4. Hash | A fingerprint shows a changed tick | Lab 11, Verification and hashing | Teaches (what to hash, which function, avalanche) |
 | 5. Share | The link carries a version, a course hash, a nick and the keys | Lab 11, Verification and hashing | Partly (the "what the game hashes" card; no Lab builds or opens a link) |
 
+## Idea to course
+*A design partner proposes a course; the simulator checks it; Fix it repairs it.*
+
+| Stage | What happens | Lab that teaches it | How well |
+|---|---|---|---|
+| Propose | A recorded partner answer is read | Lab 16, Design partner loop (uses Lab 9) | Teaches |
+| Check | The simulator runs and says why | Lab 16 (uses Lab 1) | Teaches |
+| Fix it | One proved easing is applied | Lab 16 | Partly (not the editor's search) |
+| Show | Only a cleared course is shown | Lab 16 | Teaches |
+
 ## 4. Methods behind all three
 *Ideas the pipelines lean on, not a stage of any one of them.*
 
@@ -95,6 +106,7 @@
 | 13 | Video to motion | Video | Gate (also Video, Pose) |
 | 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |
 | 15 | Collision from a 3D lift | Photo | Collision |
+| 16 | Design partner loop | Idea | Fix it |
 
 ## Gaps, shown honestly
 - Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).
