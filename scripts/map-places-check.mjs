@@ -9,7 +9,7 @@ const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '
 const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
 const checks = {}; const notes = [];
 const fixture = JSON.parse(readFileSync('tests/fixtures/overpass-quay.json', 'utf8'));
-const url = (q = '') => `http://localhost:${port}/?mode=map&lat=-33.861&lon=151.2111&z=16${q}`;
+const url = (q = '') => `http://localhost:${port}/?mode=map&lat=-33.861&lon=151.2111&z=16&slice2=old${q}`;
 async function open(browser, mode, q = '') {
   const ctx = await browser.newContext({ viewport: { width: 1300, height: 800 } });
   const page = await ctx.newPage();
