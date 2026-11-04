@@ -24,17 +24,17 @@ const meets = (a: { left: number; right: number; top: number; bottom: number }, 
 
 describe('toast band', () => {
   it('sits in the top band of the window at 1280 x 720', () => {
-    expect(box.top).toBeLessThanOrEqual(0.25 * H); // the top quarter: the obstacle strip takes the first 170 px
+    expect(box.top).toBeLessThanOrEqual(0.34 * H); // the top third at most: the strip and the ghost chip take the first 225 px
     expect(box.bottom).toBeLessThanOrEqual(0.44 * H + 1e-9);
-    expect(box.top).toBeGreaterThanOrEqual(170); // under the strip
-    expect(box.left).toBeGreaterThan(300); // right of the time line and the controls card (they end at about x = 306)
+    expect(box.top).toBeGreaterThanOrEqual(226); // under the strip and the ghost chip (it ends at 225)
+    expect(box.left).toBeGreaterThan(330); // right of the controls card (it ends at about x = 328)
     expect(box.right).toBeLessThan(W - 250); // left of the buttons
   });
   it('is centred and never wider than the window', () => {
     for (const vw of [1280, 1024]) { const b = toastBandBox(vw, 720); expect((b.left + b.right) / 2).toBeCloseTo(vw / 2); expect(b.right - b.left).toBeLessThanOrEqual(vw * 0.92 + 1e-9); }
   });
   it('is one shared place: the hint, the toast stack and the hint history all join the band, none sets its own position', () => {
-    for (const f of ['src/modes/course/hud.ts', 'src/ui/toast-stack.ts', 'src/ui/hint-history.ts', 'src/modes/course/say.ts']) {
+    for (const f of ['src/modes/course/hud.ts', 'src/ui/toast-stack.ts', 'src/ui/hint-history.ts', 'src/modes/course/say.ts', 'src/ui/bars-keys.ts']) {
       const src = readFileSync(f, 'utf8');
       expect(src, f).not.toMatch(/(bottom:46%|top:44%|bottom:\$\{|position:fixed;left:50%;bottom)/);
     }

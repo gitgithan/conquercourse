@@ -3,7 +3,7 @@
 import { toastBand } from './toast-band';
 
 export interface HintHistory { update(current: string, hintEl: HTMLElement, nowMs: number): void }
-const KEEP = 3, LIFE_MS = 9000, DIM = [0.6, 0.38, 0.22];
+const KEEP = 1, LIFE_MS = 9000, DIM = [0.6]; // one older line, one row tall: the band must stay above the runner's head
 
 export function createHintHistory(parent: HTMLElement = toastBand()): HintHistory {
   const box = document.createElement('div');
@@ -22,7 +22,7 @@ export function createHintHistory(parent: HTMLElement = toastBand()): HintHistor
       old = old.filter((o) => nowMs - o.at < LIFE_MS && o.text !== current);
       const rows = old.slice().reverse(); // nearest the current first
       if (box.childElementCount !== rows.length || Array.from(box.children).some((c, i) => c.textContent !== rows[i].text)) {
-        box.replaceChildren(...rows.map((o) => { const d = document.createElement('div'); d.textContent = o.text; d.style.cssText = 'background:#fffc;border-radius:8px;padding:4px 12px;white-space:pre-line;text-align:center'; return d; }));
+        box.replaceChildren(...rows.map((o) => { const d = document.createElement('div'); d.textContent = o.text; d.style.cssText = 'background:#fffc;border-radius:8px;padding:4px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center'; return d; }));
       }
       Array.from(box.children).forEach((c, i) => { (c as HTMLElement).style.opacity = String(DIM[i] * Math.max(0.3, 1 - (nowMs - rows[i].at) / LIFE_MS)); });
     },
