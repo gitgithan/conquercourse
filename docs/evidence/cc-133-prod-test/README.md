@@ -9,10 +9,12 @@
   - Marked "not testable headless", not "passed".
 - Not tested by choice: paid GPU steps (outline finder, 3D lift, character making), feedback, leaderboard post, community post.
 - Worth a look (not blockers):
-  - The Fastest runs card is missing during a bot run and on the End screen (it shows when idle, top right). Likely by design for bot runs; not checked with a human run.
+  - The Fastest runs card is missing during a bot run and on the End screen (it shows when idle, top right).
+    - Likely by design for bot runs; not checked with a human run.
   - Preview music: in 2 of 2 runs after a click, `data-music` was `none` on preview and `course` on production.
   - POST-only API routes answer a GET with the home page HTML and status 200 (not 405); harmless, but monitors would read it as healthy.
-  - `/api/places?q=shibuya` answers 504 on both sites ("no map server answered"); the lat/lon form answers 200. The Slicer used its ready places, so players did not see it.
+  - `/api/places?q=shibuya` answers 504 on both sites ("no map server answered"); the lat/lon form answers 200.
+    - The Slicer used its ready places, so players did not see it.
   - A "Winner just set ..." chip overlaps the top buttons a little at 1280 px; the site tab bar overlaps the top of the Add pieces panel.
 
 ## Method

@@ -25,7 +25,7 @@ describe("the search gives the same answers as before it was made faster", () =>
       const course = JSON.parse(readFileSync(f, "utf8")) as CourseData; delete course.plan;
       const r = searchIdealRun(course);
       expect(hash({ plan: r.plan, windows: r.windows, cleared: r.cleared })).toBe(golden[`whole ${f.split("/").pop()}`]);
-    }, 120000);
+    }, 300000); // fork-bench-bulb takes about 60 s alone and passed the old 120 s limit only on a quiet machine
   }
   it("Fix it: a block ten times too big", () => {
     const r = fixLayout([newPiece("Low box", box(4, 0.5, 1.5), { x: 3, z: 0 }), scaleBy(newPiece("Block", box(1, 0.5, 1), { x: 8, z: 0 }), 10)], lane);
