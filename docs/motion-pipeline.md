@@ -35,6 +35,7 @@
 | Run, leap, land, hang, swing, reach | 1. CMU trials 09_01, 49_04, 49_05, 01_10, 14_09 | `docs/ASSETS.md` motion rows |
 | Hard landing (`hurt`) | 1. CMU trial 90_16, "fall on face" | `docs/ASSETS.md`, `data/eval/motion-hurt/` |
 | Roll | 2. Kimodo text prompt `roll_a`, sample 4 (tuck pose is the fallback) | `docs/ASSETS.md`, `data/eval/motion-roll/` |
+| Slide (key S or Down) | 2. Kimodo text prompt `slide_d`, sample 4 (1 of 36 passed) | `docs/ASSETS.md`, `data/eval/motion-slide/` |
 | Vault, climb | 3. Captured from London Parkour "Pop Vault" (CC BY); hands pinned by code | `docs/ASSETS.md`, `data/eval/motion-vault/` |
 | Giant swing, seated, launch | 4. Built from bones | `src/motion/poses.ts`, `src/motion/motion-table.ts` |
 | Ready crouch | none yet; listed by `motionGaps()` | `src/motion/motion-table.ts` |

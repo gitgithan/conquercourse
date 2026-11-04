@@ -34,10 +34,10 @@ flowchart LR
     W1["sim/world.ts<br/>12-way if chain"]
   end
   subgraph after["After (2026-11-03)"]
-    C2["course.ts 397 lines<br/>wiring + frame()"]
-    C3["course/ 32 modules"]
-    E2["editor.ts 510 lines"]
-    E3["editor/ 16 files + tools/"]
+    C2["course.ts 397 lines then, 412 now<br/>wiring + frame()"]
+    C3["course/ 32 modules then, 33 now"]
+    E2["editor.ts 510 lines then, 483 now"]
+    E3["editor/ 16 files then, 20 now, + tools/"]
     W2["sim/world.ts<br/>one lookup table"]
   end
   C1 --> C2
@@ -192,12 +192,12 @@ flowchart TD
 - Design C: a `PieceTool` seam in `editor/tools/`, one function set per special piece (`mount`, `sync`, `fix`, `panel`).
   - Pro: a new piece is one more entry in a list.
   - Con: the bar, coaster and stack buttons carry special cases, so it is done tool by tool.
-- Chosen: A first, then Fix it, moves and lane maths into their own files, then C one tool at a time.
-- `editor.ts`: about 1,365 lines before, 510 now.
+- Chosen: A first, then the fix search (then behind a Fix it button, since removed), moves and lane maths into their own files, then C one tool at a time.
+- `editor.ts`: about 1,365 lines before, 510 after the split, 483 on 2026-11-04.
 
 ```mermaid
 flowchart LR
-  E["editor.ts (510)"] --> ST["state.ts (EditorState)"]
+  E["editor.ts (510 then, 483 now)"] --> ST["state.ts (EditorState)"]
   E --> SEL["selection.ts<br/>choose, copy, paste, delete"]
   E --> TR["track.ts<br/>coaster points"]
   E --> SE["search.ts<br/>lane-check search"]
@@ -252,13 +252,13 @@ flowchart LR
 - Keep the plan document updated after each slice, so the story is not rebuilt from memory.
 
 ## What is still open
-- The editor's 3D and side pictures, its hints, keyboard and save and load still sit in `editor.ts` (510 lines).
+- The editor's 3D and side pictures, its hints, keyboard and save and load still sit in `editor.ts` (483 lines on 2026-11-04).
 - The sim `if` chains outside `world.ts` still branch on mode.
   - Counts of `mode ===` checks today: `ideal.ts` 18, `drums.ts` 8, `predict.ts` 5.
   - Left alone on purpose: a mistake there changes every score and share link, and the payoff for the demo is small.
 - The course JSON has a field list (`src/course/schema.ts`, `COURSE_FIELDS`, one row per field with its check), but not yet a builder.
   - Still open: a `makeCourse(partial)` for the four course builders, so a new field is added in one place.
-- The server routes share `functions/_lib/http.ts`, but six files still define their own `json` helper.
-  - Those files are `places.ts`, `features.ts`, `photos.ts`, `challenge-course.ts` and `share.ts`, besides `http.ts` itself.
+- The server routes share `functions/_lib/http.ts`, but five files still define their own `json` helper.
+  - Those files are `places.ts`, `features.ts`, `photos.ts`, `challenge-course.ts` and `share.ts`; `http.ts` holds the shared one.
 - Corrected 2026-11-03: an earlier version of this list said the field list had no home and that 15 routes repeated `json`.
   - It was written from `docs/refactor-review.md` without rechecking the code.

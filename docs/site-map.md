@@ -322,7 +322,7 @@
 - **World Slicer**
   - Source: `src/modes/map.ts`, `src/modes/map-flight.ts`, `src/modes/map-place.ts`, `src/slice/slicer.ts`, `src/slice/slicer-core.ts`, `src/slice/slicer-worker.ts`, `src/ui/place-photos.ts`, `src/ui/live-photos.ts`.
   - Unit tests: `tests/slicer.test.ts`, `tests/slicer-default.test.ts`, `tests/slice.test.ts`, `tests/slice-proven.test.ts`, `tests/slice-suggest.test.ts`, `tests/curated-places.test.ts`, `tests/places.test.ts`, `tests/street-photos.test.ts`, `tests/live-photos.test.ts`, `tests/osm.test.ts`.
-  - Browser checks: `scripts/map-check.mjs`, `scripts/slicer-check.mjs`, `scripts/map-places-check.mjs`, `scripts/street-photos-check.mjs` (no status recorded).
+  - Browser checks: `scripts/map-check.mjs`, `scripts/slicer-check.mjs`, `scripts/street-photos-check.mjs` (no status recorded).
   - Docs: `docs/world-slice.md`, `docs/street-photos.md`, `docs/cut-height.md`.
 - **Community**
   - Source: `src/modes/community-flow.ts`, `src/community/` (`flow.ts`, `items.ts`, `crop.ts`, `share-client.ts`), `src/slice/segment.ts`, `src/slice/object-lift.ts`, `src/ui/photo-object.ts`.

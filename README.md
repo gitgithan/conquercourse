@@ -137,7 +137,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Use of Meta AI tooling | 25% | Ten Meta models and services, each with one visible job; the models propose and the simulator decides | [Meta tool use](#meta-tool-use), [open weights split](#-open-weights-split) |
 | Technical depth | 20% | A deterministic 120 Hz simulator, an ideal-run proof, a plausibility gate, cross-machine tests, failures written up | [Proof in numbers](#-proof-in-numbers), [Architecture](#-architecture-at-a-glance) |
 | Demo | 25% | An 85 second film from the real game, and a 60 second path you can click yourself | [Promo video](#-promo-video), [60-second judge path](#-60-second-judge-path) |
-| Bonus: Best Agentic Use-Case | bonus | In code and measured, not a player button: an agent designs a course from a sentence, proves it clearable with the real simulator, and repairs it until proven: 40 of 44 runs proven, none by deleting obstacles, $0.36 for all 44; players get the simulator-checked **Ask AI for ideas** and **Fix it** | [Best Agentic Use-Case](#-best-agentic-use-case) |
+| Bonus: Best Agentic Use-Case | bonus | In code and measured, not a player button: an agent designs a course from a sentence, proves it clearable with the real simulator, and repairs it until proven: 40 of 44 runs proven, none by deleting obstacles, $0.36 for all 44; players get the simulator-checked **Ask AI for ideas**, plus **Make it easier** and **Find shortcut** | [Best Agentic Use-Case](#-best-agentic-use-case) |
 | Bonus: Most Viral | bonus | A short challenge link and a short clip (up to about 20 seconds), with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
 | Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
 | Bonus: Best Creative Build | bonus | Anyone can type a sentence and get a playable character: Muse Image paints it, SAM 3.1 cuts it out, SAM 3D Objects makes the mesh, and one fixed skeleton and one set of physics keep every character fair. Real parks, streets and photos become courses too | [Characters (UGC)](#user-made-characters-and-pieces-ugc), [Meta tool use](#meta-tool-use) |
@@ -191,7 +191,6 @@ flowchart TB
     direction TB
     OSM["OpenStreetMap: lanes, buildings, ground"]
     MAP["Mapillary: street photos, blurred by Mapillary"]
-    COM["Wikimedia Commons: facade photos"]
   end
 
   subgraph BUILD["Build time (scripts/, pipelines/)"]
@@ -199,7 +198,9 @@ flowchart TB
     MOT["SAM 3D Body + MHR, Kimodo, CMU mocap:<br/>motion clips"]
     MUS["MusicGen: music loops"]
     FILES["public/assets/: files the game ships"]
+    COM["Wikimedia Commons: facade photos<br/>(tools/fetch_commons.py, credited)"]
     MOT --> FILES
+    COM --> FILES
     MUS --> FILES
   end
 
@@ -208,10 +209,11 @@ flowchart TB
   API --> SPARK
   API --> IMG
   API -->|"photo jobs"| SAM3
+  API -->|"character lift"| SAM3D
   BAKE -->|"GLB piece"| API
   BROWSER -->|"places, photos"| OSM
   BROWSER --> MAP
-  BROWSER --> COM
+  API -->|"token stays on the server"| MAP
   FILES --> BROWSER
 
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
@@ -253,7 +255,7 @@ flowchart TB
   - That makes a time a fact: a friend can replay your run, and the server proves a clear by playing it again.
 - **A course you can prove.**
   - The ideal-run search finds a plan of key presses that clears the course, and proves it.
-  - If a layout that an AI or a player made cannot be cleared, the game says so and offers a fix it has already checked.
+  - If a layout that an AI or a player made cannot be cleared, the game says so and points to Ask AI for ideas, whose proposals the simulator checks before you apply them.
 - **Real world in, real world out.**
   - A pin on a map or a photo of a bench becomes a course, and the physics you learn on it is the physics of the real thing.
   - Players learn by doing; the game never grades or coaches a person's technique.
@@ -526,9 +528,11 @@ flowchart LR
   A["Pieces and roles"] --> B["Lane read<br/>(our code)"]
   B --> C["Ideal-run search<br/>proof worker"]
   C -->|"clears"| D["Save, play, share"]
-  C -->|"stuck"| E["Design partner<br/>Muse Spark Open"]
-  E --> F["One change<br/>proved by the simulator"]
-  F --> A
+  C -->|"no clear run found"| E["Ask AI for ideas<br/>Muse Spark Open"]
+  E --> F["Preview: the simulator<br/>checks the exact change"]
+  F -->|"Apply"| A
+  C -->|"clears, press is tight"| G["Make it easier<br/>(simulator only, no model)"]
+  G --> F
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class E meta;
 ```
@@ -565,6 +569,7 @@ flowchart LR
   B --> D["SAM 3D Body + MHR<br/>vault and climb from video"]
   D --> E["Plausibility gate"]
   F["Kimodo<br/>Llama 3 encoder"] --> E
+  CM["CMU mocap<br/>run, leap, land, hang, swing"] --> E
   E --> G["Motion clips"]
   C --> H["Game files"]
   G --> H

@@ -33,7 +33,7 @@
 ### Step 1: the saying
 - Saying: *"The swing gets your hand to the next rung; a gap too wide asks for a bigger swing."* (the Monkey bars row in [sayings.md](sayings.md)).
 - The tension is: the swing is both what carries you forward and what you must pay to keep.
-- It is true because a straight arm reaches only 0.7 m about the shoulder, so a far rung is out of reach until the body swings forward enough.
+- It is true because a straight arm reaches only 0.8 m about the shoulder, so a far rung is out of reach until the body swings forward enough.
 - It is also earned: the player finds out by stalling on a wide gap and then kipping harder.
 
 ### Step 2: the keys
@@ -55,14 +55,14 @@ stateDiagram-v2
   [*] --> run
   run --> bars: hold E in the air near a rung
   bars --> bars: Q or T reaches the next rung (alternate hands)
-  bars --> bars: a stall (wrong order, no swing, gap too wide): nothing changes
+  bars --> bars: a stall changes nothing (wrong order, no swing or gap too wide)
   bars --> run: let go of E, fly on with the swing
 ```
 
 *Notice: a stall is a loop back to the same state, so nothing in the row can make you fall; only letting go does.*
 
 - Two states only: `run` and `bars`; a stall is not a state, it is a reach that does nothing ([bars.md](bars.md)).
-- The reach rule: a rung is reachable when it is between 0 and 2 x 0.7 x sin(angle) ahead of the point between the hands, and the swing is going forward.
+- The reach rule: a rung is reachable when it is between 0 and 2 x 0.8 x sin(angle) ahead of the point between the hands, and the swing is going forward.
 - So the gap a pair can cross is decided by how far the body swings, not by a timer.
 - Each reach keeps 0.93 of the swing speed; damping is the same as on a bar; the kip is the only source of energy.
 - The body is carried onto the new pivot over 8 ticks, so nothing jumps.
@@ -83,7 +83,7 @@ stateDiagram-v2
 - A run is its keys: one bitmask per tick, run-length packed (`src/sim/replay.ts`).
 - Q and T are two new bits (13 and 14), added above the old ones, so old recordings and golden hashes do not change.
 - Tests: the same keys give the same state bit for bit; keys packed into the mask and played again end where the live run ended; the new bits sit above the old ones.
-- The full course is proved by a recorded key list (`public/assets/demo/bars.run.json`) because the ideal-run search does not know monkey bars yet ([bars.md](bars.md), "What is not done").
+- The full course is proved by a recorded key list (`public/assets/demo/bars.run.json`) because the search did not know monkey bars when the move was first built; it does now ([bars.md](bars.md), "The ideal run on monkey bars"), and the recorded run stays as the replay test.
 
 ![Path of the recorded run: a jump to a pull-up bar, a swing, a release and a catch on the first rung of the monkey bars.](evidence/cc-133-swing-to-bars.svg)
 
@@ -161,9 +161,9 @@ stateDiagram-v2
 - **A move check says what a clip shows; the gate only says a body could do it.**
   - A front flip once passed the gate as a roll until the check required a low body that keeps touching the ground ([lessons.md](lessons.md)).
   - Fix: add a bar check with negative controls (a standing body and a plain hang must fail travel).
-- **The ideal-run search did not know the new move.**
+- **The ideal-run search did not know the new move at first.**
   - So the demo course is proved by a recorded run, and the limit is written in the doc.
-  - Fix: say so, and keep a ranked next step ("teach the search about monkey bars").
+  - Fix: say so, keep a ranked next step ("teach the search about monkey bars"), and later teach it (`barsStart`, `barsWait`, `barsKip`, `barsRelease` in `src/sim/ideal.ts`).
 - **Adding a mode touched tests that count modes and cards.**
   - Commits `82a601e4` (mode count is 15 with the bars and the pole climb) and `3df9520a` (registry and card tests) fixed that after the fact.
   - Fix: before shipping a move, grep for the lists that count modes, switches and cards.

@@ -219,6 +219,7 @@ The upload flow below adds request checks, progress, browser storage and Communi
   - Player objects are drawn in the 3D view from a blob url; in the Course (scene export) they fall back to their plain mesh.
 
 ## 8. Character: generate, rig, check
+- **Shipped here:** the live "describe a character" path uses route A (Muse Image, SAM 3.1, SAM 3D Objects and our rig), see [character-pipeline.md](character-pipeline.md); the Tripo recipe below is kept as the other provider (`pipelines/charmaker/providers/tripo.py`).
 - **Purpose:** game-ready characters on the SOMA skeleton.
 - **Generate (Tripo, `https://openapi.tripo3d.ai/v3`):**
   - Settings: model `P2-20260801`, `quad: true`, `face_limit: 5000`, `texture: true`, `pbr: false`, `texture_quality: "standard"`, `auto_size: true`; about 110 credits per character from text or from an image; P2 now returns FBX.
@@ -247,6 +248,7 @@ The upload flow below adds request checks, progress, browser storage and Communi
 - **Measured:** about 150 s per 150-frame clip at 960×540 on a laptop with software rendering.
 
 ## 10. Ideal-run search, par times and size ideals
+- **Shipped here:** the search in `src/sim/ideal.ts` is a grid search over a `Plan` of timings, not the hill climb below; how it works and what it costs: [ideal-search.md](ideal-search.md).
 - **Purpose:** each obstacle's ideal input timing, its clearing window in milliseconds (difficulty), a par time, and the "line that would have made it" in the replay.
 - **What is searched:** a recorded run is a list of input edges (key down/up with tick numbers); keep the moves and their order, nudge one or two edges in time (up to a maximum shift in ticks), replay the real simulator, keep the change when the run still clears (lands on the same box, ends the same way) and is faster; a seeded random walk (hill climbing), so the same seed gives the same result.
 - **Time is measured** from the first press to the run's end.
