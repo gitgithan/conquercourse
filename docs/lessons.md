@@ -356,3 +356,16 @@
   - A toast takes the main slot over the hint, so nothing piles up below.
 - A bug worth remembering: appending a node that is already in the page restarts its CSS animation, so the dimmed rows slid forever until they were only added once.
 - Limit: the page draws the messages once per frame, so a message that comes and goes between two frames never reaches the history.
+
+## Promo v2 craft (CC-133, 2026-11-05)
+
+- A stepped `performance.now` is not enough for the course: its loop times itself on the animation-frame stamp.
+  - On a slow software GPU the run raced ahead (the whole run was over in 2 s of film).
+  - The fix: hand the loop the stepped clock too (`rafStep` in `scripts/promo-v2/lib.mjs`).
+- A bot run is only 6.9 s of game time, so three camera angles in 12 s need slow motion.
+  - Step the game clock by half a frame per picture; every picture is still taken, so it stays smooth.
+- One flight or load that is fine at true speed can be the longest part of a segment; take marks (`marks.json`) so captions and credit tags follow the beats and not guessed seconds.
+- Keep the music in bars: a longer slot loops the last bars with a short crossfade, so the drop still lands on its clip.
+- Do not hard-code Lab numbers in a script (names only); read them from the page by their visible text and keep the text in the params file.
+- The Design partner needs a model key; a capture machine without one answers the call with a stand-in in the live format, and the docs say so.
+- After pulling the latest `origin/main`, reshoot the segments that show changed screens; the drums, toasts and hint band changed between two pulls on the same day.
