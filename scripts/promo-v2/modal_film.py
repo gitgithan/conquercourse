@@ -25,7 +25,7 @@ GPU = os.environ.get("FILM_GPU", "T4")  # L4 queued for 10+ min on 2026-11-05; T
 
 def _tarball():
     """One archive instead of ~5000 small uploads (a flaky uplink drops the connection on many files). Fixed mtimes keep the image cache stable."""
-    out = Path(tempfile.gettempdir()) / "cc-film-repo.tgz"
+    out = Path(tempfile.mkdtemp(prefix="ccfilm-s4-")) / "repo.tgz"
     ex = [f"--exclude={x}" for x in ["node_modules", ".git", "data/eval", "test-results", "dist", "local-notes-q7", "*.mp4", "*.wav", "package-lock.json", "package.json"]]
     subprocess.run(["tar", "--sort=name", "--mtime=2026-01-01", "--owner=0", "--group=0", "-czf", str(out), *ex, "-C", str(ROOT), "."], check=True)
     return out
@@ -93,8 +93,8 @@ def probe():
     return out
 
 
-@app.function(gpu=GPU, timeout=3 * 3600, volumes={"/frames": frames_vol}, max_containers=3)
-def film(clip: str, args: list[str], name: str, gl: str = GL_ARGS, env: dict | None = None):
+@app.function(gpu=GPU, timeout=3 * 3600, volumes={"/frames": frames_vol}, max_containers=8)
+def film(clip: str, args: list[str], name: str, gl: str = GL_ARGS, env: dict | None = None, base: str = ""):
     t0 = time.time()
     vite = start_vite(True)
     out = f"/frames/{name}"
@@ -105,7 +105,7 @@ def film(clip: str, args: list[str], name: str, gl: str = GL_ARGS, env: dict | N
     print(renderer, r.stderr[-300:], flush=True)
     t1 = time.time()
     # the scripts take: <clip args...> <playwright> <outdir> [baseUrl]; lib.mjs picks the GL backend from GL_BACKEND
-    cmd = ["node", f"scripts/promo-v2/{clip}.mjs", *args, "playwright", out, "http://127.0.0.1:5173"]
+    cmd = ["node", f"scripts/promo-v2/{clip}.mjs", *args, "playwright", out, base or "http://127.0.0.1:5173"]
     e = dict(os.environ, **(env or {}), CC_GL=gl)
     p = subprocess.run(cmd, cwd=APP_DIR, env=e, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     print(p.stdout[-4000:], flush=True)
@@ -121,13 +121,13 @@ def film(clip: str, args: list[str], name: str, gl: str = GL_ARGS, env: dict | N
 
 
 @app.local_entrypoint()
-def main(clip: str = "", args: str = "", name: str = "", probe_only: int = 0, gl: str = GL_ARGS, env: str = ""):
+def main(clip: str = "", args: str = "", name: str = "", probe_only: int = 0, gl: str = GL_ARGS, env: str = "", base: str = ""):
     if probe_only:
         print(json.dumps(probe.remote(), indent=2))
         return
     name = name or (clip if not args else f"{clip}-{args.replace(' ', '')}")
     extra = dict(kv.split("=", 1) for kv in env.split(",") if kv)
-    info = film.remote(clip, args.split(), name, gl, extra)
+    info = film.remote(clip, args.split(), name, gl, extra, base)
     print(json.dumps(info, indent=2))
     dest = ROOT.parent / "conquercourse-assets" / "promo-v2b-modal"
     dest.mkdir(parents=True, exist_ok=True)
