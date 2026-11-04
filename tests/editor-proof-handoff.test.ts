@@ -59,6 +59,23 @@ describe('a preview proof handed to the editor and Play', () => {
     TestWorker.all[1].answer({ cleared: false }); await another;
     expect(editor.proofFor({ ...course, band: { x: 0, k: 70, rest: 1, snap: 22 } })).toBeNull();
   });
+  it('forwards live progress without publishing a verdict and ignores cancelled progress', async () => {
+    const progress = vi.fn(), preview = createSearch({ progress, preview: true });
+    const old = preview.searchResult(course), first = TestWorker.all[0];
+    const stage = { label: 'edge at 8 m', step: 0, of: 2 };
+    first.answer({ progress: stage });
+    expect(progress).toHaveBeenCalledExactlyOnceWith(stage);
+    expect(preview.proofFor(course)).toBeNull();
+    preview.stopSearch(); expect(await old).toBeNull();
+    first.answer({ progress: { ...stage, step: 1 } });
+    expect(progress).toHaveBeenCalledTimes(1);
+    const fresh = preview.searchResult(course), current = TestWorker.all[1];
+    first.answer({ progress: stage });
+    expect(progress).toHaveBeenCalledTimes(1);
+    current.answer({ progress: stage });
+    expect(progress).toHaveBeenCalledTimes(2);
+    current.answer({ cleared: false }); await fresh;
+  });
   it('shares a negative result without inventing a successful run', async () => {
     const { preview, editor } = services();
     const p = preview.searchResult(course); TestWorker.all[0].answer({ cleared: false }); await p;

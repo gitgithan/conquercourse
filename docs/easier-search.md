@@ -18,9 +18,10 @@
 | Target the weakest measured window | Spends the first edits near the limiting obstacle instead of near an unrelated selection/start | Unknown obstacle labels fall back to the selected area |
 | Deduplicate identical course inputs | Reuses rounded/clamped candidates and the baseline | Keys include current device settings; different inputs cannot share a proof |
 
-- Candidate cards are on during local development, or with `?mode=editor&easierview=1`.
+- Candidate cards appear by default while Make it easier searches, in development and built versions.
+- They show the simulator trying layout changes; Ask AI for ideas instead uses the single-preview simulator progress card.
 - `easierview=0` hides the cards while keeping worker searches and cancellation.
-- Production leaves the new visualization opt-in.
+- `easierview=1` explicitly enables the cards; no query parameter is needed by default.
 - Grey profiles show the current course; teal shows a candidate.
 - “Verified” means that candidate's simulator found a successful run.
 - The number in milliseconds measures the narrowest supported press window, not search duration.

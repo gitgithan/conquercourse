@@ -327,7 +327,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const { drawProfile } = createProfile({ ed, profileCanvas, howto, currentProfile, barsNow, draw, drawPanel, changed: () => changed() });
   const proofResults = new Map<string, PresetPlan>();
-  const previewSearch = createSearch({ progress: () => {}, results: proofResults, preview: true });
+  const previewSearch = createSearch({ progress: (p) => helperUi.previewProgress(p), results: proofResults, preview: true });
   const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, tools, previewSearch });
   const { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
   const movesUi = createMoves({ ed, lane, planWrap, addBarPiece, changed, helper: helperUi });

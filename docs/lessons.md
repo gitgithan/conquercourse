@@ -281,3 +281,21 @@
 - Keep the model badge beside the AI input and edit provenance separate from the simulator verdict.
 - Share action labels and explanations between the menu, glossary and underlying controls.
 - [Current action names and flow diagram](editor-proof-flow.md).
+
+
+## A disabled action needs visible work in progress (2026-11-04)
+
+- The preview worker already reported search stages, but a no-op progress callback hid them from the designer.
+- Show the current timing search and elapsed time where the user is waiting for Apply.
+- Keep progress outside the scrolling list of edits so a long proposal cannot hide it.
+- Obstacle counts describe a search pass, not time remaining or a guarantee that the course clears.
+- Keep Stop and Retry independent of the model request so retrying a simulator check does not spend another model call.
+- Clear timers and ignore old worker reports when a preview is cancelled or replaced.
+- [Preview progress flow](editor-proof-flow.md).
+
+
+## Video focus and applied summaries (2026-11-04)
+
+- For future videos, use highlights on the original UI; do not add enlarged duplicate views (owner preference).
+- Put each applied change on its own line, separately from the simulator verdict.
+- Make it easier candidate cards show layout search, while an AI proposal uses a single-preview check; explain the distinction.
