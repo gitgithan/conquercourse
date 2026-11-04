@@ -41,7 +41,7 @@ sequenceDiagram
     loop Up to roughly 30 edits
         UI->>Sim: Search one changed course
         Sim-->>UI: Verdict, plan, windows
-        Note over UI: Keep widths; discard successful plan
+        Note over UI: Keep widths, discard successful plan
     end
     UI->>Preview: Winning edit without full proof
     Preview->>Worker: Search winner again
@@ -60,7 +60,7 @@ sequenceDiagram
     participant Preview
     UI->>Cache: Read complete original proof
     Cache-->>UI: Successful plan and all timing windows
-    UI->>UI: Locate weakest window; order small edits by cost
+    UI->>UI: Locate weakest window, order small edits by cost
     par Cost-ordered wave
         UI->>A: Candidate 1, complete course
         UI->>B: Candidate 2, complete course
@@ -72,7 +72,7 @@ sequenceDiagram
     UI->>Cache: Retain winner and all timing windows
     UI->>Preview: Proposed edit
     Preview->>Cache: Exact matching proof
-    Cache-->>Preview: Already verified; Apply ready
+    Cache-->>Preview: Already verified, Apply ready
     Player->>UI: Apply then Play
     UI->>Cache: Reuse the same successful run
 ```
