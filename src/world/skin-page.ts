@@ -8,6 +8,7 @@ import { FACADES, facadeOn } from './facade';
 import { groundColourOn } from '../slice/ground-colour';
 
 const q = pageQuery(), gc = groundColourOn(q, location.hostname), slug = q.get('place') ?? 'montmartre-paris', skin = skinFromQuery(q, 'full');
+const tx = Number(q.get('tx') ?? 0), tz = Number(q.get('tz') ?? 0); // tx/tz: metres east/south of the centre to look at (to film one building)
 let az = Number(q.get('az') ?? 35), el = Number(q.get('el') ?? 32), dist = Number(q.get('dist') ?? 230);
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(1); renderer.shadowMap.enabled = skin === 'full'; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -19,7 +20,7 @@ const sun = new THREE.DirectionalLight(0xfff2dd, skin === 'none' ? 1.2 : 2.2); s
 sun.castShadow = skin === 'full'; sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -180, right: 180, top: 180, bottom: -180, near: 10, far: 700 }); sun.shadow.bias = -0.0005;
 scene.add(sun);
 const place = (window as unknown as { __skin: unknown }).__skin = { ready: false, stats: null as unknown, ms: 0 };
-function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam.position.set(Math.sin(a) * Math.cos(e) * dist, Math.sin(e) * dist, Math.cos(a) * Math.cos(e) * dist); cam.lookAt(0, 8, 0); renderer.render(scene, cam); }
+function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam.position.set(tx + Math.sin(a) * Math.cos(e) * dist, Math.sin(e) * dist, tz + Math.cos(a) * Math.cos(e) * dist); cam.lookAt(tx, 8, tz); renderer.render(scene, cam); }
 (async () => {
   // CC-133: with the ground colour on, the file with the extra ground tags is used when there is one; off, the saved CC-178 file as always
   const first = gc ? 'cc-133-ground-colour' : 'cc-178-places', second = gc ? 'cc-178-places' : 'cc-133-ground-colour';
@@ -41,7 +42,7 @@ function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam
   const t0 = performance.now(), { group, stats } = buildSkin(osm, { skin, facades, style: buildingStyleOn(q, location.hostname), groundColour: gc, slopeGround: gc ? ground : null });
   scene.add(group); frame();
   Object.assign(place, { ready: true, groundColour: gc, stats, ms: Math.round(performance.now() - t0) });
-  (document.getElementById('note') as HTMLElement).textContent = `${slug} · skin=${skin} · ${stats.buildings} buildings, ${stats.land} land shapes, ${stats.roads} roads, ${stats.trees} trees · built in ${Math.round(performance.now() - t0)} ms · ground colour ${gc ? 'on' : 'off'} · © OpenStreetMap contributors${stats.facades ? ' · library facade photo: Bestbudbrian, CC BY-SA 3.0, Wikimedia Commons' : ''}`;
+  (document.getElementById('note') as HTMLElement).textContent = `${slug} · skin=${skin} · ${stats.buildings} buildings, ${stats.land} land shapes, ${stats.roads} roads, ${stats.trees} trees · built in ${Math.round(performance.now() - t0)} ms · ground colour ${gc ? 'on' : 'off'} · © OpenStreetMap contributors${stats.facades ? facades.map((f) => ` · ${f.spec.credit}`).join('') : ''}`;
   if (q.has('hidenote')) (document.getElementById('note') as HTMLElement).style.display = 'none';
 })();
 let drag: { x: number; y: number } | null = null;

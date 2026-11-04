@@ -900,7 +900,8 @@
       {
         "type": "way",
         "tags": {
-          "building": "church"
+          "building": "church",
+          "name": "Église Saint-Pierre de Montmartre"
         },
         "geometry": [
           {

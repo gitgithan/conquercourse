@@ -246,8 +246,26 @@
   - Source and licence: the OpenStreetMap rows above, (c) OpenStreetMap contributors, ODbL 1.0; the credit line stays on the scenery page
   - Used by: `src/world/building-style.ts`, `src/world/skin.ts`, behind the `bstyle` switch (on at localhost and the preview site, off on production); no street photo of any kind is used
 - **Photo facades** (`public/assets/places/facades/`, CC-133)
-  - No photo is shipped right now; the Bryant Park library photo was removed on 2026-11-04 when the owner dropped Bryant Park
-  - Each new facade photo gets its own row here (source, author, licence, changes) before `FACADES` in `src/world/facade.ts` lists it
+  - Each facade photo gets its own row below (source, author, licence, changes) before `FACADES` in `src/world/facade.ts` lists it
+  - Places with no free, person-free, straight-on photo get no facade; they keep the tag-based look
+  - The building name tag (`name`) was added to one building per facade in the stored answer (`public/assets/places/<slug>.json`); it is OpenStreetMap data, (c) OpenStreetMap contributors, ODbL 1.0
+- **Photo facade: Saint-Pierre de Montmartre portal** (`public/assets/places/facades/montmartre-paris.jpg`, 1280 x 1474, about 265 KB, CC-133)
+  - What it is: the front wall of the church, straightened from the photo
+  - Source: https://commons.wikimedia.org/wiki/File:%C3%89glise_Saint-Pierre_de_Montmartre_-_portail.jpg
+  - Author: BastienM
+  - Licence: CC BY-SA 3.0
+  - Changes: cropped to the wall and straightened (four-corner perspective fix, `scripts/rectify-facade.ts`), resized, re-encoded as JPEG
+  - Credit: shown in the footer of the 3D look page
+  - Used by: `src/world/facade.ts` (`FACADES`), `src/world/skin.ts`
+  - Demo only (CC BY-SA): swap before a sale; the replacement plan is our own straight-on photo of the same wall or a CC0 or CC BY photo, a file change only
+- **Photo facade: Tessin Palace** (`public/assets/places/facades/stockholm.jpg`, 1280 x 856, about 150 KB, CC-133)
+  - What it is: the front wall of Tessinska palatset in Gamla Stan, straightened from the photo
+  - Source: https://commons.wikimedia.org/wiki/File:Tessinska_palatset_Slottsbacken_4_Gamla_Stan_Stockholm_2016_01.jpg
+  - Author: Julian Herzog
+  - Licence: CC BY 4.0
+  - Changes: cropped to the wall and straightened (four-corner perspective fix, `scripts/rectify-facade.ts`), resized, re-encoded as JPEG
+  - Credit: shown in the footer of the 3D look page
+  - Used by: `src/world/facade.ts` (`FACADES`), `src/world/skin.ts`
 - **Eleven new Ready places** (`public/assets/places/*.json`, CC-178)
   - What they hold: the Overpass answer, ground heights and the best lane for Piazza San Marco, Plaza Mayor, Place des Vosges, Trafalgar Square, Covent Garden, Washington Square, Union Square, Old Town Square, Piazza Navona, Nyhavn and Boston Common
   - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-29

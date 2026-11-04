@@ -52,6 +52,8 @@ export interface FacadeSpec {
   /** picture file, width / height of the straightened crop */
   image: string;
   aspect: number;
+  /** the photo credit shown on the 3D look page (author, licence, source) */
+  credit: string;
 }
 
 /** The footprint edge to dress: among the edges facing within `slack` degrees of `facing`, the one whose length is closest to `width` (and within 25%). Points are metres east / metres south. */
@@ -92,4 +94,6 @@ export function facadeOn(value: string | null, host: string): boolean {
 
 /** The facades we ship: one hero building. The width and height come from the footprint edge and the straightened photo's own proportions. */
 export const FACADES: readonly FacadeSpec[] = [
+  { place: 'montmartre-paris', building: 'Église Saint-Pierre de Montmartre', width: 10.5, facing: 274, image: '/assets/places/facades/montmartre-paris.jpg', aspect: 0.868, credit: 'church portal photo: BastienM, CC BY-SA 3.0, Wikimedia Commons' },
+  { place: 'gamla-stan-stockholm', building: 'Tessinska palatset', width: 18.1, facing: 62, image: '/assets/places/facades/stockholm.jpg', aspect: 1.495, credit: 'Tessin Palace photo: Julian Herzog, CC BY 4.0, Wikimedia Commons' },
 ];

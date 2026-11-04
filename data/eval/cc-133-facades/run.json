@@ -1,0 +1,38 @@
+{
+  "experiment": "cc-133-facades",
+  "date": "2026-11-04",
+  "tool": "scripts/rectify-facade.ts",
+  "facades": [
+    {
+      "place": "montmartre-paris",
+      "building": "Église Saint-Pierre de Montmartre",
+      "photo": "File:Église Saint-Pierre de Montmartre - portail.jpg",
+      "author": "BastienM",
+      "licence": "CC BY-SA 3.0",
+      "corners_px_TL_TR_BR_BL": [690, 355, 1340, 350, 1385, 1160, 625, 1165],
+      "photo_width_px": 1920,
+      "wall_width_m": 10.5,
+      "facing_deg": 274
+    },
+    {
+      "place": "gamla-stan-stockholm",
+      "building": "Tessinska palatset",
+      "photo": "File:Tessinska palatset Slottsbacken 4 Gamla Stan Stockholm 2016 01.jpg",
+      "author": "Julian Herzog",
+      "licence": "CC BY 4.0",
+      "corners_px_TL_TR_BR_BL": [1042, 568, 1790, 430, 1775, 1005, 1052, 985],
+      "photo_width_px": 1920,
+      "wall_width_m": 18.1,
+      "facing_deg": 62
+    }
+  ],
+  "skipped": {
+    "bryggen-bergen": "Bryggens museum photo is straight-on, but a figure may be inside the glass door; not shown to be safe",
+    "parc-guell-barcelona": "Casa Museu Gaudi photos are oblique, and the one found shows a person at the edge",
+    "edinburgh-old-town": "only an oblique close-up of the upper wall with banners, no ground floor",
+    "main-square-krakow": "Sukiennice photos found show people or are oblique",
+    "bukchon-seoul": "photo found is oblique or shows people",
+    "valletta-harbour-malta": "photo found shows people or is oblique",
+    "other places": "no free, person-free, straight-on photo of a named hero building found in the search (Commons searches, 2026-11-04)"
+  }
+}
