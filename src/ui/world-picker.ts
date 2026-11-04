@@ -66,7 +66,16 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
 {
   const at = DEMO_GROUPS.findIndex(([g]) => g.startsWith('Labs'));
   const cards = DEMO_GROUPS[at][1];
-  const parts: [string, Demo[]][] = LAB_GROUPS.map((g) => [`Labs, ${TIERS.find((t) => t.id === g.tier)!.title}: ${g.title}`, g.modes.flatMap((m) => cards.filter((c) => c[0] === m))] as [string, Demo[]]).filter(([, d]) => d.length);
+  // every Pipeline group sits under ONE header (less scrolling); the other tiers keep one header per group
+  const parts: [string, Demo[]][] = [];
+  for (const g of LAB_GROUPS) {
+    const demos = g.modes.flatMap((m) => cards.filter((c) => c[0] === m));
+    if (!demos.length) continue;
+    const tier = TIERS.find((t) => t.id === g.tier)!.title;
+    const title = g.tier === 'pipelines' ? `Labs, ${tier}` : `Labs, ${tier}: ${g.title}`;
+    const same = parts.find(([t]) => t === title);
+    if (same) same[1].push(...demos); else parts.push([title, demos]);
+  }
   DEMO_GROUPS.splice(at, 1, ...parts); // the map is the Labs panel on every Lab page now (CC-133), not a card
 }
 
