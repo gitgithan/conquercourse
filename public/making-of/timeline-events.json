@@ -1070,16 +1070,6 @@
     "commit": "48e6a6a8"
   },
   {
-    "id": "c4-24",
-    "category": 4,
-    "when": "10-26 22:08",
-    "title": "One joint off",
-    "text": "Knees bent backwards in a clip measured from video. Every joint name sat on the next joint.",
-    "more": "A clip measured from video drew knees bending backwards, and the fit error stayed near 12 cm however long it ran. The body model had no world root joint, but our name list started with one, so every name sat on the next joint. More fitting did nothing; a joint-by-joint check showed the shift. Now both lists must match in length. The time is an estimate: the lesson was written at 10-27 04:17.",
-    "kind": "text",
-    "commit": "528b22f3"
-  },
-  {
     "id": "c4-25",
     "category": 4,
     "when": "10-29 06:25",
