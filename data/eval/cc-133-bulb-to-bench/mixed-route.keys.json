@@ -1,0 +1,78 @@
+{
+  "course": "fork-bench-bulb.course.json",
+  "courseHash": "1nccgov",
+  "version": 1,
+  "n": 1,
+  "bench": 1,
+  "plan": {
+    "jumpXs": [
+      13.6,
+      17.9
+    ],
+    "releaseAfter": 60,
+    "bouncePress": 8,
+    "climbXs": [
+      9.6
+    ],
+    "hands": true,
+    "hangTicks": [
+      51,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "airHands": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "log": [
+    [
+      9,
+      191
+    ],
+    [
+      105,
+      1
+    ],
+    [
+      96,
+      264
+    ],
+    [
+      105,
+      51
+    ],
+    [
+      9,
+      131
+    ],
+    [
+      13,
+      1
+    ],
+    [
+      9,
+      134
+    ],
+    [
+      13,
+      1
+    ],
+    [
+      9,
+      420
+    ]
+  ],
+  "challenge": "1.1nccgov.mixed.rCb8BaQFgiAJpMwmDAQ0BCYYBDQEJpAM"
+}
