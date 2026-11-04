@@ -1,6 +1,6 @@
 # Lab 13: Video to motion
 
-*Pipeline stage 2 of 3: video, then pose, then smoothing and the plausibility gate, then a clip on the character.*
+*Video to motion, stages 1 to 4 of 5: Video, Pose, Smooth and Gate, then a clip on the character (see [the series map](pipelines.md)).*
 *Before it: the photo-to-course Labs ([Lab 5, Camera](camera.md), [Lab 3, Posing a character](ik.md)).*
 *After it: running, recording and sharing a run ([Lab 11, Hashing](hashing.md)).*
 *Behind `?labs=1`. Open `?mode=lab-motion&labs=1`. Serves the university Labs (`docs/university-labs.md`).*

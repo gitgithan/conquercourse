@@ -10,7 +10,7 @@
 - "Partly" means the Lab teaches an idea the stage depends on, not the stage itself.
 - "Not yet" means no Lab covers the stage.
   - It is listed so the series stays honest.
-- Labs 13 and up (motion, lift, collision) are numbered in the order they landed; rows say "arriving" until the doc is on `main`.
+- Labs 13 to 15 (motion, lift, collision) are numbered in the order they landed.
 
 ## 1. Photo to course object
 *A street or park photo becomes an object on a course that the simulator can prove.*
@@ -21,7 +21,7 @@
 | 2. Cut-out | A mask finds the thing (or the people to blur) | Lab 14, [Cut-out, lift and bake](lift.md) (recorded cut-outs); Lab 4, Computer vision; Lab 10, Evaluating a detector | Lab 14 shows recorded cut-outs only; Lab 4 teaches masks and thresholds on street photos (people to hide, not objects to cut); Lab 10 teaches whether a find is good enough |
 | 3. Lift to 3D | The cut-out becomes a 3D shape | Lab 14, Cut-out, lift and bake (recorded lifts); Lab 5 explains why the lift needs a guess | Teaches (the lift itself is recorded, not run: see its Limits) |
 | 4. Bake | The 3D shape becomes a game object | Lab 14, Cut-out, lift and bake | Teaches (the seven bake rules run live on a recorded object) |
-| 5. Collision | A collider is fitted from the 3D | Lab 15 (collision), arriving | Not yet on `main`; written up in [collision from 3D](../collision-from-3d.md) |
+| 5. Collision | A collider is fitted from the 3D | Lab 15, [Collision from a 3D lift](collision.md) | Teaches the nine steps on the real monkey-bars lift; written up in [collision from 3D](../collision-from-3d.md) |
 | 6. Place and prove | The object goes on a course and the simulator proves it can be cleared | Lab 9, Generate and test; Lab 7, Statistics of timing; Lab 1, Search | Lab 9 teaches proposing and throwing out; Lab 7 teaches how wide the press window is; Lab 1 teaches how the proof finds a run |
 
 ## 2. Video to motion
@@ -72,9 +72,10 @@
 | 12 | Reinforcement learning | Methods | Learn |
 | 13 | Video to motion | Video | Gate (also Video, Pose) |
 | 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |
+| 15 | Collision from a 3D lift | Photo | Collision |
 
 ## Gaps, shown honestly
-- Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is being written.
+- Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).
 - Video: no Lab runs a pose finder on a video (Lab 13 uses recorded clips); the Python gate itself has no Lab of its own beyond Lab 8's port.
 - Run: no Lab opens a real share link or shows the server's replay check.
 - Labs 4 and 10 both sit at "Cut-out" and neither cuts a game object out of a photo: Lab 4 hides people, Lab 10 scores a recorded detector.
