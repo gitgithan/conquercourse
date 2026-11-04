@@ -114,10 +114,10 @@ describe('/api/photos', () => {
     const id = /graph\.mapillary\.com\/(\d+)\?/.exec(url)?.[1];
     return { ok: true, status: 200, json: async () => (id ? { id, thumb_1024_url: `https://cdn.example/${id}.jpg`, creator: { username: 'bob', id: 'secret-id' }, captured_at: 1, compass_angle: 90, geometry: { x: 1 }, sequence: 'abc' } : { data: [] }) };
   };
-  it('answers with the five fields only, and never with the token', async () => {
+  it('answers with the seven fields only (position is null when the record has none), and never with the token', async () => {
     const calls: string[] = []; const r = await lookup(new URLSearchParams('id=12345678'), 'ip-a', 'MLY|secret|token', memory(), graph(calls));
     expect(r.status).toBe(200);
-    expect(r.body).toEqual({ photos: [{ id: '12345678', thumb: 'https://cdn.example/12345678.jpg', creator: 'bob', capturedAt: 1, compass: 90 }], cache: 'miss' });
+    expect(r.body).toEqual({ photos: [{ id: '12345678', thumb: 'https://cdn.example/12345678.jpg', creator: 'bob', capturedAt: 1, compass: 90, lat: null, lon: null }], cache: 'miss' });
     expect(JSON.stringify(r.body)).not.toMatch(/secret|MLY|OAuth/);
   });
   it('refuses a missing token, bad ids, too many ids and a huge search', async () => {

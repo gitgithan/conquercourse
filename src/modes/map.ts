@@ -21,6 +21,8 @@ import { CLIMBABLE } from '../slice/slice';
 import { createPerf } from '../ui/perf';
 import { pageQuery } from '../flags';
 import { mountStreetPanel, type StreetPanel } from '../ui/street-panel';
+import { photoDotsOn } from '../world/photo-dots';
+import { installPhotoDots, onPhotoDot } from './map-photo-dots';
 import { streetPhotosOn } from '../world/street-photos';
 
 export const PIECE_KEY = 'cc.map.piece';
@@ -207,7 +209,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     } catch { /* the pin label stays */ }
   }
   { const last = lastPlace(); if (last) { yp.hidden = false; ypName.textContent = 'none yet'; ypBack.hidden = false; ypBack.textContent = `Back to ${last.name}`; ypBack.onclick = () => { map.flyTo({ center: [last.lon, last.lat], zoom: 16, duration: 800 }); dropPin(last.lat, last.lon, last.name); }; } }
-  map.on('click', (e) => { if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
+  if (photoDotsOn(q)) installPhotoDots(map); // CC-133
+  map.on('click', (e) => { if (onPhotoDot(map, e.point)) return; if (S) pickClick(e.point); else dropPin(e.lngLat.lat, e.lngLat.lng); });
   places = installPlaces({
     map, side, tell, pin: () => pin, radius: () => Number(radius.value), hills: () => (S2 ? q.get('hills') !== '0' : $<HTMLInputElement>('hills').checked), strict: S2,
     setPin: (lat, lon) => dropPin(lat, lon), setRadius: (r) => { radius.value = String(r); $('radiusv').textContent = String(r); },

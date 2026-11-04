@@ -2,24 +2,34 @@ import { CORS, json as baseJson } from '../_lib/http';
 import { limited } from '../_lib/limit';
 // /api/photos?id=123,456: a fresh picture address for up to three photos, from Mapillary (CC-90).
 // /api/photos?lat=55.9496&lon=-3.1904&r=60: the photos within r metres (10 to 100), used offline to refresh the allow-lists (scripts/photos_people.py).
-//   -> {photos: [{id, thumb, creator, capturedAt, compass}], cache: "hit" | "miss"}
+//   -> {photos: [{id, thumb, creator, capturedAt, compass, lat, lon}], cache: "hit" | "miss"}
 // Why it exists: Mapillary needs a token, which must stay on the server, and picture addresses expire after a while, so the game asks here when it shows a photo.
 // The token is the Pages secret MAPILLARY_TOKEN (npx wrangler pages secret put MAPILLARY_TOKEN); it goes to Mapillary in the Authorization header and is never in an answer.
-// Defences: only the five fields above are returned, ids must be digits, at most 3 ids or one small search per call, answers are cached 30 minutes on the edge,
+// Defences: only the seven fields above are returned, ids must be digits, at most 3 ids or one small search per call, answers are cached 30 minutes on the edge,
 // and each address gets 120 id lookups and 20 searches per ten minutes (best effort: the count lives in one server instance).
 const GRAPH = 'https://graph.mapillary.com';
-const FIELDS = 'id,thumb_1024_url,creator,captured_at,compass_angle,computed_compass_angle';
+const FIELDS = 'id,thumb_1024_url,creator,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry'; // geometry and computed_geometry checked against the live API (CC-133, data/eval/cc-133-photo-dots/README.md)
 export const TTL_S = 1800;
 export const LIMITS = { id: 120, search: 20 };
 
-export interface Shown { id: string; thumb: string; creator: string; capturedAt: number | null; compass: number | null }
-interface Raw { id?: string; thumb_1024_url?: string; creator?: { username?: string }; captured_at?: number; compass_angle?: number; computed_compass_angle?: number }
+export interface Shown { id: string; thumb: string; creator: string; capturedAt: number | null; compass: number | null; lat: number | null; lon: number | null }
+interface Pt { type?: string; coordinates?: [number, number] }
+interface Raw { id?: string; geometry?: Pt; computed_geometry?: Pt; thumb_1024_url?: string; creator?: { username?: string }; captured_at?: number; compass_angle?: number; computed_compass_angle?: number }
 
 const json = (body: unknown, status = 200, extra: Record<string, string> = {}) => baseJson(body, status, { ...CORS, ...extra });
 
+// The photo's position: the corrected one (computed_geometry) when there is one, else the camera's own (geometry). GeoJSON order is [lon, lat].
+export const positionOf = (r: { geometry?: Pt; computed_geometry?: Pt }): { lat: number | null; lon: number | null } => {
+  for (const g of [r.computed_geometry, r.geometry]) {
+    const c = g?.coordinates;
+    if (Array.isArray(c) && Number.isFinite(c[0]) && Number.isFinite(c[1]) && Math.abs(c[1]) <= 90 && Math.abs(c[0]) <= 180) return { lat: Math.round(c[1] * 1e6) / 1e6, lon: Math.round(c[0] * 1e6) / 1e6 };
+  }
+  return { lat: null, lon: null };
+};
+
 export const trim = (r: Raw): Shown | null => {
   if (!r.id || !r.thumb_1024_url || !/^\d{5,20}$/.test(r.id) || !/^https:\/\//.test(r.thumb_1024_url)) return null;
-  return { id: r.id, thumb: r.thumb_1024_url, creator: String(r.creator?.username ?? '').slice(0, 60), capturedAt: typeof r.captured_at === 'number' ? r.captured_at : null, compass: r.computed_compass_angle ?? r.compass_angle ?? null };
+  return { id: r.id, thumb: r.thumb_1024_url, creator: String(r.creator?.username ?? '').slice(0, 60), capturedAt: typeof r.captured_at === 'number' ? r.captured_at : null, compass: r.computed_compass_angle ?? r.compass_angle ?? null, ...positionOf(r) };
 };
 
 export type Fetcher = (url: string, init: { headers: Record<string, string> }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>;

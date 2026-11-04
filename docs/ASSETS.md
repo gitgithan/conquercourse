@@ -804,3 +804,5 @@
 |---|---|---|---|---|---|
 | `docs/promo/conquercourse-promo.mp4` (1920 x 1080, 30 fps, 85 s, about 9 MB) | The latest promo cut, with the chase-shot lag fixed | 2026-11-03 | Recorded from the real game and assembled with `scripts/film-d/assemble.mjs`; music from MusicGen clips and the product owner's own loop | Ours; the MusicGen clips are CC BY-NC 4.0 weights, so swap them before a sale | Over the 300 KB line on purpose: it is the video the README shows, so it is committed (said in the pull request). Photos in it carry their credits on screen |
 | `docs/promo/poster.jpg` (1280 px, about 100 KB) | One frame of the promo, the picture that opens the video in the README | 2026-11-04 | `ffmpeg -ss 20 -frames:v 1` on the promo | Ours | Frame of our own recording |
+
+Photo dots on the Slicer map (CC-133): no new files; the dots and cones are drawn from the allow-lists above, and a click shows the picture live from Mapillary's own address with the creator and licence (nothing stored or copied).
