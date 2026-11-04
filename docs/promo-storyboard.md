@@ -141,11 +141,16 @@
 - Overlay: not set.
 - **Music lane:** not decided.
 
-## Scene 6: Indulge your curiosity (time not set)
+## Scene 6: Learn the Basics (about 10 s)
 
-- 7 year olds to University
-- Camera: not set.
 - Overlay: not set.
+- Start on the Dojo Gap Jump screen:
+  - 2 s on the default tab, The real obstacle.
+  - Click The idea, 2 s.
+  - Click "The exact formula" and drag the sliders so the graph changes, 2 s.
+  - Click the rope swing tab, 2 s.
+  - Click the stored energy tab, 2 s.
+- The formula is the last, earned step of a Dojo lesson, which the rules allow (owner, 2026-10-27).
 - **Music lane:** not decided.
 
 ## Scene 7: Close (time not set)
