@@ -70,7 +70,7 @@ export async function makeItEasier(pieces: P[], lane: Lane, focusX: number, deps
   const check = () => { if (options.signal?.cancelled) throw new Error('cancelled'); };
   const baseCourse = deps.courseOf(pieces, lane);
   const base = await search(baseCourse); check();
-  if (!base.cleared) return { proposal: null, before: 0, after: 0, tried: 0, note: 'The simulator cannot clear this lane as it is, so use Fix it first.' };
+  if (!base.cleared) return { proposal: null, before: 0, after: 0, tried: 0, note: 'The simulator cannot clear this lane as it is, so choose Find a repair first.' };
   const startEdge = [...baseCourse.terrain.platforms].sort((a, b) => a.x0 - b.x0)[0]?.x1;
   const before = narrowest(base.timingWindows ?? base.windows ?? [], startEdge);
   if (before <= 0) return { proposal: null, before, after: 0, tried: 0, note: 'There is no press to widen here: the way through needs no precise timing.' };

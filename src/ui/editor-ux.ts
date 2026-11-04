@@ -1,3 +1,5 @@
+import { EDITOR_ACTIONS, actionTitle } from './editor-actions';
+
 // CC-177: the World editor's button levels. Runs after organizeEditor (CC-94); ?editorui=old skips it.
 // What it does:
 //  - three levels of button: primary (filled), secondary (outlined), quiet (plain), so the eye finds the important ones first
@@ -23,11 +25,11 @@ const CSS = `
   .ed.ux #selhint{position:absolute;left:10px;top:10px;z-index:5;background:#ffffffd9;border:1px solid #cfd6d0;border-radius:8px;padding:4px 8px;font-size:12px;color:#33403a;pointer-events:none}
   .ed.ux .top{padding:2px 128px 2px 0} /* the Courses button is fixed in the top right corner: keep the bar clear of it */
   .ed.ux .top .grp{display:inline-flex;gap:6px;align-items:center;flex:0 0 auto}
-  .ed.ux .top{flex-wrap:wrap;row-gap:4px} /* the longer button names do not fit one row at 1280 px: Undo and Redo drop to a second row on the right */
+  .ed.ux .top{flex-wrap:wrap;row-gap:4px;z-index:42} /* the longer button names do not fit one row at 1280 px: Undo and Redo drop to a second row on the right */
   .ed.ux .top > .grp:has(#undo){margin-left:auto}
   .ed.ux #presetpick{max-width:170px}
   .ed.ux .top .div{width:1px;align-self:stretch;background:#cfd6d0;margin:3px 2px}
-  .ed.ux #fixmenubtn{font-size:15px;min-height:36px;padding:3px 16px}
+  .ed.ux #fixmenubtn{font-size:15px;min-height:36px;padding:3px 9px}
   .ed.ux #fixmenubtn .dot{width:9px;height:9px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 2px #fff6;display:none}
   .ed.ux #fixmenubtn[data-state="bad"] .dot{display:inline-block}
   .ed.ux #fixmenubtn[data-state="ok"]::after{content:"✓";font-weight:800}
@@ -37,6 +39,9 @@ const CSS = `
   .ed.ux .fixmenu button{display:grid;gap:2px;text-align:left;white-space:normal;border-color:transparent;background:transparent;box-shadow:none;padding:7px 9px;border-radius:8px;min-height:0}
   .ed.ux .fixmenu button:hover{background:var(--soft)}
   .ed.ux .fixmenu button b{font-size:14px}.ed.ux .fixmenu button span{font-weight:400;font-size:12px;color:var(--muted);line-height:1.35}
+  .ed.ux .fixmenu button .engine,.ed.ux .action-engine{justify-self:start;font-size:11px;font-weight:700;line-height:1.4;padding:2px 7px;border-radius:5px;background:#e3f2ed;color:#0b5a4d}
+  .ed.ux .fixmenu button .engine[data-kind="ai"],.ed.ux .action-engine[data-kind="ai"]{background:#fff0de;color:#824a00}
+  .ed.ux .helper-engines{padding:8px 14px;font-size:12px;line-height:1.4;color:#33403a;border-bottom:1px solid var(--line)}
   .ed.ux .fixmenu button.rec{background:#e6f1ed;border-color:#0f6b5c}.ed.ux .fixmenu button.rec b::after{content:"  · try this now";font-weight:600;font-size:11px;color:var(--primary)}
   .ed.ux .main{grid-template-rows:minmax(0,5fr) minmax(0,4fr)}
   .ed.ux .profilewrap{position:relative;border:2px solid var(--primary);box-shadow:0 3px 14px #0f6b5c33;background:#fbfdfb}
@@ -97,23 +102,18 @@ const CSS = `
   @media (prefers-reduced-motion:reduce){.ed.ux .helper,.ed.ux .helper.closed,#partnertab{transition:none}}
 `;
 
-const FIXES: { id: string; label: string; when: string; expect: string; clear: boolean }[] = [
-  { id: 'fixit', label: 'Fix it', when: 'When the check says the runner cannot clear the course.', expect: 'You see the smallest changes drawn as outlines first. Nothing moves until you press Apply.', clear: false },
-  { id: 'easier', label: 'Make it easier', when: 'When the course clears but the hardest press is tight.', expect: 'One small change is drawn as an outline. Apply it, or Cancel.', clear: true },
-  { id: 'findroutes', label: 'Look for routes you did not plan', when: 'When the course works and you wonder if someone can skip an obstacle.', expect: 'It takes about a minute. You get a list of skips, each with Close it or Keep it.', clear: true },
-  { id: 'what', label: 'What should I change?', when: 'When you are not sure what is wrong.', expect: 'The design partner answers in a few words and may offer moves to try.', clear: false },
-];
+const FIXES = Object.values(EDITOR_ACTIONS);
 
 const GLOSSARY: [string, string][] = [
   ['Side view', 'The green strip is the designer. Drag a bar up, down, left or right to shape the run.'],
-  ['Fix', 'Repairs. Open it when the check says the runner cannot clear the course.'],
+  ['Improve', 'Choose a simulator search or ask Muse Spark Open for ideas. Each action names its engine.'],
   ['Fit  (F)', 'Brings the camera to all your pieces. Click it when you are lost.'],
   ['Add pieces', 'The green button on the left. Puts a new shape, object, bar or machine in the world.'],
   ['Choose several', 'Hold Shift and drag a box on the picture, or Shift+click pieces one by one. Delete removes them all; Undo brings them back; Esc clears.'],
   ['Undo (Ctrl+Z) / Redo (Ctrl+Y)', 'Steps back or forward. Nothing is lost.'],
   ['Top plan', 'A flat map. Use it to crop a piece or place it exactly.'],
   ['Moves', 'Shows which moves your course has and which are missing.'],
-  ['Design partner', 'A helper that answers in words. You choose what to apply.'],
+  ['Design partner', 'Course help with simulator tools and AI ideas. Muse Spark Open supplies ideas; the simulator checks every preview.'],
   ['Mouse', 'Wheel zooms to the cursor. Right or middle drag slides the view. Left drag on empty ground turns it.'],
 ];
 
@@ -136,17 +136,18 @@ export function styleEditor(root: HTMLElement): void {
   // ---- the Fix menu
   const helper = q('#helper');
   const fixWrap = mk('div', { className: 'menuwrap' });
-  const fixBtn = mk('button', { id: 'fixmenubtn', className: 'go', title: 'Repairs: fix the course, make it easier, look for skips, or ask what to change' });
-  fixBtn.innerHTML = '<span class="dot"></span><span>Fix</span><span aria-hidden="true">▾</span>';
+  const fixBtn = mk('button', { id: 'fixmenubtn', className: 'go', title: 'Choose simulator tools for tested repairs, or ask Muse Spark Open for ideas' });
+  fixBtn.innerHTML = '<span class="dot"></span><span>Improve</span><span aria-hidden="true">▾</span>';
   fixBtn.setAttribute('aria-haspopup', 'true'); fixBtn.setAttribute('aria-expanded', 'false');
   const menu = mk('div', { className: 'fixmenu', id: 'fixmenu' });
-  menu.append(mk('div', { className: 'fixhead', textContent: 'Pick one. Each shows a preview first; nothing changes until you say so.' }));
+  menu.append(mk('div', { className: 'fixhead', textContent: 'Simulator tools test changes with game physics. AI suggests ideas; preview runs the simulator check. Nothing moves until Apply.' }));
   const items = new Map<string, HTMLButtonElement>();
   for (const f of FIXES) {
-    const b = mk('button', { id: `fixmenu-${f.id}`, title: `${f.when} ${f.expect}` });
+    const b = mk('button', { id: `fixmenu-${f.id}`, title: actionTitle(f) });
     b.dataset.proxy = '1';
-    b.innerHTML = `<b></b><span class="w"></span><span class="e"></span>`;
+    b.innerHTML = `<b></b><span class="engine"></span><span class="w"></span><span class="e"></span>`;
     (b.querySelector('b') as HTMLElement).textContent = f.label;
+    const engine = b.querySelector('.engine') as HTMLElement; engine.textContent = f.engine; engine.dataset.kind = f.kind;
     (b.querySelector('.w') as HTMLElement).textContent = f.when;
     (b.querySelector('.e') as HTMLElement).textContent = 'Expect: ' + f.expect;
     b.onclick = () => {
@@ -158,7 +159,12 @@ export function styleEditor(root: HTMLElement): void {
   }
   fixWrap.append(fixBtn, menu);
   const close = () => { menu.classList.remove('open'); fixBtn.setAttribute('aria-expanded', 'false'); };
-  fixBtn.onclick = (e) => { e.stopPropagation(); const open = !menu.classList.contains('open'); root.querySelectorAll('.open').forEach((m) => m !== menu && m.classList.remove('open')); menu.classList.toggle('open', open); fixBtn.setAttribute('aria-expanded', String(open)); };
+  fixBtn.onclick = (e) => { e.stopPropagation();
+    // Keep explanations below navigation and above the open help panel.
+    const below = Math.max(top.getBoundingClientRect().bottom, document.getElementById('sitenav')?.getBoundingClientRect().bottom ?? 0) + 6;
+    menu.style.top = `${below - fixWrap.getBoundingClientRect().top}px`;
+    menu.style.maxHeight = `${Math.max(120, window.innerHeight - below - 12)}px`; menu.style.overflowY = 'auto';
+    const open = !menu.classList.contains('open'); root.querySelectorAll('.menuwrap > .open').forEach((m) => m !== menu && m.classList.remove('open')); menu.classList.toggle('open', open); fixBtn.setAttribute('aria-expanded', String(open)); };
   root.addEventListener('click', (e) => { if (menu.classList.contains('open') && !menu.contains(e.target as Node)) close(); });
   addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
   const syncFix = () => {
@@ -184,8 +190,8 @@ export function styleEditor(root: HTMLElement): void {
   gh.append(hide);
   const dl = mk('dl', { className: 'gl' });
   for (const [t, d] of GLOSSARY) { dl.append(mk('dt', { textContent: t }), mk('dd', { textContent: d })); }
-  dl.append(mk('dt', { className: 'sec', textContent: 'The Fix menu' }));
-  for (const f of FIXES) dl.append(mk('dt', { textContent: f.label.replace(' you did not plan', '') }), mk('dd', { textContent: f.when + ' ' + f.expect }));
+  dl.append(mk('dt', { className: 'sec', textContent: 'The Improve menu' }));
+  for (const f of FIXES) dl.append(mk('dt', { textContent: f.label.replace(' you did not plan', '') }), mk('dd', { textContent: actionTitle(f) }));
   gloss.append(gh, dl, mk('div', { className: 'gf', textContent: 'Hover any button for a short reminder.' }));
   planWrap.append(gloss);
   const help = mk('button', { id: 'glossarybtn', textContent: '?', title: 'What these buttons do', className: 'quiet' }); help.setAttribute('aria-label', 'What these buttons do'); help.setAttribute('aria-expanded', 'false');

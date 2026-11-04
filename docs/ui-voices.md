@@ -29,7 +29,9 @@
 ## Not covered yet (honest list)
 - The ideal time ("I can clear this in 4.6 s"): the lane check returns a plan and windows, not a finish time, so the strip does not say one.
 - How far a runner falls short ("0.3 m short"): the check says only clear or not clear, so the strip does not invent a number.
-- Fix it results, the "cannot clear this gap" hint and the squeeze-to-fit result stay under the Design partner or in their own lines; they are partner words backed by a Simulator proof.
+- Find a repair and other simulator tools appear in the shared help panel with their engine named explicitly.
+- Muse Spark Open attribution sits beside the AI input, rather than above simulator searches.
+- Proposal headers name the edit source; the separate simulator verdict describes whether the exact preview clears.
 - The piece-info lines are static catalogue text, not a live check, so they carry no Simulator badge.
 
 ## The table
@@ -37,7 +39,7 @@
 |---|---|---|---|---|---|
 | Simulator (live) | green, blue, red, gold by state | our own physics, not an AI | the World Editor and the World Slicer: a strip at the top of the side panel that follows the lane check as you edit or drag the line | World Editor, World Slicer, Course, Coaster builder, End report | `src/ui/sim-says.ts`, `src/modes/editor.ts`, `src/modes/map.ts` |
 | Simulator (small) | green | our own physics, not an AI | the end-of-run report and the fall panel, the coaster and graph verdicts | End report, Coaster builder, Course | `src/ui/run-report.ts`, `src/modes/coaster.ts`, `src/modes/graph-studio.ts`, `src/slice/lane-check-ui.ts` |
-| Design partner | orange | Muse Spark Open | the Design partner panel: notes, Fix it, Suggest | World Editor | `src/modes/editor.ts` |
+| Design partner | orange | Muse Spark Open | the AI input and AI-proposed edits in the Design partner panel | World Editor | `src/modes/editor/helper.ts` |
 | Safety check | red | Muse Spark Open | when you press Share in Community | Make your own | `src/modes/community-flow.ts` |
 | Cutter | blue | SAM 3 | Make your own, step 3: Segment Objects | Make your own | `src/modes/community-flow.ts` |
 | Builder | gold | SAM 3D Objects | Make your own, step 5: Make them, and the prize screen | Make your own | `src/modes/community-flow.ts`, `src/ui/prize.ts` |

@@ -819,3 +819,9 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | File | What | Made | How | Cost | Licence and notes |
 | --- | --- | --- | --- | --- | --- |
 | `data/eval/easier-search/searching.jpg`, `winner.jpg` | Candidate search and verified proposal in the World Editor | 2026-11-04 | Local Playwright desktop captures using real simulator searches | None | Ours; documentation evidence only, not shipped in the game |
+
+## Editor action attribution evidence (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-action-engines-menu.jpg`, `editor-action-engines-panel.jpg` | Engine-labelled Improve menu and Course help with scoped model attribution | 2026-11-04 | Local Playwright desktop captures at 1280 px with real simulator searches | None | Ours; documentation evidence only |
