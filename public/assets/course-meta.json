@@ -31,6 +31,18 @@
     "obstacles": 4,
     "idealTicks": 621
   },
+  "demo/bars-lift": {
+    "obstacles": 1,
+    "idealTicks": 914
+  },
+  "demo/fork-bench-bulb": {
+    "obstacles": 4,
+    "idealTicks": 829,
+    "routeTicks": {
+      "bench": 829,
+      "bulb": 1406
+    }
+  },
   "demo/park-run": {
     "obstacles": 7,
     "idealTicks": 879
