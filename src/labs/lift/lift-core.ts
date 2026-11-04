@@ -127,3 +127,50 @@ export function recipeFor(name: string): { recipe: UnbakeRecipe; recorded: boole
   // recorded raw size, turn and tilt where we have them; the turn is nudged off 0 so the "face the camera" step has work to do
   return r ? { recipe: { yawDeg: r.yawDeg || 37, pitchDeg: Math.max(r.tiltDeg, 12), rawHeight: r.rawHeight, rawFaces: r.rawFaces, offset: [0.8, -1.1, 0.35] }, recorded: true } : { recipe: STAND_IN, recorded: false };
 }
+
+/** One real raw lift from public/assets/lab/lift/real/index.json (photo, mask, lift, bake all recorded). */
+export interface RealLift { name: string; label: string; photo: string; typedHeightM: number; credit: string; licence: string; rawMesh: string; maskPicture: string; bakedGlb: string; stats: { rawHeight: number; rawExtents: number[]; rawFaces: number; previewFaces: number; yawDeg: number; tiltDeg: number; costUsd: number; liftSeconds: number; maskSeconds: number; padded?: boolean } }
+/** The numbers the turn slider and the bake need, in the shape the older raw packs use. */
+export const realToMeta = (o: RealLift): RawPackMeta => ({ name: o.name, label: o.label, file: o.rawMesh, kib: 0, photo_credit: o.credit, licence: o.licence, typed_height_m: o.typedHeightM, scale_source: "typed", raw_height: o.stats.rawHeight, raw_faces: o.stats.rawFaces, drawn_faces: o.stats.previewFaces, tilt_deg: o.stats.tiltDeg, yaw_deg_recorded: o.stats.yawDeg, bake_factor: 0, lift_seconds: o.stats.liftSeconds, usd_estimate: o.stats.costUsd });
+
+/** Read a raw lift preview .glb (z up, POSITION + COLOR_0 uint8 normalized, uint16 indices). Colours come back per triangle as "rgb(r,g,b)". */
+export function parseRawGlb(buf: ArrayBuffer): { mesh: Mesh; tri: string[] } {
+  const dv = new DataView(buf);
+  if (dv.getUint32(0, true) !== 0x46546c67) throw new Error("not a .glb file");
+  let json: any = null, bin = 0;
+  for (let at = 12; at < dv.byteLength;) { const len = dv.getUint32(at, true), type = dv.getUint32(at + 4, true); if (type === 0x4e4f534a) json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, at + 8, len))); else if (type === 0x004e4942) bin = at + 8; at += 8 + len + ((4 - (len % 4)) % 4); }
+  const prim = json.meshes[0].primitives[0];
+  const read = (acc: number, w: number, size: number, get: (at: number) => number): number[] => {
+    const a = json.accessors[acc], bv = json.bufferViews[a.bufferView], base = bin + (bv.byteOffset ?? 0) + (a.byteOffset ?? 0), stride = bv.byteStride ?? size * w, out: number[] = [];
+    for (let i = 0; i < a.count; i++) for (let k = 0; k < w; k++) out.push(get(base + i * stride + k * size));
+    return out;
+  };
+  const positions = read(prim.attributes.POSITION, 3, 4, (at) => dv.getFloat32(at, true));
+  const ia = json.accessors[prim.indices], indices = ia.componentType === 5125 ? read(prim.indices, 1, 4, (at) => dv.getUint32(at, true)) : read(prim.indices, 1, 2, (at) => dv.getUint16(at, true));
+  const col = prim.attributes.COLOR_0 !== undefined ? read(prim.attributes.COLOR_0, 3, 1, (at) => dv.getUint8(at)) : null;
+  const tri: string[] = [];
+  for (let t = 0; t < indices.length / 3; t++) { let r = 160, g = 160, b = 160; if (col) { r = g = b = 0; for (let k = 0; k < 3; k++) { const v = indices[t * 3 + k]; r += col[v * 3] / 3; g += col[v * 3 + 1] / 3; b += col[v * 3 + 2] / 3; } } tri.push(`rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`); }
+  return { mesh: { positions, indices }, tri };
+}
+
+// ---- the 3D view: one pure projection, shared by every picture the Lab draws in 3D ----
+/** Raw lifts are z up; the picture is y up. (x, y, z) -> (x, z, -y). */
+export const toDisplay = (m: Mesh): Mesh => map(m, (x, y, z) => [x, z, -y]);
+/** Turntable angle of the raw lift, 0 to 360 (the slider shows the same number). Dragging adds `dxPixels` times `degPerPixel`. */
+export const normTurn = (deg: number): number => ((deg % 360) + 360) % 360;
+export const dragTurn = (turn: number, dxPixels: number, degPerPixel = 0.5): number => normTurn(turn + dxPixels * degPerPixel);
+export const clampPitch = (deg: number): number => Math.max(-10, Math.min(89, deg));
+export const clampZoom = (z: number): number => Math.max(0.4, Math.min(4, z));
+export interface Cam { az: number; pitch: number; dist: number; focal: number; target: [number, number, number] }
+/** Move a point into the camera's frame: relative to the target, turned by the azimuth about y, then tipped by the pitch. Only turns, so distances are kept. az 0 = the side camera (looks along -z, x across, y up). */
+export function camSpace(p: [number, number, number], cam: Pick<Cam, "az" | "pitch" | "target">): [number, number, number] {
+  const a = rad(cam.az), q = rad(cam.pitch), x = p[0] - cam.target[0], y = p[1] - cam.target[1], z = p[2] - cam.target[2];
+  const x1 = x * Math.cos(a) - z * Math.sin(a), z1 = x * Math.sin(a) + z * Math.cos(a);
+  return [x1, y * Math.cos(q) - z1 * Math.sin(q), y * Math.sin(q) + z1 * Math.cos(q)];
+}
+/** Perspective: pixel position and how far in front of the camera (null when behind it). */
+export function projectPoint(p: [number, number, number], cam: Cam, W: number, H: number): { x: number; y: number; depth: number } | null {
+  const c = camSpace(p, cam), depth = cam.dist - c[2];
+  if (depth < 0.05 * cam.dist) return null;
+  return { x: W / 2 + (cam.focal * c[0]) / depth, y: H / 2 - (cam.focal * c[1]) / depth, depth };
+}

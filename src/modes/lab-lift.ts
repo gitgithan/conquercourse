@@ -4,8 +4,9 @@ import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { readGlbMesh } from "../slice/glb";
 import type { Mesh } from "../slice/slice";
 import {
-  ALL_STEPS, FACE_CAP, RECORDED_COST, RECORDED_LIFTS, STEP_NAMES, barLength, bake, bounds, recipeFor, sizeWarning, withExtraYaw, typicalHeight, unbake, parseRawPack, rawFromPack, type RawPackMeta, type Steps,
+  ALL_STEPS, FACE_CAP, clampPitch, clampZoom, dragTurn, normTurn, parseRawGlb, realToMeta, toDisplay, type RealLift, RECORDED_COST, RECORDED_LIFTS, STEP_NAMES, barLength, bake, bounds, recipeFor, sizeWarning, withExtraYaw, typicalHeight, unbake, parseRawPack, rawFromPack, type RawPackMeta, type Steps,
 } from "../labs/lift/lift-core";
+import { drawOrbit, frameCam } from "../labs/lift/orbit-view";
 
 // Lab 14: Cut-out, lift and bake (pipeline stages 3 and 4 of 6).
 // It runs the bake rules from src/labs/lift/lift-core.ts on a recorded, baked game object turned back into a raw-looking lift.
@@ -50,14 +51,22 @@ export function startLabLift(host: HTMLElement): { backend: "canvas2d" } {
     <h1>Lab 14: Cut-out, lift and bake</h1>
     <p class="small" style="margin:2px 0"><b>Pipeline stages 3 and 4 of 6: Lift to 3D, then Bake</b> (photo to course object; stage 2, the cut-out, is shown here as recorded). Before: <a href="?mode=lab-vision&labs=1&welcome=0">Lab 4, Computer vision</a> (the cut-out: which photos are safe) and <a href="?mode=lab-camera&labs=1&welcome=0">Lab 5, Camera and perspective</a> (why one photo gives no depth). After: collision fitted from the 3D, then placing it on a course (collision from 3D (<code>docs/collision-from-3d.md</code>)).</p>
     <p class="small" style="margin:4px 0 0">The goal: see how a photo becomes a game object. A person draws a box, a model cuts the object out, a second model lifts it into 3D, and seven plain bake rules make it upright, facing the side camera, on the ground, small enough and the right size. Pick an object, drag the height, and switch each rule off to see what it was for. The cut-outs, lifts and costs are recorded; the bake rules run live.</p></div>
+    <div class="card" id="ll-3d"><h2>Spin it in 3D</h2>
+      <p class="small" style="margin:0 0 6px">Drag the left one to turn the raw lift. Drag the right one to walk around the baked object. Wheel or the buttons zoom. Arrow keys work too.</p>
+      <div class="pics" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+        <div><p class="cap">Raw lift: tilted, floating, its own size</p><canvas id="ll-3d-raw" width="590" height="400" tabindex="0" aria-label="Raw lift in 3D: drag to turn" style="cursor:grab;touch-action:none"></canvas></div>
+        <div><p class="cap">After the bake: upright, on the ground, facing the side camera</p><canvas id="ll-3d-baked" width="590" height="400" tabindex="0" aria-label="Baked object in 3D: drag to walk around" style="cursor:grab;touch-action:none"></canvas></div>
+      </div>
+      <p style="margin:8px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button id="ll-zin" type="button">Zoom in</button><button id="ll-zout" type="button">Zoom out</button><button id="ll-reset" type="button">Reset view</button></p>
+    </div>
     <div class="grid">
       <div class="card" id="ll-controls">
         <h2>Your choices</h2>
         <label>Object (a real raw lift, or a baked game object)<select id="ll-obj"></select></label>
         <label class="chk"><input id="ll-typed-on" type="checkbox"> <span>Type a height (otherwise the typical one for the label)</span></label>
         <label>Typed height: <b id="ll-h-v"></b><input id="ll-h" type="range" min="0.1" max="3" step="0.05"></label>
-        <label>Turn the raw lift about the vertical: <b id="ll-yaw-v"></b><input id="ll-yaw" type="range" min="0" max="179" step="1" value="0" aria-label="Turn the raw lift"></label>
-        <p class="small" style="margin:0">Left picture turns. "Face the side camera" turns it back.</p>
+        <label>Turn the raw lift about the vertical: <b id="ll-yaw-v"></b><input id="ll-yaw" type="range" min="0" max="359" step="1" value="0" aria-label="Turn the raw lift"></label>
+        <p class="small" style="margin:0">Same as dragging the raw 3D picture. "Face the side camera" turns it back.</p>
         <h2 style="margin-top:12px">Bake steps (tick = on)</h2>
         <div id="ll-steps"></div>
       </div>
@@ -90,6 +99,7 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
   const $ = <T extends HTMLElement>(id: string) => wrap.querySelector<T>("#" + id)!;
   const sel = $<HTMLSelectElement>("ll-obj"), typedOn = $<HTMLInputElement>("ll-typed-on"), hRange = $<HTMLInputElement>("ll-h"), yawRange = $<HTMLInputElement>("ll-yaw");
   const state = { steps: { ...ALL_STEPS } as Steps, obj: null as Obj | null, mesh: null as Mesh | null, tri: [] as string[], real: null as RawPackMeta | null };
+  const view = { pitch: 25, zoom: 1, bakedAz: 25 }; // the camera; the raw object's turn lives in the slider (one source of truth)
   const stepsBox = $("ll-steps");
   for (const s of STEP_NAMES) {
     const l = document.createElement("label"); l.className = "chk";
@@ -142,6 +152,13 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
     }
   }
 
+  const nice = (v: number) => { const e = Math.pow(10, Math.floor(Math.log10(v))), f = v / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; };
+  function draw3d(rawMesh: Mesh, bakedMesh: Mesh) {
+    const d = toDisplay(rawMesh), b = bounds(d), half = nice(Math.max(Math.abs(b.min[0]), Math.abs(b.max[0]), Math.abs(b.min[2]), Math.abs(b.max[2]), 1e-3) * 1.2);
+    const cy = (Math.min(0, b.min[1]) + Math.max(0, b.max[1])) / 2;
+    drawOrbit($<HTMLCanvasElement>("ll-3d-raw"), { mesh: d, tri: state.tri, colour: state.steps.colour, cam: frameCam(d, 0, view.pitch, view.zoom, { half: half * 1.6, centre: [0, cy, 0] }), gridStep: half / 4, gridHalf: half, unit: `${(half / 4).toPrecision(2)} (the lift's own units)`, title: "Raw lift (z was up)", arrow: true });
+    drawOrbit($<HTMLCanvasElement>("ll-3d-baked"), { mesh: bakedMesh, tri: state.tri, colour: state.steps.colour, cam: frameCam(bakedMesh, view.bakedAz, view.pitch, view.zoom, { half: 4.2, centre: [0, 0.8, 0] }), gridStep: 1, gridHalf: 3, unit: "1 m", title: "Baked (metres)", arrow: true });
+  }
   function currentTyped(): number | null { return typedOn.checked ? Number(hRange.value) : null; }
   function render() {
     if (!state.obj || !state.mesh) return;
@@ -158,6 +175,7 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
     const WIN = { cx: 0, cy: 1.4, span: 7 };
     draw($<HTMLCanvasElement>("ll-side"), r.mesh, 0, 1, 2, false, WIN, state.steps.colour, true);
     draw($<HTMLCanvasElement>("ll-top"), r.mesh, 0, 2, 1, false, { cx: 0, cy: 0, span: 7 }, state.steps.colour, false);
+    draw3d(raw.mesh, r.mesh);
     const rawH = bounds(raw.mesh).size[2], expect = typed ?? typicalHeight(o.label);
     const facts: [string, string][] = [
       ["Height", `${r.heightM.toFixed(2)} m ${expect !== null && state.steps.scale ? `(target ${expect} m)` : ""}`],
@@ -178,6 +196,16 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
   }
 
   const packs: RawPackMeta[] = [];
+  const lifts: RealLift[] = [];
+  async function pickLift(name: string) {
+    const o = lifts.find((x) => x.name === name)!, m = realToMeta(o);
+    const { mesh, tri } = parseRawGlb(await (await fetch("/" + o.rawMesh)).arrayBuffer());
+    state.real = m; state.mesh = mesh; state.tri = tri;
+    state.obj = { name: o.name, label: o.label, glb: "", height_m: o.typedHeightM, photo: o.photo, faces: o.stats.rawFaces, scale_source: "typed" };
+    hRange.value = String(o.typedHeightM); typedOn.checked = true;
+    $("ll-cut").innerHTML = `<img src="/${o.maskPicture}" alt="The recorded cut-out of the ${o.label}"><p class="small" style="margin:6px 0 0">Real photo, cut-out and lift of a "${o.label}". ${o.credit}. The lift made ${o.stats.rawFaces.toLocaleString("en")} triangles in ${o.stats.liftSeconds} s (about ${(o.stats.costUsd * 100).toFixed(1)} cents); the pictures draw ${o.stats.previewFaces.toLocaleString("en")} of them. It leans ${o.stats.tiltDeg} degrees by the camera layout.${o.stats.padded ? " The box was padded." : ""}</p>`;
+    render();
+  }
   async function pickReal(name: string) {
     const m = packs.find((x) => x.name === name)!;
     const { mesh, tri } = parseRawPack(await (await fetch(`/assets/lab/lift/raw/${m.file}`)).arrayBuffer());
@@ -188,6 +216,7 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
     render();
   }
   async function pick(name: string) {
+    if (name.startsWith("real:")) return pickLift(name.slice(5));
     if (name.startsWith("raw:")) return pickReal(name.slice(4));
     state.real = null;
     const o = (objects.find((x) => x.name === name) ?? objects[0]);
@@ -213,6 +242,33 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
   });
   hRange.addEventListener("input", () => { typedOn.checked = true; render(); });
   yawRange.addEventListener("input", render);
+  // 3D view: drag, wheel, buttons and arrow keys. The raw picture's horizontal drag writes the same turn the slider holds.
+  const turnBy = (dx: number) => { yawRange.value = String(Math.round(dragTurn(Number(yawRange.value), dx))); render(); };
+  const viewBy = (dpitch: number) => { view.pitch = clampPitch(view.pitch + dpitch); render(); };
+  const zoomBy = (f: number) => { view.zoom = clampZoom(view.zoom * f); render(); };
+  const rawCv = $<HTMLCanvasElement>("ll-3d-raw"), bakedCv = $<HTMLCanvasElement>("ll-3d-baked");
+  for (const [cv, isRaw] of [[rawCv, true], [bakedCv, false]] as const) {
+    let last: { x: number; y: number } | null = null;
+    cv.addEventListener("pointerdown", (e) => { last = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId); cv.style.cursor = "grabbing"; cv.focus(); });
+    cv.addEventListener("pointermove", (e) => {
+      if (!last) return;
+      const dx = e.clientX - last.x, dy = e.clientY - last.y; last = { x: e.clientX, y: e.clientY };
+      if (isRaw) { yawRange.value = String(Math.round(dragTurn(Number(yawRange.value), dx))); } else view.bakedAz = normTurn(view.bakedAz - dx * 0.5);
+      view.pitch = clampPitch(view.pitch + dy * 0.4); render();
+    });
+    const up = () => { last = null; cv.style.cursor = "grab"; };
+    cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+    cv.addEventListener("wheel", (e) => { e.preventDefault(); zoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12); }, { passive: false });
+    cv.addEventListener("keydown", (e) => {
+      const k = e.key, dx = k === "ArrowLeft" ? -10 : k === "ArrowRight" ? 10 : 0, dp = k === "ArrowUp" ? 5 : k === "ArrowDown" ? -5 : 0;
+      if (!dx && !dp) return;
+      e.preventDefault();
+      if (dx) { if (isRaw) turnBy(dx * 2); else { view.bakedAz = normTurn(view.bakedAz - dx); render(); } }
+      if (dp) viewBy(dp);
+    });
+  }
+  $("ll-zin").addEventListener("click", () => zoomBy(1.25)); $("ll-zout").addEventListener("click", () => zoomBy(1 / 1.25));
+  $("ll-reset").addEventListener("click", () => { view.pitch = 25; view.zoom = 1; view.bakedAz = 25; yawRange.value = "0"; render(); });
   const mh = $<HTMLInputElement>("ll-mh");
   const thin = () => { const h = Number(mh.value), L = barLength(h, RECORDED_COST.monkeyBars.extent_aspect); $("ll-mh-v").textContent = `${h.toFixed(2)} m`; $("ll-mlen").textContent = `${L.toFixed(1)} m`; $("ll-mwarn").textContent = sizeWarning([L, h, 0.1]); };
   mh.value = "0.25"; mh.addEventListener("input", thin); thin();
@@ -230,10 +286,11 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
   const objects: Obj[] = [];
   fetch("/assets/objects/index.json").then((r) => r.json()).then(async (j) => {
     objects.push(...(j.objects as Obj[]));
-    try { packs.push(...((await (await fetch("/assets/lab/lift/raw/index.json")).json()).objects as RawPackMeta[])); } catch { /* the real raw lifts are optional: the baked objects still work */ }
-    sel.innerHTML = (packs.length ? `<optgroup label="Real raw lifts (the lift model's own output)">${packs.map((m) => `<option value="raw:${m.name}">${m.name} (${m.label})</option>`).join("")}</optgroup>` : "") +
-      `<optgroup label="Baked game objects (raw rebuilt from the baked mesh)">${objects.map((o) => `<option value="${o.name}">${o.name} (${o.label})</option>`).join("")}</optgroup>`;
-    const first = packs.length ? "raw:" + packs[0].name : "bench-concrete";
+    try { lifts.push(...((await (await fetch("/assets/lab/lift/real/index.json")).json()).objects as RealLift[])); } catch { /* the 8 older raw lifts below are the fallback */ }
+    try { if (!lifts.length) packs.push(...((await (await fetch("/assets/lab/lift/raw/index.json")).json()).objects as RawPackMeta[])); } catch { /* the real raw lifts are optional: the baked objects still work */ }
+    sel.innerHTML = (lifts.length ? `<optgroup label="Real lifts (photo, cut-out, lift)">${lifts.map((m) => `<option value="real:${m.name}">${m.name} (${m.label})</option>`).join("")}</optgroup>` : "") + (!lifts.length && packs.length ? `<optgroup label="Real raw lifts (the lift model's own output)">${packs.map((m) => `<option value="raw:${m.name}">${m.name} (${m.label})</option>`).join("")}</optgroup>` : "") +
+      (lifts.length ? "" : `<optgroup label="Baked game objects (raw rebuilt from the baked mesh)">${objects.map((o) => `<option value="${o.name}">${o.name} (${o.label})</option>`).join("")}</optgroup>`);
+    const first = lifts.length ? "real:" + (lifts.find((x) => x.name === "bench-concrete") ?? lifts[0]).name : packs.length ? "raw:" + packs[0].name : "bench-concrete";
     sel.value = first;
     await pick(first);
     labDefaultNote(wrap, "live", wrap.querySelector("h1")!.parentElement!.querySelector("p"));

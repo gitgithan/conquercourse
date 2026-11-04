@@ -167,3 +167,54 @@ describe('Lab 14: real raw lifts', () => {
     for (const m of index) { const z = Array.from(load(m).positions).filter((_: number, i: number) => i % 3 === 2); expect(m.raw_height).toBeGreaterThan(0); expect(Math.max(...z) - Math.min(...z)).toBeGreaterThan(0); }
   });
 });
+
+// CC-133: all 19 objects are real photo -> mask -> lift -> bake results (public/assets/lab/lift/real), and the 3D view is a pure projection
+import { camSpace, clampPitch, clampZoom, dragTurn, normTurn, parseRawGlb, projectPoint, realToMeta, toDisplay, type Cam, type RealLift } from '../src/labs/lift/lift-core';
+const realIdx = JSON.parse(readRaw('public/assets/lab/lift/real/index.json', 'utf8')).objects as RealLift[];
+const loadReal = (o: RealLift) => { const b = readRaw(`public/assets/${o.rawMesh.replace(/^assets\//, '')}`); return parseRawGlb(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer); };
+describe('Lab 14: the 19 real lifts', () => {
+  it('lists all 19 library objects, each with a mask, a baked file and a credit', () => {
+    expect(realIdx.length).toBe(19);
+    for (const o of realIdx) { expect(readRaw(`public/${o.maskPicture}`).length, o.name).toBeGreaterThan(100); expect(o.credit.length, o.name).toBeGreaterThan(5); expect(index.some((x) => x.name === o.name), o.name).toBe(true); }
+  });
+  for (const o of realIdx) {
+    it(`${o.name}: loads, bakes to a sane object, any turn gives the same result`, () => {
+      const { mesh, tri } = loadReal(o), m = realToMeta(o);
+      expect(tri.length).toBe(mesh.indices!.length / 3);
+      expect(bounds(mesh).size[2]).toBeCloseTo(o.stats.rawHeight, 2);
+      const opts = { label: o.label, typedHeight: o.typedHeightM, steps: ALL_STEPS };
+      const r = bake(rawFromPack(mesh, m, 0), opts);
+      expect(r.heightM).toBeCloseTo(o.typedHeightM, 3);
+      expect(r.minY).toBeCloseTo(0, 6);
+      expect(r.centreOffset).toBeLessThan(1e-6);
+      expect(sizeWarning(r.size)).toBe('');
+      const r2 = bake(rawFromPack(mesh, m, 137), opts);
+      expect(Math.max(...[0, 1, 2].map((k) => Math.abs(r.size[k] - r2.size[k])))).toBeLessThan(0.06 * Math.max(...r.size));
+    });
+  }
+});
+describe('Lab 14: the 3D view (pure projection)', () => {
+  const cam: Cam = { az: 30, pitch: 25, dist: 5, focal: 300, target: [0.2, 0.5, -0.1] };
+  const pts: [number, number, number][] = [[0, 0, 0], [1, 0, 0], [0, 2, 0], [0.3, 0.4, 1.5]];
+  const d = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  it('rotation preserves distances', () => {
+    for (const az of [0, 33, 117, 270]) for (const pitch of [0, 25, 80]) for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++)
+      expect(d(camSpace(pts[i], { ...cam, az, pitch }), camSpace(pts[j], { ...cam, az, pitch }))).toBeCloseTo(d(pts[i], pts[j]), 9);
+  });
+  it('a full 360 degree orbit gives the same picture', () => {
+    for (const p of pts) { const a = projectPoint(p, cam, 590, 400)!, b = projectPoint(p, { ...cam, az: cam.az + 360 }, 590, 400)!; expect(b.x).toBeCloseTo(a.x, 6); expect(b.y).toBeCloseTo(a.y, 6); }
+    expect(dragTurn(10, 720)).toBeCloseTo(10, 9); // 720 px at 0.5 degree each is two full turns
+  });
+  it('the side camera (az 0, pitch 0) sees x across and y up; bigger x is to the right, higher y is up the page', () => {
+    const c: Cam = { ...cam, az: 0, pitch: 0, target: [0, 0, 0] }, o = projectPoint([0, 0, 0], c, 100, 100)!;
+    expect(projectPoint([1, 0, 0], c, 100, 100)!.x).toBeGreaterThan(o.x); expect(projectPoint([0, 1, 0], c, 100, 100)!.y).toBeLessThan(o.y);
+  });
+  it('the bake does not depend on the view, and the turn slider is one number', () => {
+    const { mesh } = load('bench-concrete'), raw = unbake(mesh, recipeFor('bench-concrete').recipe);
+    const a = bake(raw, { label: 'bench', typedHeight: 0.8, steps: ALL_STEPS });
+    projectPoint([1, 1, 1], cam, 100, 100); toDisplay(raw.mesh); // looking never changes the object
+    const b = bake(raw, { label: 'bench', typedHeight: 0.8, steps: ALL_STEPS });
+    expect(b.size).toEqual(a.size); expect(b.mesh.positions).toEqual(a.mesh.positions);
+    expect(normTurn(-30)).toBe(330); expect(normTurn(360)).toBe(0); expect(clampPitch(200)).toBe(89); expect(clampZoom(0)).toBe(0.4);
+  });
+});
