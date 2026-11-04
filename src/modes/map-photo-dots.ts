@@ -1,12 +1,23 @@
 // Photo dots on the slicer map (CC-133): where each checked street photo was taken, and a cone for the way it faced. A click shows the photo live from Mapillary.
 // We store no pictures: the picture address comes from /api/photos when you click, with the maker's name and the licence beside it.
 import type * as maplibregl from 'maplibre-gl';
-import { DOTS_MAX, DOTS_MIN_ZOOM, dotsGeoJSON, nearest } from '../world/photo-dots';
+import { DOTS_MAX, DOTS_MIN_ZOOM, DOT_HIT_PX, dotsGeoJSON, nearest, nearestDotOnScreen } from '../world/photo-dots';
 import { LICENCE, photoPage, type AllowedPhoto, type AllowList } from '../world/live-photos';
 import { resolveThumbs } from '../ui/live-photos';
 
+/** The photo dot under a click, found in screen space from the map's own projected dot positions (the layer hit-test returns nothing at the default 72 degree tilt). */
+export function dotAt(map: maplibregl.Map, pt: maplibregl.PointLike): string | null {
+  if (!map.getLayer('pd-dot') || map.getLayoutProperty('pd-dot', 'visibility') === 'none') return null;
+  const p = Array.isArray(pt) ? { x: pt[0], y: pt[1] } : pt, seen = new Set<string>(), dots: { id: string; x: number; y: number }[] = [];
+  for (const f of map.querySourceFeatures('pd-dot')) {
+    const id = String(f.properties?.id ?? ''); if (!id || seen.has(id)) continue; seen.add(id);
+    const q = map.project((f.geometry as unknown as { coordinates: [number, number] }).coordinates); dots.push({ id, x: q.x, y: q.y });
+  }
+  return nearestDotOnScreen(dots, p.x, p.y, DOT_HIT_PX);
+}
+
 /** True when the point is on a photo dot, so the map's own click (drop a pin) steps aside. */
-export const onPhotoDot = (map: maplibregl.Map, pt: maplibregl.PointLike): boolean => !!map.getLayer('pd-dot') && map.queryRenderedFeatures(pt, { layers: ['pd-dot'] }).length > 0;
+export const onPhotoDot = (map: maplibregl.Map, pt: maplibregl.PointLike): boolean => dotAt(map, pt) !== null;
 
 type Src = maplibregl.GeoJSONSource;
 
@@ -65,9 +76,8 @@ export function installPhotoDots(map: maplibregl.Map, f: typeof fetch = fetch): 
     map.addSource('pd-dot', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({ id: 'pd-cone', type: 'fill', source: 'pd-cone', paint: { 'fill-color': '#e8590c', 'fill-opacity': 0.35, 'fill-outline-color': '#b8430a' } });
     map.addLayer({ id: 'pd-dot', type: 'circle', source: 'pd-dot', paint: { 'circle-radius': 5, 'circle-color': '#e8590c', 'circle-stroke-color': '#fff', 'circle-stroke-width': 1.5 } });
-    map.on('click', 'pd-dot', (e: maplibregl.MapLayerMouseEvent) => { const id = e.features?.[0]?.properties?.id; if (id) void open(String(id)); });
-    map.on('mouseenter', 'pd-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
-    map.on('mouseleave', 'pd-dot', () => { map.getCanvas().style.cursor = ''; });
+    map.on('click', (e: maplibregl.MapMouseEvent) => { const id = dotAt(map, e.point); if (id) void open(id); });
+    map.on('mousemove', (e: maplibregl.MapMouseEvent) => { map.getCanvas().style.cursor = dotAt(map, e.point) ? 'pointer' : ''; });
     map.on('moveend', () => { clearTimeout(timer); timer = window.setTimeout(draw, 150); });
     void load();
   };
