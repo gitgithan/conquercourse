@@ -23,9 +23,13 @@ try {
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
   await page.goto(`${base}/?mode=lab-wait&labs=1&backend=webgl2`);
   await page.waitForFunction(() => document.documentElement.dataset.labPopulated === 'lab-wait', null, { timeout: 90000 });
+  check('intro promises immediate feedback', (await page.textContent('#lab-default-note')).includes('effect immediately'));
   check('reuse preview populated', await page.getAttribute('#lw-reuse', 'data-ready') === 'true');
   check('our setting removes repeated work', await page.getAttribute('#lw-reuse', 'data-work') === '9');
   await page.screenshot({ path: 'test-results/lab-wait/reuse-start.png' });
+  await page.focus('#lr-assets'); await page.keyboard.press('Space');
+  check('keyboard choices redraw immediately', await page.getAttribute('#lw-reuse', 'data-work') === '22');
+  await page.keyboard.press('Space');
   await page.click('#lr-rebuild');
   check('rebuild choice redraws immediately', await page.getAttribute('#lw-reuse', 'data-work') === '31');
   check('resources have inspectable identities', (await page.textContent('#lr-diagram')).includes('#1'));
@@ -54,6 +58,7 @@ try {
   await page.screenshot({ path: 'test-results/lab-wait/reuse-leftovers.png' });
   check('no horizontal overflow', await page.$eval('#lab-wait', (e) => e.scrollWidth <= e.clientWidth));
   await page.click('#lw-show-search');
+  check('experiment instructions follow the selected tab', (await page.textContent('#lab-wait .wrap > div p.small')).includes('two lanes'));
   const tiles = await page.textContent('#lw-tiles');
   check('meters filled', !/undefined|NaN/.test(tiles) && tiles.includes('First word on screen'), tiles.slice(0, 300));
   check('nav names the Lab', (await page.textContent('#labs-nav')).includes('Hide the wait'));
@@ -80,6 +85,13 @@ try {
   await page.goto(`${base}/?mode=lab-wait&labs=1&waitreuse=0`);
   await page.waitForFunction(() => document.documentElement.dataset.labWaitReady === '1');
   check('feature opt-out retains the old experiment', await page.locator('#lw-original').isVisible() && await page.locator('#lw-show-reuse').isHidden());
+  const reduced = await (await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })).newPage();
+  reduced.on('pageerror', (e) => errors.push(e.message));
+  await reduced.goto(`${base}/?mode=lab-wait&labs=1`);
+  await reduced.locator('#lw-reuse[data-ready=true]').waitFor();
+  await reduced.click('#lr-switch');
+  check('reduced motion completes without animation', await reduced.inputValue('#lr-scrub') === '100' && await reduced.textContent('#lr-play') === 'Replay switch');
+  await reduced.close();
   check('no page errors', errors.length === 0, errors.join(' | '));
   await browser.close();
 } catch (e) { check('run', false, String(e)); } finally { server.kill(); }

@@ -1,3 +1,4 @@
+import { pageQuery } from '../flags';
 import { FEATURES, type Feature } from '../ui/site-nav';
 import { browserStore, entranceOn } from '../ui/onboarding-flags';
 import { startHref } from '../ui/welcome-flags';
@@ -67,7 +68,7 @@ export function startWelcome(host: HTMLElement): void {
     if (f.href === null) el.onclick = () => mountWorldGallery(document.body, { current: { value: null }, place: 'display:none' }).open();
     grid.append(el);
   }
-  if (entranceOn(new URLSearchParams(location.search), location.hostname)) { // the fifth tile: the Making Of tunnel (CC-133)
+  if (entranceOn(pageQuery(), location.hostname)) { // the fifth tile: the Making Of tunnel (CC-133)
     const a = Object.assign(document.createElement('a'), { href: '/making-of/timeline.html', className: 'wtile wide' });
     a.dataset.feature = 'entrance';
     a.innerHTML = `<img src="/assets/thumbs/making-timeline.webp" alt="" width="150" height="78" loading="eager" decoding="async"><span class="wtext"><b>The Grand Entrance</b><span>Walk the story of how this game was made.</span></span>`;

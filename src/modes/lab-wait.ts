@@ -107,11 +107,15 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
       </div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
-  labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
+  const defaultNote = labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
+  defaultNote.textContent = "Showing our setting, already run. Change a control and see its effect immediately.";
   const reuseEnabled = pageQuery().get('waitreuse') !== '0';
   const reuse = reuseEnabled ? mountReuseExperiment($('lw-reuse-host')) : null;
   function showExperiment(which: 'reuse' | 'search') {
     reuse?.pause();
+    wrap.querySelector<HTMLElement>('p.small')!.textContent = which === 'reuse'
+      ? 'Choose what to keep, switch courses and watch where the work goes. Explore search and model startup in the other experiment.'
+      : 'Turn the knobs and watch two lanes: what the computer does, and what the person sees. Keep the page smooth, make the wait shorter and show something useful.';
     $('lw-reuse-host').hidden = which !== 'reuse'; $('lw-original').hidden = which !== 'search';
     $('lw-show-reuse').setAttribute('aria-pressed', String(which === 'reuse')); $('lw-show-search').setAttribute('aria-pressed', String(which === 'search'));
   }

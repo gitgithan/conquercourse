@@ -54,7 +54,7 @@ export function mountReuseExperiment(parent: HTMLElement): { pause(): void } {
         <div class="metrics" id="lr-metrics" aria-live="polite"></div>
         <div class="card"><h2>What blocks the first frame?</h2><div class="timeline" id="lr-timeline"></div>
           <p id="lr-stage" class="small" style="min-height:34px;margin:8px 0"></p>
-          <div class="scrubber"><button class="preset" id="lr-play">Replay switch</button><input aria-label="Step through the switch" id="lr-scrub" type="range" min="0" max="100" value="100"><span id="lr-progress">100%</span></div>
+          <div class="scrubber"><button class="preset" id="lr-play">Replay switch</button><input aria-label="Step through the switch" id="lr-scrub" type="range" min="0" max="100" value="100"><span id="lr-progress">100%</span></div><p class="small" style="margin:4px 0 0">Playback follows teaching work units, not measured load time.</p>
         </div>
         <div class="card"><h2>After repeated switches</h2><div id="lr-memory"></div><div class="lesson" id="lr-lesson"></div>
           <details class="recorded"><summary>What happened in our real game?</summary><p>On the recorded software-GPU VM, full reloads took 17–22 s. Reusing the runtime took 1–11 s; the return from Montmartre was still slow. These are recorded observations, not predictions from this model.</p><p>The weights above are illustrative units, not milliseconds or measured memory. Cleanup affects future switches; Reset clears any older leftovers. <a class="lnk" href="?mode=lab-systemdesign&labs=1&welcome=0">Use this lesson in System design</a>.</p></details>
@@ -99,7 +99,7 @@ export function mountReuseExperiment(parent: HTMLElement): { pause(): void } {
     const added = extra - leakedUnits(turn.before);
     $('lr-heading').textContent = completed ? `Switch ${state.switches}: ${NAMES[turn.before.course]} → ${NAMES[target.course]}` : `Next switch: ${NAMES[state.course]} → ${NAMES[target.course]}`;
     $('lr-metrics').innerHTML = `<div class="card"><b>${turn.work} / 31</b><span>Work units for this switch</span></div><div class="card"><b>${turn.kept.length} / 5</b><span>Resources reused</span></div><div class="card ${extra ? 'leaking' : ''}"><b>${active + extra}</b><span>Resource units after switch (${extra} left over)</span></div>`;
-    $('lr-timeline').innerHTML = turn.stages.map((s) => `<div class="step ${s.work ? '' : s.label.startsWith('Keep') ? 'kept' : 'skipped'}" title="${s.why}">${s.label}<br><b>${s.work ? s.work + ' units' : s.label.startsWith('Keep') ? 'reused' : 'skipped'}</b><div class="stage-meter"><i style="width:${s.work / 12 * 100}%"></i></div></div>`).join('')
+    $('lr-timeline').innerHTML = turn.stages.map((s) => `<div class="step ${s.work ? '' : s.label.startsWith('Keep') ? 'kept' : 'skipped'}" title="${s.why}">${s.label}<br><b>${s.work ? s.work + (s.work === 1 ? ' unit' : ' units') : s.label.startsWith('Keep') ? 'reused' : 'skipped'}</b><div class="stage-meter"><i style="width:${s.work / 12 * 100}%"></i></div></div>`).join('')
       + `<div class="timeline-rest" aria-label="${turn.work} of 31 illustrative work units remain">${turn.stages.filter((s) => s.work > 0).map((s) => `<i style="width:${s.work / 31 * 100}%" title="${s.label}: ${s.work} work units"></i>`).join('')}</div>`;
     const shown = history.slice(-7), max = Math.max(40, ...shown.map((s) => activeUnits(s) + leakedUnits(s)));
     $('lr-memory').innerHTML = `<svg viewBox="0 0 760 108" role="img" aria-label="Active and leftover resource units after each completed course switch">${shown.map((s, i) => {
@@ -115,8 +115,8 @@ export function mountReuseExperiment(parent: HTMLElement): { pause(): void } {
   function play() {
     pause(); fraction = 0; paintProgress();
     if (reduce) { fraction = 1; paintProgress(); return; }
-    const start = performance.now(); $('lr-play').textContent = 'Pause';
-    timer = window.setInterval(() => { fraction = Math.min(1, (performance.now() - start) / 1800); paintProgress(); if (fraction === 1) pause(); }, 30);
+    const start = performance.now(), duration = turn.work * 90; $('lr-play').textContent = 'Pause';
+    timer = window.setInterval(() => { fraction = Math.min(1, (performance.now() - start) / duration); paintProgress(); if (fraction === 1) pause(); }, 30);
   }
   function preview() { pause(); completed = false; turn = switchReuse(state, choices); fraction = 1; paint(); }
   function sync() { for (const k of ['renderer', 'assets', 'cleanup'] as const) ($('lr-' + k) as HTMLInputElement).checked = choices[k]; }
