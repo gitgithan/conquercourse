@@ -581,6 +581,7 @@ flowchart LR
 - The file is outside git, in `../conquercourse-assets/social/promo/` (videos and post text are never tracked); the copy there was saved on 2026-11-04.
 - It is 1920 by 1080 at 30 frames per second, 85 seconds, about 9 MB, with sound.
 - It shows a real place becoming a course in the World Slicer, the World Editor with the design partner, an object lifted from a photo, runs on the course, the Dojo, the Labs and the Rookies.
+- The scene plan, with a lane for the music, is the [promo storyboard](docs/promo-storyboard.md).
 - Every shot is recorded from the real game, with a stepped clock so a slow software GPU makes capture slower, never choppier (how: [promo v2](docs/promo-v2.md)).
 - The music is made with MusicGen (Meta's AudioCraft model) from written prompts only, with no melody or recording as input.
 - The loops in the game (`public/assets/music/`, for example the World Slicer loop `map.ogg`, 6 bars at 100 bpm) have a row each in `docs/ASSETS.md`.

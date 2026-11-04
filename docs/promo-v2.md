@@ -6,6 +6,8 @@
   - Only the scripts, this page and a few small stills are tracked.
 - Social post text is not tracked.
 
+- The scene plan for the next film: [promo storyboard](promo-storyboard.md).
+
 ## Rebuild the film
 
 - One command: `node scripts/promo-v2-build.mjs` (needs ffmpeg and the DejaVu Sans Bold font).
