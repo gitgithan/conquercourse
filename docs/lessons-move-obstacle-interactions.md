@@ -89,7 +89,7 @@
 - A test checks both sides: some release puts the hands on the first rung, and a release too early does not grab and does not break anything (`tests/bars.test.ts`).
 - Sweeping the release one tick at a time on the demo course ([scripts/lesson-trace.ts](../scripts/lesson-trace.ts)) gave: ticks 32 to 68 of the hang all clear, which is 37 ticks or 308 ms.
 - The stored recorded run lets go at tick 28, which clears alone (8 ms), so the demo works but is brittle; moving it into the wide part is a next step.
-- A clip of this hand-off, one picture per four ticks of the simulator clock: [swing-to-bars.mp4](evidence/lessons/swing-to-bars.mp4).
+- A clip of this hand-off, one picture per four ticks of the simulator clock: swing-to-bars.mp4 (video kept outside git).
 
 ![Four snapshots of the pull-up bar to monkey bars run: run, hang, flight, monkey bars.](evidence/lessons/swing-to-bars-sheet.png)
 
@@ -111,7 +111,7 @@
 
 *Notice: the bench lane never leaves the ground much, so it is short and tight.*
 
-- Clips from the simulator's own replay: [bench lane](evidence/lessons/fork-bench.mp4) and [bulb lane](evidence/lessons/fork-bulb.mp4).
+- Clips from the simulator's own replay: bench lane (video kept outside git) and bulb lane (video kept outside git).
 
 ## Leak sweeps
 - A leak is a way to skip a route you did not mean to allow.
