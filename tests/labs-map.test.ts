@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SOURCE, edgePath, focusState, layoutLabsMap, mapEdges, neighboursOf, type MapSource } from '../src/ui/labs-map-layout';
-import { LAB_LIST, flowOf, usedIn, usesOf } from '../src/ui/labs-series';
+import { LAB_LIST, TIERS, flowOf, usedIn, usesOf } from '../src/ui/labs-series';
 
 // CC-133: the dependency tree of the Labs. The layout is a pure function of the series data, so these tests need no page.
-const map = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 });
+const map = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46, nodeW: 296 });
 
 // a made-up 25-Lab series with a finale tier: the layout must not care about names, numbers or tiers
 const fake = (n: number): MapSource => {
@@ -42,7 +42,7 @@ describe('labs map layout', () => {
   });
   it('puts tiers left to right in the order the series lists them', () => {
     const real = new Map(map.columns.map((c, i) => [c.id, i]));
-    expect(map.columns.map((c) => c.id)).toEqual(['foundations', 'pipelines']);
+    expect(map.columns.map((c) => c.id)).toEqual(TIERS.map((t) => t.id).filter((t) => map.nodes.some((n) => n.tier === t)));
     for (const n of map.nodes) expect(n.column).toBe(real.get(n.tier));
     const x = layoutLabsMap(fake(25));
     expect(x.columns.map((c) => c.id)).toEqual(['foundations', 'pipelines', 'finale']);
@@ -73,7 +73,7 @@ describe('labs map layout', () => {
     expect(focusState(map, 'not-a-lab').dimNode('lab-search')).toBe(false);
   });
   it('is the same on every call and picks up a new Lab by itself', () => {
-    expect(layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 })).toEqual(map);
+    expect(layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46, nodeW: 296 })).toEqual(map);
     const src = fake(25), big = layoutLabsMap(src);
     expect(big.nodes).toHaveLength(25);
     expect(mapEdges(src).length).toBeGreaterThanOrEqual(30);
