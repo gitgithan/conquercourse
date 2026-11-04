@@ -118,10 +118,10 @@ describe('the menu stays small (CC-97)', () => {
       expect(DEMOS.some(([v]) => v.endsWith(`/${f}.course.json`)), `${f} should be out of the menu`).toBe(false);
     }
   });
-  it('The Making Of group: two real links with a picture each, plus the Parts card; ?making=0 hides the links, ?parts=0 the Parts card', () => {
+  it('The Making Of group: three real links with a picture each, plus the Parts card; ?making=0 hides the links, ?parts=0 the Parts card', () => {
     expect(makingOfOn(new URLSearchParams(''))).toBe(true);
     expect(makingOfOn(new URLSearchParams('making=0'))).toBe(false);
-    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map']);
+    expect(MAKING_OF_CARDS.map((c) => c[1])).toEqual(['Site map', 'Course map', 'Code map']);
     expect(DEMOS.some(([v]) => v === 'parts')).toBe(true);
     expect(DEMO_GROUPS.some(([, ds]) => ds.some(([v]) => v === 'parts'))).toBe(false);
     expect(existsSync('public/assets/thumbs/parts.webp')).toBe(true);
