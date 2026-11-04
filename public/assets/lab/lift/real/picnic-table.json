@@ -19,7 +19,7 @@
     "rawFaces": 183752,
     "previewFaces": 7760,
     "previewBytes": 152576,
-    "yawDeg": 0.0,
+    "yawDeg": 0,
     "tiltDeg": 0.62,
     "splatPoints": 150656,
     "liftSeconds": 8.5,
