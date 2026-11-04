@@ -27,7 +27,12 @@ function frame() { const a = (az * Math.PI) / 180, e = (el * Math.PI) / 180; cam
   let res = await fetch(`/data/eval/${first}/skin/${slug}-osm.json`);
   if (!ok(res)) res = await fetch(`/data/eval/${second}/skin/${slug}-osm.json`);
   if (!ok(res)) res = await fetch(`/assets/places/skin/${slug}-osm.json`);
-  const osm = (await res.json()) as SkinOsm;
+  let osm: SkinOsm;
+  if (ok(res)) osm = (await res.json()) as SkinOsm;
+  else { // a ready place with no saved extras: its stored map answer still has every building with its tags, so the colours work for all of them
+    const pl = await (await fetch(`/assets/places/${slug}.json`)).json();
+    osm = { lat: pl.lat, lon: pl.lon, radius: pl.radius, elements: pl.answer.elements };
+  }
   // the ground heights only shade the slope (colour); the page's scene stays flat as before
   let ground: { radius: number; step: number; n: number; h: number[] } | null = null;
   if (gc) { try { const pl = await (await fetch(`/assets/places/${slug}.json`)).json(); if (pl.ground) ground = { radius: pl.radius, ...pl.ground }; } catch { /* no heights: no slope shade */ } }
