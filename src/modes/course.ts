@@ -3,6 +3,8 @@ import { createKeydown, isTyping } from './course/keydown';
 import type { CourseCtx } from './course/context';
 import { createRunStats } from './course/stats';
 import { createHint } from './course/hint';
+import { createHintHistory } from '../ui/hint-history';
+import { createBarsKeys } from '../ui/bars-keys';
 import { createCourseCamera } from './course/camera';
 import { createRunnerLook } from './course/characters';
 import { createClipMaker } from './course/clip';
@@ -287,6 +289,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const o of aheadOf) { const d = o.x - x; if (d > -0.2 && (!best || d < best.distance)) best = { kind: o.kind, distance: Math.max(0, d) }; }
     return best;
   }
+  const toastStack = createHintHistory(document.body), barsKeys = createBarsKeys(document.body);
   const hintFor = createHint(ctx, { toastDrums: toastDrumsNow, shotPreview });
 
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => wear.choice() });
@@ -374,6 +377,8 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     const reportOpen = panel.style.display !== 'none'; // CC-191: while a report is open the hint, the controls card, the ghost chip and the second Edit button step aside
     hint.textContent = reportOpen ? '' : hintFor(st.world);
     hint.style.display = hint.textContent ? 'block' : 'none';
+    toastStack.update(hint.textContent ?? '', hint, performance.now());
+    barsKeys.update(st.world, course);
     if (reportOpen !== reportWas) { reportWas = reportOpen; if (reportOpen) help.style.visibility = 'hidden'; else if (!document.getElementById('helpmenu')) help.style.visibility = ''; rowBtns.style.visibility = reportOpen ? 'hidden' : ''; const gh = document.getElementById('ghost-hud'); if (gh) gh.style.visibility = reportOpen ? 'hidden' : ''; }
     msg.textContent = st.paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : st.world.outcome === 'cleared' ? 'You made it! Press R to run it again.' : st.idealNote;
     msg.style.display = msg.textContent ? 'block' : 'none'; // CC-166: an empty message used to leave its dark panel, a black pill, in the middle of the screen

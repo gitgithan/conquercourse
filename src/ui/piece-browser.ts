@@ -68,7 +68,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     try {
       const pg = await listSharedPage({ q, kind: 'piece', cursor });
       const have = new Set(cursor ? communityFound.items.map((x) => x.id) : []);
-      const add = pg.items.filter((i) => !i.mine && (!i.status || i.status === 'approved')).map((i) => ({ id: `shared-${i.id}`, section: 'real' as Section, name: i.name, does: 'A 3D piece another player shared. Click the card to add it to the world.', from: 'Shared by a player', button: '' })).filter((x) => !have.has(x.id));
+      const add = pg.items.filter((i) => (!i.status || i.status === 'approved')).map((i) => ({ id: `shared-${i.id}`, section: 'real' as Section, name: i.name, does: i.mine ? 'A 3D piece you shared. Click the card to add it to the world.' : 'A 3D piece another player shared. Click the card to add it to the world.', from: i.mine ? 'Shared by you' : 'Shared by a player', button: '' })).filter((x) => !have.has(x.id));
       communityFound.q = q; communityFound.items = cursor ? [...communityFound.items, ...add] : add; communityFound.next = pg.next;
       if (search.value.trim().toLowerCase() === q) paint();
     } catch { /* the search is a bonus */ }

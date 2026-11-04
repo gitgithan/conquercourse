@@ -4,6 +4,7 @@ import { filmShotOf, type FilmShot } from '../../film/camera';
 import { railsOf } from '../../sim/cart';
 import { clipCameraDistance } from '../../share/clip';
 import { pageSearch } from '../../flags';
+import { pivotOf } from '../../sim/bars';
 import type { CourseState } from './state';
 
 // The Course's cameras (CC-133): the main camera with its three views (side, 45 degrees, first person; C), the mouse orbit, the film camera (?film=<shot>), the clip's own camera, and the front-view inset.
@@ -107,13 +108,17 @@ export async function createCourseCamera(deps: CameraDeps): Promise<CourseCamera
     // the head: the body's turn about the bar (swing angle theta, a rotation so it passes the top smoothly) and where the eyes are; the first-person camera and the corner window both use it.
     // After a release the head settles level over about 0.3 s (the body has no spin in flight); on the ground it is level.
     const nowS = performance.now() / 1000, dtHead = Math.min(0.05, Math.max(0, nowS - pipClock)); pipClock = nowS;
+    const barsHang = st.world.mode === 'bars' && st.world.bars && course.bars?.[st.world.bars.run] ? st.world.bars : null; // monkey bars turn the head about the rungs like a single bar does
     if (st.world.mode === 'hang' && st.world.hang) pipRoll = st.world.hang.theta;
+    else if (barsHang) pipRoll = barsHang.theta;
     else if (!r.grounded) pipRoll *= Math.exp(-dtHead / 0.1);
     else pipRoll = 0;
     qRoll = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), pipRoll);
     const nose = new THREE.Vector3(0.15 * facing, 0, 0).applyQuaternion(qRoll);
     const headHold = st.world.hang ? course.holds?.[st.world.hang.hold] : undefined;
-    eye = headHold && st.world.hang
+    const barsPivot = barsHang ? pivotOf(course.bars![barsHang.run], barsHang) : null;
+    eye = barsPivot && barsHang ? { x: barsPivot.x + 0.4 * Math.sin(barsHang.theta) + nose.x, y: barsPivot.y - 0.4 * Math.cos(barsHang.theta) + nose.y }
+      : headHold && st.world.hang
       ? { x: headHold.x + 0.4 * Math.sin(st.world.hang.theta) + nose.x, y: headHold.y - 0.4 * Math.cos(st.world.hang.theta) + nose.y } // just under the hands, along the arms
       : { x: r.x + nose.x, y: r.y + 1.62 + nose.y };
     // three views, switched with C: from the side, from behind at 45 degrees, and through the runner's eyes

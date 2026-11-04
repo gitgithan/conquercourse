@@ -33,6 +33,9 @@ export function createStepEvents(ctx: CourseCtx, d: { say: ReturnType<typeof cre
           releasedAtX = null;
         }
         if (e.type === 'jump' && st.keysOpen && !st.keysTouched) { st.keysOpen = false; d.paintKeys(false); } // the controls card has done its job once you have jumped
+        if (e.type === 'bars-grab') { say.say('On the bars. Swing with → ←, then alternate Q (left hand) and T (right hand). Hold E.', 300); }
+        if (e.type === 'bars-stall') { say.say(e.detail?.order ? 'Other hand first: Q, T, Q, T.' : e.detail?.both ? 'One key at a time: Q or T.' : e.detail?.end ? 'No rung ahead: let go of E to fly off.' : 'Too early: swing forward first, then reach.', 120); }
+        if (e.type === 'bars-reach' && (st.world.bars?.streak ?? 0) === 6) { say.say('Smooth chain! Each catch keeps more of your swing.', 150); }
         if (e.type === 'hang-release' && e.detail?.slipped) { say.say('Your grip gave out: the bar pulled harder than your hands could hold.', 120); }
         if (e.type === 'land' && !e.detail?.bouncy) {
           const o = ouch(e.detail?.peakDecel as number);

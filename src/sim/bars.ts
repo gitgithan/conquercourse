@@ -7,10 +7,11 @@ export interface BarRun { x: number; y: number; n: number; gap: number } // firs
 
 export interface BarsParams {
   arm: number; // m, from the shoulder to the hand: a straight arm reaches this far about the shoulder
+  rhythm: number; // extra share of the swing speed kept for each reach in an unbroken Q, T, Q, T chain (the catch gets smoother; a chain never adds speed, it only stops losing it)
   keep: number; // share of the swing speed kept when a hand catches a rung (the catch absorbs the rest)
   hang: HangParams; // the pendulum is the same body as on a bar
 }
-export const DEFAULT_BARS: BarsParams = { arm: 0.7, keep: 0.93, hang: DEFAULT_HANG };
+export const DEFAULT_BARS: BarsParams = { arm: 0.7, keep: 0.93, rhythm: 0.015, hang: DEFAULT_HANG };
 export const GAP_MIN = 0.3, GAP_MAX = 1.0; // m, what the editor allows between rungs
 
 export interface BarsHang {
@@ -22,6 +23,7 @@ export interface BarsHang {
   pr: boolean;
   theta: number; omega: number; ox: number; oy: number; et: number; // the pendulum, as Hang
   reaches: number; // successful reaches so far
+  streak?: number; // reaches in a row without a stall: a smooth chain keeps more of the swing at each catch
 }
 
 export type BarsEvent = { type: 'bars-reach' | 'bars-stall'; hand: 1 | 2; why?: 'order' | 'swing' | 'end' | 'both'; rung?: number };
@@ -60,17 +62,18 @@ export function barsStep(s: BarsHang, run: BarRun, reachL: boolean, reachR: bool
   const freshL = reachL && !s.pl, freshR = reachR && !s.pr;
   let n: BarsHang = { ...s, pl: reachL, pr: reachR };
   const press: (1 | 2)[] = freshL && freshR ? [] : freshL ? [1] : freshR ? [2] : [];
-  if (freshL && freshR) events.push({ type: 'bars-stall', hand: 1, why: 'both' });
+  if (freshL && freshR) { events.push({ type: 'bars-stall', hand: 1, why: 'both' }); n = { ...n, streak: 0 }; }
   for (const hand of press) {
     const c = canReach(run, n, hand, p);
-    if (!c.ok) { events.push({ type: 'bars-stall', hand, why: c.why }); continue; }
+    if (!c.ok) { events.push({ type: 'bars-stall', hand, why: c.why }); n = { ...n, streak: 0 }; continue; }
     const before = pivotOf(run, n);
     const o = handOffset(asHang(n));
     n = hand === 1 ? { ...n, l: n.l + 1 } : { ...n, r: n.r + 1 };
     n.last = hand;
     const after = pivotOf(run, n);
     n.ox = o.x + (before.x - after.x); n.oy = o.y; n.et = EASE_TICKS; // the pivot moves on; the body is carried over to it, not thrown
-    n.omega *= p.keep;
+    n.streak = (n.streak ?? 0) + 1;
+    n.omega *= Math.min(1, p.keep + p.rhythm * (n.streak - 1));
     n.reaches++;
     events.push({ type: 'bars-reach', hand, rung: hand === 1 ? n.l : n.r });
   }

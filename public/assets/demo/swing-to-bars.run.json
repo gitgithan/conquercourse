@@ -2,8 +2,8 @@
   "note": "keys that clear swing-to-bars.course.json, one [bitmask, ticks] pair per run of equal keys (src/sim/replay.ts); the ideal-run search plan, played once",
   "jumpX": 2,
   "swingTicks": 48,
-  "releaseAfter": 236,
-  "ticks": 1369,
+  "releaseAfter": 234,
+  "ticks": 1372,
   "windows": [
     {
       "obstacle": "edge at 5 m (take-off)",
@@ -21,16 +21,16 @@
     },
     {
       "obstacle": "bars: hang before the first reach",
-      "best": 116,
-      "lo": 92,
-      "hi": 348,
-      "widthMs": 2150
+      "best": 120,
+      "lo": 96,
+      "hi": 350,
+      "widthMs": 2133.3333333333335
     },
     {
       "obstacle": "bars: release after the last reach",
-      "best": 236,
-      "lo": 210,
-      "hi": 264,
+      "best": 234,
+      "lo": 208,
+      "hi": 262,
       "widthMs": 466.6666666666667
     },
     {
@@ -112,54 +112,6 @@
     ],
     [
       97,
-      3
-    ],
-    [
-      96,
-      1
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      97,
-      3
-    ],
-    [
-      96,
-      1
-    ],
-    [
-      16480,
-      1
-    ],
-    [
-      97,
-      3
-    ],
-    [
-      96,
-      1
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      97,
-      3
-    ],
-    [
-      96,
-      1
-    ],
-    [
-      16480,
-      1
-    ],
-    [
-      97,
       2
     ],
     [
@@ -195,6 +147,38 @@
       1
     ],
     [
+      96,
+      4
+    ],
+    [
+      16480,
+      1
+    ],
+    [
+      96,
+      4
+    ],
+    [
+      8288,
+      1
+    ],
+    [
+      96,
+      4
+    ],
+    [
+      16480,
+      1
+    ],
+    [
+      96,
+      4
+    ],
+    [
+      8288,
+      1
+    ],
+    [
       97,
       1
     ],
@@ -208,15 +192,15 @@
     ],
     [
       97,
-      95
+      97
     ],
     [
       98,
-      141
+      137
     ],
     [
       9,
-      477
+      482
     ]
   ]
 }
