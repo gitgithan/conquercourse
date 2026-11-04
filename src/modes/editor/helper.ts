@@ -40,7 +40,7 @@ export interface HelperEnv {
   lane: EditorLane;
   root: HTMLElement; top: HTMLElement; aside: HTMLElement;
   chosen: () => number[]; draw: () => void; drawProfile: () => void; changed: () => void;
-  handoff: EditHandoff | null; goToCourse: (check?: boolean) => Promise<void>;
+  handoff: EditHandoff | null;
   tools: Tools;
   previewSearch: EditorSearch;
 }
@@ -49,7 +49,7 @@ export interface HelperEnv {
 export function createHelper(env: HelperEnv) {
   const { ed, lane, root, top, aside } = env;
   const { updateDeviceSource, barsNow, machineNow, trebuchetPivot, machineWrap, courseNow, courseFor, profileFor, xOfPiece } = lane;
-  const { chosen, drawProfile, draw, changed, handoff, goToCourse, tools, previewSearch } = env;
+  const { chosen, drawProfile, draw, changed, handoff, tools, previewSearch } = env;
   // ---- helpers: what to shift when the lane cannot be cleared, and a design partner (Muse Spark Open) to talk it through
   const helper = el('div', aside, { className: 'panel helper', id: 'helper' });
   const head = el('div', helper, { className: 'row' });
@@ -259,7 +259,6 @@ export function createHelper(env: HelperEnv) {
     el('div', reply, { id: 'previewverdict', className: 'muted' });
     const row = el('div', reply, { className: 'row', id: 'previewbuttons' });
     el('button', row, { text: 'Apply', id: 'applypreview', className: 'go' }).onclick = applyProposal;
-    if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { if (applyProposal()) void goToCourse(true); };
     el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
   }
   function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none' | 'unavailable', message?: string) {
@@ -272,7 +271,6 @@ export function createHelper(env: HelperEnv) {
     else previewCheck.hide();
     v.textContent = message ?? (state === 'checking' ? 'Apply is waiting for the simulator check below.' : state === 'clears' ? 'Simulator verified: this lane can clear.' : state === 'blocked' ? 'The simulator did not find a clear run for these changes.' : state === 'unavailable' ? 'The simulator could not finish this check. Retry the check below.' : 'Nothing is switched on.');
     apply.disabled = state !== 'clears' && state !== 'blocked';
-    const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state !== 'clears';
     rowEl.querySelector('#fixfromhere')?.remove();
     if (state === 'blocked' && ed.proposal && ed.proposal.source !== 'fixit' && ed.preview) {
       const from = { pieces: ed.preview.pieces, lane: ed.preview.lane };

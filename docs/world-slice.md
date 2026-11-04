@@ -1217,14 +1217,15 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Make it easier:** on the fall panel, and as a button in the design partner.
   - The narrowest press window is the hardest press in milliseconds (the jump off the start deck is left out: the lane always puts the first ground 3 m past it).
   - The search tries the smallest changes to the three pieces nearest the fall (move along the lane, lower a bar, make a block smaller) in order of size, and offers the first that widens that window by a quarter, or the best that widens it by 15%.
-  - It is shown with the same hollow outlines as every other change, with one sentence ("The narrowest press window grows from 314 ms to 405 ms."), and **Apply and try it** returns to the Course with the change in place.
+  - It is shown with the same hollow outlines as every other change, with one sentence ("The narrowest press window grows from 314 ms to 405 ms."), and **Apply** changes the course while staying in the editor.
+  - Use **Play this lane** separately to play the changed course.
   - When nothing small helps it says so, and the layout is left alone.
 - **Measured:** a 5 m gap between two decks gives "Move “Block 1” 1 m further along: 314 ms to 405 ms"; a 4 m gap is already comfortable and gets no offer.
 - **Speed and gaps:**
   - A lane with bars takes about a minute for each search on a busy machine, so it gets a 150 s budget and may find nothing in time.
   - The step budget and worker pool of CC-69 will help.
   - The Course cannot be rebuilt in place, so "try it" is a page reload that lands back on the same obstacle.
-- **Checks:** `tests/roundtrip.test.ts` (an unedited course comes back byte for byte, the copy of the lache demo clears), `tests/easier.test.ts`, and `scripts/roundtrip-check.mjs` (play, fall, make it easier, apply and try it, edit again, back, clear).
+- **Checks:** `tests/roundtrip.test.ts` (an unedited course comes back byte for byte, the copy of the lache demo clears), `tests/easier.test.ts`, and `scripts/roundtrip-check.mjs` (play, fall, make it easier, apply, Play this lane, edit again, back, clear).
 
 
 ## Roll window (CC-67, round four)

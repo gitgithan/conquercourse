@@ -49,7 +49,9 @@ flowchart TD
 - A successful check says "Simulator verified: this lane can clear."
 - A failed search says it did not find a clear run; it does not claim the course is impossible.
 - Apply is available after a completed positive or negative check.
-- Apply and try it is available only after a positive check.
+- Apply changes the course and stays in the editor.
+- Use Play this lane separately to play the changed course.
+- [Apply stays in the editor: screenshot](evidence/editor-apply-only.jpg).
 - A stopped or failed preview check supplies no proof and leaves Apply disabled.
 - Switching a change off invalidates the preview proof until that exact selection has been checked.
 - Switching back to an already checked selection reuses its result.
@@ -64,13 +66,13 @@ flowchart TD
   B --> C["Preview suggested changes"]
   C --> D["Preview the current world with those edits"]
   D --> E["Simulator checks the exact course<br/>Apply disabled"]
-  E -->|"Clear run and plan found"| F["Simulator verified<br/>Apply or Apply and try it"]
+  E -->|"Clear run and plan found"| F["Simulator verified<br/>Apply"]
   E -->|"No clear run found"| G["Search did not find a clear run<br/>Apply or Find a repair from here"]
   E -->|"Check could not finish"| H["Not verified<br/>Apply disabled"]
   F --> I["Apply changes"]
   G --> I
   I --> J["Matching result updates the editor immediately"]
-  J --> K["Play reuses the successful run, when present"]
+  J --> K["User clicks Play this lane<br/>Reuses the successful run, when present"]
   D -->|"Toggle a suggested edit"| D
 ```
 
