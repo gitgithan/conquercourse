@@ -208,3 +208,13 @@ flowchart LR
   D --> G["Cancel"]
   G --> H["Stop worker<br/>Lane remains not checked"]
 ```
+
+## Easier-search results and the Apply transition
+
+- Easier-search proposals carry named before and after timing windows from the original and winning simulator proofs.
+- Applying the full proposal keeps those measurements next to the list of applied moves.
+- The 3D objects move between their original and proposed poses for 800 ms while both outlines remain visible.
+- This is a drawing transition: the verified course and undo history already hold the final values.
+- The transition adds no simulator search or intermediate course state.
+- Editing again ends the transition; reduced-motion preferences show the final pose immediately.
+- Social footage and its annotation scripts remain outside Git.

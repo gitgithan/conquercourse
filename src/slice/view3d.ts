@@ -37,7 +37,7 @@ export interface Host {
 }
 export interface GhostState { x: number; y: number; z: number; yaw: number; scale: number }
 export interface Ghosts { items: { id: number; from: GhostState; to: GhostState }[]; lane: { angle: number; offset: number } | null }
-export interface View3d { look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void; fit(box: ViewBounds): void }
+export interface View3d { animateApply(items: Ghosts['items']): void; look(heading: number, pitch: number, target?: { x: number; z: number }, distance?: number): void; sync(): void; show(on: boolean): void; readonly el: HTMLCanvasElement; resize(): void; focus(x: number, z: number): void; pulse(x: number, z: number): void; project(x: number, y: number, z: number): { x: number; y: number } | null; onCamera(cb: () => void): void; fit(box: ViewBounds): void }
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<THREE.Object3D>>();
@@ -140,9 +140,9 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   // the preview of a change: a hollow outline at the new place (teal), a faint one where the piece is now (grey), an arrow between, a dashed new lane line
   const ghostG = new THREE.Group(); scene.add(ghostG);
   let ghostSig = '';
-  const TEAL = 0x0f9d84, GREY = 0x7d8a84;
-  function syncGhosts() {
-    const gh = host.ghosts?.() ?? null;
+  const TEAL = 0x12bfa5, GREY = 0xb8c3c9;
+  function syncGhosts(override?: Ghosts) {
+    const gh = override ?? host.ghosts?.() ?? null;
     const sig = gh ? JSON.stringify(gh) : '';
     if (sig === ghostSig) return;
     ghostSig = sig;
@@ -151,7 +151,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     const outline = (w: number, h: number, d: number, st: GhostState, color: number, fill: boolean) => {
       const box = new THREE.BoxGeometry(Math.max(0.02, w), Math.max(0.02, h), Math.max(0.02, d));
       const g = new THREE.Group();
-      g.add(new THREE.LineSegments(new THREE.EdgesGeometry(box), new THREE.LineBasicMaterial({ color, transparent: true, opacity: fill ? 1 : 0.55, depthTest: false })));
+      g.add(new THREE.LineSegments(new THREE.EdgesGeometry(box), new THREE.LineBasicMaterial({ color, transparent: true, opacity: fill ? 1 : 0.95, depthTest: false })));
       if (fill) g.add(new THREE.Mesh(box, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.1, depthWrite: false })));
       g.position.set(st.x, st.y + h / 2, st.z); g.rotation.y = -st.yaw; g.renderOrder = 10;
       return g;
@@ -173,7 +173,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   }
 
   const nodes = new Map<number, { g: THREE.Group; sig: string; box?: THREE.BoxHelper }>();
-  let dirty = true, on = true;
+  let dirty = true, on = true, applyRun = 0;
   const redraw = () => { dirty = true; };
   controls.addEventListener('change', redraw);
   const publishCamera = () => { const t = controls.target; document.documentElement.dataset.cam = JSON.stringify({ d: +camera.position.distanceTo(t).toFixed(3), t: [+t.x.toFixed(3), +t.y.toFixed(3), +t.z.toFixed(3)], p: [+camera.position.x.toFixed(3), +camera.position.y.toFixed(3), +camera.position.z.toFixed(3)] }); };
@@ -238,6 +238,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   }
 
   function sync() {
+    applyRun++; // A new draw or edit finishes any presentation-only Apply transition.
     const ps = host.pieces(), sel = host.selected(), group = new Set(host.selectedAll?.() ?? []), seen = new Set<number>();
     for (const p of ps) {
       seen.add(p.id);
@@ -262,6 +263,26 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     rod.position.set(sx, sy + 1.25, sz); rod.visible = false; // the person replaces the rod
     syncGhosts();
     redraw();
+  }
+
+  // Only meshes interpolate: editor coordinates, proof and undo history already hold the final course.
+  function animateApply(items: Ghosts['items']) {
+    if (!on || !items.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const run = ++applyRun, start = performance.now();
+    syncGhosts({ items, lane: null });
+    const step = () => {
+      if (run !== applyRun || !renderer.domElement.isConnected) return;
+      const k = Math.min(1, Math.max(0, (performance.now() - start) / 800)), t = k * k * (3 - 2 * k);
+      for (const { id, from, to } of items) {
+        const n = nodes.get(id); if (!n) continue;
+        n.g.position.set(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t, from.z + (to.z - from.z) * t);
+        n.g.rotation.y = -(from.yaw + (to.yaw - from.yaw) * t); n.g.scale.setScalar(from.scale + (to.scale - from.scale) * t);
+        if (n.box) { n.g.updateMatrixWorld(true); n.box.setFromObject(n.g); n.box.update(); }
+      }
+      if (k < 1) requestAnimationFrame(step); else syncGhosts();
+      redraw();
+    };
+    step();
   }
 
   // pick and drag pieces on the ground; everything else is the orbit controls
@@ -354,5 +375,5 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
     requestAnimationFrame(step);
   }
   const onCamera = (cb: () => void) => controls.addEventListener('change', cb);
-  return { look, sync, resize, focus, pulse, project, onCamera, fit, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
+  return { animateApply, look, sync, resize, focus, pulse, project, onCamera, fit, el: renderer.domElement, show(v) { on = v; renderer.domElement.style.display = v ? 'block' : 'none'; if (v) { resize(); redraw(); } } };
 }

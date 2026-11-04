@@ -146,3 +146,31 @@ flowchart LR
 - Unit checks cover worker limits, queued cancellation, malformed proofs, out-of-order completion, timing metadata and exact prefix replay.
 - Browser checks use real simulator searches and verify Cancel, candidate cards, cached Preview and cached Apply.
 - Marketing clips and accompanying post text are local throwaway outputs and are deliberately outside the repository.
+
+## Explain exactly which press became easier
+
+- Evidence: [named timing and exact move](evidence/easier-named-timing.jpg), [Apply transition frame](evidence/easier-apply-transition.jpg).
+
+- Before, the result named only the smallest window: for example, 314 ms to 400 ms.
+- The result now names the measured movement and position before and after the edit, next to the exact proposed object change.
+- A jump result can say: “Before: Jump take-off at 17 m — 314 ms.”
+- The next line names the timing after the edit and its measured width; a third line states the extra room for the hardest press.
+- The checked move below tells the user which object moves and by how much.
+- These are player timing windows measured by the simulator, not calculation times or model-written claims.
+- Before and after minima are named independently: another movement can become the hardest one after a successful edit.
+- Do not call two different bottlenecks the same relaxed timing.
+- The start-deck marker remains excluded, even when it ties another window's width.
+- The comparison is hidden if any proposed edit is switched off and retained in the applied summary for the full result.
+- Apply interpolates the 3D drawing for 800 ms between the original grey outline and proposed teal outline.
+- The course, proof and one undo step commit immediately; the visual transition does not alter simulation inputs or trigger another search.
+- A new edit finishes the visual transition at the current course state, and reduced-motion preferences skip it.
+
+```mermaid
+flowchart LR
+  A["Original proof<br/>Measured timing windows"] --> C["Name hardest timing before"]
+  B["Winning proof<br/>Measured timing windows"] --> D["Name hardest timing after"]
+  C --> E["Before / after / extra room<br/>Exact object edit"]
+  D --> E
+  E --> F["Apply commits course and proof<br/>One undo step"]
+  F --> G["Drawing animates grey to teal<br/>Physics stays at final course"]
+```
