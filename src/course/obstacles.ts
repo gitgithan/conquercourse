@@ -182,6 +182,7 @@ export const TOASTS = {
   climb: { text: 'A tall wall is coming: hold E at the wall to grab the edge and climb', grab: true },
   lache: { text: 'A bar is coming: jump, then hold E to grab it', grab: true },
   rope: { text: 'A rope is coming: jump, then hold E to catch it', grab: true },
+  pole: { text: 'A pole is coming: stand at it and hold E to climb up to the bars' },
   roll: { text: 'A big drop is coming: hold X as you land to roll', drum: 'roll' },
   jump: { text: 'A gap is coming: press Space just before the edge', drum: 'jump' },
   bounce: { text: 'Trampoline ahead: press Space the moment you land on it for extra height', drum: 'bounce', lead: TRAMPOLINE_LEAD },

@@ -61,6 +61,7 @@
     "climb": "A tall wall is coming: hold E at the wall to grab the edge and climb",
     "lache": "A bar is coming: jump, then hold E to grab it",
     "rope": "A rope is coming: jump, then hold E to catch it",
+    "pole": "A pole is coming: stand at it and hold E to climb up to the bars",
     "roll": "A big drop is coming: hold X as you land to roll",
     "jump": "A gap is coming: press Space just before the edge",
     "bounce": "Trampoline ahead: press Space the moment you land on it for extra height"

@@ -50,7 +50,8 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (w.mode !== 'wall') wallDrum = false;
     else if (!wallDrum && w.wall && w.wall.result.grabTick !== null && w.wall.index >= w.wall.result.grabTick - WALL_HOLD_TICKS) { wallDrum = true; drums.push({ x: w.runner.x, what: 'grab' }); }
     if (prevMode !== 'swing' && w.mode === 'swing') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the rope
-    if (prevMode !== 'hang' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar
+    if (prevMode !== 'polec' && w.mode === 'polec') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a standing pole (CC-133: the bulb lane of the fork starts with one)
+    if (prevMode !== 'hang' && prevMode !== 'polec' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar (from the top of a pole the hands are already closed)
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
     if ((prevMode === 'hang' && w.mode !== 'hang') || (prevMode === 'swing' && w.mode !== 'swing')) drums.push({ x: w.runner.x, what: 'release' }); // both hands let go (a bar, or the rope: letting go of E, CC-245)
     if (prevMode !== 'drone' && w.mode === 'drone') drums.push({ x: w.runner.x, what: 'board' }); // hold E on the pad
@@ -67,9 +68,11 @@ export function drumsForPaths(course: CourseData): Drum[] | null {
   const ways = b?.routes.filter((r) => r.plan) ?? [];
   if (!b || ways.length < 2) return null;
   const fast = fastestRoute(b)!;
-  const per = ways.map((r) => ({ r, ds: drumsFor(course, r.plan!).filter((d) => d.x >= b.forkX && d.x <= b.joinX) }));
+  // a standing pole is the gate of a way: its grab press sits just before the fork line, and still belongs to that way
+  const lo = Math.min(b.forkX, ...(course.climbPoles ?? []).filter((p) => p.x <= b.forkX && p.x > b.forkX - 2).map((p) => p.x - 0.7));
+  const per = ways.map((r) => ({ r, ds: drumsFor(course, r.plan!).filter((d) => d.x >= lo && d.x <= b.joinX) }));
   const shared = (d: Drum) => per.every((q) => q.ds.some((e) => e.what === d.what && Math.abs(e.x - d.x) < 0.3));
-  const out: Drum[] = drumsFor(course, fast.plan!).filter((d) => d.x < b.forkX || d.x > b.joinX);
+  const out: Drum[] = drumsFor(course, fast.plan!).filter((d) => d.x < lo || d.x > b.joinX);
   for (const d of per.find((q) => q.r.id === fast.id)!.ds) if (shared(d)) out.push(d);
   for (const q of per) for (const d of q.ds) if (!shared(d)) out.push({ ...d, route: q.r.id });
   return out.sort((a, c) => a.x - c.x);
