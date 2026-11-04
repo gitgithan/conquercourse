@@ -1,3 +1,4 @@
+import { pageSearch } from '../flags';
 import { labsOn } from './labs';
 import { soundButton, startAudio } from './audio';
 import { mountWorldGallery } from './world-picker';
@@ -64,7 +65,7 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   sound.style.cssText = 'position:static;font:inherit;padding:2px 8px;opacity:1;cursor:pointer;color:#fff;background:transparent;border:1px solid #4a5650;border-radius:5px';
   nav.append(now, labsBtn, sp, sound, prevA, nextA, courses);
   host.appendChild(nav);
-  if (/[?&]panel=1(?:&|$)/.test(location.search)) panel.open(); // the old ?mode=labs-map link lands here
+  if (/[?&]panel=1(?:&|$)/.test(pageSearch())) panel.open(); // the old ?mode=labs-map link lands here
   (window as unknown as { __labsPanel?: unknown }).__labsPanel = panel;
   startAudio(); // the Dojo loop already plays on Lab pages (src/ui/music.ts); this gives it the Dojo's Sound button and M key
   const root = document.getElementById(mode); // the Lab fills the screen; start it under the bar (one shared variable, measured, so a taller bar pushes every Lab down)
