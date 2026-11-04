@@ -123,7 +123,7 @@ Installing extras does not activate paid APIs, connect accounts, download infere
 
 ## Tracked snapshot
 
-- Built 2026-11-01 from `main`: 8,471 nodes, 23,869 edges, 322 communities.
+- Built 2026-11-04 from `main`: 10,760 nodes, 30,409 edges, 383 communities.
 - `docs/codegraph/graph.html` is the drill-down view.
   - Click a community to see its purpose line, member files and symbols.
   - Use the filter box to narrow files and symbols.
