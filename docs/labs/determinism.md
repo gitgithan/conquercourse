@@ -1,4 +1,4 @@
-# Lab 19: Same run, any machine
+# Same run, any machine
 
 *Run to shared link, stages 3 and 4 of 5: Replay and Hash (see [the series map](pipelines.md)).*
 *Before it: [Verification and hashing](hashing.md) (what to hash) and [Numerical integration](integration.md) (the fixed step).*

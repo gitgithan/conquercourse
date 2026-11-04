@@ -1,4 +1,4 @@
-// Lab 19 (same run, any machine) in the browser at 1280 px: off without the labs switch; with it every output is filled on open, the stored traces match this browser,
+// The "Same run, any machine" Lab in the browser at 1280 px: off without the labs switch; with it every output is filled on open, the stored traces match this browser,
 // and the three challenge levels are solved with the fewest pins. Screenshots go to test-results/lab-determinism/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
