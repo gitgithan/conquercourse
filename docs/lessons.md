@@ -336,3 +336,13 @@
 - A saved proof applies to its exact cut height and physics settings; clamping the height or changing hills needs a new check.
 - Disable handoff as soon as an input changes, including during the debounce before the next search starts.
 - Verify both sides of a handoff: all 51 prepared starts were replayed in the Slicer and reconstructed as World Editor courses, with 107 checks passing.
+
+### A new obstacle needs its drum and its toast on the same day (2026-11-04, CC-133)
+
+- The fork's bulb lane starts with a standing pole, but no key on the drum lane and no toast named it; the product owner could not find the high path.
+- The cause was in three places:
+  - the drum search made no drum for the pole grab;
+  - the fork kept only drums after the fork line, and the pole sits just before it;
+  - the toast code joined drums of the two ways, so a bench jump borrowed a bar toast.
+- The fix: a grab drum and a `pole` toast row, drums of one way only are neighbours, and `tests/obstacle-teaching.test.ts` fails when a shipped course uses an obstacle field with no toast or hint.
+- The short messages (hint, toasts, dimmed older hints) moved from the middle of the picture to one band in the sky under the obstacle strip (`src/ui/toast-band.ts`); `tests/toast-band.test.ts` keeps it clear of the runner in several camera states.
