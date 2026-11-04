@@ -318,7 +318,7 @@ flowchart LR
 | | Courses | World Slicer | World Editor | Community |
 |---|---|---|---|---|
 | **What it is** | Where the game is played | A real place cut into a lane | Build a course from pieces | Your photos become pieces |
-| **You can** | Run, race a ghost, read your report, share a link or clip | Pick or pin a place, see street photos, choose buildings | Place 19 real objects and shapes, give roles, press Fix it | Pick a photo, pick a thing in it, make a 3D piece |
+| **You can** | Run, race a ghost, read your report, share a link or clip | Pick or pin a place, see street photos, choose buildings | Place 19 real objects and shapes, give roles, use Ask AI, Make it easier and Find shortcut | Pick a photo, pick a thing in it, make a 3D piece |
 | **You get** | A time the simulator replays, a link, a clip | A checked lane from a real place | A saved, proved course | A piece in your tray, ready to share |
 | **Why it is unique** | A time cannot be faked; race a stranger's ghost | Your own street becomes a course | The simulator says in plain words what to change | A thing you walk past becomes something to jump over |
 
@@ -397,7 +397,7 @@ conquercourse/
 - **See why a swing worked.**
   - The debug view (B) shows the pendulum, the grab circle and the release point.
 - **Design a course without being a designer.**
-  - The design partner and Fix it say what to change; the simulator proves the change.
+  - The design partner (Ask AI, Make it easier, Find shortcut) says what to change; the simulator proves the change.
 - **Run in a place you have never been.**
   - A pin on Earth, or a friend's neighbourhood, becomes a lane; a place already seen comes from a cache (kept 30 days) and is quicker, and a new place can take longer (not timed).
 - **Share a run with a time the simulator vouches for.**
@@ -519,7 +519,7 @@ flowchart LR
 ```
 
 ### 4. World Editor: pieces to a proven course
-- Happy path: pick a ready course or place pieces -> give roles -> the simulator reads the lane -> ideal run proves it -> Fix it if not -> save or play.
+- Happy path: pick a ready course or place pieces -> give roles -> the simulator reads the lane -> ideal run proves it -> Make it easier if not -> save or play.
 - The editor reads the lane from the pieces, so the preview and the built course cannot drift apart.
 - The design partner calls Muse Spark Open through a server function; the simulator is its tool and the judge.
 
