@@ -1,7 +1,8 @@
 // /api/design-partner: Lab 18's one-shot design critique by Muse Spark Open on Baseten. Not a chat: one layout in, one short comment out.
 //   POST {scenario, blocks: [ids], note?} -> {reply}
-// Only known block ids and a 120-character note reach the model. The key lives only in the BASETEN_API_KEY secret. Reasoning text is never read.
+// Only known block ids (one per slot of the block board, or the older list) and a 120-character note reach the model. The key lives only in the BASETEN_API_KEY secret. Reasoning text is never read.
 import { cleanLayout, cleanReply, layoutPrompt, PARTNER_SYSTEM } from '../../src/labs/systemdesign/partner-core';
+import { cleanDesign, designPrompt } from '../../src/labs/systemdesign/pipeline';
 import { limited } from '../_lib/limit';
 import { MODEL, URL_CHAT } from './designer';
 import { json } from '../_lib/http';
@@ -13,11 +14,13 @@ export const MAX_TOKENS = 6000; // Muse Spark Open reasons first and counts it; 
 export const TIMEOUT_MS = 24_000, LIMIT = 6; // 6 asks in 10 minutes for one address
 
 export async function askPartner(key: string, b: unknown, fetcher: typeof fetch = fetch): Promise<{ status: number; body: { reply?: string; error?: string } }> {
-  const l = cleanLayout(b);
-  if (!l) return { status: 400, body: { error: 'send a scenario and between one and thirty known blocks' } };
+  // The block board sends {brief, design: {slot: block}, note}; the older list of blocks still works.
+  const dz = b && typeof b === 'object' && 'design' in b ? cleanDesign(b) : null;
+  const l = dz ? null : cleanLayout(b);
+  if (!dz && !l) return { status: 400, body: { error: 'send a scenario and between one and thirty known blocks, or a brief and one known block for each slot' } };
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetcher(URL_CHAT, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', authorization: `Api-Key ${key}` }, body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, messages: [{ role: 'system', content: PARTNER_SYSTEM }, { role: 'user', content: layoutPrompt(l) }] }) });
+    const res = await fetcher(URL_CHAT, { method: 'POST', signal: ctl.signal, headers: { 'content-type': 'application/json', authorization: `Api-Key ${key}` }, body: JSON.stringify({ model: MODEL, max_tokens: MAX_TOKENS, messages: [{ role: 'system', content: PARTNER_SYSTEM }, { role: 'user', content: dz ? designPrompt(dz) : layoutPrompt(l!) }] }) });
     if (!res.ok) return { status: 502, body: { error: `the partner is unavailable (${res.status})` } };
     const data = (await res.json()) as { choices?: { message?: { content?: string | null } }[] };
     const reply = cleanReply(data.choices?.[0]?.message?.content ?? '');
