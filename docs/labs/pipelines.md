@@ -18,7 +18,7 @@
 | Stage | What happens | Lab that teaches it | How well |
 |---|---|---|---|
 | 1. Photo | One photo, one camera, no depth | Lab 5, Camera and perspective | Teaches (why one photo cannot say how far each part is) |
-| 2. Cut-out | A mask finds the thing (or the people to blur) | Lab 4, Computer vision; Lab 10, Evaluating a detector | Lab 4 teaches masks and thresholds on street photos (people to hide, not objects to cut); Lab 10 teaches whether a find is good enough |
+| 2. Cut-out | A mask finds the thing (or the people to blur) | Lab 14, [Cut-out, lift and bake](lift.md) (recorded cut-outs); Lab 4, Computer vision; Lab 10, Evaluating a detector | Lab 14 shows recorded cut-outs only; Lab 4 teaches masks and thresholds on street photos (people to hide, not objects to cut); Lab 10 teaches whether a find is good enough |
 | 3. Lift to 3D | The cut-out becomes a 3D shape | Lab 14, Cut-out, lift and bake (recorded lifts); Lab 5 explains why the lift needs a guess | Teaches (the lift itself is recorded, not run: see its Limits) |
 | 4. Bake | The 3D shape becomes a game object | Lab 14, Cut-out, lift and bake | Teaches (the seven bake rules run live on a recorded object) |
 | 5. Collision | A collider is fitted from the 3D | Lab 15 (collision), arriving | Not yet on `main`; written up in [collision from 3D](../collision-from-3d.md) |
@@ -71,9 +71,10 @@
 | 11 | Verification and hashing | Run | Hash |
 | 12 | Reinforcement learning | Methods | Learn |
 | 13 | Video to motion | Video | Gate (also Video, Pose) |
+| 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |
 
 ## Gaps, shown honestly
-- Photo: Bake has no Lab; Lift and Collision are being written.
+- Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is being written.
 - Video: no Lab runs a pose finder on a video (Lab 13 uses recorded clips); the Python gate itself has no Lab of its own beyond Lab 8's port.
 - Run: no Lab opens a real share link or shows the server's replay check.
 - Labs 4 and 10 both sit at "Cut-out" and neither cuts a game object out of a photo: Lab 4 hides people, Lab 10 scores a recorded detector.
