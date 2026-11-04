@@ -13,6 +13,7 @@ html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#cfd9e6
 .label{position:absolute;font-weight:700;font-size:34px;color:#1d2a3d;opacity:0;white-space:nowrap;transform:translateX(-50%)}
 #gl{position:absolute;inset:0;pointer-events:none}
 #credit{position:absolute;left:128px;top:896px;font-size:22px;color:#33415a}
+body.row #photo,body.row #credit,body.row .box,body.row .tag,body.row .mask,body.row .card,body.row .label{display:none}
 </style>
 <div id="bg"></div>
 <div id="photo"><img id="pimg" src="photo.jpg"><div id="dim" style="opacity:0"></div></div>
@@ -113,5 +114,37 @@ window.__t = (t) => {
   });
   renderer.render(scene, cam);
 };
-window.__dur = dur; window.__ready = true; window.__t(0);
+// Scene 2c (?row=1): the lifted objects side by side, each on its own turntable, one full turn in `ROW_DUR` seconds (3 s), then it is the same picture as at the start.
+// Pure function of t like the long sequence, so every run is identical.
+const ROW = new URLSearchParams(location.search).has('row');
+const ROW_DUR = 3;
+if (ROW) {
+  document.body.classList.add('row');
+  const TILT = 0.38, order = ['p1_bench_left', 'p1_pole', 'p1_light_bulbs', 'p1_bench_right'];
+  const pos = [[270, 330], [640, 330], [1090, 540], [1640, 330]]; // [centre x, widest fit] per slot: the bulb string is long, so it gets the wider slot
+  const slots = order.map((id, i) => ({ o: OBJ.find((q) => q.id === id), cx: pos[i][0], fit: pos[i][1], cy: 500 }));
+  const discMat = new THREE.MeshStandardMaterial({ color: 0x1d2a3d, roughness: 0.8, transparent: true });
+  const tickMat = new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true });
+  slots.forEach((s, i) => {
+    const o = s.o, r = Math.hypot(o.size.x, o.size.z), k = Math.min(s.fit * wpp / r, 330 * wpp / o.size.y);
+    s.tilt = new THREE.Group(); s.turn = new THREE.Group(); s.tilt.add(s.turn); scene.add(s.tilt);
+    o.pivot.scale.setScalar(k); o.pivot.position.set(0, 0, 0); o.pivot.rotation.set(0, 0, 0); o.pivot.visible = true; s.turn.add(o.pivot);
+    const R = Math.max(r * k * 0.56, 0.9 * 130 * wpp), floor = -o.size.y * k / 2 - 0.02;
+    const disc = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 0.05 * R, 72), discMat); disc.position.y = floor - 0.025 * R; s.turn.add(disc);
+    for (let j = 0; j < 3; j++) { const t = new THREE.Mesh(new THREE.BoxGeometry(R * 0.16, 0.02 * R, R * 0.05), tickMat); const a = j * 2 * Math.PI / 3; t.position.set(Math.cos(a) * R * 0.86, floor + 0.001, Math.sin(a) * R * 0.86); t.rotation.y = -a; s.turn.add(t); }
+    s.mats = []; s.tilt.traverse((n) => { if (n.material) { n.material.transparent = true; s.mats.push(n.material); } });
+    s.tilt.rotation.x = TILT; s.tilt.position.set((s.cx - W / 2) * wpp, (H / 2 - s.cy) * wpp, 0);
+  });
+  OBJ.forEach((o) => { if (!slots.some((s) => s.o === o)) o.pivot.visible = false; });
+  window.__t = (t) => {
+    slots.forEach((s, i) => {
+      const a = 0.5 + 0.5 * ease((t - i * 0.06) / 0.3); // the picture is never empty: half-seen at t = 0, then settles in, staggered
+      s.turn.rotation.y = 2 * Math.PI * Math.min(1, t / ROW_DUR); // exactly one full round over the clip
+      s.tilt.scale.setScalar(0.9 + 0.1 * ease(2 * a - 1)); s.tilt.visible = true; s.mats.forEach((m) => { m.opacity = a; });
+    });
+    renderer.render(scene, cam);
+  };
+  window.__dur = ROW_DUR;
+} else window.__dur = dur;
+window.__ready = true; window.__t(0);
 </script>

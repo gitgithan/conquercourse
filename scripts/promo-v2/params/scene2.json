@@ -1,0 +1,36 @@
+{
+  "segment": "scene2_community",
+  "url": "/?mode=communities&welcome=0&backend=webgl2",
+  "photoFile": "p1_light_bulbs/lift_input.jpg",
+  "photoNote": "demo photo 1 (benches, a pole and a string of light bulbs; people already blurred), Jonn Leffmann, Wikimedia Commons, CC BY 3.0",
+  "bulbsBox": [
+    0,
+    70,
+    1280,
+    150
+  ],
+  "hover": [
+    "bench",
+    "bench",
+    "pole",
+    "light bulbs"
+  ],
+  "layout": {
+    "overlay": {
+      "anchor": "bottom",
+      "x": "(w-text_w)/2",
+      "y": "h-96",
+      "size": 38,
+      "box": "black@0.55",
+      "border": 14
+    },
+    "chip": {
+      "anchor": "top-left",
+      "x": 28,
+      "y": 24,
+      "size": 26,
+      "box": "0x1a4fa0@0.85",
+      "border": 12
+    }
+  }
+}

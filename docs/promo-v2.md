@@ -84,6 +84,15 @@
 - A new toast, drum or header can overlap an old crop; look at every segment's thumbnail after a UI change.
 - Do not use unblurred photos; the lift page uses the blurred input only.
 
+## Scene 2 clips (promo v2b)
+
+- Scene 2 (Create your obstacles) is filmed apart, into `../conquercourse-assets/promo-v2b/`; plan and layout rule: [promo storyboard](promo-storyboard.md).
+- Capture: `scripts/promo-v2/scene2-community.mjs` (2a, 2b, real app, finder answered by the prepared SAM 3 result) and `ROW=1 node scripts/promo-v2/lift.mjs` (2c).
+- Build: `node scripts/promo-v2-scene2-build.mjs` retimes the frames by the game clock and burns the bottom overlay and the top-left chip.
+- Layout proof: `python3 scripts/promo-v2/layout-check.py`.
+- The click marker is `scripts/promo-v2/marker.mjs`.
+- Vite dev server on a fresh VM: start it with `--force` once, or the first loads fail with "Outdated Optimize Dep".
+
 ## Credits on screen
 
 - Mapillary street photos, Muse Spark Open design partner, SAM 3 cut-out and SAM 3D Objects, SAM 3D Body (on the lache), and MusicGen for the score, all "(Meta)".
