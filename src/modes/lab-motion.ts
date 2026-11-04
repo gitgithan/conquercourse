@@ -54,8 +54,8 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   wrap.innerHTML = `
     <div><a href="/?welcome=0">Back to the game</a>
     <h1 id="mo-h1">Lab 13: Video to motion</h1>
-    <p class="small" style="margin:2px 0">Pipeline stage 2 of 3: video, then pose, then smoothing and the plausibility gate, then a clip on the character. Before it: the photo-to-course Labs (<a href="?mode=lab-camera&labs=1&welcome=0">Lab 5, Camera</a> and <a href="?mode=lab-ik&labs=1&welcome=0">Lab 3, Posing a character</a>). After it: running, recording and sharing a run (<a href="?mode=lab-hashing&labs=1&welcome=0">Lab 11, Hashing</a>).</p>
-    <p class="small" style="margin:2px 0">The goal: follow one filmed move through the steps we really ran, and see the gate stop a clip that is wrong. No video, model or paid call runs here: every clip is a recorded file, and the gate is the game's own code.</p></div>
+    <p class="small" style="margin:2px 0">Video, pose, smoothing, gate, clip. The links above show the Labs each step uses.</p>
+    <p class="small" style="margin:2px 0">Follow one filmed move and watch the gate stop a bad clip. Every clip is recorded; nothing runs on a GPU here.</p></div>
 
     <div class="card"><h2>Pick a clip</h2>
       <select id="mo-clip" aria-label="Clip"></select> <span id="mo-origin" class="pill"></span>
@@ -63,31 +63,31 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
 
     <div class="two">
       <div class="card" id="s1"><h2>Step 1. Source frames, and the clock they carry</h2>
-        <p class="small" style="margin:0 0 6px">A video gives frames, and each frame's time comes from the video's own rate: frame i is at i divided by the rate. We keep no pictures of the people here; what follows the video is only the 30 joint positions per frame.</p>
+        <p class="small" style="margin:0 0 6px">Each frame is at i divided by the rate. Only 30 joint positions per frame are kept.</p>
         <div id="mo-s1"></div></div>
       <div class="card" id="s2"><h2>Step 2. Joint positions for each frame</h2>
-        <p class="small" style="margin:0 0 6px">The pose step turns every frame into 30 named joints in metres. The file keeps a list of names and, for each frame, one position per name. The two lists must be the same length, always.</p>
+        <p class="small" style="margin:0 0 6px">Every frame becomes 30 named joints in metres. Names and positions must match in length.</p>
         <canvas id="mo-frames" width="560" height="190" style="width:100%;height:auto;display:block;border-radius:6px;background:#f6f9f6"></canvas>
         <div id="mo-s2" style="margin-top:6px"></div></div>
     </div>
 
     <div class="card" id="s3"><h2>Step 3. Smoothing: only what the game applies</h2>
-      <p class="small" style="margin:0 0 6px">Video positions wobble a little. The game smooths with a light 1-2-3-2-1 triangle, then gives every bone one length. How much to smooth, and what it costs in lag and flat peaks, is <a href="?mode=lab-signal&labs=1&welcome=0">Lab 8, Signal processing</a>; it is not repeated here. This table only shows the game's two moves on the chosen clip, measured by the gate.</p>
+      <p class="small" style="margin:0 0 6px">Light 1-2-3-2-1 smoothing, then one length per bone. The trade-off is in <a href="?mode=lab-signal&labs=1&welcome=0">Lab 8, Signal processing</a>.</p>
       <div id="mo-s3"></div></div>
 
     <div class="card" id="s4"><h2>Step 4. The plausibility gate</h2>
-      <p class="small" style="margin:0 0 6px">No motion is shown before it passes. Hard rules block a clip; soft rules are only reported. The code is the game's gate (a TypeScript port of the Python one, checked against it in Lab 8).</p>
+      <p class="small" style="margin:0 0 6px">Nothing plays before it passes. Hard rules block a clip; soft rules only report.</p>
       <div id="mo-s4"></div>
       <h2 style="margin-top:12px">The gate on every clip</h2><div id="mo-all"></div>
       <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div></div>
 
     <div class="two">
       <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
-        <p class="small" style="margin:0 0 6px">The clip and the Rookie share the same 30 joint names. The clip's person has other leg lengths, so every position is scaled so the legs match, and the Rookie's bones are turned to point where the joints are. A clip that failed the gate is never played.</p>
+        <p class="small" style="margin:0 0 6px">Legs are scaled to match, bones turned to the joints. A failed clip never plays.</p>
         <div id="mo-view"><div id="mo-held"></div></div>
         <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
       <div class="card" id="s6"><h2>Step 6. The one clock</h2>
-        <p class="small" style="margin:0 0 6px">In the game, the pose shown is read from the simulator's tick count (${TICKS_PER_SECOND} ticks a second), never from a timer. Move the slider: it is a tick, and the frame follows from it.</p>
+        <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer.</p>
         <label class="small">Simulator tick: <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
         <div id="mo-s6" style="margin-top:6px"></div>
         <h2 style="margin-top:12px">Which move uses which clip</h2><div id="mo-table"></div></div>
