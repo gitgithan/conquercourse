@@ -96,13 +96,13 @@
 
 ### 12. Three Labs each say "Lab 13"
 - The collision, lift and motion docs were each written as "Lab 13"; numbers come from the place in `src/ui/labs-series.ts`, so only one can be 13.
-- Motion landed first and is Lab 13; lift is Lab 14; collision is next (15).
-- **Recommendation:** whoever merges last fixes the title lines to the numbers the list gives (13, 14, 15 in merge order); the numbers are ids, so fix the titles and not the list.
+- Motion landed first and is Lab 13; lift is Lab 14; collision is Lab 15.
+- The authors fixed their titles to 13, 14, 15 as they merged.
 
 ### 13. Different words for "which stage": 4 of 8, 2 and 3 of 8, 2 of 3
-- Collision calls itself "stage 4 of 8", lift "stages 2 and 3 of 8", motion "stage 2 of 3".
+- The three docs first said "stage 4 of 8", "stages 2 and 3 of 8" and "stage 2 of 3"; the top lines now use the series map's stages.
 - The series map in `pipelines.md` has three pipelines with 6, 5 and 5 stages.
-- **Recommendation:** use the stage names from the series map ("Photo to course object, stage 5: Collision") in all three titles.
+- Fixed in the same change as this audit; kept so the next Lab uses the same wording.
 
 ### 14. Gate and smoothing: new motion Lab and Lab 8
 - The motion Lab shows the same gate (it reuses Lab 8's TypeScript port) on ten clips, and the game's smoothing; Lab 8 shows the same gate on noisy clips.
