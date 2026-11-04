@@ -53,7 +53,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['lab-lift', 'Lab 14: Cut-out, lift and bake', 'Turn a photo into a game object: drag the height and switch each bake step off to see what it was for.'],
     ['lab-collision', 'Lab 15: Collision from a 3D lift', 'Step through how a noisy 3D lift of monkey bars becomes one clean row of rungs, then break the lift and watch the row hold.'],
     ['lab-partner', 'Lab 16: Design partner loop', 'Watch a recorded AI design partner propose a course, the simulator check it in plain words, and Fix it repair it. Edit the pieces and try the challenges.'],
-    ['lab-systemdesign', 'System design: build the whole game', 'Drop a block into each card of our photo-to-object pipeline, press Run, and open hints on the red ones.'],
+    ['lab-systemdesign', 'Lab 17: System design: build the whole game', 'Drag blocks to build the photo-to-object service, watch cost, time, privacy and failures move, and ask the AI partner for one opinion.'],
     ['lab-slicer', 'Lab 18: World Slicer: map to lane', 'Drop a pin on a real map, slice the buildings at one height, and watch the simulator try the lane. Then fix four lanes that fail.'],
     ['lab-determinism', 'Lab 19: Same run, any machine', 'Replay one run on machines that round and count a little differently, and find the fewest pins that make every frame agree.'],
     ['lab-spike', 'Lab 20: Spike the riskiest call first', 'Rank the risks of a new move or obstacle, test the scariest one first, and see how much time and money that saves.'],
