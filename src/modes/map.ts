@@ -1,14 +1,14 @@
-// ?mode=map: pick a place on a real map, press "Build this place", and its buildings arrive in the world editor as one piece (CC-48).
+// ?mode=map: pick a place on a real map, press "Slice this place", then send the selected buildings and proven lane to the World Editor (CC-48).
 // Map: MapLibre GL with OpenFreeMap tiles (no key). Search: Nominatim (no key, one call per search). Buildings: Overpass (no key).
 import { nameFor, pinLabel, shortFromAddress, type Address } from '../world/place-name';
 import { simSaysPanel, slicerWords } from '../ui/sim-says';
-import { customOf as customOfK, openingFor, provenSummary, sameLine, tourOf, type DefaultsFile, type SlicerDefault } from '../slice/slicer-default';
+import { customOf as customOfK, openingFor, openingHeights, trusted, provenSummary, sameLine, tourOf, type DefaultsFile, type SlicerDefault } from '../slice/slicer-default';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { buildingsFrom, extrude, osmToMesh, type OverpassAnswer } from '../world/osm';
+import { buildingsFrom, extrude, type OverpassAnswer } from '../world/osm';
 import { installPlaces } from './map-place';
-import type { PlaceLane, ReadyIndexEntry } from '../world/places';
+import type { ReadyIndexEntry } from '../world/places';
 import { fetchGround, lowest, relief, TERRAIN_ATTRIBUTION, type Ground, type Tile } from '../world/terrain';
 import { buildingTops, contourSegments, cutBuildings, cutRange, handoverLane, ladderLevels, ladderStep, laneLine, piecesFrom, resample, slopeCells, toLonLat, type MapPiece, type Seg } from '../slice/slicer';
 import { reducedMotion, runFlight, scaleWords } from './map-flight';
@@ -67,7 +67,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     .mp .how li b.n{width:22px;height:22px;border-radius:50%;background:#dfe5e0;color:#58635d;display:grid;place-items:center;font-size:12px}.mp .how li.now{background:#e7f3ee;color:#17201d}.mp .how li.now b.n{background:#0f6b5c;color:#fff}.mp .how li.done b.n{background:#8fd3a8;color:#17201d}
     .mp .how li span.t{font-weight:700;display:block}.mp .how li span.d{font-size:12px}.mp .how button{padding:1px 8px;font-size:12px}
     .mp #slicer{background:#fff;border:1px solid #cfd8d1;border-radius:12px;padding:10px 12px}.mp #slicer:not([hidden]){display:grid;gap:8px}
-    .mp .act{position:sticky;bottom:-10px;z-index:5;display:grid;grid-template-columns:1fr;margin:0 -10px -10px;padding:8px 140px 8px 10px;background:#eef1ec;border-top:1px solid #cfd8d1;box-shadow:0 -6px 10px -6px rgba(23,32,29,.25)}
+    .mp .act{position:sticky;bottom:48px;z-index:5;display:grid;grid-template-columns:1fr;margin:0 -10px -10px;padding:8px 10px;background:#eef1ec;border-top:1px solid #cfd8d1;box-shadow:0 -6px 10px -6px rgba(23,32,29,.25)}
     .mp .act .go,.mp #buildpieces{padding:9px 12px;font-size:15px;box-shadow:0 2px 0 #0a4a40}.mp #buildpieces{position:sticky;bottom:48px;z-index:4}
     @media(max-width:700px){.mp{grid-template-columns:minmax(0,1fr) 220px}}`;
   document.head.appendChild(style);
@@ -94,7 +94,6 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     ${S2 ? `<label title="Tilt the camera from straight down (0) to a side view along the ground (88). Right-drag on the map does the same."><span>Tilt: <b id="tiltv">0</b>° <span class="muted">(0 = from above, 88 = along the ground; right-drag too)</span></span><input type="range" id="tilt" min="0" max="88" step="1" value="0" aria-label="Tilt"></label>` : ''}
     <div id="mapphotos"></div>
     <div class="act"><button id="slice" class="go" disabled>Slice this place</button></div>
-    <button id="build" disabled>Build this place</button>
     <div id="slicer" hidden>
       <b>World Slicer</b>
       <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;margin:6px 0">
@@ -139,7 +138,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     <div class="muted">Map: OpenFreeMap. Search: Nominatim. Buildings: Overpass. Data © OpenStreetMap contributors (ODbL). ${TERRAIN_ATTRIBUTION}.</div>`;
   const $ = <T extends HTMLElement>(id: string) => side.querySelector('#' + id) as T;
   side.querySelector<HTMLButtonElement>('#backcourses')?.addEventListener('click', () => document.querySelector<HTMLButtonElement>('#courses-btn')?.click()); // the Courses gallery that main.ts mounts
-  const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), build = $<HTMLButtonElement>('build'), say = $('say'), hits = $('hits');
+  const radius = $<HTMLInputElement>('radius'), shrink = $<HTMLInputElement>('shrink'), say = $('say'), hits = $('hits');
   const flightcap = document.createElement('div'); flightcap.className = 'fcap'; flightcap.hidden = true; mapEl.appendChild(flightcap);
   const flightskip = document.createElement('button'); flightskip.className = 'fskip'; flightskip.textContent = 'Skip the flight'; flightskip.hidden = true; mapEl.appendChild(flightskip);
   const sliceBtn = $<HTMLButtonElement>('slice'), slicer = $('slicer'), cut = $<HTMLInputElement>('cut'), read = $('sliceread');
@@ -185,7 +184,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (d && box) photos = mountPlacePhotos(box, d, { floating: false });
   }
   const dropPin = (lat: number, lon: number, hint?: string, cc?: string) => {
-    pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); build.disabled = false; sliceBtn.disabled = false;
+    if (pin && (pin.lat !== lat || pin.lon !== lon)) { resetSlice(); S = null; }
+    pin = { lat, lon }; marker.setLngLat([lon, lat]).addTo(map); sliceBtn.disabled = false;
     document.documentElement.dataset.pin = `${lat.toFixed(5)},${lon.toFixed(5)}`;
     void showPhotos(lat, lon); void namePin(lat, lon, hint, cc);
     tell(`Pin at ${lat.toFixed(4)}, ${lon.toFixed(4)}.${places?.snapNote(lat, lon) ?? ''}`);
@@ -216,6 +216,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     setPin: (lat, lon) => dropPin(lat, lon), setRadius: (r) => { radius.value = String(r); $('radiusv').textContent = String(r); },
     groundFor: (lat, lon, r) => groundFor(lat, lon, r),
   });
+  side.querySelector('#cancelbuild')?.addEventListener('click', () => { if (openingCuts) { resetSlice(); tell('Start search cancelled. Choose Slice this place to try again.'); } });
   map.boxZoom.disable(); // Shift and drag picks a box of buildings here
   map.on('load', () => { document.documentElement.dataset.mapready = 'true'; });
   map.on('error', (e) => { if (!document.documentElement.dataset.mapready) tell(`The map tiles are slow to load (${String(e.error?.message ?? 'network').slice(0, 60)}).`, true); });
@@ -243,43 +244,6 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     go.disabled = false;
   };
 
-  const storePiece = (m: ReturnType<typeof osmToMesh>, name: string) => {
-    const rd = (a: number[]) => a.map((v) => Math.round(v * 100) / 100);
-    sessionStorage.setItem(PIECE_KEY, JSON.stringify({ name, positions: rd(m.positions), indices: m.indices }));
-  };
-  // CC-91: the lane the map proved goes to the editor with the pieces; the editor used to start on its own lane (turn 0, sideways 0, level 0)
-  const setLane = (l: PlaceLane | null) => {
-    if (!l?.cleared) return;
-    try {
-      const j = JSON.parse(sessionStorage.getItem(PIECE_KEY) ?? 'null');
-      if (!j) return;
-      j.lane = { angle: (l.turnDeg * Math.PI) / 180, offset: l.sidewaysM, level: l.levelM, from: 'place' };
-      sessionStorage.setItem(PIECE_KEY, JSON.stringify(j));
-    } catch { /* the editor then finds a lane of its own */ }
-  };
-  build.onclick = async () => {
-    if (!pin || !places) return;
-    build.disabled = true;
-    try {
-      const o = await places.obtain();
-      if (!o) { build.disabled = false; return; }
-      places.setStep('mesh', 'doing');
-      if (!buildingsFrom(o.answer, o.lat, o.lon).length) { places.setStep('mesh', 'failed', 'No buildings here'); tell('No buildings here. Move the pin and try again.', true); build.disabled = false; return; }
-      const k0 = o.lane?.cleared ? o.lane.shrink : Number(shrink.value);
-      const setShrink = (k: number) => { shrink.value = String(k); $('shrinkv').textContent = String(k); };
-      setShrink(k0);
-      const name = (o.name || ($<HTMLInputElement>('search').value.trim().split(',')[0]) || `${o.lat.toFixed(3)},${o.lon.toFixed(3)}`).slice(0, 40);
-      const m = osmToMesh(o.answer, o.lat, o.lon, k0, o.ground);
-      try { sessionStorage.setItem('cc.map.sun', JSON.stringify({ lat: o.lat, lon: o.lon })); } catch { /* private window */ } // CC-133: where the place is, so the editor's sun is the real one
-      if (!S2) storePiece(m, name); // CC-211: the editor gets the place only after the simulator has proved a lane on it
-      const lane0 = setLane;
-      const laneOut = S2 ? (l: PlaceLane | null) => { if (l?.cleared) { storePiece(osmToMesh(o.answer, o.lat, o.lon, l.shrink, o.ground), name); lane0(l); } else sessionStorage.removeItem(PIECE_KEY); } : lane0;
-      tell(`Built ${m.buildings} buildings${o.ground ? `, on a hill of ${Math.round(relief(o.ground))} m (${m.relief.toFixed(1)} m once shrunk)` : ''}. Open it in the World Editor, or look at how the pin became a course below.`);
-      document.documentElement.dataset.hill = o.ground ? String(Math.round(relief(o.ground))) : '0';
-      places.finish(o, m, k0, (k) => { setShrink(k); const m2 = osmToMesh(o.answer, o.lat, o.lon, k, o.ground); if (!S2) storePiece(m2, name); return m2; }, laneOut);
-    } catch (e) { tell((e as Error).message, true); }
-    build.disabled = false;
-  };
   // ---- the Slicer (CC-73, Atlas CC-72): a cut height slider; contours, floor plans and the lane at that height
   interface SliceState { picked: Set<number>; answer: OverpassAnswer; lat: number; lon: number; r: number; k: number; ground: Ground | null; fine: Ground | null; tops: ReturnType<typeof buildingTops>; mesh: { positions: number[]; indices: number[] }; pieces: MapPiece[]; range: number }
   let S: SliceState | null = null, sliceWorker: Worker | null = null, laneToken = 0, laneTimer = 0, layersReady = false;
@@ -288,6 +252,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   let placeSlug: string | null = null, street: StreetPanel | null = null; // CC-90: the Street photos panel follows the line
   let DEF: { d: SlicerDefault; ok: boolean } | null = null, defaultsFile: Promise<Map<string, SlicerDefault>> | null = null, verifyWorker: Worker | null = null;
   const loadDefaults = () => (defaultsFile ??= fetch('/assets/places/slicer-defaults.json').then((r) => (r.ok ? r.json() : { places: [] })).then((j: DefaultsFile) => new Map(j.places.map((d) => [d.slug, d]))).catch(() => new Map<string, SlicerDefault>()));
+  let openingCuts: number[] | null = null;
   let autoOn = false, programmatic = false; // autoOn: a place with no stored default keeps looking for a clearable height by itself until the person touches something
   // The shrink slider moves in steps of 0.01, but a proved default can sit between two steps (0.283): keep the exact number while the slider still shows its rounding.
   let exactK: number | null = null;
@@ -380,7 +345,13 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   const simSays = simSaysPanel('slicer');
   if (simSays) { simSays.el.hidden = true; side.prepend(simSays.el); const w = slicerWords('idle'); simSays.set(w.state, w.words); } // first in the side panel, which scrolls: the strip sticks to its top once a lane is read
   let shownLane: { c: number; l: LaneSummary; proved: boolean } | null = null; // the lane on the screen: this is the one the editor gets
+  function invalidateShownLane() {
+    ++laneToken; sliceWorker?.terminate(); sliceWorker = null;
+    shownLane = null; $<HTMLButtonElement>('buildpieces').disabled = true;
+    dset('sliceLaneProven', '0');
+  }
   function showLane(c: number, quick: LaneSummary | null, proved: LaneSummary | null | undefined) {
+    $<HTMLButtonElement>('buildpieces').disabled = S2 && !proved;
     shownLane = proved ? { c, l: proved, proved: true } : quick ? { c, l: quick, proved: false } : null;
     const head = OLD ? `Cut at ${num1(c)} m: ` : `${num1(c)} m: `;
     if (proved) { drawLane(proved, true); read.textContent = OLD ? `${head}the lane is ${Math.round(proved.length)} m long in the game, clearable.` : `${head}${Math.round(proved.length)} m lane, a path exists.`; dset('sliceLane', 'clearable'); dset('sliceLaneLength', Math.round(proved.length)); }
@@ -617,7 +588,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
             handles[2].setLngLat(ll((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)); previewLine(a, b); updateLineNote(true);
           }
         });
-        h.on('dragstart', () => { handleDrag = true; });
+        h.on('dragstart', () => { invalidateShownLane(); handleDrag = true; });
         h.on('dragend', () => { handleDrag = false; commitTour(); });
         handles.push(h);
       });
@@ -630,6 +601,30 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   }
   tourReset.onclick = () => { if (DEF) { snapToBest(); return; } autoOn = false; tour = null; tourReset.hidden = true; dset('tourLine', ''); updateLineNote(); askLane(Number(cut.value)); };
 
+  function openingProgress(c: number) {
+    tell(`Finding a passing start: checking height ${num1(c)} m. ${openingCuts?.length ?? 0} other heights remain.`);
+    dset('sliceOpening', 'checking');
+    places?.setStep('lane', 'doing', `Checking start height ${num1(c)} m`);
+  }
+  function resetSlice() {
+    skipFlight?.();
+    tour = null; DEF = null;
+    if (layersReady && S) drawLane(null, false);
+    clearTimeout(laneTimer); ++laneToken; ++stripToken; ++fixToken;
+    sliceWorker?.terminate(); stripWorker?.terminate(); proofWorker?.terminate(); verifyWorker?.terminate(); fixWorker?.terminate(); fixWorker = null;
+    stripEl.replaceChildren(); whyEl.replaceChildren(); stripCap.hidden = true;
+    sliceWorker = stripWorker = proofWorker = verifyWorker = null;
+    openingCuts = null; autoOn = false; laneCache.clear(); strip = null; lastLane = null; shownLane = null;
+    slicer.hidden = true; $<HTMLButtonElement>('buildpieces').disabled = true;
+    if (simSays) simSays.el.hidden = true;
+    for (const key of ['sliceReady', 'sliceLane', 'sliceLaneProven', 'sliceVerified', 'sliceStripDone', 'sliceStrip', 'sliceOpening']) dset(key, '');
+  }
+  function beginOpening(c: number) {
+    if (!S) return;
+    openingCuts = openingHeights(S.range, c); slicer.hidden = true;
+    $<HTMLButtonElement>('buildpieces').disabled = true;
+    const first = openingCuts.shift()!; cut.value = String(first); askLane(first);
+  }
   function askLane(c: number) {
     if (!S) return;
     const custom = tour ? customOf(tour) : undefined;
@@ -637,13 +632,24 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const my = ++laneToken; sliceWorker?.terminate(); sliceWorker = null;
     if (!hit && DEF?.ok && atDefault()) { const syn = provenSummary({ shrink: DEF.d.shrink, line: DEF.d.line, lengthM: DEF.d.lengthM }); laneCache.set(key, { quick: syn, proved: syn }); showLane(c, syn, syn); return; } // proved offline on the real simulator: no spinner
     if (hit && hit.proved !== undefined) { showLane(c, hit.quick, hit.proved); return; }
-    showLane(c, null, undefined); dset('sliceLane', 'working');
+    if (openingCuts) openingProgress(c); else showLane(c, null, undefined); dset('sliceLane', 'working');
     try { sliceWorker = new Worker(new URL('../slice/slicer-worker.ts', import.meta.url), { type: 'module' }); } catch { read.textContent = 'This browser cannot run the lane search in the background.'; return; }
     let quick: LaneSummary | null = null;
     sliceWorker.onmessage = (e: MessageEvent<SliceAnswer>) => {
-      const a = e.data; if (a.id !== my || a.phase === 'strip' || a.phase === 'proof') return;
-      if (a.phase === 'quick') { quick = a.lane; laneCache.set(key, { quick, proved: undefined }); showLane(c, quick, undefined); }
-      else { laneCache.set(key, { quick, proved: a.lane }); showLane(c, quick, a.lane); }
+      const a = e.data; if (a.id !== my || my !== laneToken || a.phase === 'strip' || a.phase === 'proof') return;
+      if (a.phase === 'quick') { quick = a.lane; laneCache.set(key, { quick, proved: undefined }); if (!openingCuts) showLane(c, quick, undefined); }
+      else {
+        laneCache.set(key, { quick, proved: a.lane });
+        if (openingCuts) {
+          if (!a.lane && openingCuts.length) { const next = openingCuts.shift()!; cut.value = String(next); askLane(next); return; }
+          openingCuts = null; slicer.hidden = false;
+          dset('sliceOpening', a.lane ? 'ready' : 'unavailable');
+          places?.setStep('lane', a.lane ? 'done' : 'failed', a.lane ? `Passing start at ${num1(c)} m` : 'No passing start found');
+          tell(a.lane ? `A passing start was found at ${num1(c)} m. You can shape it or send it to the World Editor.` : 'No passing start was found at these heights. Try a smaller shrink or choose another place.', !a.lane);
+          paint(c);
+        }
+        showLane(c, quick, a.lane);
+      }
     };
     sliceWorker.postMessage({ id: my, positions: S.mesh.positions, indices: S.mesh.indices, level: c * S.k, pieces: S.pieces, ...(custom ? { custom } : {}) } satisfies SliceAsk);
   }
@@ -655,10 +661,10 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     try { verifyWorker = new Worker(new URL('../slice/slicer-worker.ts', import.meta.url), { type: 'module' }); } catch { return; }
     const own = customOf(tour), k = S.k, d = DEF.d;
     verifyWorker.onmessage = (e: MessageEvent<SliceAnswer>) => {
-      const a = e.data; if (a.phase !== 'proved') return;
+      const a = e.data; if (a.phase !== 'proved' || !S || DEF?.d !== d) return;
       verifyWorker?.terminate(); verifyWorker = null; dset('sliceVerified', a.lane ? 'agrees' : 'disagrees');
       if (a.lane || !DEF || DEF.d !== d) return;
-      DEF.ok = false; laneCache.clear(); askLane(Number(cut.value)); // the stored answer is out of date: say what the live check says
+      DEF.ok = false; laneCache.clear(); tour = null; beginOpening(Number(cut.value)); // the stored answer is out of date: say what the live check says
     };
     verifyWorker.postMessage({ id: 0, positions: S.mesh.positions, indices: S.mesh.indices, level: c * k, pieces: S.pieces, custom: own } satisfies SliceAsk);
   }
@@ -673,7 +679,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     if (DEF.ok) startVerify(d.cutM);
   }
   const cutChanged = (instant: boolean) => {
-    const c = Number(cut.value); paint(c);
+    const c = Number(cut.value); invalidateShownLane(); paint(c);
     clearTimeout(laneTimer);
     if (instant) askLane(c); else laneTimer = window.setTimeout(() => askLane(c), 500);
   };
@@ -695,7 +701,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     S.range = st.range;
     const dm = side.querySelector('#dropm'); if (dm) dm.textContent = String(Math.round(LANE_DROP / k * 10) / 10);
   }
-  shrink.onchange = () => { if (!S) return; autoOn = false; rebuild(); cut.max = String(S.range); cutChanged(true); };
+  shrink.onchange = () => { if (!S) return; autoOn = false; rebuild(); cut.max = String(S.range); if (openingCuts) beginOpening(Number(cut.value)); else cutChanged(true); };
 
   const ladderBtn = $<HTMLButtonElement>('ladder');
   let ladderOn = false;
@@ -724,8 +730,8 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const reduced = reducedMotion() || q2.get('flight') === '0';
     const end = () => {
       setWave(null); skipFlight = null; flightcap.hidden = true; flightskip.hidden = true;
-      map.setLayoutProperty('sl-plane', 'visibility', 'visible'); slicer.hidden = false;
-      dset('flightDone', '1'); cutChanged(true); if (S2 && !tour) showWholeLine();
+      map.setLayoutProperty('sl-plane', 'visibility', 'visible'); slicer.hidden = !!openingCuts;
+      dset('flightDone', '1'); if (!openingCuts) cutChanged(true); if (S2 && !tour) showWholeLine();
     };
     paint(S!.range); // while the buildings rise nothing is cut: the whole place is solid
     map.setLayoutProperty('sl-plane', 'visibility', 'none'); slicer.hidden = at !== null ? false : true;
@@ -743,7 +749,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
   // ---- picking: click a building, or hold Shift and drag a box (Alt takes buildings out)
   const PICK_LAYERS = ['sl-below', 'sl-face', 'sl-above', 'sl-tall', 'sl-out'];
   const ids = (fs: maplibregl.MapGeoJSONFeature[]) => [...new Set(fs.map((f) => Number(f.properties?.i)).filter((n) => Number.isFinite(n)))];
-  function picksChanged() { if (!S) return; autoOn = false; rebuild(); paint(Number(cut.value)); clearTimeout(laneTimer); laneTimer = window.setTimeout(() => askLane(Number(cut.value)), 500); }
+  function picksChanged() { if (!S) return; invalidateShownLane(); autoOn = false; rebuild(); paint(Number(cut.value)); clearTimeout(laneTimer); laneTimer = window.setTimeout(() => askLane(Number(cut.value)), 500); }
   function pickClick(pt: maplibregl.Point) {
     if (!S || skipFlight) return;
     const hit = ids(map.queryRenderedFeatures([pt.x, pt.y], { layers: PICK_LAYERS }));
@@ -793,7 +799,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
 
   sliceBtn.onclick = async () => {
     if (!pin || !places) return;
-    sliceBtn.disabled = true;
+    sliceBtn.disabled = true; resetSlice();
     try {
       const o = await places.obtain();
       if (!o) { sliceBtn.disabled = false; return; }
@@ -803,9 +809,10 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       placeSlug = S2 && o.source === 'ready' && o.slug ? o.slug : null;
       exactK = null; DEF = null; verifyWorker?.terminate(); verifyWorker = null; autoOn = false;
       const stored = S2 && o.source === 'ready' && o.slug ? (await loadDefaults()).get(o.slug) : undefined;
-      if (stored && (stored.clear || stored.lengthM > 0)) { exactK = stored.shrink; shrink.value = String(stored.shrink); $('shrinkv').textContent = String(stored.shrink); DEF = { d: stored, ok: stored.clear }; }
+      if (stored && (stored.clear || stored.lengthM > 0)) { exactK = stored.shrink; shrink.value = String(stored.shrink); $('shrinkv').textContent = String(stored.shrink); DEF = { d: stored, ok: trusted(stored) && q.get('hills') !== '0' && q.get('roofstart') !== '0' }; }
       S = { picked: new Set(), answer, lat: pin.lat, lon: pin.lon, r, k: kNow(), ground, fine: ground ? resample(ground, 4) : null, tops: [], mesh: { positions: [], indices: [] }, pieces: [], range: 0 };
       rebuild(); S.picked = new Set(S.tops.keys()); rebuild();
+      places.setStep('mesh', 'done', `${S.tops.length} buildings ready`);
       if (!map.isStyleLoaded()) await new Promise<void>((res) => map.once('idle', () => res()));
       ensureLayers();
       src('sl-slope').setData({ type: 'FeatureCollection', features: ground ? slopeCells(ground).map((c) => ({ type: 'Feature', properties: { deg: c.deg }, geometry: { type: 'Polygon', coordinates: poly([[c.x0, c.z0], [c.x1, c.z0], [c.x1, c.z1], [c.x0, c.z1]]) } })) : [] } as never);
@@ -813,14 +820,16 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
       cut.min = '0'; cut.max = String(S.range); cut.step = '0.5';
       const open = openingFor(DEF?.d, { shrink: S.k, range: S.range });
       cut.value = String(open.cutM);
-      if (DEF && open.line) { tour = tourOf(open.line); tourReset.hidden = true; dset('tourLine', JSON.stringify(tour)); }
-      autoOn = S2 && !DEF; // a custom place has no stored default: the search starts by itself and shows the best height so far
+      if (DEF) DEF.ok = DEF.ok && open.proven;
+      if (DEF?.ok && open.line) { tour = tourOf(open.line); tourReset.hidden = true; dset('tourLine', JSON.stringify(tour)); }
+      autoOn = false; // a custom place has no stored default: the search starts by itself and shows the best height so far
       dset('sliceDefault', DEF ? (DEF.ok ? 'proven' : 'closest') : 'none'); dset('sliceAuto', autoOn ? 'on' : 'off');
       updateLineNote();
       tell(`Sliced ${S.tops.length} buildings${ground ? `, ground ${Math.round(relief(ground))} m from the lowest to the highest point` : ' (flat ground)'}. Drag the cut height.`);
       dset('sliceReady', '1'); dset('sliceRange', S.range); dset('sliceRelief', Math.round(relief(ground)));
       const fit = Math.min(18.5, Math.log2((156543 * Math.cos((pin.lat * Math.PI) / 180) * 900) / (3 * r)));
-      if (DEF) { askLane(open.cutM); startVerify(open.cutM); } // the proven answer is on the screen before the flight ends
+      if (DEF?.ok) { places.setStep('lane', 'done', `Passing start at ${num1(open.cutM)} m`); dset('sliceOpening', 'ready'); askLane(open.cutM); startVerify(open.cutM); }
+      else if (S2) beginOpening(open.cutM); // the proven answer is on the screen before the flight ends
       flyIn(fit);
     } catch (e) { tell((e as Error).message, true); }
     sliceBtn.disabled = false;

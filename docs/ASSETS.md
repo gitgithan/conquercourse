@@ -932,3 +932,10 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/editor-no-repair-menu.jpg` | Improve menu with three actions and stage-specific engine pills | 2026-11-04 | Our desktop editor at 1280 px, headless Chromium with the stepped clock | None | Ours; evidence only |
 | `docs/evidence/editor-no-repair-help.jpg` | Course help without the standalone repair button or repair-only checkbox | 2026-11-04 | Same browser check, real simulator and no model calls | None | Ours; evidence only |
+
+## World Slicer place actions and passing starts (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/slicer-slice-full-width.jpg` | Full-width Slice action above Feedback, with Shibuya's passing start | 2026-11-04 | `scripts/map-check.mjs`, real simulator and stepped-clock desktop capture at 1280 px | None | Our UI; OpenStreetMap data (ODbL), OpenFreeMap and OpenMapTiles; attribution visible |
+| `docs/evidence/slicer-passing-start.jpg` | Selected passing height and the retained Send to the World Editor action | 2026-11-04 | Same real browser check; no model calls | None | Our UI; same map credits, visible on screen |

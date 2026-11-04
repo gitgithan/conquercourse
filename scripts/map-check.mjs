@@ -1,52 +1,41 @@
-// Walks the map mode (CC-48): the map and its credit show, a click drops a pin, "Build this place" fetches the buildings
-// (Overpass, or the saved answer if it is unreachable), and the editor opens with the place as a piece.
-import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-const port = process.env.PORT ?? '5173';
-const out = 'data/eval/cc-48-map-mode';
-const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
-const flags = ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'];
-const checks = {}; const notes = [];
-try {
-  await new Promise((r) => setTimeout(r, 3000));
-  mkdirSync(out, { recursive: true });
-  const browser = await chromium.launch({ args: flags });
-  const page = await browser.newPage({ viewport: { width: 1300, height: 800 } });
-  page.on('pageerror', (e) => console.log('PAGEERROR', e.message.slice(0, 200)));
-  // Circular Quay, Sydney: the pin lands in the middle of the map
-  await page.goto(`http://localhost:${port}/?mode=map&lat=-33.861&lon=151.2111&z=16`);
-  await page.waitForSelector('#map canvas.maplibregl-canvas', { timeout: 60000 });
-  checks.mapCanvas = true;
-  await page.waitForFunction(() => document.documentElement.dataset.mapready === 'true', null, { timeout: 90000 }).then(() => { checks.tilesStyleLoaded = true; }, () => { checks.tilesStyleLoaded = false; notes.push('map style did not load in time (network)'); });
-  await page.waitForTimeout(3000);
-  const attr = await page.textContent('.maplibregl-ctrl-attrib');
-  checks.attribution = /OpenStreetMap contributors/.test(attr) && /OpenFreeMap/.test(attr);
-  await page.screenshot({ path: `${out}/1-map.png` });
-  const box = await (await page.$('#map canvas.maplibregl-canvas')).boundingBox();
-  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-  await page.waitForFunction(() => !!document.documentElement.dataset.pin, null, { timeout: 10000 });
-  checks.pinDropped = !(await page.$eval('#build', (b) => b.disabled));
-  await page.screenshot({ path: `${out}/2-pin.png` });
-  // The buildings come from /api/places (CC-78). The public map servers are not part of this check: /api/places is answered by the saved answer,
-  // and with MAP_REAL=1 it is asked for real. Build no longer jumps to the editor: it shows the steps, and the editor opens on a button.
-  const fixture = JSON.parse(readFileSync('tests/fixtures/overpass-quay.json', 'utf8'));
-  if (process.env.MAP_REAL !== '1') await page.route('**/api/places*', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ elements: fixture.elements, source: 'fixture', cache: 'miss' }) }));
-  await page.evaluate(() => (document.getElementById('useready').checked = false)); // the ready place would answer first
-  await page.click('#build');
-  await page.waitForSelector('#openeditor:not([hidden])', { timeout: 150000 });
-  notes.push(process.env.MAP_REAL === '1' ? 'the map servers answered for real' : 'saved answer used');
-  await page.click('#openeditor');
-  const landed = await page.waitForFunction(() => new URLSearchParams(location.search).get('mode') === 'editor', null, { timeout: 60000 }).then(() => true, () => false);
-  checks.landedInEditor = landed;
-  await page.waitForFunction(() => document.documentElement.dataset.pieces === '1', null, { timeout: 60000 }).then(() => { checks.pieceInEditor = true; }, () => { checks.pieceInEditor = false; });
-  await page.waitForTimeout(2500);
-  checks.keyRemoved = (await page.evaluate(() => sessionStorage.getItem('cc.map.piece'))) === null;
-  checks.notSaved = !(await page.evaluate(() => (localStorage.getItem('cc.world.v1') ?? '').includes('map:')));
-  await page.screenshot({ path: `${out}/3-editor.png` });
-  await browser.close();
-} finally { server.kill(); }
-const pass = Object.values(checks).every(Boolean);
-console.log(JSON.stringify({ checks, notes, pass }, null, 2));
-writeFileSync(`${out}/run.json`, JSON.stringify({ checks, notes, pass }, null, 2) + '\n');
-process.exit(pass ? 0 : 1);
+// Desktop World Slicer smoke check. Start the dev server, then run PORT=5173 node scripts/map-check.mjs.
+// Uses shipped place data, live map tiles and real simulator workers; no generated model responses.
+import {Shot} from './film-lib.mjs';
+import {mkdirSync,writeFileSync,readFileSync} from 'node:fs';
+const out=process.env.OUT??'test-results/map-place';mkdirSync(out,{recursive:true});
+const defs=JSON.parse(readFileSync('public/assets/places/slicer-defaults.json','utf8')).places;
+const shot=new Shot({name:'map-place',outDir:'/tmp',fps:24,width:1280,height:720});await shot.open('about:blank');const p=shot.page,errors=[],results=[];
+p.on('pageerror',e=>errors.push(e.message));
+async function ready(check,timeout=120000){ const until=Date.now()+timeout; while(Date.now()<until){await shot.advance(250); if(await p.evaluate(check))return; await p.waitForTimeout(100);} throw Error('Condition timed out: '+check); }
+async function open(extra=''){
+ await p.goto(`http://localhost:${process.env.PORT??5173}/?mode=map&flight=0&streetphotos=0${extra}`,{waitUntil:'domcontentloaded',timeout:120000});await shot.advance(1000);
+ await ready(()=>document.documentElement.dataset.mapready==='true'&&Number(document.documentElement.dataset.readyPlaces)>0);console.log('Map ready');
+}
+async function pick(slug){
+ await p.locator('#ready-gallery-btn').click();
+ await p.locator(`button.card[data-slug="${slug}"]`).first().evaluate(el=>el.click());await shot.advance(1000);
+ if(await p.locator('#build').count())throw Error('Duplicate build button remains');
+ if(!await p.locator('#slicer').evaluate(el=>el.hidden))throw Error('Previous place controls remained visible');
+ await p.locator('#slice').click();await shot.advance(1000);
+}
+try{
+ await open();
+ for(const slug of ['edinburgh-old-town','montmartre-paris','shibuya-tokyo']){
+  await pick(slug);
+  await ready(()=>document.documentElement.dataset.sliceOpening==='ready'&&document.documentElement.dataset.sliceLane==='clearable'&&document.documentElement.dataset.sliceVerified==='agrees',180000); console.log('Passing start:',slug);await shot.advance(1000);
+  const state=await p.evaluate(()=>({cut:Number(document.querySelector('#cut').value),shrunk:Number(document.querySelector('#shrink').value),disabled:document.querySelector('#buildpieces').disabled,read:document.querySelector('#sliceread').textContent,width:document.querySelector('#slice').getBoundingClientRect().width,side:document.querySelector('.side').clientWidth}));
+  const d=defs.find(d=>d.slug===slug);if(state.cut!==d.cutM||state.disabled||Math.abs(state.width-(state.side-20))>2)throw Error('Invalid opening or width: '+JSON.stringify(state));
+  results.push({slug,...state});
+ }
+ await p.locator('#slice').scrollIntoViewIfNeeded();await shot.advance(100);await p.screenshot({path:out+'/slice-full-width.jpg',type:'jpeg',quality:85});
+ await p.locator('#buildpieces').scrollIntoViewIfNeeded();await shot.advance(100);await p.screenshot({path:out+'/passing-start.jpg',type:'jpeg',quality:85});
+ await p.locator('#pickclear').click();if(!await p.locator('#buildpieces').isDisabled())throw Error('Picking change left Send enabled');
+ await p.locator('#snapbest').click();await p.waitForFunction(()=>document.documentElement.dataset.sliceLane==='clearable'&&!document.querySelector('#buildpieces').disabled,null,{polling:100,timeout:120000});
+ await p.locator('#buildpieces').click();await p.waitForURL(u=>u.searchParams.get('mode')==='editor',{waitUntil:'domcontentloaded',timeout:60000});await shot.advance(1000);
+ await p.waitForFunction(()=>document.documentElement.dataset.laneClear==='1',null,{polling:100,timeout:180000});results.push({editorHandoff:'clears'});console.log('Editor handoff clears');
+ await open('&hills=0');await pick('shibuya-tokyo');
+ await ready(()=>['ready','unavailable'].includes(document.documentElement.dataset.sliceOpening),240000);await shot.advance(1000);
+ const fallback=await p.evaluate(()=>({opening:document.documentElement.dataset.sliceOpening,lane:document.documentElement.dataset.sliceLane,disabled:document.querySelector('#buildpieces').disabled,say:document.querySelector('#say').textContent}));
+ if(fallback.opening!=='ready'||fallback.lane!=='clearable'||fallback.disabled)throw Error('Live fallback failed: '+JSON.stringify(fallback));results.push({liveFallback:fallback});
+ if(errors.length)throw Error(errors.join('\n'));writeFileSync(out+'/run.json',JSON.stringify({results,errors},null,2)+'\n');console.log(JSON.stringify({results,errors},null,2));
+}catch(e){await p.screenshot({path:out+'/failure.jpg',type:'jpeg',quality:85});console.log('FAILED',String(e));console.log(await p.locator('#say').textContent().catch(()=>''));throw e}finally{await shot.close()}

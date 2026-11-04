@@ -7,7 +7,7 @@ import { handoverLane } from '../src/slice/slicer';
 import { roleCourse } from '../src/slice/roles';
 import { worldOf } from '../src/slice/slicer-core';
 import { searchIdealRun } from '../src/sim/ideal';
-import { CHECK_VERSION, openingFor, provenSummary, replayDefault, sameLine, stateAt, trusted, type DefaultsFile, type PlaceInput, type SlicerDefault } from '../src/slice/slicer-default';
+import { CHECK_VERSION, openingFor, openingHeights, provenSummary, replayDefault, sameLine, stateAt, trusted, type DefaultsFile, type PlaceInput, type SlicerDefault } from '../src/slice/slicer-default';
 import type { Ground } from '../src/world/terrain';
 
 const file = JSON.parse(readFileSync('public/assets/places/slicer-defaults.json', 'utf8')) as DefaultsFile;
@@ -63,4 +63,14 @@ describe('the stored Slicer defaults', () => {
     const bad: SlicerDefault = { ...clear[0], checkVersion: CHECK_VERSION + 1 };
     expect(trusted(bad)).toBe(false);
   });
+});
+
+it('an adjusted height cannot reuse the stored clearance proof', () => {
+  const d = { ...clear[0], cutM: 20 };
+  expect(openingFor(d, { shrink: d.shrink, range: 10 }).proven).toBe(false);
+});
+it('the opening search covers every selectable height, including both ends, without repeats', () => {
+  const heights = openingHeights(3.2, 2);
+  expect(heights).toEqual([2, 1.5, 2.5, 1, 3, 0.5, 0]);
+  expect(openingHeights(0, 5)).toEqual([0]);
 });
