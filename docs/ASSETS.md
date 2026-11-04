@@ -970,3 +970,10 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | `README_MEDIA/editor-4-moves.webp` | README screen picture (149 KB, 1920 x 1020): World Editor with Moves in this world open (webp) | 2026-11-04 | `scripts/readme-shot-editor.mjs` (then `scripts/readme-media-shrink.py`), headless Chromium (software GL) on the laptop | None | Ours, a screen of our game. Ours. |
 | `scripts/readme-media-shrink.py`, `scripts/readme-shot-course.mjs`, `scripts/readme-shot-slicer.mjs`, `scripts/readme-shot-editor.mjs` | the scripts that make the README_MEDIA pictures (tile lists at the top of each; add a tile to add a picture) | 2026-11-04 | ours | None | Ours |
 | `docs/evidence/cc-133-board-corner-1280.png` | screenshot (1280 px) of the Course with the Fastest runs card at the top right, clear of the buttons (evidence only) | 2026-11-04 | `scripts/board-corner-check.mjs`, headless Chromium | None | Ours |
+
+
+## Course runtime reuse evidence (2026-11-05)
+
+| File | What | Made | How | Cost | Licence and notes |
+|---|---|---|---|---|---|
+| `docs/evidence/course-runtime-reuse-1280.png` | Desktop Course after in-place switching, Back/Forward and a failed-fetch retry | 2026-11-05 | Real Chromium screenshot at 1280 × 800 on the existing test VM | No model calls or new VM | Ours (UI/game); existing place-photo credits remain visible and their original terms still apply; evidence only |

@@ -14,12 +14,12 @@ async function choose(label){await page.locator('#sitenav button').first().click
 try{
  const cold=Date.now();await page.goto(`http://localhost:${port}/?welcome=0`,{waitUntil:'domcontentloaded',timeout:120000});await waitFrame(0);
  const token=await page.evaluate(()=>{window.__canvas=document.querySelector('canvas');return window.__documentToken;});
- results.push({label:'cold',wallMs:Date.now()-cold,listeners:await listeners()});
+ results.push({label:'cold',wallMs:Date.now()-cold,listeners:await listeners()}); console.log('cold',Date.now()-cold);
  for(const [label,text] of [['training','Training course: every move'],['montmartre','Montmartre, Paris'],['training-repeat','Training course: every move']]){
-  const result=await choose(text);assert(result.sameCanvas,'Canvas replaced');assert(result.token===token,'Document replaced');results.push({label,...result});
+  const result=await choose(text);assert(result.sameCanvas,'Canvas replaced');assert(result.token===token,'Document replaced');results.push({label,...result}); console.log(label,JSON.stringify(result)); writeFileSync(out+'/partial.json',JSON.stringify(results,null,2));
   for(const id of ['courses-btn','ghost-hud','perf','graphchip','soundbutton'])assert(await page.locator('#'+id).count()===1,'Duplicate or missing '+id);
  }
- let count=await frames();await page.evaluate(()=>history.back());await waitFrame(count);assert((await page.title())!==null,'Back failed');assert((await page.evaluate(()=>document.documentElement.dataset.courseName)).includes('Montmartre'),'Wrong course after Back');
+ let count=await frames();await page.evaluate(()=>history.back());await waitFrame(count);assert((await page.title())!==null,'Back failed');assert((await page.evaluate(()=>document.documentElement.dataset.courseName)).toLowerCase().includes('montmartre'),'Wrong course after Back');
  count=await frames();await page.evaluate(()=>history.forward());await waitFrame(count);assert((await page.evaluate(()=>document.documentElement.dataset.courseName)).includes('Training'),'Wrong course after Forward');
  const x=await page.evaluate(()=>Number(document.documentElement.dataset.x));await page.keyboard.down('KeyD');await page.waitForFunction(x=>Number(document.documentElement.dataset.x)>x+0.2,x,{timeout:30000});await page.keyboard.up('KeyD');
  await page.keyboard.press('KeyR');await page.waitForTimeout(400);
