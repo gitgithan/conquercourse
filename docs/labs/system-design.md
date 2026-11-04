@@ -4,7 +4,7 @@
 *From: [Collision from a 3D lift](collision.md).*
 *Uses: Computer vision, Camera and perspective, Evaluating a detector, Cut-out, lift and bake, Hide the wait, Numerical integration and Collision from a 3D lift.*
 *Behind `?labs=1`. Open `?mode=lab-systemdesign&labs=1`. Serves the university Labs (`docs/university-labs.md`).*
-*Evidence: [the Lab at 1280 px](../evidence/cc-133-pipeline-labs/lab-systemdesign.png).*
+*Evidence at 1280 px: [the starter](../evidence/cc-133-pipeline-labs/lab-systemdesign.png), [a misfit with its hints](../evidence/cc-133-pipeline-labs/lab-systemdesign-misfit.png), [a passing design](../evidence/cc-133-pipeline-labs/lab-systemdesign-cleared.png).*
 
 ## When you open it
 - You see our real pipeline drawn as nine connected cards: the picture, find the object, lift to 3D, when the models run, the waiting, the collider, the simulator, the search and the share.
