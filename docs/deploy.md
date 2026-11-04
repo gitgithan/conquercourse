@@ -84,13 +84,21 @@
 
 ## Running the Cloudflare site on localhost
 - Why: `npm run dev` (Vite) only serves the page and five small stand-ins (designer, course agent, design partner, places, street photos); it does not run `functions/api/`.
-- So photo to 3D, the cut-out finder, the character maker, sharing, Community, the leaderboard, the feature switches and the daily limits fail with "not found" or "not switched on" on plain localhost.
-- To copy the Cloudflare site:
+- So photo to 3D, the cut-out finder, the character maker, sharing, Community, the leaderboard, street objects and the daily limits fail with "not found" or "not switched on" on plain localhost.
+- To copy the Cloudflare site (from a fresh clone: `npm ci` about 12 s, `npm run build` about 45 s, migrations about 20 s):
   - Build: `npm run build`.
-  - Settings: put the names from [environments.md](environments.md) in a file called `.dev.vars` in the repo folder (one `NAME=value` per line; git must never track it).
-  - Database: `npx wrangler d1 migrations apply conquercourse-feedback --local` makes a local copy of the tables.
-  - Run: `npx wrangler pages dev dist --d1 DB=conquercourse-feedback`, then open the address it prints.
+  - Database: `npx wrangler d1 migrations apply conquercourse-feedback --local` makes a local copy of the tables in `.wrangler/` (git ignores it).
+  - Run: `npx wrangler pages dev dist`, then open http://localhost:8788 (add `--port 8790` for another port).
+  - Do not add `--d1 DB=...`: `wrangler.toml` already binds `DB`, and the flag opens a second, empty database ("no such table" errors).
+  - Settings: none are needed to start; `wrangler.toml` sets `REQUIRE_LIFT_RECEIPT`.
+  - Optional: a file called `.dev.vars` (one `NAME=value` per line; git ignores it) holds the names from [environments.md](environments.md) if you own the values.
   - Turnstile: leave `TURNSTILE_SECRET` out and the check is skipped.
+- What you see with no secrets (all honest, none crash):
+  - `GET /api/object-lift` answers `{"perDay":3,"left":3}`.
+  - `GET /api/leaderboard`, `/api/community-items`, `/api/world-stats`, `/api/daily-stats` and `/api/course-stats` answer from the local database (empty).
+  - `POST /api/submit` (feedback) stores a row in the local database.
+  - `POST /api/segment` answers 503 `off` ("Suggestions are switched off right now") and the page says "The outline finder is switched off here".
+  - `POST /api/object-lift` and `POST /api/character` answer 503 "not allowed" and "not configured"; the page says the 3D service and the character maker are not switched on here.
+  - `GET /api/features` and `GET /api/photos` answer 503 "not set up here" (they need the Mapillary token).
 - Modal endpoints (photo to 3D, cut-out, characters) are real services with a shared token, so they only work if you hold the values; without them those steps say they are switched off, which is correct.
-- Not yet checked end to end on a fresh machine: treat the steps as the way it is built, and use the preview site when in doubt.
-
+- Checked on a fresh clone on 2026-11-04 with wrangler 4.153.0 and Node 24: [evidence](evidence/cc-133-repro-check/README.md).
