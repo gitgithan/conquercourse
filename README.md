@@ -13,9 +13,9 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 </div>
 
 ## 🎬 Promo video
-- 85 seconds, recorded from the real game: press the picture to play it.
+- 85 seconds, recorded from the real game: press play.
 
-[![ConquerCourse promo video: press to play](docs/promo/poster.jpg)](docs/promo/conquercourse-promo.mp4)
+<video src="https://github.com/gitgithan/conquercourse/raw/main/docs/promo/conquercourse-promo.mp4" poster="https://github.com/gitgithan/conquercourse/raw/main/docs/promo/poster.jpg" controls muted width="100%"></video>
 
 - ▶️ **[Play the promo video](docs/promo/conquercourse-promo.mp4)** (1920 by 1080, with sound)
 - 📖 **[Read the demo script](docs/demo-script-v2.md)** or **[click by click through Community](docs/community-flow-guide.md)**
@@ -385,7 +385,7 @@ flowchart LR
 - MusicGen is Meta's AudioCraft model; the clips come from a written prompt only, with no melody or recording as input.
 - The MusicGen weights are CC BY-NC 4.0, so these clips are a demo: swap them before a sale (see `docs/copyright-audit.md`).
 - The film rebuild script is `scripts/film-d/assemble.mjs`; the music scripts are `pipelines/music_film*.py`.
-- GitHub shows an mp4 inside the page only when it is uploaded through its own editor; the picture above opens the file in GitHub's player instead.
+- The player at the top is an HTML video tag that points at the committed file, so it plays in the page; if a viewer strips the tag, the "Play the promo video" link opens the file instead.
 
 ## 🏆 Hackathon
 
