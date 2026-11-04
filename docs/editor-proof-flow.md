@@ -9,14 +9,18 @@
 | Old label | New label | Engine | What happens |
 | --- | --- | --- | --- |
 | Fix it | Find a repair | Simulator · game physics | Searches for layout or device changes and tests them. Review any result before Apply. |
-| What should I change? | Ask AI for ideas | AI · Muse Spark Open | Suggests object moves from the course and question. The simulator checks the exact preview. |
+| What should I change? | Ask AI for ideas | Muse Spark Open · ideas; Simulator · Preview check | Suggests object moves from the course and question. The simulator checks the exact preview. |
 | Suggest Fix / Suggest More | Ask AI for repair ideas / Ask AI for more ideas | AI · Muse Spark Open | Sends a ready-written question to the model. |
 | Ask | Send to AI | AI · Muse Spark Open | Sends the question in the input box. |
 | Make it easier | Make it easier | Simulator · game physics | Searches for a wider press window. |
 | Look for routes you did not plan | Find shortcut routes | Simulator · game physics | Simulates alternate routes that skip obstacles. |
 
 - The toolbar menu is Improve because it includes both simulator tools and AI ideas.
-- Every menu action shows its engine, when to use it and what to expect.
+- Every menu action shows the engines it uses, when to use it and what to expect.
+- Ask AI for ideas has separate Muse Spark Open and simulator-preview pills.
+- Find a repair, Make it easier and Find shortcut routes call simulator algorithms directly; those buttons do not call the model.
+- The AI request includes the current layout, simulator verdict, verified advice and known shortcut routes.
+- The separate course-generation agent loop is in [course-agent.ts](../src/slice/course-agent.ts); the four direct editor handlers do not invoke that loop.
 - The menu opens below the toolbar and navigation, above the help panel, keeping its explanations readable.
 - The shared panel says Course help; the Muse Spark Open badge sits beside the AI input, rather than above simulator tools.
 - Proposal headers name the source of the edits; the separate simulator verdict describes the exact preview.
@@ -218,3 +222,24 @@ flowchart LR
 - The transition adds no simulator search or intermediate course state.
 - Editing again ends the transition; reduced-motion preferences show the final pose immediately.
 - Social footage and its annotation scripts remain outside Git.
+
+## Next step after no clear run is found
+
+- Evidence: [repair next step](evidence/editor-repair-next-step.jpg), [stage-specific engine pills](evidence/editor-stage-engine-pills.jpg).
+
+- A completed negative lane check says that the simulator has not found a clear run and points to Find a repair.
+- A Find a repair button appears directly below the Simulator card, above the lane controls.
+- It starts the existing simulator repair search and opens Course help for review; nothing is applied by the button itself.
+- The prompt is hidden while checking, after stopping, for an empty lane, and when the lane clears.
+- Automatic checks and Play this lane publish the same result and repair guidance.
+- The old generic advice to widen a gap has been removed; making a gap wider can make it harder.
+
+```mermaid
+flowchart LR
+  A["Simulator checks lane"] --> B["No clear run found"]
+  B --> C["Guidance and Find a repair button"]
+  C --> D["Simulator searches for changes"]
+  D --> E["Review proposed edits"]
+  E --> F["Simulator checks exact preview"]
+  F --> G["Apply when ready"]
+```

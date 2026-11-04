@@ -1,3 +1,4 @@
+import { BLOCKED_LANE_GUIDANCE } from '../ui/editor-actions';
 import { searchActivity } from './search-activity';
 
 // CC-243: what the World Editor's lane check is doing, as plain states the page can show (idle, searching, done, cancelled, timed out).
@@ -44,7 +45,7 @@ export const barFraction = (s: LaneState): number | null => s.kind === 'searchin
 /** The final state in a word, and the sentence that goes with it. */
 export function finalText(s: LaneState): { word: string; line: string } | null {
   switch (s.kind) {
-    case 'done': return s.cleared ? { word: 'Clears', line: 'Clears: the simulator found a way through.' } : { word: "Can't clear", line: "Can't clear: the simulator found no way through. Widen a gap or lower a step." };
+    case 'done': return s.cleared ? { word: 'Clears', line: 'Clears: the simulator found a way through.' } : { word: "Can't clear", line: BLOCKED_LANE_GUIDANCE };
     case 'cancelled': return { word: 'Stopped', line: 'Stopped: this lane is not checked. Edit it, or press Check again.' };
     case 'timeout': return { word: 'Timed out', line: `Timed out after ${LANE_CAP_MS / 60000} minutes: this lane is not checked. It may still be clearable. You can play it anyway.` };
     default: return null;

@@ -869,3 +869,10 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/easier-named-timing.jpg` | Named jump take-off window before and after the proposed Block 1 edit | 2026-11-04 | Real simulator and Playwright desktop capture at 1280 px | None; no model call | Ours; documentation evidence only |
 | `docs/evidence/easier-apply-transition.jpg` | Actual 3D Apply transition between original grey and proposed teal positions | 2026-11-04 | Stepped-clock frame from the real editor; proof reuse and one undo step checked | None; no model call | Ours; documentation evidence only; social clips remain outside Git |
+
+## Repair next step and stage-specific engine pills (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-repair-next-step.jpg` | Blocked-lane guidance and direct Find a repair button below the Simulator card | 2026-11-04 | Real simulator and Playwright desktop capture at 1280 px | None; no model call | Ours; documentation evidence only |
+| `docs/evidence/editor-stage-engine-pills.jpg` | Improve menu showing the actual simulator-only actions and separate model/Preview pills for AI ideas | 2026-11-04 | Local desktop capture; direct repair verified to start without model requests | None | Ours; documentation evidence only |

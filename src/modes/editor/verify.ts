@@ -1,3 +1,4 @@
+import { BLOCKED_LANE_GUIDANCE } from '../../ui/editor-actions';
 import { adviseMachine } from '../../slice/fix-launch';
 import { adviseLane } from '../../slice/advice';
 import { adviceInWorker } from '../../slice/proof-client';
@@ -59,7 +60,7 @@ export function createVerify(env: VerifyEnv) {
         if (clear === null) { env.laneCheck().reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; document.documentElement.dataset.verdict = ed.verdict; if (v) { v.textContent = ed.verdict; v.className = 'says-when bad'; } return; }
         env.laneCheck().done(clear);
         document.documentElement.dataset.laneClear = clear ? '1' : '0'; setSuggest(clear);
-        ed.verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.';
+        ed.verdict = clear ? `The simulator can clear this lane (${r.gaps} gaps, ${r.steps} steps, ${r.curves} curves, ${r.faces} faces, ${r.length.toFixed(0)} m).` : BLOCKED_LANE_GUIDANCE;
       }
       const v = lanePanel.querySelector('#verdict') as HTMLElement | null;
       if (v) { v.textContent = ed.verdict; v.className = ed.verdict.startsWith('The simulator can clear') ? 'says-when ok' : 'says-when bad'; }
