@@ -139,6 +139,17 @@ describe('The Making Of public files', () => {
       if (e.kind === 'stat') expect(e.stat?.n && e.stat?.caption, e.id).toBeTruthy();
       if (e.image) expect(existsSync(join(DIR, e.image)), e.image).toBe(true);
     }
+    type More = Ev & { more?: string; commit?: string };
+    for (const e of ev as More[]) {
+      if (e.model || e.plate || /simulator/i.test(e.title + e.text)) expect(e.more, `${e.id} needs a longer text`).toBeTruthy();
+      if (e.more) {
+        expect(e.more.length, e.id).toBeGreaterThanOrEqual(100);
+        expect(e.more.length, e.id).toBeLessThanOrEqual(480);
+        for (const [name, re] of DENY) expect(e.more.match(re), `${e.id} more: ${name}`).toBeNull();
+        expect(e.more, e.id).not.toMatch(/https?:/);
+      }
+      if (e.commit) expect(e.commit, e.id).toMatch(/^[0-9a-f]{7,40}$/);
+    }
     expect(ev.filter((e) => e.model).length).toBeGreaterThanOrEqual(10);
     expect(ev.some((e) => e.plate === 'Modal') && ev.some((e) => e.plate === 'Baseten')).toBe(true);
     expect(ev.filter((e) => /simulator/i.test(e.title + e.text)).length).toBeGreaterThanOrEqual(5);
@@ -149,6 +160,12 @@ describe('The Making Of public files', () => {
       expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
     }
     const page = read('timeline.html');
+    expect(page).toContain('github.com/gitgithan/conquercourse/commit/');
+    expect(page).toContain("role','button'");
+    expect(page).not.toMatch(/line-clamp|text-overflow/);
+    expect(page).toContain('/assets/entrance-walkers.js');
+    expect(page).toContain('timeline/training-front.jpg');
+    expect(existsSync(join(DIR, 'timeline/training-front.jpg'))).toBe(true);
     expect(page).toContain('Enter the course');
     expect(page).toContain('?course=/assets/demo/training.course.json');
     expect(page).toContain('/assets/music/dojo.ogg');

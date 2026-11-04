@@ -5,6 +5,7 @@
     "when": "10-26 20:57",
     "title": "First Meta model call: SAM 3.1",
     "text": "SAM 3.1 outlines obstacles in 10 park photos. The very first Meta model we ran.",
+    "more": "We needed to know if an AI model could find bars, walls and rails in plain park photos. We tried SAM 3.1 on ten photos and timed it. It worked well enough to keep going, and the notes record the cost and each photo's licence.",
     "kind": "text",
     "model": "SAM 3.1",
     "commit": "4702e68a"
@@ -15,6 +16,7 @@
     "when": "10-26 21:29",
     "title": "Kimodo job on Modal",
     "text": "A cloud GPU job (one L4) writes new moves from text when the mocap library has none.",
+    "more": "Some moves, like a special leap, are missing from free motion libraries. So we rented one cloud graphics chip on Modal and asked a model to write them from a text description. This gave us a way to fill gaps in the move list without filming anyone.",
     "kind": "text",
     "plate": "Modal",
     "commit": "25dc0a57"
@@ -25,6 +27,7 @@
     "when": "10-26 21:29",
     "title": "First moves, checked for realism",
     "text": "Starter move clips only play if they pass a plausibility check, so every motion on screen looks real.",
+    "more": "A move clip is only allowed into the game if it passes a realism check. Starter clips for running, leaping, landing and hanging all passed, and each one carries its credit. One move, a wall run-up, had no good clip yet, so we listed it as still open.",
     "kind": "text",
     "commit": "888779cd"
   },
@@ -34,6 +37,7 @@
     "when": "10-26 22:08",
     "title": "First video becomes motion",
     "text": "SAM 3D Body reads a person in video into 30 joints. The cloud GPU job runs on Modal.",
+    "more": "We wanted real people's moves in the game. This first pipeline cuts a video into frames and uses SAM 3D Body to estimate where 30 joints are in each one. The heavy work runs on a rented GPU at Modal, and a realism check follows.",
     "kind": "text",
     "model": "SAM 3D Body",
     "plate": "Modal",
@@ -45,6 +49,7 @@
     "when": "10-26 22:08",
     "title": "Video to motion pipeline",
     "text": "A filmed move becomes a 30-joint skeleton clip. Faces are masked before anything is measured.",
+    "more": "A video of a person is turned into a small skeleton clip, step by step. First faces are hidden, then the body is measured, then the result is cleaned up and tested. Only clips that pass the realism check can reach the game.",
     "kind": "diagram",
     "model": "SAM 3D Body",
     "plate": "Modal",
@@ -56,6 +61,7 @@
     "when": "10-26 22:08",
     "title": "Gate refuses bad video motion",
     "text": "Four stock clips went through. Two failed the physics check, so they never reached the game.",
+    "more": "We tried four stock videos through the pipeline. Two failed the realism check, so the game never saw them. That is the point of the check: a bad guess from the AI gets stopped before a player can see it.",
     "kind": "stat",
     "stat": {
       "n": "2 of 4",
@@ -71,6 +77,7 @@
     "when": "10-26 22:08",
     "title": "Faces masked before anything else",
     "text": "Before the computer reads a video of a person, it hides every face first.",
+    "more": "People in videos should not be recognised. So the first thing the pipeline does is cover every face. Only after that does any program measure the body. Privacy comes first, and everything else builds on it.",
     "kind": "diagram",
     "commit": "5c821d3d"
   },
@@ -80,6 +87,7 @@
     "when": "10-26 22:08",
     "title": "Video to motion on Modal",
     "text": "A Modal app masks faces, then SAM 3D Body reads a body from each frame.",
+    "more": "This is the cloud half of the video pipeline. A Modal app hides the faces, then SAM 3D Body works out the body shape in each frame. Running it in the cloud means the laptop does not need a strong graphics chip.",
     "kind": "diagram",
     "model": "SAM 3D Body",
     "plate": "Modal",
@@ -91,6 +99,7 @@
     "when": "10-27 10:36",
     "title": "Simulator ticks at 120 Hz",
     "text": "The game world moves in fixed 1/120 s steps. Each law is tested against its closed form.",
+    "more": "The game world moves in tiny, equal steps of one 120th of a second. That makes every run repeat exactly the same way. Each rule, like speeding up or flying through the air, has a test that compares it with the known answer.",
     "kind": "stat",
     "stat": {
       "n": "120 Hz",
@@ -104,6 +113,7 @@
     "when": "10-27 10:36",
     "title": "The simulator is born",
     "text": "The simulator is the game's physics engine. It runs on a fixed 1/120 s clock.",
+    "more": "The simulator is the physics engine that decides how the runner moves, lands and falls. It runs on a steady clock, so the same key presses always give the same result. Tests check running, braking and jumping against exact answers.",
     "kind": "text",
     "commit": "57f3f9ff"
   },
@@ -113,6 +123,7 @@
     "when": "10-27 11:56",
     "title": "The Dojo opens",
     "text": "The Dojo has experiments from the simulator: turn the knobs, guess, then run.",
+    "more": "The Dojo is a training room built on the simulator. You turn a knob, guess what will happen, and then run it to see. The idea is to learn physics by trying it out, not by reading a formula.",
     "kind": "picture",
     "commit": "a3286e5b",
     "image": "timeline/screen-dojo.jpg"
@@ -123,6 +134,7 @@
     "when": "10-27 13:43",
     "title": "First photo becomes a 3D object",
     "text": "SAM 3 cuts the object out of a photo. SAM 3D Objects lifts it into 3D, on Modal.",
+    "more": "We tried turning a photo of a real park object into a 3D shape. SAM 3 cuts the object out of the picture, and SAM 3D Objects builds a solid shape from it. Both run on Modal, and the result shows up at its real size.",
     "kind": "text",
     "model": "SAM 3 + SAM 3D Objects",
     "plate": "Modal",
@@ -134,6 +146,7 @@
     "when": "10-27 13:43",
     "title": "Photo becomes a 3D object",
     "text": "One park photo is cut out and lifted into a solid 3D shape. It lands in the editor at real size.",
+    "more": "One park photo goes in and a solid 3D object comes out. It can be dropped into the editor at real life size, so a real bar is as tall in the game as it is outside. This is how real places become course pieces.",
     "kind": "picture",
     "image": "timeline/monkey-bars-preview-then-lift-input.jpg",
     "model": "SAM 3D Objects",
@@ -146,6 +159,7 @@
     "when": "10-27 13:43",
     "title": "Photo masks use SAM 3",
     "text": "Photos get a privacy mask first. Then SAM 3 cuts out the object we want.",
+    "more": "Before we cut out an object, the photo gets a privacy mask. Then SAM 3 finds the outline of just the object we want. Cleaning the picture first keeps people out of everything that follows.",
     "kind": "diagram",
     "model": "SAM 3",
     "plate": "Modal",
@@ -157,6 +171,7 @@
     "when": "10-27 13:43",
     "title": "Photo to object on Modal",
     "text": "A photo is cut out by SAM 3 on an L4, then SAM 3D Objects lifts it to 3D on an L40S.",
+    "more": "This is how the photo becomes an object in two jobs. First SAM 3 cuts out the object on a small GPU. Then SAM 3D Objects lifts it into 3D on a bigger one, both on Modal. Splitting the jobs keeps each machine small.",
     "kind": "diagram",
     "model": "SAM 3 and SAM 3D Objects",
     "plate": "Modal",
@@ -168,6 +183,7 @@
     "when": "10-27 19:12",
     "title": "Pick a place on a map",
     "text": "Choose a spot on a real map. Its buildings become a course piece.",
+    "more": "You can now pick a spot on a real map and the buildings around it turn into a course piece. It lets anyone start from a place they know. The course then opens in the editor so you can adjust it.",
     "kind": "text",
     "commit": "f616a28f"
   },
@@ -177,6 +193,7 @@
     "when": "10-27 21:19",
     "title": "Trampoline cue flashed too early",
     "text": "The hint popped up before the rope was behind you. Now it waits until the rope is passed.",
+    "more": "A hint for the trampoline showed up before the player had passed the rope, which was confusing. Now it waits until the rope is behind you. A small script also lists every message and how long it stays on screen.",
     "kind": "text",
     "commit": "fc33afe1"
   },
@@ -186,6 +203,7 @@
     "when": "10-27 22:44",
     "title": "World Editor opens",
     "text": "Place pieces on a plan view, scale them to real size, turn and move them.",
+    "more": "The World Editor lets you place pieces on a top-down plan. You can resize them to real size, turn them, lift them, copy them and crop them. It also tries to find the best lane through your course and lets you play it.",
     "kind": "picture",
     "commit": "52f32076",
     "image": "timeline/screen-editor.jpg"
@@ -196,6 +214,7 @@
     "when": "10-27 23:27",
     "title": "Domes threw jumpers back",
     "text": "A jump from the rising side snapped to the platform edge. Fixed, with tests.",
+    "more": "On a dome, a jump from the rising side used to throw the runner back to the edge. The feet now stay on the curve when the slope is gentle, and a jump works as expected. New tests keep the bug from coming back.",
     "kind": "text",
     "commit": "bb2357a9"
   },
@@ -205,6 +224,7 @@
     "when": "10-27 23:50",
     "title": "Photo objects join the editor",
     "text": "Objects lifted from real photos drop in at real size. The best lane is measured to match.",
+    "more": "Objects built from real photos can now be placed in the editor at real size. The best path over them is measured from the same bar that you see on screen. What you see is now what the physics uses.",
     "kind": "text",
     "model": "SAM 3D Objects",
     "commit": "6ad62102"
@@ -215,6 +235,7 @@
     "when": "10-28 01:03",
     "title": "First Muse Spark Open helper",
     "text": "A course-design partner suggests pieces for your world. It runs on Baseten.",
+    "more": "A design partner is a helper that suggests obstacles for your course. It uses Muse Spark Open, an open model that runs on Baseten. Its answers are cleaned up and limited, so a suggestion can only make small, safe changes.",
     "kind": "text",
     "model": "Muse Spark Open",
     "plate": "Baseten",
@@ -226,6 +247,7 @@
     "when": "10-28 01:03",
     "title": "Design partner on Baseten",
     "text": "An open AI model suggests course ideas. The simulator still checks every suggestion.",
+    "more": "An open AI model proposes ideas for your course, and the simulator has the last word. Each suggestion is tried in the physics before it counts. The AI gives ideas, but the simulator decides if they work.",
     "kind": "text",
     "model": "Muse Spark Open",
     "plate": "Baseten",
@@ -237,6 +259,7 @@
     "when": "10-28 01:03",
     "title": "Muse Spark Open on Baseten",
     "text": "The course-design partner calls Muse Spark Open through Baseten. The key stays on the server.",
+    "more": "The helper asks Muse Spark Open, running on Baseten, for course ideas. Its private login lives only on the server, never in the page you see. That way the game can use a strong model without handing out its access.",
     "kind": "text",
     "model": "Muse Spark Open",
     "plate": "Baseten",
@@ -248,6 +271,7 @@
     "when": "10-28 09:38",
     "title": "World Slicer: first cut",
     "text": "The World Slicer cuts a real place at one height and shows the lane at that height.",
+    "more": "The World Slicer cuts a real place at one height, like slicing a loaf. A slider shows the ground lines and building floor plans at that height. It then shows which lane a runner could take there.",
     "kind": "picture",
     "commit": "ef77bc34",
     "image": "timeline/screen-slicer.jpg"
@@ -258,6 +282,7 @@
     "when": "10-28 13:33",
     "title": "Pose-conditioned Kimodo on Modal",
     "text": "Hand-set key poses go to Kimodo on Modal, and the gate checks what comes back.",
+    "more": "Instead of drawing every pose by hand, we now give the model a few key poses. Kimodo on Modal fills in the movement between them. The realism check then looks at what comes back before the game can use it.",
     "kind": "text",
     "plate": "Modal",
     "commit": "93e94509"
@@ -268,6 +293,7 @@
     "when": "10-28 13:44",
     "title": "Simulator proves a course",
     "text": "Shift+I runs one ideal run through every obstacle. If the simulator can clear it, the course is fair.",
+    "more": "Pressing Shift+I makes the simulator run one perfect attempt through every obstacle. If it can clear the course, we know the course is fair. We also added hazard floors, like water and lava, each with its own sound.",
     "kind": "text",
     "commit": "bbe79eae"
   },
@@ -277,6 +303,7 @@
     "when": "10-28 16:14",
     "title": "No teleport in the vault",
     "text": "The vault now moves smoothly every tick. 36 test cases watch for jumps.",
+    "more": "The vault used to jump the runner forward in one tick, like a teleport. It now moves smoothly all the way through. Thirty-six test cases watch every tick so a jump cannot sneak back in.",
     "kind": "stat",
     "stat": {
       "n": "36",
@@ -290,6 +317,7 @@
     "when": "10-28 20:02",
     "title": "40 editor buttons became 8",
     "text": "One top bar, one Add piece menu, one More menu. The editor stopped feeling crowded.",
+    "more": "The editor had around 40 buttons, which was too many to use. We rebuilt it with one top bar, one Add piece menu and one More menu. A quick search box also helps you find any command.",
     "kind": "stat",
     "stat": {
       "n": "8",
@@ -303,6 +331,7 @@
     "when": "10-28 20:34",
     "title": "Courses screen gets pictures",
     "text": "The Courses screen shows a picture card for every world.",
+    "more": "The Courses screen now shows a picture card for each world, with a title and a line about it. You pick a course by looking, not by reading a list. New courses can be added in one place and appear on the screen.",
     "kind": "picture",
     "commit": "59e61259",
     "image": "timeline/screen-course.jpg"
@@ -313,6 +342,7 @@
     "when": "10-28 22:21",
     "title": "Early roll presses ignored",
     "text": "Pressing X too soon used to count. Now only the last 0.15 s before landing does.",
+    "more": "Pressing X too early to roll used to count, which felt unfair. Now only the final 0.15 seconds before landing counts, so timing matters. Courses, hints and the ideal run all use the same rule.",
     "kind": "text",
     "commit": "a1c2d200"
   },
@@ -322,6 +352,7 @@
     "when": "10-28 22:40",
     "title": "Street photos only if people-free",
     "text": "Live street photos show only when the check finds nobody in them.",
+    "more": "The Slicer shows street photos of real places, so players can see the spot. We only show photos where a check found nobody in them. Each photo shows who took it and what licence it has.",
     "kind": "diagram",
     "commit": "1ecfd085"
   },
@@ -331,6 +362,7 @@
     "when": "10-29 02:44",
     "title": "Ghost replays the ideal run",
     "text": "A see-through runner repeats the best run on the same clock. A gap in words shows how far behind you are.",
+    "more": "A see-through runner now repeats the best run next to you on the same clock. You can race it. A line in words tells you how far ahead or behind you are, so you can see where time is lost.",
     "kind": "picture",
     "image": "timeline/ghost-vault-sheet.jpg",
     "commit": "5e13c736"
@@ -341,6 +373,7 @@
     "when": "10-29 03:32",
     "title": "Captured vault and climb ship",
     "text": "Two real filmed moves pass the gate and play in the game. Run, leap and hang come from motion-capture files.",
+    "more": "Two real filmed moves, a vault and a climb, passed the realism check and now play in the game. They come from motion-capture files shared under a CC BY licence. The rules were adjusted a little because real hands move more than we first thought.",
     "kind": "text",
     "model": "SAM 3D Body",
     "commit": "528d3e63"
@@ -351,6 +384,7 @@
     "when": "10-29 04:43",
     "title": "Unsafe photos are rejected",
     "text": "If hiding people fails, the photo is thrown out. Masked copies are never stored.",
+    "more": "Photos are masked to hide people before use. If the masking fails, the photo is simply thrown out. Nothing masked is stored in the project, so no face can end up in our files.",
     "kind": "stat",
     "stat": {
       "n": "65",
@@ -364,6 +398,7 @@
     "when": "10-29 05:24",
     "title": "Labs: the first Lab page",
     "text": "Labs let you try the ideas yourself. Lab 1 is Search, with the simulator as the test bed.",
+    "more": "Labs let you try an idea hands on. Lab 1 is about search: pick a method, set a budget and see which ones can find a way through a hard course. The game's own simulator is the test bed, and equations come last.",
     "kind": "picture",
     "commit": "11e97984",
     "image": "timeline/screen-labs.jpg"
@@ -374,6 +409,7 @@
     "when": "10-29 06:25",
     "title": "Muse Wonder reviews the simulator",
     "text": "It checked 21 claims about our physics. 13 were real, 2 were fixed.",
+    "more": "Muse Wonder read parts of our physics code and made 21 claims about problems. We checked each one with a test. Thirteen were real, so two were fixed straight away and the rest were written down to fix later.",
     "kind": "stat",
     "stat": {
       "n": "21",
@@ -388,6 +424,7 @@
     "when": "10-29 06:25",
     "title": "Muse Wonder reviews the simulator",
     "text": "It made 21 claims. 13 were real bugs, 7 false alarms, 1 unclear. Two fixed at once.",
+    "more": "An AI reviewer read our simulator and made 21 claims. Thirteen were real bugs, seven were false alarms and one was unclear. Fixing the real ones made the physics more trustworthy, and the false ones taught us how far to trust the tool.",
     "kind": "stat",
     "stat": {
       "n": "13",
@@ -402,6 +439,7 @@
     "when": "10-29 06:26",
     "title": "MusicGen writes the first music",
     "text": "Five original loops, one for each screen. Made from text prompts.",
+    "more": "The game has five music loops, one for each screen. We wrote short text prompts and MusicGen made the sound. The result is original music with no copying from songs.",
     "kind": "text",
     "model": "Meta MusicGen",
     "commit": "607368ed"
@@ -412,6 +450,7 @@
     "when": "10-29 06:26",
     "title": "Music loops from MusicGen",
     "text": "Five original loops, one per screen, were made by MusicGen on a Modal GPU.",
+    "more": "Each loop was made by Meta's MusicGen on a Modal GPU. We made 20 candidates and picked the best five. The sound files are kept outside the project, with checksums so we know which ones we used.",
     "kind": "text",
     "model": "Meta MusicGen",
     "plate": "Modal",
@@ -423,6 +462,7 @@
     "when": "10-29 13:44",
     "title": "Muse Spark Open checks uploads",
     "text": "Baseten answers ok, review or block for each uploaded photo. Errors count as review.",
+    "more": "When you upload a photo, Muse Spark Open on Baseten looks at it and answers ok, review or block. If anything goes wrong, the answer is review, so a human looks. In our tests it passed every safe photo and caught every unsafe test case.",
     "kind": "text",
     "model": "Muse Spark Open",
     "plate": "Baseten",
@@ -434,6 +474,7 @@
     "when": "10-29 18:46",
     "title": "Dojo gets a new look",
     "text": "Warm light theme, four steps and one graph. Press T to open the course picker.",
+    "more": "The Dojo looks brighter now, with a warm light theme and four clear steps. One graph shows what happened. Press T to open the course picker from anywhere.",
     "kind": "picture",
     "image": "timeline/cc-146-dojo-swing-round.png",
     "commit": "6d0378e2"
@@ -444,6 +485,7 @@
     "when": "10-29 21:05",
     "title": "Server replays your run",
     "text": "The simulator runs again on the server to check a run. Real clears are far under its time limit.",
+    "more": "When you finish a run, the simulator plays it again on the server to check it. Real clears use a tiny part of the time allowed. We measured this so honest runs are never cut off.",
     "kind": "text",
     "commit": "7b7364c5"
   },
@@ -453,6 +495,7 @@
     "when": "10-29 23:21",
     "title": "Course music loops smoothly",
     "text": "MusicGen music cut to 5 whole bars at 140 bpm. The tail fades into the start.",
+    "more": "The course music now loops without a click or a gap. We trimmed it to exactly 5 bars at 140 beats a minute and faded the end into the start. Your ears no longer notice where it begins again.",
     "kind": "stat",
     "stat": {
       "n": "8.57 s",
@@ -467,6 +510,7 @@
     "when": "10-29 23:39",
     "title": "Simulator trial counts fixed",
     "text": "The ideal-run search now counts the run-in to the bars, so the simulator tries the right plans.",
+    "more": "The search for the ideal run was counting its time wrongly because it ignored the run-up to the bars. Now it counts the run-in, so the simulator tries the right plans. The Training course can now be cleared by the search alone.",
     "kind": "text",
     "commit": "5349c33d"
   },
@@ -476,6 +520,7 @@
     "when": "10-30 03:22",
     "title": "Forks get an ideal run each",
     "text": "A course can split into two routes. The search proves a best run for both.",
+    "more": "Some courses split into two routes. The search now finds a best run for each route. That means both paths are proven possible, and neither one is a trap.",
     "kind": "text",
     "commit": "aac22c55"
   },
@@ -485,6 +530,7 @@
     "when": "10-30 03:30",
     "title": "Photo to 3D object, for everyone",
     "text": "Players can turn a photo into a piece online. With limits and a safety check.",
+    "more": "Players can now turn a photo into a 3D piece online. A safety check looks at the photo first. Then a Modal job builds the 3D shape and the editor places it, with a credit to the photo.",
     "kind": "text",
     "model": "SAM 3D Objects",
     "plate": "Modal",
@@ -496,6 +542,7 @@
     "when": "10-30 03:30",
     "title": "Player photos reach Modal",
     "text": "Submit and status routes send a photo to the Modal lift, with limits and a safety check first.",
+    "more": "When a player sends a photo, the page asks Modal to start the lift and then keeps checking how it is going. A safety check runs before any work starts. Progress and the finished shape come back through the same route.",
     "kind": "diagram",
     "model": "SAM 3D Objects",
     "plate": "Modal",
@@ -507,6 +554,7 @@
     "when": "10-30 04:11",
     "title": "Skip leak closed on lanes",
     "text": "A platform could be used without standing on its gate. Now it is solid only after that.",
+    "more": "A platform could be used without standing on the gate that unlocks it, so runners could skip a step. Now a platform only becomes solid after you stand on its gate. Tests and sweeps over many lanes confirmed the gap is closed.",
     "kind": "text",
     "commit": "dfa1498e"
   },
@@ -516,6 +564,7 @@
     "when": "10-30 12:36",
     "title": "Upload service crash loop fixed",
     "text": "A setting that sometimes existed made the live upload service crash again and again. It is now always set.",
+    "more": "The live photo upload service kept crashing and restarting. A setting that was sometimes there and sometimes not was the cause. We made sure it is always set, and the service stays up.",
     "kind": "text",
     "commit": "676ca9aa"
   },
@@ -525,6 +574,7 @@
     "when": "10-30 12:46",
     "title": "Live upload checked on preview",
     "text": "A real photo went through a real Modal lift and was placed with its credit.",
+    "more": "We tested the whole photo upload on the live preview site. A real photo went through a real Modal lift and landed in the editor with its photo credit. It showed that the full path works, not just the parts.",
     "kind": "text",
     "model": "SAM 3D Objects",
     "plate": "Modal",
@@ -536,6 +586,7 @@
     "when": "10-30 14:38",
     "title": "A robot checks for personal details",
     "text": "A test hunts for emails, home folders and addresses before anything is shared.",
+    "more": "We wrote a test that hunts through the project for things that should stay private, like email addresses and home folder names. It runs automatically, so a slip is caught before anything is shared. Files that held a few such things were cleaned.",
     "kind": "text",
     "commit": "65f02eab"
   },
@@ -545,6 +596,7 @@
     "when": "10-30 17:01",
     "title": "Privacy check also reads pictures",
     "text": "It now looks inside pictures for GPS spots and serial numbers, and in commit messages.",
+    "more": "The privacy check got stronger. It now reads inside pictures for hidden GPS spots and serial numbers. It also checks commit messages. A test plants fake cases to prove each check really fires.",
     "kind": "text",
     "commit": "612f6add"
   },
@@ -554,6 +606,7 @@
     "when": "10-30 19:47",
     "title": "Leaderboard of verified runs",
     "text": "Players get a tag and a personal best. Only checked runs are listed.",
+    "more": "The leaderboard lists runs that the server has checked. Each player gets a tag and a personal best. Because only checked runs count, the board shows real clears.",
     "kind": "picture",
     "image": "timeline/screen-leaderboard.jpg",
     "commit": "21eb1473"
@@ -564,6 +617,7 @@
     "when": "10-30 19:59",
     "title": "Players keyed by a one-way code",
     "text": "The server keeps a scrambled code, not your address.",
+    "more": "The server stores a scrambled code instead of anything that could point to a person. That keeps the leaderboard useful while holding as little about players as possible.",
     "kind": "diagram",
     "commit": "8feafc3d"
   },
@@ -573,6 +627,7 @@
     "when": "10-30 22:17",
     "title": "World stats on the picker",
     "text": "The course picker shows players and runs in the last 24 hours.",
+    "more": "The course picker now shows how many players and runs there have been in the last 24 hours. It makes the game feel alive before you start. The numbers are simple counts.",
     "kind": "picture",
     "image": "timeline/cc-108-world-strip.png",
     "commit": "8ca98b3c"
@@ -583,6 +638,7 @@
     "when": "10-31 07:15",
     "title": "Rope: hold E to stay on",
     "text": "Catching and releasing a rope now follows the key. The ideal run and all golden traces were rebuilt.",
+    "more": "The rope now follows your finger. Hold E to catch it and stay on, and let go of E to release. We rebuilt the ideal run and all the saved test traces to match, so everything agrees with the new feel.",
     "kind": "text",
     "commit": "b92b24ee"
   },
@@ -592,6 +648,7 @@
     "when": "10-31 12:59",
     "title": "On the board only if you click",
     "text": "A run is public only when you press Publish. Unpublished runs keep no name.",
+    "more": "Your run only appears on the public board if you click Publish. If you do not publish, no name is kept. You can scroll the top 100, view a run, or race its ghost.",
     "kind": "picture",
     "image": "timeline/cc-108-name-box.png",
     "commit": "b5326a5f"
@@ -602,6 +659,7 @@
     "when": "10-31 13:45",
     "title": "Community is one flow",
     "text": "The Community screen gets tabs, then one stepper: Photo, Mark, Segment, Choose, Make.",
+    "more": "The Community area became a single path with tabs. Making a piece goes in five steps: Photo, Mark, Segment, Choose, Make. The editor only shares with Community when photos have been contributed.",
     "kind": "picture",
     "commit": "73e4d8fa",
     "image": "timeline/screen-community.jpg"
@@ -612,6 +670,7 @@
     "when": "10-31 14:54",
     "title": "Home screen: the welcome park",
     "text": "The Home screen opens on a 3D park, two Rookies and four doors into the game.",
+    "more": "The Home screen is a welcome park in 3D with two Rookies and four doors into the game. Hover on a door to see what it does, or click to go straight in. The page appears first and the 3D scene loads right after.",
     "kind": "picture",
     "commit": "2df783d4",
     "image": "timeline/screen-home.jpg"
@@ -622,6 +681,7 @@
     "when": "10-31 17:15",
     "title": "First Muse Image character",
     "text": "Muse Image draws a character that becomes playable. Eight were tried.",
+    "more": "Muse Image draws a character from a text idea and we turn it into a playable one. We tried eight, and all eight could be rigged and move. The notes say exactly what Muse Image did, so credit is clear.",
     "kind": "text",
     "model": "Muse Image",
     "commit": "a93961a2"
@@ -632,6 +692,7 @@
     "when": "10-31 17:57",
     "title": "Modal jobs report real stages",
     "text": "The progress bar follows the real GPU stages. Limit refusals say how long to wait.",
+    "more": "Cloud jobs on Modal now report their real steps: cutting, shape, colour and done. The progress bar follows those steps instead of guessing. If a request has to wait, the page says when to try again in your own time zone.",
     "kind": "text",
     "plate": "Modal",
     "commit": "8659a867"
@@ -642,6 +703,7 @@
     "when": "10-31 18:13",
     "title": "Leaderboard opens",
     "text": "One shared list, top 100, Chase Ghost on every row. Shown on the four listed courses.",
+    "more": "The leaderboard opens on four courses. It is one shared list with the top 100, and every row opens to stats. A Chase Ghost button lets you race any run on the list.",
     "kind": "picture",
     "image": "timeline/cc-108-board-top100.png",
     "commit": "fc7bb7a3"
@@ -652,6 +714,7 @@
     "when": "10-31 22:15",
     "title": "Fast cart no longer flies off",
     "text": "Tall coasters now end in a dead flat run-out, so there is no bump to fly off.",
+    "more": "On very tall coasters, a fast cart could hit a bump and fly off the track. Now the last stretch is dead flat, so there is nothing to launch it. The cart rolls out smoothly.",
     "kind": "picture",
     "image": "timeline/cc-244-runout-before-after.png",
     "commit": "421ad1d5"
@@ -662,6 +725,7 @@
     "when": "10-31 22:58",
     "title": "Person-for-scale was off its ring",
     "text": "A clone kept the old bones, so the figure sat away from its ring. Redrawn right.",
+    "more": "The person-for-scale figure appeared away from its ring because a copy shared the original's bones. It is now copied properly and stands on its own piece. The marker is now a tall see-through cone that is easy to spot.",
     "kind": "picture",
     "image": "timeline/cc-96-person-before-after.png",
     "commit": "a435d6c5"
@@ -672,6 +736,7 @@
     "when": "10-31 23:47",
     "title": "Every AI call written down",
     "text": "One page lists the prompt, input, output and model of each call, plus Baseten cold-start timing.",
+    "more": "One page lists every AI call the game makes. For each, it shows the prompt, the input, the answer and which model gave it. It also shows how long Baseten took to wake up, so nothing is hidden.",
     "kind": "stat",
     "stat": {
       "n": "1",
@@ -687,6 +752,7 @@
     "when": "10-31 23:58",
     "title": "Voice badges say who talks",
     "text": "Every helper wears a badge: Simulator, Course Agent, Cutter and more. You always know who is speaking.",
+    "more": "Each helper now wears a badge that names who is speaking, like Simulator, Course Agent, Cutter or Ghost. You always know if a message comes from physics or from an AI helper.",
     "kind": "text",
     "commit": "c8f8df89"
   },
@@ -696,6 +762,7 @@
     "when": "11-01 00:02",
     "title": "A character learns the course",
     "text": "Lab 12 lets a game character learn the trap course. It uses the same simulator as the game.",
+    "more": "In Lab 12 a game character learns to beat the trap course by trial and error. It uses the same simulator as the game and tries run, jump and wait. You choose the points, how fast it learns and how much it explores.",
     "kind": "picture",
     "image": "timeline/lab-rl-alive-hack.png",
     "commit": "8577fa13"
@@ -706,6 +773,7 @@
     "when": "11-01 03:01",
     "title": "All 12 Labs get one bar",
     "text": "Every Lab by number and name, with Previous and Next. Labs are on by default.",
+    "more": "Every Lab page now has one bar with all 12 Labs by number and name. The current one is marked, and there are Previous and Next buttons. Labs are on by default.",
     "kind": "text",
     "commit": "3babad91"
   },
@@ -715,6 +783,7 @@
     "when": "11-01 05:54",
     "title": "Mapillary blur plus a size rule",
     "text": "We trust Mapillary's face blur and also drop photos with a big close-up person.",
+    "more": "Street photos from Mapillary already have faces and number plates blurred. We trust that blur and also leave out any photo with a big close-up person. Small, far-away people can stay in the picture.",
     "kind": "stat",
     "stat": {
       "n": "0.2",
@@ -728,6 +797,7 @@
     "when": "11-01 16:30",
     "title": "Films recorded on Modal",
     "text": "One spec file per shot, recorded in real time on Modal machines.",
+    "more": "Each film shot is described in one small file, and a Modal machine records it in real time. That makes every shot repeatable. If something changes in the game, we re-run the same file to get a new take.",
     "kind": "text",
     "plate": "Modal",
     "commit": "69c62b0d"
@@ -738,6 +808,7 @@
     "when": "11-01 18:55",
     "title": "Character maker names its models",
     "text": "The badge lists Muse Image, SAM 3.1 and SAM 3D Objects. Players see what built their character.",
+    "more": "The character maker badge now lists the three models behind a character: Muse Image, SAM 3.1 and SAM 3D Objects. Players can see exactly what built their character.",
     "kind": "text",
     "model": "Muse Image",
     "commit": "977f155b"
@@ -748,6 +819,7 @@
     "when": "11-01 20:07",
     "title": "Slicer and Editor now agree",
     "text": "Every lane with a path matched in both tools, 844 of 844. Two stale tests fixed.",
+    "more": "The Slicer and the Editor both judge whether a lane works. We checked all 844 lanes that have a path and they agreed every time. Over 47 places and 1,176 cases, no verdict disagreed and no replay failed.",
     "kind": "stat",
     "stat": {
       "n": "844/844",
@@ -761,6 +833,7 @@
     "when": "11-02 00:19",
     "title": "Shared links still show welcome",
     "text": "A link with a ref or analytics flag still opens the welcome screen.",
+    "more": "A shared link with an extra tag on the end used to skip the welcome screen. Now it still opens the welcome screen. People who click a link from somewhere else see the Home screen first.",
     "kind": "text",
     "commit": "dc076897"
   },
@@ -770,6 +843,7 @@
     "when": "11-02 13:43",
     "title": "One shared limit and access check",
     "text": "Server routes use one request limit and one access check, so no route is left out.",
+    "more": "Two server routes had their own copies of the same rules for how often a request may come. We moved them into one shared place. Now no route is left out, and nothing changes for players.",
     "kind": "text",
     "commit": "8962ded5"
   },
@@ -779,6 +853,7 @@
     "when": "11-02 13:54",
     "title": "Stale test expectations updated",
     "text": "Tests still expected old answers after planned changes. Updated and golden hashes regenerated.",
+    "more": "Some tests still expected answers from before we made planned changes. We updated them and made new reference fingerprints. Now the tests match what the game does today.",
     "kind": "text",
     "commit": "7499fef0"
   },
@@ -788,6 +863,7 @@
     "when": "11-02 22:23",
     "title": "Whole world fingerprinted every tick",
     "text": "Every shipped course is checked tick by tick. A safety net for tidying the code.",
+    "more": "A new test takes a fingerprint of the entire game world after every tick on every shipped course. If tidying the code changes the physics even a tiny bit, the test fails. That makes it safe to clean up code.",
     "kind": "text",
     "commit": "731ccb45"
   },
@@ -797,6 +873,7 @@
     "when": "11-02 22:23",
     "title": "Whole world fingerprinted",
     "text": "Every tick of every shipped course is hashed. Refactors cannot silently change the physics.",
+    "more": "Every tick on every shipped course is hashed. Any change to the physics shows up as a changed fingerprint. The safety net covers falls and bad landings too.",
     "kind": "text",
     "commit": "731ccb45"
   },
@@ -806,6 +883,7 @@
     "when": "11-02 22:23",
     "title": "Every tick fingerprinted",
     "text": "A test hashes the whole world after every tick on every shipped course, as a safety net.",
+    "more": "We play each course's best line and three random button-mashing runs, then hash the world after each tick. The runs end in clears, hurts and splashes. Changing top speed or grip makes the test fail, as it should.",
     "kind": "text",
     "commit": "731ccb45"
   },
@@ -815,6 +893,7 @@
     "when": "11-03 01:23",
     "title": "MIT code, licence for each asset",
     "text": "The code is MIT. Every picture, sound and model has its own licence.",
+    "more": "The code is open under the MIT licence, so anyone may read and reuse it. Every picture, sound and model keeps its own licence, listed in one file. That way people can see exactly what they may reuse.",
     "kind": "text",
     "commit": "3bebc1cf"
   },
@@ -824,6 +903,7 @@
     "when": "11-03 02:32",
     "title": "The Making Of opens",
     "text": "A public section with the site map and the course map, both downloadable.",
+    "more": "The Making Of is a public section that shows how the project was built. It includes a site map and a course map, and both can be downloaded. Private details are removed before anything is posted.",
     "kind": "picture",
     "commit": "55829a1c",
     "image": "timeline/screen-making-of.jpg"
@@ -834,6 +914,7 @@
     "when": "11-03 03:03",
     "title": "Fix it worker path was wrong",
     "text": "After the editor split, a path pointed one folder too high. A new test checks every such path.",
+    "more": "After we split the editor into parts, one helper pointed to a wrong folder, so the Fix it tool did not start. We fixed the path. A new test now checks that every such path points to a real file.",
     "kind": "text",
     "commit": "b234810e"
   },
@@ -843,6 +924,7 @@
     "when": "11-03 13:20",
     "title": "SAM 3 mask back on an L4",
     "text": "The mask step runs on an L4 and scales down after 60 s to save GPU time.",
+    "more": "The mask step for photos goes back to a small L4 GPU on Modal. It scales down after 60 seconds so we do not pay for idle time. We tested it from start to finish with a park photo, and it made a 327 KB 3D shape.",
     "kind": "text",
     "model": "SAM 3",
     "plate": "Modal",
@@ -854,6 +936,7 @@
     "when": "11-03 13:45",
     "title": "Meet the crew",
     "text": "Ten animated character cards with names. A Make a character button sits beside them.",
+    "more": "The Meet the crew screen shows ten animated characters with names. Beside them is a Make a character button. It is a friendly way to see who lives in the game and make your own.",
     "kind": "picture",
     "image": "timeline/cc-243-crew-cards-1280.png",
     "model": "Muse Image",
@@ -865,6 +948,7 @@
     "when": "11-03 16:59",
     "title": "Same result on every machine",
     "text": "Node 22, Node 24 and workerd agree on every outcome. A test of the simulator.",
+    "more": "We ran the same test on Node 22, Node 24 and workerd, which is the engine used online. The results matched. Small maths differences between engines did not change a single outcome.",
     "kind": "stat",
     "stat": {
       "n": "7,525",
@@ -878,6 +962,7 @@
     "when": "11-03 16:59",
     "title": "Simulator: 7,525 runs agree",
     "text": "Different machines gave identical outcomes in 7,525 simulator runs.",
+    "more": "Different computers gave identical outcomes in 7,525 simulator runs. That matters because a run you do on your laptop has to give the same result on the server. The test also checks it in the engine used online.",
     "kind": "stat",
     "stat": {
       "n": "7,525",
@@ -891,6 +976,7 @@
     "when": "11-03 17:40",
     "title": "Ideal run takes the bars",
     "text": "The search learned the first-rung hang, kip and release. It now clears monkey-bar courses.",
+    "more": "The ideal-run search learned to hang from the first rung, kip and release. Before, the monkey bars were a gap in what it could solve. Now it clears the bars in our demo courses.",
     "kind": "picture",
     "image": "timeline/lab-search.png",
     "commit": "7884985d"
@@ -901,6 +987,7 @@
     "when": "11-03 18:22",
     "title": "SAM 3 does the privacy masking",
     "text": "The spec now says the privacy mask is SAM 3, running on a small cloud GPU.",
+    "more": "The plan says the privacy mask is made by SAM 3 on a small cloud GPU. The notes were updated to match what the code does. Keeping the plan and the code in agreement stops confusion later.",
     "kind": "diagram",
     "model": "SAM 3",
     "plate": "Modal",
@@ -912,6 +999,7 @@
     "when": "11-03 18:22",
     "title": "Safety check results told honestly",
     "text": "The safety check flagged 37 of 38 bad cases. Child safety is listed as untested.",
+    "more": "Our safety check flagged 37 of 38 cases that should be flagged. Child safety was not tested, and the docs say so openly. Being honest about gaps matters as much as showing the wins.",
     "kind": "stat",
     "image": "timeline/cc-120-block-message.png",
     "stat": {
@@ -926,6 +1014,7 @@
     "when": "11-03 19:34",
     "title": "Pipelines table names Modal",
     "text": "The mask runs on an L4 and the 3D lift on an L40S.",
+    "more": "A summary table now says plainly where each model runs on Modal. The mask runs on an L4 and the 3D lift on an L40S. It helps people see what hardware each job needs.",
     "kind": "text",
     "model": "SAM 3 and SAM 3D Objects",
     "plate": "Modal",
@@ -937,6 +1026,7 @@
     "when": "11-03 22:38",
     "title": "Twelve real parkour parks, ready",
     "text": "Pick a real park by region and country. Each one is tied to a mapped area.",
+    "more": "There is now a group of twelve real parkour parks. You can pick one by region and country, and each is tied to a mapped area. Very small parks are flagged rather than hidden.",
     "kind": "stat",
     "stat": {
       "n": "12",
@@ -950,6 +1040,7 @@
     "when": "11-04 02:21",
     "title": "Monkey bars from a CC0 lift",
     "text": "A real photo gives the skin; measured rungs give the physics. A role-first clean-up measures only what is needed.",
+    "more": "A real photo gives the monkey bars their look. The physics comes from rungs we measured, not from the AI shape. The clean-up measures only what the physics needs, which keeps it honest and light.",
     "kind": "picture",
     "image": "timeline/monkey-bars-preview-then-lift-input.jpg",
     "model": "SAM 3D Objects",
@@ -961,6 +1052,7 @@
     "when": "11-04 09:26",
     "title": "Person-checked street photos live",
     "text": "Street photos show live with credit and licence. We never copy them into the game.",
+    "more": "In the Slicer, dots and little cones now show where person-checked street photos were taken and where they face. A click opens the photo live with its credit and licence. We never copy these photos into the game.",
     "kind": "diagram",
     "commit": "7f9c7c67"
   },
@@ -970,6 +1062,7 @@
     "when": "11-04 15:59",
     "title": "Lab 16: the system design finale",
     "text": "Drag blocks into a flow and watch it work or fail. The last Lab.",
+    "more": "Lab 16 is the last Lab. You drag blocks into a flow, like building a system, and watch it work or fail. A rule checker judges it, meters show the load, and at the end you compare it with the real design.",
     "kind": "text",
     "commit": "eaf80b3f"
   },
@@ -979,6 +1072,7 @@
     "when": "11-04 16:09",
     "title": "Labs map no longer jumps",
     "text": "The reason panel has a fixed height, so hovering never moves the map.",
+    "more": "On the Labs map, hovering over a choice used to change the size of the reason panel, so the whole map jumped. The panel now has a fixed height. The map stays still when the mouse moves, which makes it easier to read.",
     "kind": "text",
     "commit": "6032860e"
   },
@@ -988,6 +1082,7 @@
     "when": "11-04 16:20",
     "title": "Lab 19: determinism",
     "text": "A Lab shows why the same inputs give the same run. It joined the 22 Labs.",
+    "more": "A new Lab explains why the same inputs always give the same run. It lets you see the idea of determinism with the real simulator. It joined the 22 Labs.",
     "kind": "picture",
     "image": "timeline/lab-determinism.png",
     "commit": "3a94434d"
@@ -998,6 +1093,7 @@
     "when": "11-04 22:17",
     "title": "Code map snapshot refreshed",
     "text": "383 communities can be opened one by one, and the README links the map.",
+    "more": "The code map was refreshed to the latest version. You can now open 383 groups one at a time to see what is inside. The README links to the map, so anyone can explore it.",
     "kind": "picture",
     "image": "timeline/drilldown.png",
     "stat": {
@@ -1012,6 +1108,7 @@
     "when": "11-04 22:53",
     "title": "Code map you can read",
     "text": "Edges are dimmer and keep their width while you zoom. Labels stay easy to read.",
+    "more": "On the code map, the lines between parts are dimmer and keep the same thickness as you zoom. The labels stay readable when you zoom in. It is easier to find your way around.",
     "kind": "picture",
     "image": "timeline/drilldown.png",
     "commit": "48e6a6a8"
