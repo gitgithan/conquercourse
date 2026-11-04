@@ -478,7 +478,23 @@
       "golden_search": "passed",
       "stored_physics_traces": "passed",
       "verified_code_commit": "f634bf2a",
-      "corrected_doc_checks_passed": 24
+      "corrected_doc_checks_passed": 24,
+      "final_integration": {
+        "source_commit": "c1fcb80bd25dbd6d33e8d9e2e47eb72aec3352ce",
+        "typecheck": "passed",
+        "production_build": "passed",
+        "focused_tests_passed": 51,
+        "onboarding_flag_tests_passed": 14,
+        "browser_sequence": "passed",
+        "browser_errors": [],
+        "formatting_only_correction": "Added the missing final newline to a newly landed experiment key log."
+      }
+    },
+    "integration_smoke_switch_ms": {
+      "training": 1123,
+      "montmartre": 4813,
+      "training-repeat": 4595,
+      "retry": 7536
     }
   }
 }

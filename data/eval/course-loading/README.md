@@ -165,3 +165,7 @@ Explicitly losing the context is also not a complete fix; it can simply move the
 - Regenerated the site-map, including the new course-loading UX; all **24 document/registry checks passed** on rerun.
 - The real Vite and optimized-build browser sequences both passed with no page errors.
 - All golden search comparisons and stored per-tick physics traces passed.
+
+- After integrating the new gallery/tour card from main, TypeScript, the production build, 51 focused checks, 14 onboarding-flag checks and the complete browser sequence passed.
+- The integration smoke measured 1.12 s, 4.81 s and 4.60 s for the same three switches; this illustrates variation and is kept separate from the original before/after table.
+- Document-level landing counters now run once per document; each new course session still emits its own course-start event.
