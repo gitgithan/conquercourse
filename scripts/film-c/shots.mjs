@@ -81,7 +81,7 @@ export const shots = {
       const pg = r.page;
       await pg.waitForSelector('#map canvas.maplibregl-canvas', { timeout: 120000 });
       await pg.waitForFunction(() => document.documentElement.dataset.mapready === 'true', null, { timeout: 120000 }).catch(() => {});
-      await pg.waitForSelector('#ready .card', { timeout: 60000 });
+      await pg.click('#ready-gallery-btn'); await pg.waitForSelector('#ready-gallery button.card', { timeout: 60000 });
       await r.hold(0.3);
       r.caption('Slice a real place', 0.2, 4.6);
       await r.click('button[data-slug="montmartre-paris"]');

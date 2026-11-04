@@ -1,7 +1,7 @@
 # ConquerCourse: product and build spec (v0.1, 2026-10-27)
 
 *The source of truth for the hackathon build.*
-*Agents build from this; anything it doesn't say is decided in an ADR (`docs/adr/`) and noted here.*
+*Agents build from this; anything it doesn't say is decided in `docs/lessons.md` or an issue and noted here.*
 *Format rule: bullets, one idea each, every sentence starting on its own line.*
 
 ## 1. In one breath
@@ -77,7 +77,7 @@
   - Rope: pendulum about the anchor with the grip point where the hands caught it (rope 9 m, caught about 5.3 m down at the default); period matches 2π√(L/g) for small swings; catch only when the hands are within 0.35 m of the rope (0.5 m at its end).
   - Trampoline: linear spring with damping; rebound height matches energy return.
   - Landing: squat time spreads the stop (impulse); a hard landing past a threshold is a stumble.
-- **One clock:** game time comes only from the simulator's tick count; recording, replay, ghosts and motion use it (lesson ADR from the practice project).
+- **One clock:** game time comes only from the simulator's tick count; recording, replay, ghosts and motion use it (see `docs/lessons.md`).
 - **Ideal runs:** a search finds each obstacle's ideal input timing and its clearing window in milliseconds, which sets difficulty and the replay's "line that would have made it".
 
 ## 5. Motion (how the body looks)

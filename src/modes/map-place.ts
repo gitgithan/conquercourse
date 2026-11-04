@@ -50,7 +50,7 @@ export function installPlaces(ctx: PlaceCtx) {
   const { map, side } = ctx;
   const style = document.createElement('style');
   style.textContent = `
-    .mp .ready summary{cursor:pointer;font-size:13px;color:#2d3a34;font-weight:600}.mp .ready-list{display:grid;gap:3px;margin-top:4px}.mp .ready button{text-align:left;font-size:13px;padding:3px 8px}.mp .ready small{color:#58635d}
+
     .mp .gal{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;max-height:340px;overflow:auto}.mp .gal button.card{display:grid;gap:2px;padding:0;overflow:hidden;border:2px solid #b9c2bb;border-radius:8px;background:#fff;text-align:left;cursor:pointer}.mp .gal button.card[aria-pressed=true]{border-color:#2f7d5b;box-shadow:0 0 0 2px #bfe3cf}
     .mp .gal .ph{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#e8eee9}.mp .gal .nm{font-size:13px;font-weight:700;padding:0 6px;line-height:1.2}.mp .gal .ct{font-size:12px;color:#58635d;padding:0 6px}.mp .gal .bd{display:flex;gap:4px;align-items:center;padding:0 6px 4px;font-size:11px;color:#58635d}.mp .gal .rd{background:#2f7d5b;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .sp{background:#2f74c0;color:#fff;border-radius:8px;padding:0 6px}.mp .gal .gh{grid-column:1/-1;font-size:15px;font-weight:800;color:#17201d;margin:8px 0 2px;padding:5px 8px;border-left:5px solid #2f7d5b;background:#e3efe8;border-radius:6px}.mp .gal .gh:first-child{border-top:0;margin-top:0}.mp .gal .rd.no{background:#b5651d}.mp .gal .cr{font-size:10px;color:#6d7872;padding:0 6px 4px}
     .mp .steps{border:1px solid #b9c2bb;border-radius:8px;background:#fff;padding:6px 8px;display:grid;gap:3px;font-size:13px}.mp .steps ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}
@@ -62,7 +62,6 @@ export function installPlaces(ctx: PlaceCtx) {
   const dset = (k: string, v: string | number) => { document.documentElement.dataset[k] = String(v); };
 
   // ---- the pieces of the side panel
-  const readyEl = document.createElement('details'); readyEl.className = 'ready'; readyEl.id = 'ready';
   const stepsEl = document.createElement('div'); stepsEl.className = 'steps'; stepsEl.id = 'steps'; stepsEl.hidden = true;
   stepsEl.innerHTML = `<ol>${STEPS.map(([id, text]) => `<li data-id="${id}" data-s="todo"><span class="ic">·</span><span class="tx">${text}</span><span class="tm"></span></li>`).join('')}</ol><button type="button" id="cancelbuild">Cancel</button>`;
   const errEl = document.createElement('div'); errEl.className = 'offer'; errEl.id = 'offer'; errEl.hidden = true;
@@ -79,19 +78,12 @@ export function installPlaces(ctx: PlaceCtx) {
     if (!index.length) return;
     const qs = pageQuery(), strict = ctx.strict === true;
     const showAll = qs.get('places') === 'all' && (!strict || qs.get('debug') === 'places'), shown = shownReady(index, showAll, strict); // CC-211: the no-path cards need ?places=all&debug=places
-    const gallery = pageQuery().get('slice2') !== 'old', streetSet = await loadStreetPlaces(pageQuery());
+    const streetSet = await loadStreetPlaces(pageQuery());
     let thumbs: Record<string, { author: string; licence: string; source: string; shows?: string }> = {};
-    if (gallery) { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
+    { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
     const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
-    const head = document.createElement('summary'); head.textContent = `Ready places (${shown.length}, they load at once)`;
-    const list = document.createElement('div'); list.className = gallery ? 'ready-list gal' : 'ready-list';
     const card = (p: ReadyIndexEntry) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.slug = p.slug;
-      if (!gallery) {
-        b.innerHTML = `${p.name} <small>${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}${showAll && p.listed === false ? ', no photos or no lane' : ''}</small>`;
-        b.onclick = () => pick(p);
-        return b;
-      }
       const cut = p.name.lastIndexOf(','), nm = cut > 0 ? p.name.slice(0, cut) : p.name, city = cut > 0 ? p.name.slice(cut + 1).trim() : '';
       const th = thumbs[p.slug], img = document.createElement('img');
       img.className = 'ph'; img.loading = 'lazy'; img.alt = ''; img.src = th ? `/assets/places/thumbs/${p.slug}.jpg` : `/assets/places/tiles/${p.slug}.svg`; img.dataset.kind = th ? 'photo' : 'tile';
@@ -101,14 +93,12 @@ export function installPlaces(ctx: PlaceCtx) {
       b.append(img);
       b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd${ready ? '' : ' no'}">${ready ? 'ready' : p.kind === 'parkour' ? 'no lane found yet' : 'no photos or no lane'}</span>${p.kind === 'parkour' && p.visible === false ? '<span class="sp" title="The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom">small on the map</span>' : ''}${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">${p.kind === 'parkour' ? 'Photo of the area nearby' : 'Photo'}: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
       (b.querySelector('.nm') as HTMLElement).textContent = nm; (b.querySelector('.ct') as HTMLElement).textContent = p.kind === 'parkour' ? [city, p.country].filter(Boolean).join(', ') : city;
-      b.onclick = () => { (b.closest('.gal') ?? list).querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
+      b.onclick = () => { (b.closest('.gal') as HTMLElement).querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
       return b;
     };
     // CC-133: with parkour parks in the list the cards sit under headings (street places, then one heading per region); with none it is the plain grid as before
     const groups = groupShown(shown);
-    if (!gallery) list.replaceChildren(...groups.flatMap((g) => [...(g.title && gallery ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
-    if (!gallery) { readyEl.replaceChildren(head, list); (side.querySelector('#hits') as HTMLElement).after(readyEl); } // the new screen has no side list: the full-screen gallery is the only list
-    if (gallery && !document.getElementById('ready-gallery-btn')) { // owner request 2026-11-04: the ready places as a full-screen gallery over the map, not only a small side list
+    if (!document.getElementById('ready-gallery-btn')) { // owner request 2026-11-04: the ready places as a full-screen gallery over the map, not only a small side list
       const big = Object.assign(document.createElement('button'), { type: 'button', id: 'ready-gallery-btn', textContent: `Browse ${shown.length} ready places (each with a 3D look)` });
       big.style.cssText = 'display:block;width:100%;margin:6px 0;padding:9px 12px;font:700 14px system-ui,sans-serif;color:#fff;background:#2f7d5b;border:0;border-radius:10px;cursor:pointer';
       big.onclick = () => openReadyGallery(groups, card, shown.length);
