@@ -19,7 +19,7 @@ export function createMoves(env: MovesEnv) {
   const movesBtn = el('button', planWrap, { text: 'Moves', id: 'movesbtn', title: 'Which moves this world has, what each needs, and what your pieces could be' }); // a chip on the picture, so the top bar does not grow a line
   movesBtn.style.cssText = 'position:absolute;left:10px;top:10px;z-index:6';
   movesBtn.setAttribute('aria-pressed', 'false');
-  movesBtn.onclick = () => { const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
+  movesBtn.onclick = () => { document.documentElement.dataset.dock = ''; const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
   const laneNow = () => ({ angle: ed.angle, offset: ed.offset, level: ed.level });
   function roleProposal(sg: RoleSuggestion): Proposal {
     const next = applySuggestion(ed.pieces, sg);
@@ -39,7 +39,7 @@ export function createMoves(env: MovesEnv) {
     movesBox.replaceChildren();
     const hd = el('div', movesBox, { className: 'row' });
     el('strong', hd, { text: 'Moves in this world' });
-    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
+    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { document.documentElement.dataset.dock = ''; movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
     const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!ed.trebuchetKg });
     document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
     for (const m of status) {
@@ -70,7 +70,9 @@ export function createMoves(env: MovesEnv) {
       for (const sg of ed.movesList.items) {
         const row = el('div', movesBox, { className: 'sg' });
         el('div', row, { text: sg.words });
-        el('button', row, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; showProposal(roleProposal(sg)); };
+        const btns = el('div', row, { className: 'row' });
+        // Show it keeps this list open, so the next suggestion is one click away; Apply is on the preview card once the simulator has checked it
+        el('button', btns, { text: 'Show it', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; document.documentElement.dataset.dock = 'both'; showProposal(roleProposal(sg)); };
       }
     }
   }

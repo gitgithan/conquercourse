@@ -121,7 +121,7 @@ export function createHelper(env: HelperEnv) {
   helper.classList.toggle('closed', !wasOpen); syncPartner();
   new MutationObserver(syncPartner).observe(helper, { attributes: true, attributeFilter: ['class'] });
   helperBtn.onclick = partnerTab.onclick = () => { helper.classList.toggle('closed'); rememberPartner(); };
-  closeHelper.onclick = () => { helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); rememberPartner(); };
+  closeHelper.onclick = () => { document.documentElement.dataset.dock = ''; helper.classList.add('closed'); helperBtn.setAttribute('aria-pressed', 'false'); rememberPartner(); };
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !helper.classList.contains('closed') && helper.contains(document.activeElement)) { helper.classList.add('closed'); rememberPartner(); } });
 
   // ---- preview before apply: The partner's changes and one piece of advice all become a Proposal that is drawn as outlines first
