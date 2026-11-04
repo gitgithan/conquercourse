@@ -209,16 +209,6 @@
     "image": "timeline/screen-editor.jpg"
   },
   {
-    "id": "c4-03",
-    "category": 4,
-    "when": "10-27 23:27",
-    "title": "Domes threw jumpers back",
-    "text": "A jump from the rising side snapped to the platform edge. Fixed, with tests.",
-    "more": "On a dome, a jump from the rising side used to throw the runner back to the edge. The feet now stay on the curve when the slope is gentle, and a jump works as expected. New tests keep the bug from coming back.",
-    "kind": "text",
-    "commit": "bb2357a9"
-  },
-  {
     "id": "c3-03",
     "category": 3,
     "when": "10-27 23:50",
@@ -296,20 +286,6 @@
     "more": "Pressing Shift+I makes the simulator run one perfect attempt through every obstacle. If it can clear the course, we know the course is fair. We also added hazard floors, like water and lava, each with its own sound.",
     "kind": "text",
     "commit": "bbe79eae"
-  },
-  {
-    "id": "c4-04",
-    "category": 4,
-    "when": "10-28 16:14",
-    "title": "No teleport in the vault",
-    "text": "The vault now moves smoothly every tick. 36 test cases watch for jumps.",
-    "more": "The vault used to jump the runner forward in one tick, like a teleport. It now moves smoothly all the way through. Thirty-six test cases watch every tick so a jump cannot sneak back in.",
-    "kind": "stat",
-    "stat": {
-      "n": "36",
-      "caption": "vault cases tested"
-    },
-    "commit": "15556587"
   },
   {
     "id": "c3-04",
@@ -720,17 +696,6 @@
     "commit": "421ad1d5"
   },
   {
-    "id": "c4-12",
-    "category": 4,
-    "when": "10-31 22:58",
-    "title": "Person-for-scale was off its ring",
-    "text": "A clone kept the old bones, so the figure sat away from its ring. Redrawn right.",
-    "more": "The person-for-scale figure appeared away from its ring because a copy shared the original's bones. It is now copied properly and stands on its own piece. The marker is now a tall see-through cone that is easy to spot.",
-    "kind": "picture",
-    "image": "timeline/cc-96-person-before-after.png",
-    "commit": "a435d6c5"
-  },
-  {
     "id": "c6-15",
     "category": 6,
     "when": "10-31 23:47",
@@ -869,16 +834,6 @@
     "commit": "8962ded5"
   },
   {
-    "id": "c4-17",
-    "category": 4,
-    "when": "11-02 13:54",
-    "title": "Stale test expectations updated",
-    "text": "Tests still expected old answers after planned changes. Updated and golden hashes regenerated.",
-    "more": "Some tests still expected answers from before we made planned changes. We updated them and made new reference fingerprints. Now the tests match what the game does today.",
-    "kind": "text",
-    "commit": "7499fef0"
-  },
-  {
     "id": "c1-22",
     "category": 1,
     "when": "11-02 22:23",
@@ -928,16 +883,6 @@
     "kind": "picture",
     "commit": "55829a1c",
     "image": "timeline/screen-making-of.jpg"
-  },
-  {
-    "id": "c4-19",
-    "category": 4,
-    "when": "11-03 03:03",
-    "title": "Fix it worker path was wrong",
-    "text": "After the editor split, a path pointed one folder too high. A new test checks every such path.",
-    "more": "After we split the editor into parts, one helper pointed to a wrong folder, so the Fix it tool did not start. We fixed the path. A new test now checks that every such path points to a real file.",
-    "kind": "text",
-    "commit": "b234810e"
   },
   {
     "id": "c6-24",
@@ -1086,16 +1031,6 @@
     "more": "The System design Lab is the last Lab. You drag blocks into a flow, like building a system, and watch it work or fail. A rule checker judges it, meters show the load, and at the end you compare it with the real design.",
     "kind": "text",
     "commit": "eaf80b3f"
-  },
-  {
-    "id": "c4-21",
-    "category": 4,
-    "when": "11-04 16:09",
-    "title": "Labs map no longer jumps",
-    "text": "The reason panel has a fixed height, so hovering never moves the map.",
-    "more": "On the Labs map, hovering over a choice used to change the size of the reason panel, so the whole map jumped. The panel now has a fixed height. The map stays still when the mouse moves, which makes it easier to read.",
-    "kind": "text",
-    "commit": "6032860e"
   },
   {
     "id": "c2-23",
