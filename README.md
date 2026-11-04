@@ -222,6 +222,23 @@ flowchart LR
 - Details for each: [Courses](docs/obstacles.md), [World Slicer](docs/street-photos.md), [World Editor](docs/features.md), [Community](docs/community-flow-guide.md).
 - Community status: suggested outlines and the 3D lift need their server jobs switched on; the full path ran for real on the preview site ([click by click](docs/community-flow-guide.md)).
 
+### 🥋 Dojo and 🧪 Labs
+
+- Click a picture to open it full size.
+- Top row: the Dojo's Gap jump lesson, then the Labs map.
+- Bottom row: the Signal processing Lab, then the System design Lab.
+
+<table>
+<tr>
+<td><a href="README_MEDIA/dojo-labs-1-gap-jump-why.png"><img src="README_MEDIA/dojo-labs-1-gap-jump-why.png" width="480" alt="Dojo: the Gap jump lesson, step 1 Why it matters"></a></td>
+<td><a href="README_MEDIA/dojo-labs-2-labs-map.png"><img src="README_MEDIA/dojo-labs-2-labs-map.png" width="480" alt="Labs: the dependency map that slides down from the top bar"></a></td>
+</tr>
+<tr>
+<td><a href="README_MEDIA/dojo-labs-3-signal-processing-lab.png"><img src="README_MEDIA/dojo-labs-3-signal-processing-lab.png" width="480" alt="Labs: the Signal processing Lab with the Rookie and the graphs"></a></td>
+<td><a href="README_MEDIA/dojo-labs-4-system-design-lab.png"><img src="README_MEDIA/dojo-labs-4-system-design-lab.png" width="480" alt="Labs: the System design Lab, opened from the map"></a></td>
+</tr>
+</table>
+
 ## 🌳 Folder tree
 - The top level, and one level inside each folder.
 
