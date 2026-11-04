@@ -11,6 +11,7 @@
 - "Not yet" means no Lab covers the stage.
   - It is listed so the series stays honest.
 - Labs 13 to 15 (motion, lift, collision) are numbered in the order they landed.
+- Lab 17, [System design](system-design.md), is the finale: it uses Labs 1, 5, 8, 11, 13, 14 and 15 and has no stage of its own.
 
 ## Two tiers (numbers and URLs never change)
 - Tier 1, Foundations: the skills the game stands on.

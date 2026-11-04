@@ -5,6 +5,7 @@ import { defineConfig, type Plugin } from 'vite';
 import { askSpark, MAX_BODY } from './functions/api/designer';
 import { limited } from './functions/_lib/limit';
 import { askAgent, MAX_REQUEST_BODY } from './functions/api/course-agent';
+import { askPartner, MAX_BODY as PARTNER_BODY } from './functions/api/design-partner';
 import { lookup } from './functions/api/places';
 import { lookup as lookupPhotos } from './functions/api/photos';
 
@@ -28,6 +29,19 @@ const designerDev = (): Plugin => ({
           const r = await askAgent(key, JSON.parse(raw));
           send(r.status, r.body);
         } catch { send(502, { error: 'the course agent is unavailable' }); }
+      });
+    });
+    server.middlewares.use('/api/design-partner', (req, res) => {
+      const send = (status: number, body: unknown) => { res.statusCode = status; res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(body)); };
+      if (req.method !== 'POST') return send(405, { error: 'POST only' });
+      let raw = '';
+      req.on('data', (c) => { raw += c; if (raw.length > PARTNER_BODY) req.destroy(); });
+      req.on('end', async () => {
+        try {
+          if (limited('dpartner:dev', Date.now(), 6)) return send(429, { error: 'slow down a little' });
+          const r = await askPartner(key, JSON.parse(raw));
+          send(r.status, r.body);
+        } catch { send(502, { error: 'the partner is unavailable' }); }
       });
     });
     server.middlewares.use('/api/designer', (req, res) => {

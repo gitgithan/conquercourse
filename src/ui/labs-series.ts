@@ -30,6 +30,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-lift', name: 'Cut-out, lift and bake', pipeline: 'photo', stage: 'Bake' },
   { mode: 'lab-collision', name: 'Collision from a 3D lift', pipeline: 'photo', stage: 'Collision' },
   { mode: 'lab-partner', name: 'Design partner loop', pipeline: 'idea', stage: 'Fix it' },
+  { mode: 'lab-systemdesign', name: 'System design: build the whole game', pipeline: 'methods', stage: 'Design' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
@@ -37,11 +38,12 @@ export const labsOfPipeline = (id: Pipeline): { n: number; lab: LabEntry }[] =>
   LAB_LIST.flatMap((lab, i) => (lab.pipeline === id ? [{ n: i + 1, lab }] : []));
 
 // CC-133: the two tiers. Every Lab sits in exactly one sub-header. Foundations are the skills the game stands on; Pipelines are how it was built end to end.
-export type Tier = 'foundations' | 'pipelines';
+export type Tier = 'foundations' | 'pipelines' | 'finale';
 export interface LabGroup { id: string; tier: Tier; title: string; modes: readonly string[] }
 export const TIERS: readonly { id: Tier; title: string }[] = [
   { id: 'foundations', title: 'Foundations' },
   { id: 'pipelines', title: 'Pipelines' },
+  { id: 'finale', title: 'Finale' },
 ];
 /** In the order they are shown (Foundations first; inside a pipeline, the order the data flows). Lab numbers and URLs never change. */
 export const LAB_GROUPS: readonly LabGroup[] = [
@@ -53,6 +55,7 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
   { id: 'idea', tier: 'pipelines', title: 'Idea to course', modes: ['lab-partner'] },
   { id: 'run', tier: 'pipelines', title: 'Run to shared link', modes: [] }, // no Lab planned (owner): the stage list and the Foundation Labs it uses are shown, not a gap to fill
+  { id: 'finale', tier: 'finale', title: 'System design', modes: ['lab-systemdesign'] }, // the last Lab: it sums up the three pipelines
 ];
 export const groupOf = (mode: string): LabGroup | undefined => LAB_GROUPS.find((g) => g.modes.includes(mode));
 export const labNumberOf = (mode: string): number => LAB_LIST.findIndex((l) => l.mode === mode) + 1;
@@ -107,3 +110,6 @@ export function flowOf(mode: string): { group: LabGroup; from: string | null; ne
   const i = g.modes.indexOf(mode);
   return { group: g, from: g.modes[i - 1] ?? null, next: g.modes[i + 1] ?? null, gaps: PIPELINE_MAP[g.id as 'photo'].filter((x) => x.lab === null) };
 }
+
+/** The Finale Lab sums up the whole series: the Labs it draws on (by mode), and the Lab before it. */
+export const FINALE_USES: readonly string[] = ['lab-search', 'lab-camera', 'lab-signal', 'lab-hashing', 'lab-motion', 'lab-lift', 'lab-collision'];

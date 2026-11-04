@@ -46,6 +46,11 @@
 | 2 | Optimize | [Optimization](optimization.md) | Which settings are fastest, and how many tries to find them? | `?mode=lab-optimization&labs=1` | `tests/lab-optimization.test.ts` (15) | Only 24 cells per map are replayed live, and the rope claim is pinned at 4 peaks, not 6 |
 | 12 | Learn | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
 
+### Finale
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 17 | Finale | [System design](system-design.md) | If you build the whole game from blocks, which order keeps keys, faces and money safe? | `?mode=lab-systemdesign&labs=1` | `tests/lab-systemdesign.test.ts` (12), `tests/design-partner.test.ts` (7) | Costs are for the recorded runs; the partner's comment is one opinion and the judge wins on facts |
+
 ## When you open a Lab (owner, 2026-11-01)
 - Every Lab opens with our setting already run and every output filled, so a demo needs no click on Run.
 - A small label says so: "Showing our setting, already run", or "Precomputed with the same code (seed N)".
