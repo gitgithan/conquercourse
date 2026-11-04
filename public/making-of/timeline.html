@@ -96,6 +96,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font:16px
 #enter:focus-visible,#top a:focus-visible{outline:3px solid #fff;outline-offset:3px}
 #fail{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:9;color:var(--mute)}
 #chip{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);z-index:8;padding:6px 14px;border-radius:999px;background:rgba(20,30,28,.82);color:#fff;font-size:13px;display:none}
+/* the flat figure shows only if the 3D Pip cannot load (?walkers=0, a load error, or no model after 12 s) */
+html:not(.flat) #rookie{visibility:hidden}
 /* ?promo=1 (the film): no flat figures, no help or buttons; the walk plays itself */
 html.promo :is(#rookie,#junoFig,#crew,#help,#bar,.lane,#enter,#chip,#ltip,#top a){display:none!important}
 </style>
@@ -306,14 +308,15 @@ addEventListener('blur',function(){dir=0});
 // The rigged 3D walkers (Pip, Juno, the eight cast characters) load late and by themselves; until a model is ready, or if it never loads, the flat figure or portrait stays.
 // ?walkers=0 keeps the flat figures.
 function lateWalkers(){
-if(/[?&]walkers=0(?:&|$)/.test(location.search))return;
+if(/[?&]walkers=0(?:&|$)/.test(location.search)){document.documentElement.classList.add('flat');return}
+setTimeout(function(){if(!(window.CCWalk&&window.CCWalk.pip))document.documentElement.classList.add('flat')},12000);
 document.addEventListener('ccwalk',function(){
 var w=window.CCWalk;if(!w)return;walk=w;
 if(w.pip)rookie.style.visibility='hidden';
 if(w.juno&&juno)juno.style.visibility='hidden';
 crewImgs.forEach(function(im,i){if(w.crew[i])im.style.visibility='hidden'});
 });
-var s=document.createElement('script');s.type='module';s.src='/assets/entrance-walkers.js';s.onerror=function(){};document.head.appendChild(s);
+var s=document.createElement('script');s.type='module';s.src='/assets/entrance-walkers.js';s.onerror=function(){document.documentElement.classList.add('flat')};document.head.appendChild(s);
 }
 // Test hook: ?at=0..1 starts at that share of the walk (used by the screenshot check).
 fetch('timeline-events.json').then(function(r){return r.json()}).then(function(list){
