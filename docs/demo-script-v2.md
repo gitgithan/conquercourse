@@ -16,8 +16,8 @@
 | 0:15 | "You run, jump, hang, swing and climb a small runner. The physics is the same on every run. So a time is a fact, and a friend can race your exact run as a ghost." | A run, then a ghost |
 | 0:35 | "There are four parts, all in one top bar: Courses, World Editor, World Slicer and Community." | Top bar |
 | 0:45 | "World Slicer: drop a pin on a map, and your own street becomes a lane. We show real street photos from Mapillary, live, with Mapillary's own blur, and we never store them." | World Slicer |
-| 1:05 | "Community: pick a photo of a bench or a rail, tap the thing, and it becomes a 3D piece at real size. A photo can also become a wallpaper on a building." | Community |
-| 1:25 | "World Editor: mix pieces and the lane into a course. Press Fix it and the simulator says in plain words what to change, so the course is proved before anyone plays it." | World Editor |
+| 1:05 | "Community: pick a photo of a bench or a rail, tap the thing, and it becomes a 3D piece at real size." | Community |
+| 1:25 | "World Editor: mix pieces and the lane into a course. Ask the design partner for ideas, preview a change with Show it, and the simulator checks it before anything moves, so the course is proved before anyone plays it." | World Editor |
 | 1:50 | "Courses: play it, read your report, and share a link or a clip. Anyone can race your ghost, with no sign-in and no real names." | Share link |
 | 2:10 | "Meta's models do real work here: SAM 3 finds the outline, SAM 3D Objects lifts it to 3D, SAM 3D Body gives the runner a body, and Muse Spark helps design. MusicGen made some of our music." | Credits page |
 | 2:35 | "We do not grade or coach your technique, and there is no chat tutor. The game shows you the physics, and you learn by doing." | Dojo |

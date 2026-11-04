@@ -538,7 +538,7 @@ flowchart LR
 - `/api/segment` suggests outlines (SAM 3 on a copy with people blurred).
 - `/api/object-lift` checks the photo with Muse Spark Open, then starts the Modal job (`pipelines/photo_to_object.py`).
 - The server stores nothing: the object comes back to the browser and is saved there.
-- A wallpaper skips the lift; it is a picture behind the lane.
+- A player's own background picture (Course screen, "Customize background") skips the lift and stays in their browser.
 
 ```mermaid
 flowchart LR
