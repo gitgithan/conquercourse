@@ -6,6 +6,7 @@
 import * as THREE from 'three/webgpu';
 import { createRookieActor, type ActorState, type RookieActor } from '../render/actor';
 import { CAST_BASE, castUrl } from '../characters/cast';
+import { pageQuery } from '../flags';
 
 export interface WalkInput { moving: boolean; juno: boolean; crew: number } // crew: 0 not there yet, 1 arrived
 interface Walker { actor: RookieActor; x: number; tick: number }
@@ -15,11 +16,12 @@ const SLOTS = [-0.9, -1.5, -2.1, -2.7, 0.9, 1.5, 2.1, 2.7]; // the eight, four e
 const ease = (u: number) => { const c = Math.max(0, Math.min(1, u)); return c * c * (3 - 2 * c); };
 
 async function start(): Promise<void> {
+  if (pageQuery().get('walkers') === '0') return; // the page also skips loading this file with ?walkers=0
   const host = document.createElement('div');
   host.id = 'walk3d';
   host.setAttribute('aria-hidden', 'true');
   document.getElementById('view')!.appendChild(host);
-  const wantWebGL2 = new URLSearchParams(location.search).get('backend') === 'webgl2';
+  const wantWebGL2 = pageQuery().get('backend') === 'webgl2';
   const renderer = new THREE.WebGPURenderer({ antialias: true, alpha: true, forceWebGL: wantWebGL2 });
   await renderer.init();
   renderer.setPixelRatio(1);
