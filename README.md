@@ -13,9 +13,9 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 </div>
 
 ## 🎬 Promo video
-- 85 seconds, recorded from the real game: press play.
+- 85 seconds, recorded from the real game; the picture below plays by itself (no sound).
 
-<video src="https://github.com/gitgithan/conquercourse/raw/main/docs/promo/conquercourse-promo.mp4" poster="https://github.com/gitgithan/conquercourse/raw/main/docs/promo/poster.jpg" controls muted width="100%"></video>
+[![ConquerCourse promo: it plays here; press it to open the full video with sound](docs/promo/promo-inline.gif)](docs/promo/conquercourse-promo.mp4)
 
 - ▶️ **[Play the promo video](docs/promo/conquercourse-promo.mp4)** (1920 by 1080, with sound)
 - 📖 **[Read the demo script](docs/demo-script-v2.md)** or **[click by click through Community](docs/community-flow-guide.md)**
@@ -385,7 +385,8 @@ flowchart LR
 - MusicGen is Meta's AudioCraft model; the clips come from a written prompt only, with no melody or recording as input.
 - The MusicGen weights are CC BY-NC 4.0, so these clips are a demo: swap them before a sale (see `docs/copyright-audit.md`).
 - The film rebuild script is `scripts/film-d/assemble.mjs`; the music scripts are `pipelines/music_film*.py`.
-- The player at the top is an HTML video tag that points at the committed file, so it plays in the page; if a viewer strips the tag, the "Play the promo video" link opens the file instead.
+- GitHub does not play an mp4 from the repo inside a README (it strips the video tag), so the page shows a small looping picture of the whole promo (`docs/promo/promo-inline.gif`, 480 px, no sound, about 5 MB).
+- Pressing the picture, or the "Play the promo video" link, opens the full 1920 by 1080 mp4 with sound.
 
 ## 🏆 Hackathon
 
@@ -431,14 +432,6 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
 - **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
 - Details for every criterion: [docs/hackathon.md](docs/hackathon.md).
-
-### Bonus prizes
-- **Most Viral:** challenge link and 15 second clip ([viral plan](docs/viral-plan.md)).
-- **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner.
-- **Best Agentic Use-Case:** not claimed now.
-  - The Course Agent loop (propose, test, repair) was proved 40 of 40 times, but only starting from a photo ([results](data/eval/cc-126-course-agent/README.md)).
-  - The scope is now photo to object only, so the photo input and the editor entry were removed (2026-10-31).
-  - The text-only version has not been measured.
 
 ### Safe by design
 - No sign-in and no real names; a short tag of up to 12 characters at most, checked against a block list.
