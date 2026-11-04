@@ -2,7 +2,7 @@
 // One function installs it into any three.js scene (the editor's WebGL view and the Course's WebGPU view both use it), so the two look alike.
 // The sky is a gradient dome painted with vertex colours (no shader, no picture), so it also works on the WebGPU renderer. The sun disc is one small circle.
 import type * as THREE_TYPES from 'three';
-import { DEFAULT_DAY, lookFor, presetOf, sunPosition, sunVector, TIME_PRESETS, type Look, type SunPos } from './sun';
+import { DEFAULT_DAY, DEFAULT_PRESET, lookFor, presetOf, sunPosition, sunVector, TIME_PRESETS, type Look, type SunPos } from './sun';
 
 type T = typeof THREE_TYPES;
 export const PRODUCTION_HOST = 'conquercourse.pages.dev';
@@ -52,7 +52,7 @@ export function installSkyLight(THREE: T, scene: THREE_TYPES.Scene, o: SkyOption
   scene.add(dome, disc, hemi, sun, sun.target);
 
   const api: SkyLight = {
-    sun, hemi, dome, pos: { elevation: 30, azimuth: 180 }, look: lookFor(30), presetId: 'golden', shadows: false,
+    sun, hemi, dome, pos: { elevation: 30, azimuth: 180 }, look: lookFor(30), presetId: 'noon', shadows: false,
     setPreset(id) {
       const p = presetOf(id);
       api.presetId = p.id;
@@ -129,7 +129,7 @@ export function installSkyLight(THREE: T, scene: THREE_TYPES.Scene, o: SkyOption
     (disc.material as THREE_TYPES.MeshBasicMaterial).color.setHex(0xfff6e0).lerp(new THREE.Color(0xffa860), Math.max(0, 1 - api.pos.elevation / 20));
     disc.visible = api.pos.elevation > -2;
   }
-  api.setPreset(o.preset ?? 'golden');
+  api.setPreset(o.preset ?? DEFAULT_PRESET);
   api.setShadows(o.shadows ?? true);
   return api;
 }

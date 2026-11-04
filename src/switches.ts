@@ -119,7 +119,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'slice2', default: 'new', doc: "old brings back the old Slicer", quiet: false },
   { name: 'slicehow', default: 'on', doc: "0 hides the first-timer steps", quiet: false },
   { name: 'slicewords', default: 'new', doc: "old keeps the long text", quiet: false },
-  { name: 'sunat', default: 'golden', doc: "time of day for the sky light: morning, noon, golden or dusk", quiet: false },
+  { name: 'sunat', default: 'noon', doc: "time of day for the sky light: morning, noon, golden or dusk", quiet: false },
   { name: 'sunlat', default: '48.85', doc: "latitude for the sun when the place is not known", quiet: false },
   { name: 'speed', default: 'on', doc: "0 hides the speed readout in Place", quiet: false },
   { name: 'start', default: 'none', doc: "hero:<slug>: the editor's start scene", quiet: false },
