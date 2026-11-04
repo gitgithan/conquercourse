@@ -14,11 +14,11 @@ describe('labs bar', () => {
   it('keeps the first twelve numbers fixed (links in docs and films use them)', () => {
     expect(LABS.slice(0, 12).map((l) => l.mode)).toEqual(['lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl']);
   });
-  it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 17 fixed', () => {
+  it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 18 fixed', () => {
     const all = LAB_GROUPS.flatMap((g) => g.modes);
     expect([...all].sort()).toEqual(LAB_LIST.map((l) => l.mode).sort());
     expect(new Set(all).size).toBe(all.length);
-    expect(LAB_LIST).toHaveLength(17);
+    expect(LAB_LIST).toHaveLength(18);
     for (const g of LAB_GROUPS) expect(TIERS.map((t) => t.id), g.id).toContain(g.tier);
     const names = (id: string) => LAB_GROUPS.find((g) => g.id === id)!.modes.map((m) => LAB_LIST.findIndex((l) => l.mode === m) + 1);
     expect(names('search-learn')).toEqual([1, 2, 12, 9]);
@@ -28,6 +28,7 @@ describe('labs bar', () => {
     expect(names('photo')).toEqual([14, 15]);
     expect(names('video')).toEqual([13]);
     expect(names('idea')).toEqual([16]);
+    expect(names('map')).toEqual([18]);
     expect(LAB_GROUPS.find((g) => g.id === 'run')!.modes).toEqual([]); // the honest gap
   });
   it('draws tier and sub-header headings in the bar and the picker', () => {

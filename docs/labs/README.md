@@ -39,6 +39,11 @@
 |---|---|---|---|---|---|---|
 | 16 | Fix it | [Design partner loop](partner.md) | Can a design partner's course be checked and repaired by the simulator? | `?mode=lab-partner&labs=1` | `tests/lab-partner.test.ts` (13) | Fix it applies the proved easing, not the editor's search; the run trail is a sketch |
 
+### Map to lane
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 18 | Map to lane | [World Slicer: map to lane](slicer.md) | How does a pin on a real map become a lane the simulator can prove? | `?mode=lab-slicer&labs=1` | `tests/lab-slicer.test.ts` (23) | Buildings only (no trees or fences), five of 47 places, and the what-if limits change only the quick look |
+
 ### Methods behind all three
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
