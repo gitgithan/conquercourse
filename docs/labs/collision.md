@@ -94,6 +94,7 @@
 - What would make the Lab's claim false: a break that makes the fitted row irregular or illegal (the test loops over all of them), or a step-by-step run that differs from `roleCollider`.
 - Browser check: `scripts/lab-collision-check.mjs` opens the page at 1280 px and fails on a page error or an empty output.
 - Picture: [the Lab at 1280 px](../evidence/cc-133-pipeline-labs/lab-collision.png).
+- Picture of step 10: [the skin versus collider card](../evidence/cc-133-pipeline-labs/lab-collision-skin-card.png).
 
 ## What we saw
 - The raw gaps between the 15 peaks are 0.25 to 0.55 m, and 5 of 14 are under the editor's 0.3 m: a collider that copies them could not even be built in the editor.
