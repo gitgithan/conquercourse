@@ -52,6 +52,7 @@
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
 | 17 | Finale | [System design](system-design.md) | If you build the whole game from blocks, which order keeps keys, faces and money safe? | `?mode=lab-systemdesign&labs=1` | `tests/lab-systemdesign.test.ts` (12), `tests/design-partner.test.ts` (7) | Costs are for the recorded runs; the partner's comment is one opinion and the judge wins on facts |
+| 20 | Plan | [Spike the riskiest call first](spike.md) | Which test do you run first on a new move or obstacle, and what does the wrong order cost? | `?mode=lab-spike&labs=1` | `tests/lab-spike.test.ts` (28) | Chances and hours are our guesses; only the two stories hold measured numbers |
 
 ## When you open a Lab (owner, 2026-11-01)
 - Every Lab opens with our setting already run and every output filled, so a demo needs no click on Run.
