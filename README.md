@@ -51,27 +51,6 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Bonus: Most Viral | bonus | A short challenge link and a 15 second clip, with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
 | Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
 
-## 🔢 Proof in numbers
-- **About 2,700 tests** (2,764 passed in the last full run on 2026-11-04), run with `npm run test:quick`, and physics-law tests come first.
-- **7,525 cross-hardware runs** gave the same outcome, tick count and end place on Node 22, Node 24 and local `workerd` (Cloudflare's runtime): [lesson and method](docs/lessons-cross-hardware-testing.md).
-  - The exact last digit did differ on six courses at first; we fixed the cause (`**` and `Math.pow`) on 2026-11-03 and say so in the lesson.
-  - `workerd` still differs in the last digit where the tick uses sin, cos, tan or exp; no outcome flipped.
-- **100 golden traces** guard the simulator: a change to the physics fails a test the moment it happens.
-- **40 of 44 agent runs proven** in at most 2 steps for $0.36 ([Best Agentic Use-Case](#-best-agentic-use-case)).
-- **13 real bugs in 21 claims** when Muse Wonder reviewed the simulator code, each checked by us, for $2.38 ([details](docs/hackathon.md)).
-- **Measured cost:** $0.164 for 14 photos through SAM 3 and SAM 3D Objects; about 2 cents for one object end to end ([pipelines](docs/pipelines.md)).
-
-## ⚠️ Honest limits
-- Where the models are weak, and what we do about it: [docs/model-limits.md](docs/model-limits.md).
-- The finder (SAM 3) is poor on thin overhead bars; the demo lifts bars from a box the player draws, and says so.
-- A single photo gives a guess of size, so size comes from a typed or typical height, never from the model.
-- Community photo-to-object needs the server jobs switched on; if they are off, watch the promo or follow [the click-by-click guide](docs/community-flow-guide.md).
-- Muse Spark Open is a language model: it can give different answers for the same photo, so a failed answer stops the step and a person reviews.
-- The agent loop is not in the editor (see below); the editor's design partner makes one proposal and the simulator checks it.
-- Exact bit-for-bit equality across machines is not claimed; outcome and tick count are.
-- The MusicGen music is a demo (weights are CC BY-NC); we swap it before any sale ([copyright audit](docs/copyright-audit.md)).
-- Desktop keyboard at 1280 px only; there is no phone support.
-
 ## 🏗️ Architecture at a glance
 - One page of the whole codebase: what runs where, and who pays.
 - Blue boxes are Meta models; grey boxes are our code or other services.
@@ -628,6 +607,27 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Details and measurements: [docs/ugc-fit.md](docs/ugc-fit.md).
 - The upload check and its own limits: [docs/trust-and-safety.md](docs/trust-and-safety.md).
 - Parts gallery (every move and obstacle, special ones first, played live): [docs/parts-gallery.md](docs/parts-gallery.md), open `?mode=parts`.
+
+## 🔢 Proof in numbers
+- **About 2,700 tests** (2,764 passed in the last full run on 2026-11-04), run with `npm run test:quick`, and physics-law tests come first.
+- **7,525 cross-hardware runs** gave the same outcome, tick count and end place on Node 22, Node 24 and local `workerd` (Cloudflare's runtime): [lesson and method](docs/lessons-cross-hardware-testing.md).
+  - The exact last digit did differ on six courses at first; we fixed the cause (`**` and `Math.pow`) on 2026-11-03 and say so in the lesson.
+  - `workerd` still differs in the last digit where the tick uses sin, cos, tan or exp; no outcome flipped.
+- **100 golden traces** guard the simulator: a change to the physics fails a test the moment it happens.
+- **40 of 44 agent runs proven** in at most 2 steps for $0.36 ([Best Agentic Use-Case](#-best-agentic-use-case)).
+- **13 real bugs in 21 claims** when Muse Wonder reviewed the simulator code, each checked by us, for $2.38 ([details](docs/hackathon.md)).
+- **Measured cost:** $0.164 for 14 photos through SAM 3 and SAM 3D Objects; about 2 cents for one object end to end ([pipelines](docs/pipelines.md)).
+
+## ⚠️ Honest limits
+- Where the models are weak, and what we do about it: [docs/model-limits.md](docs/model-limits.md).
+- The finder (SAM 3) is poor on thin overhead bars; the demo lifts bars from a box the player draws, and says so.
+- A single photo gives a guess of size, so size comes from a typed or typical height, never from the model.
+- Community photo-to-object needs the server jobs switched on; if they are off, watch the promo or follow [the click-by-click guide](docs/community-flow-guide.md).
+- Muse Spark Open is a language model: it can give different answers for the same photo, so a failed answer stops the step and a person reviews.
+- The agent loop is not in the editor (see [Best Agentic Use-Case](#-best-agentic-use-case)); the editor's design partner makes one proposal and the simulator checks it.
+- Exact bit-for-bit equality across machines is not claimed; outcome and tick count are.
+- The MusicGen music is a demo (weights are CC BY-NC); we swap it before any sale ([copyright audit](docs/copyright-audit.md)).
+- Desktop keyboard at 1280 px only; there is no phone support.
 
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.
