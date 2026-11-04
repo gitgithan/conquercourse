@@ -1,0 +1,32 @@
+{
+  "name": "railing-iron",
+  "photoMade": true,
+  "photo": "rail01",
+  "label": "rail",
+  "typedHeightM": 0.999,
+  "credit": "Photo by Peter Broster, CC0",
+  "licence": "CC0",
+  "rawMesh": "assets/lab/lift/real/railing-iron.glb",
+  "maskPicture": "assets/lab/lift/real/railing-iron-mask.png",
+  "bakedGlb": "assets/objects/railing-iron.glb",
+  "stats": {
+    "rawHeight": 0.4121,
+    "rawExtents": [
+      0.0199,
+      1.0008,
+      0.4121
+    ],
+    "rawFaces": 83286,
+    "previewFaces": 7760,
+    "previewBytes": 151440,
+    "yawDeg": 90.0,
+    "tiltDeg": 0.83,
+    "splatPoints": 65120,
+    "liftSeconds": 7.1,
+    "maskSeconds": 0.4,
+    "costUsd": 0.00393,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": true
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

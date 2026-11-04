@@ -1,0 +1,32 @@
+{
+  "name": "pullup-green",
+  "photoMade": true,
+  "photo": "bar-green",
+  "label": "pull-up bar",
+  "typedHeightM": 2.3,
+  "credit": "Photo by Singlespeedfahrer, CC0",
+  "licence": "CC0",
+  "rawMesh": "assets/lab/lift/real/pullup-green.glb",
+  "maskPicture": "assets/lab/lift/real/pullup-green-mask.png",
+  "bakedGlb": "assets/objects/pullup-green.glb",
+  "stats": {
+    "rawHeight": 0.6824,
+    "rawExtents": [
+      0.9997,
+      0.1045,
+      0.6824
+    ],
+    "rawFaces": 53122,
+    "previewFaces": 7760,
+    "previewBytes": 152252,
+    "yawDeg": 0.0,
+    "tiltDeg": 0.39,
+    "splatPoints": 49056,
+    "liftSeconds": 8.0,
+    "maskSeconds": 0.3,
+    "costUsd": 0.0044,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

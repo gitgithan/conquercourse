@@ -1,0 +1,32 @@
+{
+  "name": "stump-spruce",
+  "photoMade": true,
+  "photo": "stump-spruce",
+  "label": "tree stump",
+  "typedHeightM": 1.199,
+  "credit": "Photo by W.carter, CC0",
+  "licence": "CC0",
+  "rawMesh": "assets/lab/lift/real/stump-spruce.glb",
+  "maskPicture": "assets/lab/lift/real/stump-spruce-mask.png",
+  "bakedGlb": "assets/objects/stump-spruce.glb",
+  "stats": {
+    "rawHeight": 0.9996,
+    "rawExtents": [
+      0.4402,
+      0.5012,
+      0.9996
+    ],
+    "rawFaces": 443648,
+    "previewFaces": 7760,
+    "previewBytes": 151388,
+    "yawDeg": 128.0,
+    "tiltDeg": 1.91,
+    "splatPoints": 325472,
+    "liftSeconds": 9.9,
+    "maskSeconds": 0.4,
+    "costUsd": 0.00545,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

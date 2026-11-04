@@ -884,3 +884,11 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | `public/assets/lab/lift/raw/bars-photo3.bin` (about 80 KB) | Saienji Mamedecca Park (bar-photos row above) | Salada220422 | Wikimedia Commons | CC0 | Same thinning |
 | `public/assets/lab/lift/raw/bars-photo4.bin`, `bars-photo6.bin`, `bars-photo7.bin` (about 80 KB each) | Hiroomote ES, Balfour Park, Miyakohara park (bar-photos rows above) | Ntsctalk, Michael Rivera, Ajisaka | Wikimedia Commons | CC BY-SA 4.0 (demo only, swap before a sale: same plan) | Same thinning |
 | `public/assets/lab/lift/raw/index.json`, `scripts/lab-lift-rawpack.py` | none | ours | made by the script from the full raw lifts in `../conquercourse-assets/eval-full` | ours | Real raw size, tilt, turn, cost and credit per object |
+## Real raw lifts for Lab 14 (ours, 2026-11-04, CC-133)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `public/assets/lab/lift/real/<name>.glb` (19 files, about 150 KB each) | The real raw lift of each library object, z up, in lift units, thinned to about 7,760 faces, splat colour | 2026-11-04 | SAM 3 + SAM 3D Objects on Modal (seed 42) via `pipelines/photo_to_object.py`, thinned by `scripts/cc133-real-lifts.py` | about 0.15 USD for all 19 | Same licence as the photo each came from (see `index.json` and the object rows above); CC BY and CC BY-SA credits must show; CC BY-SA ones (hydrant-red, pipe-concrete, railing-red) are used only as Lab previews, swap plan as in the object rows |
+| `public/assets/lab/lift/real/<name>-mask.png` (19 files) | The SAM 3 cut-out mask of the photo | 2026-11-04 | SAM 3 on Modal | included above | Same licence as the photo; a black and white mask |
+| `public/assets/lab/lift/real/<name>.json` (19 files) and `index.json` | Real measurements and the manifest | 2026-11-04 | Computed from the real raw lift and the Modal timings | None | Ours |
+| `data/eval/cc-133-real-lifts/evidence-masks.png` | Contact sheet of the 19 masks | 2026-11-04 | Pillow | None | Ours; masks only, no photo pixels |

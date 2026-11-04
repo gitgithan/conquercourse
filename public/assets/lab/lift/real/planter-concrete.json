@@ -1,0 +1,32 @@
+{
+  "name": "planter-concrete",
+  "photoMade": true,
+  "photo": "planter-concrete",
+  "label": "planter",
+  "typedHeightM": 0.45,
+  "credit": "Photo by Tony Webster, CC BY 2.0",
+  "licence": "CC BY 2.0",
+  "rawMesh": "assets/lab/lift/real/planter-concrete.glb",
+  "maskPicture": "assets/lab/lift/real/planter-concrete-mask.png",
+  "bakedGlb": "assets/objects/planter-concrete.glb",
+  "stats": {
+    "rawHeight": 0.2705,
+    "rawExtents": [
+      0.9985,
+      0.998,
+      0.2705
+    ],
+    "rawFaces": 720916,
+    "previewFaces": 7760,
+    "previewBytes": 152580,
+    "yawDeg": 65.5,
+    "tiltDeg": 0.13,
+    "splatPoints": 583360,
+    "liftSeconds": 11.5,
+    "maskSeconds": 0.3,
+    "costUsd": 0.0063,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

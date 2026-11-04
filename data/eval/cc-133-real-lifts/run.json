@@ -1,0 +1,32 @@
+{
+  "experiment": "cc-133-real-lifts",
+  "issue": "CC-133",
+  "date": "2026-11-04",
+  "seed": 42,
+  "model": "SAM 3 (mask, Modal L4) + SAM 3D Objects (lift, Modal L40S)",
+  "objects": 19,
+  "rounds": {
+    "a": {
+      "photos": 16,
+      "pad": 0,
+      "gpu_seconds": {
+        "l4": 23,
+        "l40s": 196
+      },
+      "estimated_usd": 0.111
+    },
+    "b": {
+      "photos": 3,
+      "pad": 1.5,
+      "gpu_seconds": {
+        "l4": 17,
+        "l40s": 71
+      },
+      "estimated_usd": 0.042
+    }
+  },
+  "estimated_usd_total": 0.153,
+  "plus": "one CPU-only import check (no GPU) and one aborted start (a few seconds of L4 for one mask) before the local Python needed Pillow",
+  "price_basis": "L40S $1.95/h, L4 $0.80/h, container seconds in methods plus one model load each; idle scale-down time not included",
+  "settings": "same boxes, labels, typed heights and padding (1.5 for bench01, rail01, gabion-wall) as the shipped objects; pad-and-retry off, as in the original rounds"
+}
