@@ -7,13 +7,15 @@
 // a scene that wants it calls buildSkin(osm, { skin, k }) and adds the returned group (all sizes are multiplied by k, the place's shrink).
 import * as THREE from 'three';
 import { heightOf } from './osm';
+import { buildingSeed, roofBox, roofFits, roofTriangles, shade, styleBuilding, type BuildingStyle } from './building-style';
 import { groundAt, lowest, type Ground } from './terrain';
+import { pickWall, wallQuad, type FacadeSpec } from './facade';
 
 export type SkinMode = 'none' | 'tags' | 'full';
 export const skinFromQuery = (q: URLSearchParams, fallback: SkinMode = 'none'): SkinMode => { const s = q.get('skin'); return s === 'none' || s === 'tags' || s === 'full' ? s : fallback; };
 
 export interface SkinTags { [k: string]: string }
-export interface SkinElement { type: 'node' | 'way' | 'relation'; tags?: SkinTags; lat?: number; lon?: number; geometry?: { lat: number; lon: number }[]; members?: { role: string; geometry?: { lat: number; lon: number }[] }[] }
+export interface SkinElement { type: 'node' | 'way' | 'relation'; id?: number; tags?: SkinTags; lat?: number; lon?: number; geometry?: { lat: number; lon: number }[]; members?: { role: string; geometry?: { lat: number; lon: number }[] }[] }
 export interface SkinOsm { lat: number; lon: number; radius: number; elements: SkinElement[] }
 
 // ---- the rules (pure)
@@ -99,12 +101,43 @@ function wallTexture(look: BuildingLook): THREE.CanvasTexture {
   return t;
 }
 
-export interface SkinStats { buildings: number; land: number; roads: number; trees: number; textures: number }
-export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number; ground?: Ground | null; noLand?: boolean } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
+// CC-133: a tall wall tile for one look: one 3 m floor per 64 px row, the ground floor at the bottom (a shop band when asked), so floors line up from the ground
+function styledWallTexture(st: BuildingStyle): THREE.CanvasTexture {
+  const rows = st.rows, c = document.createElement('canvas'); c.width = 64; c.height = 64 * rows;
+  const g = c.getContext('2d')!;
+  g.fillStyle = st.wall; g.fillRect(0, 0, 64, c.height);
+  for (let i = 0; i < rows; i++) {
+    const y = c.height - 64 * (i + 1); // row 0 is the ground floor, at the bottom of the picture
+    if (i === 0 && st.band) {
+      g.fillStyle = shade(st.wall, 0.86); g.fillRect(0, y, 64, 64);
+      g.fillStyle = 'rgba(30,45,60,0.6)'; g.fillRect(8, y + 22, 48, 30); g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(8, y + 22, 48, 3);
+      g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(0, y, 64, 3);
+      continue;
+    }
+    if (st.pattern === 'brick') {
+      g.fillStyle = 'rgba(0,0,0,0.16)';
+      for (let row = 0; row < 8; row++) { g.fillRect(0, y + row * 8, 64, 1); for (let col = 0; col < 4; col++) g.fillRect((col * 16 + (row % 2) * 8) % 64, y + row * 8, 1, 8); }
+      g.fillStyle = 'rgba(30,45,60,0.55)'; g.fillRect(22, y + 16, 20, 26); g.fillStyle = 'rgba(255,255,255,0.3)'; g.fillRect(22, y + 16, 20, 3);
+    } else if (st.pattern === 'glass') {
+      g.fillStyle = 'rgba(40,70,95,0.62)'; g.fillRect(0, y + 6, 64, 46); g.fillStyle = 'rgba(255,255,255,0.28)';
+      for (let x = 0; x < 64; x += 16) g.fillRect(x, y + 6, 2, 46);
+      g.fillRect(0, y + 6, 64, 2);
+    } else if (st.pattern === 'windows') {
+      g.fillStyle = 'rgba(30,45,60,0.55)'; g.fillRect(18, y + 14, 28, 30);
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(18, y + 14, 28, 3); g.fillRect(31, y + 14, 2, 30);
+      g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(0, y + 60, 64, 4);
+    }
+  }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter;
+  return t;
+}
+
+export interface SkinStats { buildings: number; land: number; roads: number; trees: number; textures: number; facades?: number }
+export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number; ground?: Ground | null; noLand?: boolean; style?: boolean; facades?: { spec: FacadeSpec; texture: THREE.Texture }[] } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
   const k = opts.k ?? 1, skin = opts.skin, full = skin === 'full', pr = project(osm), group = new THREE.Group();
   const stats: SkinStats = { buildings: 0, land: 0, roads: 0, trees: 0, textures: 0 };
   const plain = new THREE.MeshStandardMaterial({ color: '#a9a392', roughness: 0.85, flatShading: true });
-  const mats = new Map<string, THREE.Material[]>();
+  const mats = new Map<string, THREE.Material[]>(), roofs = new Map<string, number[]>(), styled = !!opts.style && skin !== 'none';
   const std = (color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.9, ...extra });
 
   // ground
@@ -165,10 +198,28 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
       const shape = new THREE.Shape(r.map((p) => new THREE.Vector2(p.x * k, -p.z * k)));
       // CC-234: with a ground, a building stands on its hill and its walls run down to y = 0, like the lane's own blocks (src/world/osm.ts extrude)
       const base = opts.ground ? (groundAt(opts.ground, r.reduce((t, p) => t + p.x, 0) / r.length, r.reduce((t, p) => t + p.z, 0) / r.length) - lowest(opts.ground)) * k : 0;
-      const height = Math.min(h, 80) * k;
+      // CC-133: one hero building wears a real photo facade on one wall; its prism is raised to the picture's height so the picture fits (looks only, off unless the caller passes facades)
+      const fac = opts.facades?.find((f) => f.spec.building === e.tags?.name), wallHit = fac ? pickWall(r, fac.spec.width, fac.spec.facing) : null;
+      const facH = fac && wallHit ? fac.spec.width / fac.spec.aspect : 0;
+      const height = Math.min(Math.max(h, facH), 80) * k;
       const geo = new THREE.ExtrudeGeometry(shape, { depth: height + base, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
       let material: THREE.Material | THREE.Material[] = plain;
-      if (skin !== 'none') {
+      if (styled) {
+        // CC-133: tag colour or a palette pick, floors from the levels, a roof colour and shape; the walls and footprint are exactly the same extrusion
+        const look = buildingLook(e.tags, h), st = styleBuilding(e.tags ?? {}, buildingSeed(e.id, e.geometry?.[0]), h, look, osm.lat, osm.lon), key = `S|${st.wall}|${st.roof}|${st.pattern}|${st.rows}|${st.band}`;
+        let pair = mats.get(key);
+        if (!pair) {
+          const wall = new THREE.MeshStandardMaterial({ map: styledWallTexture(st), roughness: 0.9 });
+          // an extruded wall's V runs from the top of the picture down as the wall rises, so a negative repeat turns the floors the right way up
+          const rep = 1 / (3 * k), vr = 1 / (3 * k * st.rows); wall.map!.repeat.set(rep, -vr); wall.map!.offset.set(0, vr);
+          stats.textures++; pair = [std(st.roof), wall]; mats.set(key, pair);
+        }
+        material = pair;
+        if (st.roofShape !== 'flat') {
+          const box = roofBox(r.map((p) => ({ x: p.x * k, z: p.z * k })));
+          if (roofFits(box)) { const arr = roofs.get(st.roof) ?? []; roofs.set(st.roof, arr); arr.push(...roofTriangles(box, st.roofShape, height + base, box.wid * 0.28)); }
+        }
+      } else if (skin !== 'none') {
         const look = buildingLook(e.tags, h), key = `${look.wall}|${look.roof}|${look.pattern}|${full}`;
         let pair = mats.get(key);
         if (!pair) {
@@ -179,7 +230,19 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
         material = pair;
       }
       const m = new THREE.Mesh(geo, material); m.castShadow = full; m.receiveShadow = full; group.add(m); stats.buildings++;
+      if (fac && wallHit) {
+        const a = r[wallHit.i], b = r[(wallHit.i + 1) % r.length], dx = b.x - a.x, dz = b.z - a.z, len = Math.hypot(dx, dz);
+        const cw = r.reduce((t, p, i) => { const q = r[(i + 1) % r.length]; return t + p.x * q.z - q.x * p.z; }, 0) > 0 ? 1 : -1;
+        const w = wallQuad(a, b, [(cw * dz) / len, (-cw * dx) / len], facH, { base: opts.ground ? base / k : 0, k });
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(w.positions, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(w.uvs, 2)); g.setIndex(w.indices); g.computeVertexNormals();
+        const fm = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: fac.texture, roughness: 0.9 })); fm.name = 'facade'; fm.castShadow = false; fm.receiveShadow = full; group.add(fm); stats.facades = (stats.facades ?? 0) + 1;
+      }
     }
+  }
+
+  for (const [colour, tri] of roofs) { // CC-133: pitched roofs, one mesh per roof colour
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tri, 3)); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, std(colour, { side: THREE.DoubleSide, flatShading: true })); m.castShadow = full; m.receiveShadow = full; group.add(m);
   }
 
   // trees: from the map's tree points (and tree rows); woods get a few at random (labelled as invented in the README)

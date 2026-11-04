@@ -90,6 +90,8 @@ const tier = process.env.CC_TESTS;
 export default defineConfig({
   plugins: [designerDev(), placesDev(), photosDev()],
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
+  // CC-133: the place scenery page ships too, so the preview site can show the photo facade
+  build: { rollupOptions: { input: { main: 'index.html', 'place-skin': 'place-skin.html' } } },
   server: { host: 'localhost', port: Number(process.env.PORT ?? 5173) },
   test: tier === 'slow'
     ? { include: slowFiles, testTimeout: 180000 }

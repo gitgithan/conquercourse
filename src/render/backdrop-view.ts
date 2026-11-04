@@ -3,6 +3,8 @@
 import * as THREE from 'three';
 import { behindLane, rigidFrame, type BackdropFrame } from '../world/backdrop';
 import { buildSkin, type SkinOsm } from '../world/skin';
+import { buildingStyleOn } from '../world/building-style';
+import { pageQuery } from '../flags';
 import { toGame, type FurnitureFile } from '../world/furniture';
 import { buildFurniture } from './furniture-view';
 import { FILM_MIN_SCALE, FURNITURE_ENABLED } from '../world/furniture';
@@ -23,7 +25,7 @@ export async function mountBackdrop(scene: THREE.Scene, course: { terrain: Param
   let buildings = 0, furniture = 0;
   if (osm) {
     const ground = (place.ground ? { radius: place.radius, ...place.ground } : null) as Ground | null;
-    const skin = buildSkin(behindLane(osm, frame), { skin: 'tags', k: frame.k, ground, noLand: true });
+    const skin = buildSkin(behindLane(osm, frame), { skin: 'tags', k: frame.k, ground, noLand: true, style: buildingStyleOn(pageQuery(), typeof location === 'undefined' ? '' : location.hostname) });
     inner.add(skin.group); buildings = skin.stats.buildings;
   }
   // the building group turns about y by the lane's angle, then moves by (shift, -level, -offset): the same map as toGame
