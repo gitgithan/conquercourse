@@ -118,3 +118,25 @@ export function flowOf(mode: string): { group: LabGroup; from: string | null; ne
 
 /** The Finale Lab sums up the whole series: the Labs it draws on (by mode), and the Lab before it. */
 export const FINALE_USES: readonly string[] = ['lab-search', 'lab-camera', 'lab-signal', 'lab-hashing', 'lab-motion', 'lab-lift', 'lab-collision'];
+
+/** CC-133: Labs that teach the same idea from two sides (docs/labs/overlap-audit.md). One entry per direction, by mode name, so renumbering needs no edit.
+ *  Both widgets stay in both Labs; the link only carries the reader across (no state). */
+export interface SeeAlso { from: string; to: string; text: string }
+export const SEE_ALSO: readonly SeeAlso[] = [
+  { from: 'lab-vision', to: 'lab-detector', text: 'See the same trade-off with real detector scores' },
+  { from: 'lab-detector', to: 'lab-vision', text: 'See where the threshold comes from' },
+  { from: 'lab-integration', to: 'lab-hashing', text: 'See why an exact step makes a replay a check' },
+  { from: 'lab-hashing', to: 'lab-integration', text: 'See why the step must be exact' },
+  { from: 'lab-search', to: 'lab-rl', text: 'See another way to find a clear run: trial and error' },
+  { from: 'lab-rl', to: 'lab-search', text: 'See how many tries other searches need' },
+  { from: 'lab-search', to: 'lab-optimization', text: 'See the same run counted on a map with peaks' },
+  { from: 'lab-optimization', to: 'lab-search', text: 'See how search methods count tries' },
+  { from: 'lab-optimization', to: 'lab-timing', text: 'See what a press window is' },
+  { from: 'lab-timing', to: 'lab-optimization', text: 'See how the game uses the window' },
+  { from: 'lab-camera', to: 'lab-lift', text: 'See what a missing depth does to a lifted object' },
+  { from: 'lab-lift', to: 'lab-camera', text: 'See why one photo gives no depth' },
+  { from: 'lab-collision', to: 'lab-hashing', text: 'See what the judge does with a replay' },
+  { from: 'lab-hashing', to: 'lab-collision', text: 'See a replay judged on a made course' },
+];
+/** The "see also" links of one Lab. */
+export const seeAlsoOf = (mode: string): SeeAlso[] => SEE_ALSO.filter((x) => x.from === mode);

@@ -1,4 +1,4 @@
-import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, labNumberOf, usedIn, usesOf } from './labs-series';
+import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, seeAlsoOf, labNumberOf, usedIn, usesOf } from './labs-series';
 
 // CC-133: how the Labs hand over to each other. Pipeline Labs show "from" at the top, "uses: Lab N" chips for the Foundation Labs they rely on, and "next" at the end.
 // Foundation Labs show "used in" chips for the pipeline stages that rely on them. Plain links: the browser closes the old Lab by itself.
@@ -14,6 +14,11 @@ const href = (mode: string): string => `?mode=${mode}&labs=1&welcome=0`; // the 
 const lab = (mode: string): string => `Lab ${labNumberOf(mode)}: ${labName(mode)}`;
 const chip = (mode: string, text: string, id?: string): string => `<a class="lab-flow-chip" ${id ? `id="${id}" ` : ''}data-lab="${mode}" href="${href(mode)}">${text}</a>`;
 
+const seeAlso = (mode: string): string => {
+  const l = seeAlsoOf(mode);
+  return l.length ? `<div class="lab-flow-row" id="lab-flow-see">${l.map((x) => chip(x.to, `${x.text}: ${lab(x.to)}`)).join('')}</div>` : '';
+};
+
 /** The two pieces for a Lab (pure: no page needed). `end` is empty for a Foundation Lab. */
 export function flowPieces(mode: string): { top: string; end: string } | null {
   if (!LAB_LIST.some((l) => l.mode === mode)) return null;
@@ -27,11 +32,11 @@ export function flowPieces(mode: string): { top: string; end: string } | null {
   if (!f) { // a Foundation Lab: where the pipelines use it
     const used = usedIn(mode);
     const chips = used.map((u) => (u.lab ? chip(u.lab, `${u.title}: ${u.stage}`) : `<span class="lab-flow-chip plain" title="No Lab for this stage yet">${u.title}: ${u.stage} (no Lab yet)</span>`)).join('');
-    return { top: `<div class="lab-flow-row" id="lab-flow-top"><span class="lab-flow-label">used in:</span>${chips || '<span class="lab-flow-chip plain">a method behind the pipelines</span>'}</div>`, end: '' };
+    return { top: `<div class="lab-flow-row" id="lab-flow-top"><span class="lab-flow-label">used in:</span>${chips || '<span class="lab-flow-chip plain">a method behind the pipelines</span>'}</div>${seeAlso(mode)}`, end: '' };
   }
   const uses = usesOf(mode).map((m) => chip(m, lab(m))).join('');
   const from = f.from ? chip(f.from, `from: ${lab(f.from)}`, 'lab-flow-from') : `<span class="lab-flow-chip plain" id="lab-flow-from">start of ${f.group.title}</span>`;
-  const top = `<div class="lab-flow-row" id="lab-flow-top">${from}${uses ? `<span class="lab-flow-label">uses:</span>${uses}` : ''}</div>`;
+  const top = `<div class="lab-flow-row" id="lab-flow-top">${from}${uses ? `<span class="lab-flow-label">uses:</span>${uses}` : ''}</div>${seeAlso(mode)}`;
   const gapText = f.gaps.map((g) => g.stage).join(', ');
   const end = f.next
     ? `<div class="lab-flow-next" id="lab-flow-next-box"><span style="color:#52605a;font-size:13px">${f.group.title}: what you made here feeds the next Lab.</span><a id="lab-flow-next" href="${href(f.next)}">next: ${lab(f.next)}</a></div>`
