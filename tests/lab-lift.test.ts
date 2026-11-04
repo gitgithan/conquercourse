@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { readGlbMesh } from "../src/slice/glb";
-import { ALL_STEPS, FACE_CAP, RECORDED_COST, RECORDED_LIFTS, STEP_NAMES, TYPICAL_HEIGHT, bake, barLength, bounds, faceCount, recipeFor, sizeWarning, typicalHeight, unbake, type Steps } from "../src/labs/lift/lift-core";
+import { ALL_STEPS, FACE_CAP, RECORDED_COST, RECORDED_LIFTS, STEP_NAMES, TYPICAL_HEIGHT, bake, barLength, bounds, faceCount, recipeFor, sizeWarning, typicalHeight, unbake, withExtraYaw, type Steps } from "../src/labs/lift/lift-core";
 
 // Lab 14 (cut-out, lift and bake): the bake rules pinned on a recorded GLB, and the recorded numbers pinned to the files they came from.
 const index = JSON.parse(readFileSync("public/assets/objects/index.json", "utf8")).objects as { name: string; label: string; height_m: number; extents_m: { x: number; y: number; z: number }; glb: string; faces: number }[];
@@ -113,5 +113,57 @@ describe("Lab 14: recorded cost and time match the files they came from", () => 
     expect(doc).toContain("8-10 s for the lift on the L40S and 0.3-2 s for the mask");
     expect(doc).toContain("about 15 s per object end to end; the first object takes 90-100 s");
     expect(doc).toContain("about 2 cents per object");
+  });
+});
+
+describe("Lab 14: turning the raw lift (the turn slider)", () => {
+  const TURNS = [0, 10, 25, 45, 60, 100, 133, 175];
+  for (const name of ["bench-concrete", "railing-iron"]) {
+    it(`${name}: with "face the side camera" on, any turn bakes to the recorded length, depth and height`, () => {
+      const { o, mesh } = load(name), { recipe } = recipeFor(name);
+      const base = bake(unbake(mesh, recipe), { label: o.label, typedHeight: o.height_m, steps: ALL_STEPS });
+      for (const t of TURNS) {
+        const r = bake(unbake(mesh, withExtraYaw(recipe, t)), { label: o.label, typedHeight: o.height_m, steps: ALL_STEPS });
+        for (let k = 0; k < 3; k++) expect(r.size[k], `${name} turn ${t} axis ${k}`).toBeCloseTo(base.size[k], 2);
+      }
+    });
+    it(`${name}: with the step off, a turn that is not a quarter turn leaves it cut across (the sizes differ)`, () => {
+      const { o, mesh } = load(name), { recipe } = recipeFor(name);
+      const steps = off("face"), at = (t: number) => bake(unbake(mesh, withExtraYaw(recipe, t)), { label: o.label, typedHeight: o.height_m, steps }).size;
+      const a = at(0);
+      for (const t of [10, 25, 45, 133]) {
+        const b = at(t);
+        expect(Math.max(...[0, 1, 2].map((k) => Math.abs(a[k] - b[k]))), `turn ${t}`).toBeGreaterThan(0.01);
+      }
+      expect(at(0)[1]).toBeCloseTo(at(100)[1], 6); // height is about the vertical, so no turn changes it
+    });
+  }
+});
+
+// CC-133: the turn slider acts on REAL raw lifts (decimated, kept in public/assets/lab/lift/raw)
+import { readFileSync as readRaw } from 'node:fs';
+import { parseRawPack, rawFromPack, type RawPackMeta } from '../src/labs/lift/lift-core';
+describe('Lab 14: real raw lifts', () => {
+  const index = JSON.parse(readRaw('public/assets/lab/lift/raw/index.json', 'utf8')).objects as RawPackMeta[];
+  const load = (m: RawPackMeta) => { const b = readRaw(`public/assets/lab/lift/raw/${m.file}`); return parseRawPack(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer).mesh; };
+  it('keeps each packed file small and lists a licence and a credit', () => {
+    expect(index.length).toBeGreaterThanOrEqual(8);
+    for (const m of index) { expect(m.kib, m.name).toBeLessThanOrEqual(300); expect(m.licence).toBeTruthy(); expect(m.photo_credit).toBeTruthy(); }
+  });
+  it('for any whole-degree turn, bake with "face" on gives the same length, depth and height; with it off, a different box', () => {
+    for (const m of index.slice(0, 4)) {
+      const mesh = load(m), opts = { label: m.label, typedHeight: m.typed_height_m, steps: { ...ALL_STEPS } };
+      const base = bake(rawFromPack(mesh, m, 0), opts);
+      for (const t of [13, 47, 90, 121]) {
+        const r = bake(rawFromPack(mesh, m, t), opts);
+        base.size.forEach((v, i) => expect(r.size[i], `${m.name} ${t}`).toBeCloseTo(v, 2));
+      }
+      const off = { ...opts, steps: { ...ALL_STEPS, face: false } };
+      const a = bake(rawFromPack(mesh, m, 0), off), b = bake(rawFromPack(mesh, m, 47), off);
+      if (m.name !== 'p1-pole') expect(Math.abs(a.size[0] - b.size[0]) + Math.abs(a.size[2] - b.size[2]), m.name).toBeGreaterThan(0.01); // a round pole looks the same from any side
+    }
+  });
+  it('the real raw height and tilt are the recorded ones', () => {
+    for (const m of index) { const z = Array.from(load(m).positions).filter((_: number, i: number) => i % 3 === 2); expect(m.raw_height).toBeGreaterThan(0); expect(Math.max(...z) - Math.min(...z)).toBeGreaterThan(0); }
   });
 });

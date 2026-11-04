@@ -33,3 +33,67 @@ export const LAB_LIST: readonly LabEntry[] = [
 /** The Labs of one section, in number order, each with its number. */
 export const labsOfPipeline = (id: Pipeline): { n: number; lab: LabEntry }[] =>
   LAB_LIST.flatMap((lab, i) => (lab.pipeline === id ? [{ n: i + 1, lab }] : []));
+
+// CC-133: the two tiers. Every Lab sits in exactly one sub-header. Foundations are the skills the game stands on; Pipelines are how it was built end to end.
+export type Tier = 'foundations' | 'pipelines';
+export interface LabGroup { id: string; tier: Tier; title: string; modes: readonly string[] }
+export const TIERS: readonly { id: Tier; title: string }[] = [
+  { id: 'foundations', title: 'Foundations' },
+  { id: 'pipelines', title: 'Pipelines' },
+];
+/** In the order they are shown (Foundations first; inside a pipeline, the order the data flows). Lab numbers and URLs never change. */
+export const LAB_GROUPS: readonly LabGroup[] = [
+  { id: 'search-learn', tier: 'foundations', title: 'Search and learn', modes: ['lab-search', 'lab-optimization', 'lab-rl', 'lab-gentest'] },
+  { id: 'see-world', tier: 'foundations', title: 'See the world', modes: ['lab-vision', 'lab-camera', 'lab-detector'] },
+  { id: 'move-measure', tier: 'foundations', title: 'Move and measure', modes: ['lab-ik', 'lab-integration', 'lab-timing', 'lab-signal'] },
+  { id: 'trust', tier: 'foundations', title: 'Trust the result', modes: ['lab-hashing'] },
+  { id: 'photo', tier: 'pipelines', title: 'Photo to course object', modes: ['lab-lift', 'lab-collision'] },
+  { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
+  { id: 'run', tier: 'pipelines', title: 'Run to shared link', modes: [] }, // no Lab planned (owner): the stage list and the Foundation Labs it uses are shown, not a gap to fill
+];
+export const groupOf = (mode: string): LabGroup | undefined => LAB_GROUPS.find((g) => g.modes.includes(mode));
+export const labNumberOf = (mode: string): number => LAB_LIST.findIndex((l) => l.mode === mode) + 1;
+export const labName = (mode: string): string => LAB_LIST.find((l) => l.mode === mode)?.name ?? mode;
+
+/** One pipeline stage: the Foundation Labs it relies on ("uses") and the pipeline Lab that teaches it (null = no Lab yet, an honest gap). */
+export interface PipelineStage { stage: string; uses: readonly string[]; lab: string | null }
+export const PIPELINE_MAP: Record<'photo' | 'video' | 'run', readonly PipelineStage[]> = {
+  photo: [
+    { stage: 'Photo', uses: ['lab-camera'], lab: null },
+    { stage: 'Cut-out', uses: ['lab-vision', 'lab-detector'], lab: 'lab-lift' },
+    { stage: 'Lift to 3D', uses: ['lab-camera'], lab: 'lab-lift' },
+    { stage: 'Bake', uses: [], lab: 'lab-lift' },
+    { stage: 'Collision', uses: ['lab-gentest'], lab: 'lab-collision' },
+    { stage: 'Place and prove', uses: ['lab-gentest', 'lab-timing', 'lab-search'], lab: null },
+  ],
+  video: [
+    { stage: 'Video', uses: [], lab: 'lab-motion' },
+    { stage: 'Pose', uses: ['lab-camera'], lab: 'lab-motion' },
+    { stage: 'Smooth', uses: ['lab-signal'], lab: 'lab-motion' },
+    { stage: 'Gate', uses: ['lab-signal'], lab: 'lab-motion' },
+    { stage: 'Clip', uses: ['lab-ik'], lab: 'lab-motion' },
+  ],
+  run: [
+    { stage: 'Run', uses: ['lab-integration'], lab: null },
+    { stage: 'Keys', uses: ['lab-timing'], lab: null },
+    { stage: 'Replay', uses: ['lab-integration', 'lab-hashing'], lab: null },
+    { stage: 'Hash', uses: ['lab-hashing'], lab: null },
+    { stage: 'Share', uses: ['lab-hashing'], lab: null },
+  ],
+};
+const PIPELINE_TITLE = (id: string): string => LAB_GROUPS.find((g) => g.id === id)?.title ?? id;
+
+/** Foundation Labs a pipeline Lab relies on, over the stages it teaches. */
+export const usesOf = (mode: string): string[] => [...new Set(Object.values(PIPELINE_MAP).flatMap((st) => st.filter((x) => x.lab === mode).flatMap((x) => x.uses)))];
+
+/** Where a Foundation Lab is used: one entry per pipeline stage that lists it. */
+export const usedIn = (mode: string): { pipeline: string; title: string; stage: string; lab: string | null }[] =>
+  (Object.entries(PIPELINE_MAP) as [string, readonly PipelineStage[]][]).flatMap(([id, st]) => st.filter((x) => x.uses.includes(mode)).map((x) => ({ pipeline: id, title: PIPELINE_TITLE(id), stage: x.stage, lab: x.lab })));
+
+/** For a pipeline Lab: the Lab before it and after it in its pipeline (null at the ends), and the stages of the pipeline that have no Lab yet. */
+export function flowOf(mode: string): { group: LabGroup; from: string | null; next: string | null; gaps: PipelineStage[] } | null {
+  const g = groupOf(mode);
+  if (!g || g.tier !== 'pipelines') return null;
+  const i = g.modes.indexOf(mode);
+  return { group: g, from: g.modes[i - 1] ?? null, next: g.modes[i + 1] ?? null, gaps: PIPELINE_MAP[g.id as 'photo'].filter((x) => x.lab === null) };
+}

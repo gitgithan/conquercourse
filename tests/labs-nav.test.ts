@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { screenFor } from '../src/ui/music';
-import { LAB_LIST, PIPELINES, labsOfPipeline } from '../src/ui/labs-series';
+import { LAB_GROUPS, LAB_LIST, TIERS } from '../src/ui/labs-series';
 import { LABS, labHref, labNeighbours, labNumber } from '../src/ui/labs-nav';
 
 // CC-118: the Labs bar lists all 12 Labs, knows which one is current, and every Lab page mounts it.
@@ -14,19 +14,25 @@ describe('labs bar', () => {
   it('keeps the first twelve numbers fixed (links in docs and films use them)', () => {
     expect(LABS.slice(0, 12).map((l) => l.mode)).toEqual(['lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl']);
   });
-  it('puts every Lab in exactly one pipeline section, with a stage named by that section', () => {
-    const ids = PIPELINES.map((p) => p.id);
-    for (const l of LAB_LIST) {
-      expect(ids, l.mode).toContain(l.pipeline);
-      const p = PIPELINES.find((x) => x.id === l.pipeline)!;
-      if (p.stages.length) expect(p.stages, l.mode).toContain(l.stage);
-    }
-    expect(PIPELINES.flatMap((p) => labsOfPipeline(p.id)).map((x) => x.n).sort((a, b) => a - b)).toEqual(LAB_LIST.map((_, i) => i + 1));
+  it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 15 fixed', () => {
+    const all = LAB_GROUPS.flatMap((g) => g.modes);
+    expect([...all].sort()).toEqual(LAB_LIST.map((l) => l.mode).sort());
+    expect(new Set(all).size).toBe(all.length);
+    expect(LAB_LIST).toHaveLength(15);
+    for (const g of LAB_GROUPS) expect(TIERS.map((t) => t.id), g.id).toContain(g.tier);
+    const names = (id: string) => LAB_GROUPS.find((g) => g.id === id)!.modes.map((m) => LAB_LIST.findIndex((l) => l.mode === m) + 1);
+    expect(names('search-learn')).toEqual([1, 2, 12, 9]);
+    expect(names('see-world')).toEqual([4, 5, 10]);
+    expect(names('move-measure')).toEqual([3, 6, 7, 8]);
+    expect(names('trust')).toEqual([11]);
+    expect(names('photo')).toEqual([14, 15]);
+    expect(names('video')).toEqual([13]);
+    expect(LAB_GROUPS.find((g) => g.id === 'run')!.modes).toEqual([]); // the honest gap
   });
-  it('draws group headings in the bar and the picker', () => {
-    expect(readFileSync('src/ui/labs-nav.ts', 'utf8')).toContain("h.className = 'group'");
-    const picker = readFileSync('src/ui/world-picker.ts', 'utf8');
-    expect(picker).toContain('labsOfPipeline');
+  it('draws tier and sub-header headings in the bar and the picker', () => {
+    expect(readFileSync('src/ui/labs-nav.ts', 'utf8')).toContain("th.className = 'group tier'");
+    expect(readFileSync('src/ui/labs-nav.ts', 'utf8')).toContain("h.className = 'group sub'");
+    expect(readFileSync('src/ui/world-picker.ts', 'utf8')).toContain('LAB_GROUPS');
   });
   it('numbers a Lab from 1 and gives 0 to anything else', () => {
     expect(labNumber('lab-search')).toBe(1);

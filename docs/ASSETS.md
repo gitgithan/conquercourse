@@ -877,3 +877,12 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/editor-repair-next-step.jpg` | Blocked-lane guidance and direct Find a repair button below the Simulator card | 2026-11-04 | Real simulator and Playwright desktop capture at 1280 px | None; no model call | Ours; documentation evidence only |
 | `docs/evidence/editor-stage-engine-pills.jpg` | Improve menu showing the actual simulator-only actions and separate model/Preview pills for AI ideas | 2026-11-04 | Local desktop capture; direct repair verified to start without model requests | None | Ours; documentation evidence only |
+
+### Lab 14 real raw lifts (CC-133)
+| File | Photo | Author | Source | Licence | What we do to it |
+|---|---|---|---|---|---|
+| `public/assets/lab/lift/raw/p1-bench-left.bin`, `p1-bench-right.bin`, `p1-pole.bin` (about 80 KB each) | Dansbana, Ystad (see the demo-photos row above) | Jonn Leffmann | [Wikimedia Commons](https://commons.wikimedia.org/) | CC BY 3.0 | Our lift model's raw mesh, thinned to 6,000 triangles by `scripts/lab-lift-rawpack.py`; vertex colours kept |
+| `public/assets/lab/lift/raw/p2-monkey-bars.bin` (about 80 KB) | Rataje workout park (see the demo-photos row above) | Koefbac | Wikimedia Commons | CC BY-SA 4.0 (demo only, swap before a sale: re-lift a CC0 or own photo with the same script) | Same thinning |
+| `public/assets/lab/lift/raw/bars-photo3.bin` (about 80 KB) | Saienji Mamedecca Park (bar-photos row above) | Salada220422 | Wikimedia Commons | CC0 | Same thinning |
+| `public/assets/lab/lift/raw/bars-photo4.bin`, `bars-photo6.bin`, `bars-photo7.bin` (about 80 KB each) | Hiroomote ES, Balfour Park, Miyakohara park (bar-photos rows above) | Ntsctalk, Michael Rivera, Ajisaka | Wikimedia Commons | CC BY-SA 4.0 (demo only, swap before a sale: same plan) | Same thinning |
+| `public/assets/lab/lift/raw/index.json`, `scripts/lab-lift-rawpack.py` | none | ours | made by the script from the full raw lifts in `../conquercourse-assets/eval-full` | ours | Real raw size, tilt, turn, cost and credit per object |
