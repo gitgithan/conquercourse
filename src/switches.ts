@@ -108,6 +108,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'pole', default: 'off', doc: "1 loads the pole course", quiet: false },
   { name: 'pose', default: 'none', doc: "present: the rookie demo shows a still pose, not a loop", quiet: false },
   { name: 'probe', default: 'off', doc: "1 adds a heading probe for checks", quiet: false },
+  { name: 'promo', default: 'off', doc: "1 makes The Grand Entrance walk itself from the entrance to the stage in exactly 5 seconds, with the 3D Pip and Juno there from the first picture (for the film)", quiet: false },
   { name: 'push', default: '1.5', doc: "coaster push strength", quiet: false },
   { name: 'r', default: '120', doc: "radius in metres for a place", quiet: false },
   { name: 'report', default: 'new', doc: "old brings back the old report", quiet: false },
