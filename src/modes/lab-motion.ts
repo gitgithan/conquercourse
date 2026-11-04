@@ -38,6 +38,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     #lab-motion h1{font-size:22px;margin:0}#lab-motion h2{font-size:16px;margin:0 0 6px}
     #lab-motion .card{background:#fff;border:1px solid #d5ddd6;border-radius:10px;padding:12px;min-width:0}
     #lab-motion .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+    #lab-motion .stack{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
     #lab-motion table{border-collapse:collapse;width:100%;font-size:13px}#lab-motion th,#lab-motion td{text-align:left;padding:3px 8px 3px 0;border-bottom:1px solid #e3e8e4}
     #lab-motion td.n,#lab-motion th.n{text-align:right;font-variant-numeric:tabular-nums}
     #lab-motion .small{color:#52605a;font-size:13px}
@@ -48,7 +49,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     #lab-motion .eq{font:13px/1.5 ui-monospace,Menlo,monospace;background:#f1f4f1;border-radius:8px;padding:8px 10px;white-space:pre-wrap}
     #lab-motion a{color:${TEAL};font-weight:600}
     #lab-motion .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700}
-    #lab-motion #mo-view{width:100%;height:300px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
+    #lab-motion #mo-view{width:100%;height:460px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
     #lab-motion #mo-held{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:16px;background:rgba(245,247,244,.94);font-weight:700;color:${BAD}}
     #lab-motion input[type=range]{width:100%}`;
   root.append(style);
@@ -86,7 +87,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div>
       <h2 style="margin-top:12px">The pose finder's own output</h2><div id="mo-real"></div></div>
 
-    <div class="two">
+    <div class="stack">
       <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
         <p class="small" style="margin:0 0 6px">Legs are scaled to match, bones turned to the joints. A failed clip never plays.</p>
         <div id="mo-view"><div id="mo-held"></div></div>
