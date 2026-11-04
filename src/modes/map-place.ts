@@ -67,7 +67,7 @@ export function installPlaces(ctx: PlaceCtx) {
   const errEl = document.createElement('div'); errEl.className = 'offer'; errEl.id = 'offer'; errEl.hidden = true;
   const openBtn = document.createElement('button'); openBtn.type = 'button'; openBtn.id = 'openeditor'; openBtn.className = 'go'; openBtn.textContent = 'Open in the World Editor'; openBtn.hidden = true;
   const explainEl = document.createElement('div'); explainEl.className = 'explain'; explainEl.id = 'explain'; explainEl.hidden = true;
-  const buildBtn = side.querySelector('#build') as HTMLElement;
+  const buildBtn = side.querySelector('#slice') as HTMLElement;
   buildBtn.after(stepsEl, errEl, openBtn, explainEl);
     openBtn.onclick = () => { location.search = '?mode=editor'; };
 
@@ -81,7 +81,7 @@ export function installPlaces(ctx: PlaceCtx) {
     const streetSet = await loadStreetPlaces(pageQuery());
     let thumbs: Record<string, { author: string; licence: string; source: string; shows?: string }> = {};
     { try { thumbs = await (await fetch('/assets/places/thumbs/index.json')).json(); } catch { thumbs = {}; } }
-    const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Build.`); };
+    const pick = (p: ReadyIndexEntry) => { map.flyTo({ center: [p.lon, p.lat], zoom: 16, duration: 700 }); ctx.setRadius(p.radius); ctx.setPin(p.lat, p.lon); ctx.tell(`${p.name}: ready. Press Slice this place.`); };
     const card = (p: ReadyIndexEntry) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.slug = p.slug;
       const cut = p.name.lastIndexOf(','), nm = cut > 0 ? p.name.slice(0, cut) : p.name, city = cut > 0 ? p.name.slice(cut + 1).trim() : '';
@@ -321,7 +321,7 @@ export function installPlaces(ctx: PlaceCtx) {
     if (!next || dist(next) < 1) return;
     el.append(' ');
     const b = document.createElement('button'); b.type = 'button'; b.textContent = `Go to ${next.name}`;
-    b.onclick = () => { map.flyTo({ center: [next.lon, next.lat], zoom: 16, duration: 700 }); ctx.setRadius(next.radius); ctx.setPin(next.lat, next.lon); ctx.tell(`${next.name}: ready. Press Build.`); };
+    b.onclick = () => { map.flyTo({ center: [next.lon, next.lat], zoom: 16, duration: 700 }); ctx.setRadius(next.radius); ctx.setPin(next.lat, next.lon); ctx.tell(`${next.name}: ready. Press Slice this place.`); };
     el.append(b);
   }
 
@@ -365,7 +365,7 @@ export function installPlaces(ctx: PlaceCtx) {
   // `snap` is called by map.ts when a pin is dropped: tell the player when a ready place is near
   function snapNote(lat: number, lon: number): string {
     const s = readyNear(lat, lon);
-    return s ? ` ${s.name} is ready here: Build loads it at once.` : '';
+    return s ? ` ${s.name} is ready here: Slice loads it at once.` : '';
   }
   return { obtain, finish, setStep, snapNote, prefetch, ready: loadIndex };
 }
@@ -380,7 +380,7 @@ function openReadyGallery(groups: { title: string; items: ReadyIndexEntry[] }[],
   style.textContent = '#ready-gallery .panel{background:#f6f8f5;color:#17201d;border-radius:18px;width:min(1400px,100%);display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;padding:18px 22px;box-shadow:0 20px 60px #0007}#ready-gallery .top{display:flex;justify-content:space-between;align-items:center;gap:12px}#ready-gallery h2{margin:0;font-size:26px}#ready-gallery .top p{margin:2px 0 0;color:#44504a;font-size:14px}#ready-gallery .gal{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:none;overflow:auto;margin:0;padding:4px;align-content:start;grid-auto-rows:max-content}#ready-gallery .gal .ph{aspect-ratio:3/2}#ready-gallery .gal .nm{font-size:16px;padding:4px 10px 0}#ready-gallery .gal .ct{font-size:13px;padding:0 10px}#ready-gallery .gal .bd{padding:2px 10px 8px;font-size:12px}#ready-gallery .gal .gh{grid-column:1/-1;display:flex;align-items:baseline;gap:12px;font-size:26px;font-weight:800;margin:18px 0 2px;padding:10px 16px;border:0;border-left:8px solid #2f7d5b;border-radius:10px;background:#e3efe8;color:#17201d}#ready-gallery .gal .gh:first-child{margin-top:0}#ready-gallery .gal .gh.pk{border-left-color:#b5651d;background:#f7e9d8}#ready-gallery .gal .gh small{font-size:15px;font-weight:600;color:#44504a}#ready-gallery .cw{position:relative}#ready-gallery .cw .look3d{position:absolute;top:8px;right:8px;background:#17201dcc;color:#fff;font:700 12px system-ui,sans-serif;padding:4px 10px;border-radius:999px;text-decoration:none}#ready-gallery .cw .look3d:hover{background:#2f7d5b}#ready-gallery .gal button.card:hover{border-color:#2f7d5b;transform:translateY(-2px)}';
   const panel = document.createElement('div'); panel.className = 'panel';
   const top = document.createElement('div'); top.className = 'top';
-  const head = document.createElement('div'); head.innerHTML = '<h2>Ready places</h2><p></p>'; head.querySelector('p')!.textContent = `${n} real places, built once, that load at once. Click one: the map flies there and Build is one press away.`;
+  const head = document.createElement('div'); head.innerHTML = '<h2>Ready places</h2><p></p>'; head.querySelector('p')!.textContent = `${n} real places, built once, that load at once. Click one: the map flies there and Slice is one press away.`;
   const close = Object.assign(document.createElement('button'), { type: 'button', textContent: 'Close' });
   close.style.cssText = 'font:700 15px system-ui,sans-serif;padding:8px 18px;border-radius:999px;border:3px solid #17201d;background:#fffdf7;cursor:pointer';
   top.append(head, close);

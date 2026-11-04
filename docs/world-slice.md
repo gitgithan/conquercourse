@@ -81,6 +81,37 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - **Built (the World editor, `?mode=editor`):** a plan view with seven library pieces and .glb import; all of the above; a side view of the lane; the simulator's verdict; Play.
 - **Not built yet:** a 3D view of the world; photos and drone footage going in directly (they go through the reconstruction pipeline first: CC-38); undo; snapping; saving imported pieces between visits; sharing a built world with the community.
 
+## One place-building flow (2026-11-04)
+
+- Evidence: [full-width Slice](evidence/slicer-slice-full-width.jpg), [passing start and handoff](evidence/slicer-passing-start.jpg).
+
+- Select a place, press Slice this place, shape the slice, then Send to the World Editor.
+- Build this place has been removed: it was an older whole-mesh export, while the retained handoff sends selected buildings and their proven lane.
+- Slice this place fills the side panel's available width.
+- Switching places clears the previous place's lane cache, workers, height strip and handoff result.
+- All 51 prepared places have simulator-proven starting heights and lines; replay checks cover every start and its editor handoff.
+- Reproduce that check with `DEFAULTS_ALL=1 npx vitest run tests/slicer-default.test.ts`; run the desktop flow with `PORT=5173 node scripts/map-check.mjs` against the dev server.
+- A missing, outdated or inapplicable saved proof starts a background search across the selectable heights, nearest the preferred height first.
+- The height controls stay hidden during that initial search; progress names the current height, and Cancel stops it.
+- The first passing height opens the controls with its matching simulator result; no extra simulation is needed to show that result.
+- If no passing start is found, the page says so and offers manual adjustment; Send remains disabled.
+- A height, building-selection or lane edit immediately disables Send until the exact new state has a passing result.
+
+```mermaid
+flowchart TD
+  A["Select place"] --> B["Slice this place"]
+  B --> C["Clear previous place results"]
+  C --> D{"Applicable saved passing start?"}
+  D -->|"Yes"| E["Open on proven height and line"]
+  D -->|"No"| F["Worker checks candidate heights"]
+  F -->|"Passing result"| E
+  F -->|"No passing start found"| G["Explain result; Send disabled"]
+  E --> H["Shape the slice"]
+  H --> I["Check edited state; Send waits"]
+  I -->|"Passing result"| J["Send to the World Editor"]
+  E --> J
+```
+
 ## The Slicer opens on a proved line (CC-90)
 - The owner's finding (2026-11-01): the Slicer made people wait for a search and then said "cannot find a path" on places that are fine.
 - Cause: the Slicer ignored the line stored with each ready place and started from a plain height with every building picked.
@@ -90,7 +121,7 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 - The Slicer opens on that line and height, and the Simulator strip says "Can clear" at once, with no spinner.
   - A quiet re-check runs in the background and only speaks if it disagrees.
   - Only a changed line or height runs the live check, and "Snap to the best line" jumps back to the proved default.
-- A place with no clean line says so ("No clean line found here: this is the closest") and shows its best try.
+- A place without a usable saved proof searches heights before opening the controls; an exhausted search says that no passing start was found.
 - A place you cut yourself has no stored file: the search starts by itself and shows the best height found so far.
 - The World Editor gets the same line and height (`handoverLane`), and its own check agrees (`tests/slicer-default.test.ts`).
 - Re-make the file with `npx tsx scripts/slicer-defaults.ts` (about a minute for most places, longer for hills); bump `CHECK_VERSION` when the check changes.

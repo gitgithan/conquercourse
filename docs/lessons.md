@@ -329,3 +329,10 @@
 - Find a repair and Ask AI for ideas both opened Course help, which made them look like duplicate actions even though one ran a physics search and the other called Muse Spark Open.
 - The owner chose to remove the standalone repair action; blocked-course guidance now points to Ask AI for ideas.
 - Removing a proposal source does not remove verification: the simulator still checks the exact preview and hands its result through Apply.
+
+### A passing start belongs to one place and one state (2026-11-04)
+
+- A lane-cache key containing only height, shrink and selected indices can match a different place; clear it and stop old workers when the place changes.
+- A saved proof applies to its exact cut height and physics settings; clamping the height or changing hills needs a new check.
+- Disable handoff as soon as an input changes, including during the debounce before the next search starts.
+- Verify both sides of a handoff: all 51 prepared starts were replayed in the Slicer and reconstructed as World Editor courses, with 107 checks passing.

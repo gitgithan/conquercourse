@@ -71,7 +71,7 @@ export interface Opening { shrink: number; cutM: number; line: Line | null; prov
 export function openingFor(d: SlicerDefault | undefined | null, plain: { shrink: number; range: number }): Opening {
   if (d && (d.clear || d.lengthM > 0)) {
     const cutM = Math.max(0, Math.min(plain.range, d.cutM));
-    return { shrink: d.shrink, cutM, line: d.line, proven: trusted(d), closest: !d.clear };
+    return { shrink: d.shrink, cutM, line: d.line, proven: trusted(d) && cutM === d.cutM, closest: !d.clear };
   }
   return { shrink: plain.shrink, cutM: Math.round(plain.range * 0.35 * 2) / 2, line: null, proven: false, closest: false };
 }
@@ -85,3 +85,11 @@ export function provenSummary(d: Pick<SlicerDefault, 'shrink' | 'line' | 'length
 
 /** The same line, within the 0.1 m the file is rounded to. */
 export const sameLine = (a: Line, b: Line): boolean => a.every((v, i) => Math.abs(v - b[i]) <= 0.15);
+
+/** Try every slider height, nearest the preferred start first; each candidate still needs a simulator proof. */
+export function openingHeights(range: number, preferred: number): number[] {
+  const top = Math.max(0, Math.floor(range * 2) / 2);
+  const centre = Math.max(0, Math.min(top, Math.round(preferred * 2) / 2));
+  return Array.from({ length: Math.round(top * 2) + 1 }, (_, i) => i / 2)
+    .sort((a, b) => Math.abs(a - centre) - Math.abs(b - centre) || a - b);
+}

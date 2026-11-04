@@ -24,7 +24,6 @@ try {
       await page.waitForFunction(() => document.documentElement.dataset.mapready === 'true', null, { timeout: 90000 }).catch(() => {});
       const box = await (await page.$('#map canvas.maplibregl-canvas')).boundingBox();
       await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-      await page.click('#build');
       await page.waitForSelector('#slice:not([disabled])', { timeout: 90000 });
       await page.evaluate(() => { window.__seq = []; const el = document.documentElement; const rec = () => { const v = el.dataset.sliceLane + '|' + (document.getElementById('cut')?.value ?? ''); if (window.__seq.at(-1)?.[1] !== v) window.__seq.push([Math.round(performance.now()), v]); }; new MutationObserver(rec).observe(el, { attributes: true }); });
       const t0 = Date.now(); await page.click('#slice');
