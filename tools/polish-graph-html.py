@@ -74,6 +74,34 @@ def short_names(communities):
     return names
 
 
+
+SLIDER_HTML = """<div id="size-wrap"><label for="size-min">Show communities with at least <b id="size-val">1</b> items <span id="size-count"></span></label><input id="size-min" type="range" min="1" max="MAXSIZE" value="1" step="1"></div>
+  """
+SLIDER_CSS = "#size-wrap { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; } #size-wrap label { display: block; margin-bottom: 6px; } #size-wrap input { width: 100%; }"
+SLIDER_JS = """<script>
+// Size filter (owner, 2026-11-04): hide communities smaller than the slider value; the legend checkboxes still work on top of it.
+(() => {
+  const sizeOf = new Map(JSON.parse(document.getElementById('community-data').textContent).map(c => [String(c.id), c.size]));
+  const slider = document.getElementById('size-min'), val = document.getElementById('size-val'), count = document.getElementById('size-count');
+  const apply = () => {
+    const min = Number(slider.value);
+    val.textContent = min;
+    let shown = 0;
+    nodesDS.update(RAW_NODES.map(n => {
+      const hide = hiddenCommunities.has(n.community) || (sizeOf.get(String(n.id)) || 0) < min;
+      if (!hide) shown++;
+      return { id: n.id, hidden: hide };
+    }));
+    count.textContent = '(' + shown + ' of ' + RAW_NODES.length + ' shown)';
+  };
+  slider.addEventListener('input', apply);
+  document.getElementById('legend').addEventListener('change', () => setTimeout(apply, 0));
+  document.getElementById('select-all-cb').addEventListener('change', () => setTimeout(apply, 0));
+  apply();
+})();
+</script>
+"""
+
 EDGE_CSS_VARS = ('--edge: #c9d7e8; --edge-hot: #ffd27a;', '--edge: #3d4f66; --edge-hot: #b45f06;')
 EDGE_JS = """
   const edgeColor = getComputedStyle(root).getPropertyValue('--edge').trim();
@@ -115,7 +143,7 @@ def polish(path):
             n['title'] = f"{names[cid]} ({n.get('member_count', '?')} items)\n{full[cid]}"
     t = t[:nm.start(1)] + json.dumps(nodes) + t[nm.end(1):]
     # Edges: brighter, a little thicker, theme aware (whole page, both themes).
-    t = re.sub(r'"width": 1, "color": \{"opacity": 0\.35\}', '"width": 1, "color": {"opacity": 0.38}', t)
+    t = re.sub(r'"width": 1, "color": \{"opacity": 0\.35\}', '"width": 0.5, "color": {"opacity": 0.38}', t)
     if '--edge:' not in t:
         t = t.replace('--neighbor-border: #333; --node-label: #ffffff;', '--neighbor-border: #333; --node-label: #ffffff; ' + EDGE_CSS_VARS[0], 1)
         t = t.replace('--neighbor-border: #ccc; --node-label: #222222;', '--neighbor-border: #ccc; --node-label: #222222; ' + EDGE_CSS_VARS[1], 1)
@@ -124,6 +152,12 @@ def polish(path):
         assert 'themeEdgeColor' in t and EDGE_JS in t, 'graph.html changed shape: update EDGE_JS anchors'
     # Labels must stay visible when the whole map is in view (vis hides them below a size threshold by default).
     t = t.replace("nodes: { shape: 'dot', borderWidth: 1.5 },", "nodes: { shape: 'dot', borderWidth: 1.5, scaling: { label: { enabled: false } } },", 1)
+    if 'id="size-min"' not in t:
+        top = max(c['size'] for c in comms)
+        assert '<div id="info-panel">' in t and '</body>' in t, 'graph.html changed shape: update the slider anchors'
+        t = t.replace('<div id="info-panel">', SLIDER_HTML.replace('MAXSIZE', str(top)) + '<div id="info-panel">', 1)
+        t = t.replace('</style>', SLIDER_CSS + '\n</style>', 1)
+        t = t.replace('</body>', SLIDER_JS + '</body>', 1)
     path.write_text(t)
     print(f'{path}: {len(names)} short names, e.g. ' + ', '.join(list(names.values())[:6]))
 
