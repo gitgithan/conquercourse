@@ -151,7 +151,7 @@ const ICONS: Record<string, string> = {
   'lab-detector': '<rect x="10" y="12" width="44" height="40" rx="4"/><rect x="22" y="22" width="20" height="20" rx="2"/><path d="M10 12l8 6M54 12l-8 6"/>',
   'lab-hashing': '<path d="M24 8l-4 48M44 8l-4 48M10 22h46M8 42h46"/>',
   'lab-rl': '<circle cx="14" cy="46" r="4"/><circle cx="32" cy="24" r="4"/><circle cx="50" cy="40" r="4"/><path d="M18 43l11-16M36 26l11 11"/><path d="M8 56h48"/>',
-  'lab-motion': '<circle cx=\"32\" cy=\"10\" r=\"4\"/><path d=\"M32 14v18M32 20l-12 8M32 20l12 8M32 32l-10 18M32 32l10 18\"/><path d=\"M8 56h48\"/>',
+  'lab-motion': '<circle cx="32" cy="10" r="4"/><path d="M32 14v18M32 20l-12 8M32 20l12 8M32 32l-10 18M32 32l10 18"/><path d="M8 56h48"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',
   stay: '<path d="M10 50h12V36h14V22h18"/><circle cx="54" cy="22" r="3"/>',
   'generate-same': '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="39" r="3"/><circle cx="32" cy="32" r="3"/>',

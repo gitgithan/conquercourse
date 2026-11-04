@@ -21,6 +21,7 @@
 |---|---|---|---|---|---|---|
 | 8 | Smooth, gate | [Signal processing](signal.md) | Jitter against lag when smoothing a clip | `?mode=lab-signal&labs=1` | `tests/lab-signal.test.ts` (15) | The noise is a stand-in (white, equal on all joints), not real video noise |
 | 3 | Clip | [Inverse kinematics](ik.md) | Where does the arm bend and break when the hand must reach a bar? | `?mode=lab-ik&labs=1` | `tests/lab-ik.test.ts` (12) | Side plane only, and the joint limits are round numbers |
+| 13 | Gate (the whole video pipeline) | [Video to motion](motion.md) | Which step of a filmed move can go wrong, and what stops it before the character moves? | `?mode=lab-motion&labs=1` | `tests/lab-motion.test.ts` (20) | The broken clips are made by us; only two failures are recorded, and the page runs the TypeScript gate, not the Python one |
 
 ### Run to shared link
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
