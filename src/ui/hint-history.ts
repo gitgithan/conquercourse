@@ -1,30 +1,38 @@
-// The hint history: the current hint stays where it is; the hints before it sit just under it in the sky band (CC-133), dimmer the older they are, then fade away.
-// It only reads the hint text; it never changes the hint.
+// The message history, drawn (CC-133): the 2 messages before the current one sit dimmed above it in the sky band, the older the dimmer (the N-back logic is in nback.ts).
+// It only reads the message text; it never changes the hint. The two rows keep their space even when empty, so the main slot never jumps.
 import { toastBand } from './toast-band';
+import { nbackPush, nbackRows, nbackStart, NBACK_N, type NBackState } from './nback';
 
 export interface HintHistory { update(current: string, hintEl: HTMLElement, nowMs: number): void }
-const KEEP = 1, LIFE_MS = 9000, DIM = [0.6]; // one older line, one row tall: the band must stay above the runner's head
+export const HISTORY_ROW_PX = 22, HISTORY_GAP_PX = 2;
+export const HISTORY_HEIGHT_PX = NBACK_N * HISTORY_ROW_PX + (NBACK_N - 1) * HISTORY_GAP_PX; // the space the dimmed rows keep above the main slot
 
 export function createHintHistory(parent: HTMLElement = toastBand()): HintHistory {
+  const style = document.createElement('style');
+  style.textContent = '@keyframes nbin{from{opacity:0;transform:translateY(24px)}to{transform:translateY(0)}}';
+  document.head.append(style);
   const box = document.createElement('div');
   box.id = 'toast-history';
-  box.style.cssText = 'order:2;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;font:600 15px system-ui,sans-serif;color:#10141c;max-width:100%';
+  box.style.cssText = `order:-1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:${HISTORY_GAP_PX}px;height:${HISTORY_HEIGHT_PX}px;overflow:hidden;pointer-events:none;font:600 13px system-ui,sans-serif;color:#10141c;max-width:100%;width:100%`;
   parent.append(box);
-  let shown = '';
-  let old: { text: string; at: number }[] = []; // newest last
+  const nodes = new Map<number, HTMLElement>();
+  let s: NBackState = nbackStart();
   return {
     update(current, _hintEl, nowMs) {
-      if (current !== shown) {
-        if (shown) old.push({ text: shown, at: nowMs });
-        old = old.slice(-KEEP);
-        shown = current;
+      s = nbackPush(s, current, nowMs);
+      const rows = nbackRows(s, nowMs); // oldest first: the oldest is the top row
+      const keep = new Set(rows.map((r) => r.id));
+      for (const [id, n] of nodes) if (!keep.has(id)) { n.remove(); nodes.delete(id); }
+      for (const r of rows) {
+        let n = nodes.get(r.id);
+        if (!n) {
+          n = document.createElement('div'); n.textContent = r.text;
+          n.style.cssText = `background:#fffc;border-radius:8px;padding:0 12px;height:${HISTORY_ROW_PX}px;line-height:${HISTORY_ROW_PX}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;box-sizing:border-box;flex:none;animation:nbin .35s ease-out;transition:opacity .35s`;
+          nodes.set(r.id, n);
+          box.append(n); // a new row is always the newest: it joins at the bottom, just above the main slot (never re-appended, or its slide would restart each frame)
+        }
+        n.style.opacity = String(r.opacity);
       }
-      old = old.filter((o) => nowMs - o.at < LIFE_MS && o.text !== current);
-      const rows = old.slice().reverse(); // nearest the current first
-      if (box.childElementCount !== rows.length || Array.from(box.children).some((c, i) => c.textContent !== rows[i].text)) {
-        box.replaceChildren(...rows.map((o) => { const d = document.createElement('div'); d.textContent = o.text; d.style.cssText = 'background:#fffc;border-radius:8px;padding:4px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center'; return d; }));
-      }
-      Array.from(box.children).forEach((c, i) => { (c as HTMLElement).style.opacity = String(DIM[i] * Math.max(0.3, 1 - (nowMs - rows[i].at) / LIFE_MS)); });
     },
   };
 }

@@ -40,7 +40,9 @@ export function createDrumLane(parent: HTMLElement, on: boolean): DrumLane {
     const row = d.route ? ways.indexOf(d.route) : -1; // a drum of one way sits in its own row (CC-225); a shared drum stays in the middle
     const size = row >= 0 ? 38 : 54;
     e.style.cssText = `position:absolute;top:${row < 0 ? 50 : row === 0 ? 27 : 73}%;width:${size}px;height:${size}px;margin:${-size / 2}px 0 0 ${-size / 2}px;`+'border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff3d6 0 52%,#c8382a 54% 100%);border:3px solid #7d1f16;display:grid;place-items:center;color:#5a1a10;font:800 11px system-ui,sans-serif;text-align:center;line-height:1';
-    e.innerHTML = `<span>${LABEL[d.what]}${d.note ? `<br><small>${d.note}</small>` : ''}</span>`;
+    const long = !!d.note && d.note.length > 8; // a sentence on a drum (the pole's "Hold E to climb the pole") gets a small card of two lines, not a circle
+    if (long) { e.style.width = '92px'; e.style.borderRadius = '14px'; e.style.padding = '0 3px'; e.style.background = '#fff3d6'; e.style.font = '800 10.5px/1.05 system-ui,sans-serif'; e.style.zIndex = '2'; } // two short lines, about as wide as two drums, so the drums beside it stay readable
+    e.innerHTML = long ? `<span>${d.note}</span>` : `<span>${LABEL[d.what]}${d.note ? `<br><small>${d.note}</small>` : ''}</span>`;
     root.appendChild(e);
     return e;
   };

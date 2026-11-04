@@ -6,7 +6,7 @@ export const TOAST_TOP_VAR = '--cc-toast-top';
 export const TOAST_TOP = '232px'; // under the obstacle strip (92 to 165 px with the next icon grown) and the ghost chip with its gap line (172 to 225 px), clear of the time line (left) and the buttons (right)
 export const TOAST_BAND_ID = 'toast-band';
 export const TOAST_BAND_WIDTH = 600; // px, the widest a message gets
-export const TOAST_BAND_BOTTOM = 0.44; // share of the window height: a hint and a toast fit above this line, which the runner never reaches (head at about 0.54, about 0.46 when the camera trails)
+export const TOAST_BAND_BOTTOM = 0.5; // share of the window height: the two dimmed rows (55 px) and a two-line message fit above this line, which the runner never reaches (head at about 0.54, about 0.46 when the camera trails)
 
 /** The band's box in a window of vw x vh pixels (pure, so a test can put it next to the runner's box). */
 export function toastBandBox(vw: number, vh: number): { left: number; top: number; right: number; bottom: number } {

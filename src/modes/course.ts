@@ -376,8 +376,9 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     views.update(st.world, facing);
     const reportOpen = panel.style.display !== 'none'; // CC-191: while a report is open the hint, the controls card, the ghost chip and the second Edit button step aside
     hint.textContent = reportOpen ? '' : hintFor(st.world);
-    hint.style.display = hint.textContent ? 'block' : 'none';
-    toastStack.update(hint.textContent ?? '', hint, performance.now());
+    const sayNow = reportOpen ? '' : sayer.current(); // CC-133: one message in the main slot: a toast takes it over the hint, and the hint comes back after
+    hint.style.display = hint.textContent && !sayNow ? 'block' : 'none';
+    toastStack.update(sayNow || (hint.textContent ?? ''), hint, performance.now());
     barsKeys.update(st.world, course);
     if (reportOpen !== reportWas) { reportWas = reportOpen; if (reportOpen) help.style.visibility = 'hidden'; else if (!document.getElementById('helpmenu')) help.style.visibility = ''; rowBtns.style.visibility = reportOpen ? 'hidden' : ''; const gh = document.getElementById('ghost-hud'); if (gh) gh.style.visibility = reportOpen ? 'hidden' : ''; }
     msg.textContent = st.paused && !studioHold ? 'Back from the Dojo. Press any key to carry on.' : st.world.outcome === 'cleared' ? 'You made it! Press R to run it again.' : st.idealNote;

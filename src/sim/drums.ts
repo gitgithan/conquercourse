@@ -8,6 +8,7 @@ import { newWorld, stepWorld, WALL_HOLD_TICKS } from './world';
 
 // The drum lane: where along the course the ideal run presses Space, so a player can see where to jump on any course,
 // including one built in the editor. It shows the line; it never grades the player's own presses.
+export const POLE_NOTE = 'Hold E to climb the pole'; // shown on the drum itself (CC-133)
 export interface Drum {
   x: number; // m along the course at the moment of the press
   note?: string; // a few words on the drum (the aim of a cannon)
@@ -50,7 +51,7 @@ export function drumsFor(course: CourseData, plan: Plan = course.plan ?? searchI
     if (w.mode !== 'wall') wallDrum = false;
     else if (!wallDrum && w.wall && w.wall.result.grabTick !== null && w.wall.index >= w.wall.result.grabTick - WALL_HOLD_TICKS) { wallDrum = true; drums.push({ x: w.runner.x, what: 'grab' }); }
     if (prevMode !== 'swing' && w.mode === 'swing') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the rope
-    if (prevMode !== 'polec' && w.mode === 'polec') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a standing pole (CC-133: the bulb lane of the fork starts with one)
+    if (prevMode !== 'polec' && w.mode === 'polec') drums.push({ x: w.runner.x, what: 'grab', note: POLE_NOTE }); // E closes on a standing pole (CC-133: the bulb lane of the fork starts with one)
     if (prevMode !== 'hang' && prevMode !== 'polec' && w.mode === 'hang') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on the bar (from the top of a pole the hands are already closed)
     if (prevMode !== 'climb' && w.mode === 'climb') drums.push({ x: w.runner.x, what: 'grab' }); // E closes on a wall's edge
     if ((prevMode === 'hang' && w.mode !== 'hang') || (prevMode === 'swing' && w.mode !== 'swing')) drums.push({ x: w.runner.x, what: 'release' }); // both hands let go (a bar, or the rope: letting go of E, CC-245)

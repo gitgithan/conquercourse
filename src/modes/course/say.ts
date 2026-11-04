@@ -14,6 +14,7 @@ export function createSay(params: URLSearchParams, st: CourseState) {
   if (params.get('check') === '1') (window as unknown as { __say?: typeof say }).__say = say; // for scripts/toast-shot.mjs: three toasts at once
   return {
     say,
+    current: () => (toastsOld ? (toast.style.display === 'none' ? '' : toast.textContent ?? '') : toasts.queue.live.length ? toasts.queue.live[toasts.queue.live.length - 1].text : ''), // the one toast in the main slot
     remaining: (tick: number) => (toastsOld ? toastUntil - tick : toasts.remaining(tick)), // how long the line on screen still stays
     clear() { toastUntil = 0; toast.style.display = 'none'; toasts.clear(); },
     update(tick: number) { if (tick > toastUntil) toast.style.display = 'none'; toasts.update(tick); },

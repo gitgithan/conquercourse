@@ -346,3 +346,13 @@
   - the toast code joined drums of the two ways, so a bench jump borrowed a bar toast.
 - The fix: a grab drum and a `pole` toast row, drums of one way only are neighbours, and `tests/obstacle-teaching.test.ts` fails when a shipped course uses an obstacle field with no toast or hint.
 - The short messages (hint, toasts, dimmed older hints) moved from the middle of the picture to one band in the sky under the obstacle strip (`src/ui/toast-band.ts`); `tests/toast-band.test.ts` keeps it clear of the runner in several camera states.
+- Follow-up (2026-11-04): the drum lane still showed only the fastest way unless `?fork=1` was on, so the high path had no drums at all in a plain run.
+  - The lane now draws both ways whenever a course has a fork.
+  - The pole drum carries its own words, "Hold E to climb the pole", on a small two-line card (a long sentence on a round drum does not fit, and a wide one hid its neighbours).
+- Toasts are now "N-back with N = 2" (`src/ui/nback.ts`, pure, `tests/nback.test.ts`):
+  - the message now sits in the main slot;
+  - the 2 before it sit dimmed above it, the older the dimmer;
+  - a new message dims the one on screen, moves it up a slot, drops the oldest and takes the main slot.
+  - A toast takes the main slot over the hint, so nothing piles up below.
+- A bug worth remembering: appending a node that is already in the page restarts its CSS animation, so the dimmed rows slid forever until they were only added once.
+- Limit: the page draws the messages once per frame, so a message that comes and goes between two frames never reaches the history.

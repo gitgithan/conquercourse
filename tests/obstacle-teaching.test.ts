@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { TOASTS } from '../src/course/obstacles';
-import { drumsForPaths } from '../src/sim/drums';
+import { drumsForPaths, POLE_NOTE } from '../src/sim/drums';
 import { toastsFor, approachToast } from '../src/ui/approach-toast';
 import type { CourseData } from '../src/course/course';
 
@@ -75,5 +75,17 @@ describe('the fork course: both ways are taught', () => {
   it('does not turn a bench-way jump into a bar toast because a bulb-way bar is near', () => {
     const toasts = toastsFor(c, drums);
     expect(toasts.filter((q) => q.kind === 'lache')).toEqual([]);
+  });
+  it('the drum on the pole says what to do, on the bulb way only (the owner saw no instruction on the drums)', () => {
+    const pole = drums.filter((d) => d.what === 'grab' && d.note === POLE_NOTE);
+    expect(POLE_NOTE).toBe('Hold E to climb the pole');
+    expect(pole).toHaveLength(1);
+    expect(pole[0].route).toBeTruthy(); // it sits in the bulb way's row, not the shared middle row
+    expect(pole[0].x).toBeLessThan(c.climbPoles![0].x + 0.5);
+    expect(pole[0].x).toBeGreaterThan(c.climbPoles![0].x - 3);
+  });
+  it('the drum lane draws the fork drums whenever a course has a fork, not only behind ?fork=1', () => {
+    const src = readFileSync('src/modes/course/drums.ts', 'utf8');
+    expect(src).toMatch(/pathsOn\(params\) \|\| course\.branches\?\.length \? drumsForPaths\(course\)/);
   });
 });
