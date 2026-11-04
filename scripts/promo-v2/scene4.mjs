@@ -9,7 +9,8 @@ const K = JSON.parse(readFileSync(new URL('./params/scene4-bulb-keys.json', impo
 const LAG = Number(process.env.LAG ?? 90);              // ticks (120 a second) the ghost is ahead
 const NAME = 'MetaHackathon';
 const URL_ = '/?course=/assets/demo/fork-bench-bulb.course.json&welcome=0&backend=webgl2&sunat=noon';
-const S = await openSession({ url: null, out, pw, rafStep: true }); const p = S.p;
+const S = await openSession({ url: null, out, pw, rafStep: true }); // lib default is 1920x1080, device scale 1
+const p = S.p;
 mkdirSync(`${out}/debug`, { recursive: true });
 await p.addInitScript(() => { try { localStorage.setItem('cc.next.seen', '1'); } catch { /* ok */ } });
 const log = (...a) => console.log('S4', ...a);
@@ -20,7 +21,7 @@ await p.goto(base + URL_);
 await p.waitForSelector('html[data-ready=true]', { timeout: 240000 });
 await S.settle(2500); await S.hideChrome();
 await p.keyboard.press('KeyH').catch(() => {});                   // Controls card off
-await p.mouse.move(640, 700); S.mx = 640; S.my = 700;
+await p.mouse.move(960, 1000); S.mx = 960; S.my = 1000;
 const ghostChip = () => p.evaluate(() => document.querySelector('#ghost-chip')?.textContent ?? 'none');
 for (let i = 0; i < 6 && !/Ghost: (?!working|Off|no )/.test(await ghostChip()); i++) { log('ghost chip', await ghostChip()); await S.until(() => /Ghost: (?!working|Off|no )/.test(document.querySelector('#ghost-chip')?.textContent ?? ''), 'ghost', 20000); if (i == 2) await p.keyboard.press('KeyN'); }
 log('ghost chip', await ghostChip());
