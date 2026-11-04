@@ -13,6 +13,20 @@
   - Later it holds: the track, the bar it starts on, the hit points, and the loop or fade.
 - Times are from the start of the film; "not set" means the owner has not given them yet.
 
+## Splash: the first scene (1 s, decided)
+
+- Content: our big logo and the slogan "Train slow. Run fast." on a dark background.
+- Look: no more cartoonish art; the old start card (sky, blocks, hill, trees in `scripts/film-d/cards.mjs`) is not reused.
+- The very first frame is the finished picture, fully visible.
+  - Sharing sites take the first frame as the preview picture, so it cannot fade in from black.
+  - The background is dark; the logo and slogan are bright from frame 0.
+- Length: 1 second only.
+  - Then the film cuts to the Grand Entrance.
+  - At most 1 second fully still, so a small movement starts at once or by the half second.
+- The same screen is reused as the end card, with the website link added.
+- A new logo file is needed; it gets a row in `docs/ASSETS.md` before the film uses it.
+- **Music lane:** not decided.
+
 ## Scene 0: The Grand Entrance, then the run (12 s, decided)
 
 | Part | Time | What the viewer sees | Overlay |
@@ -88,6 +102,7 @@
 ## Scene 8: Close (time not set)
 
 - Zoom out of the globe and darken
+- The splash screen again, with the website link added
 - The slogan: "Train slow. Run fast."
 - Camera: not set.
 - **Music lane:** not decided.
@@ -96,4 +111,5 @@
 
 - Order: Create your obstacles comes before Build your course (the owner agreed the swap).
 - The opening replaces the separate "ideal-run ghost" hook, because it already shows the ghost.
+- First scene: the new 1-second splash (see above); last scene: the same splash plus the website link.
 - Total length: not set; the opening is 12 s.
