@@ -58,7 +58,10 @@ export async function handle(b: Record<string, unknown>, env: Env, ip: string, f
   } catch { return { status: 502, body: refusalBody('down', 'The outline finder is busy. Try again in a minute.', 60) }; }
 }
 
-export const onRequestPost = async ({ request, env }: { request: Request; env: Env & TurnstileEnv }): Promise<Response> => {
+export const onRequestPost = async (ctx: { request: Request; env: Env & TurnstileEnv }): Promise<Response> => {
+  try { return await post(ctx); } catch (e) { console.error('route failed', String(e)); return json({ error: 'down', message: 'The outline finder hit a snag. Try again in a minute.', retryAfterSeconds: 30 }, 502, { 'retry-after': '30' }); } // never a bare server-error page: the page can only say "not answering" to those
+};
+const post = async ({ request, env }: { request: Request; env: Env & TurnstileEnv }): Promise<Response> => {
   const raw = await request.text();
   if (raw.length > 2_200_000) return json({ error: 'bad', message: 'The photo is too big.' }, 413);
   let b: Record<string, unknown>;
