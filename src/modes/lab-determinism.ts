@@ -9,7 +9,7 @@ import {
   type Machine, type Order, type Pins, type Raw, type Rounding,
 } from "../labs/determinism/determinism-core";
 
-// Lab 17: Same run, any machine. The player replays one recorded run on simulated machines (a last-digit habit, a frame clock that drifts, a map walked in another order),
+// Lab 19: Same run, any machine. The player replays one recorded run on simulated machines (a last-digit habit, a frame clock that drifts, a map walked in another order),
 // sees one small fingerprint per frame turn red at the first mismatch, then switches pins on until the machines agree on every frame with the fewest pins.
 // Every run is the game's own simulator (src/sim/world.ts) on a shipped demo course and its stored plan; the recorded traces are tests/golden/sim-trace.json. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", RED = "#b91c1c", PALE = "#cdd8d1", GREY = "#52605a";
@@ -25,7 +25,7 @@ export function startLabDeterminism(host: HTMLElement): { backend: "canvas2d" } 
   host.append(root);
   mountLabsNav(host, "lab-determinism");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 17: Same run, any machine</h1><p>Labs are switched off.</p><p><a href="?mode=lab-determinism&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 19: Same run, any machine</h1><p>Labs are switched off.</p><p><a href="?mode=lab-determinism&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -64,7 +64,7 @@ export function startLabDeterminism(host: HTMLElement): { backend: "canvas2d" } 
       <label>Round the hashed numbers to: <select id="${p}-grid">${gridOpts}</select></label></div>`;
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 17: Same run, any machine</h1>
+    <h1>Lab 19: Same run, any machine</h1>
     <p class="small" style="margin:2px 0 0"><b>Pipeline stages: Replay and Hash.</b> The server replays your keys and compares fingerprints, so every machine must get the same ones. The long story is in <code>docs/labs/determinism.md</code>.</p>
     <p class="small" style="margin:6px 0 0">The goal: replay one run on machines that round, count and walk a little differently, and find the fewest pins that make every frame agree.</p></div>
     <div class="card"><h2>Pick a recorded run</h2>
