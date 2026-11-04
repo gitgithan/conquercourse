@@ -12,8 +12,8 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 
 ### 🏁 **Start with the Training run: [play it straight away](https://conquercourse.pages.dev/?course=/assets/demo/training.course.json)**
 - The link opens the Training course at once: no menu, no front door.
-- It has every move in one run: gap jump, vault, curved wall, climb, planks, hanging bar, rope swing and trampoline.
-- Beat your own time, then press **N** to share your run as a challenge link.
+- It has every move in one run: gap jump, vault, warped wall, climb, planks, hanging bars, rope swing, trampoline, and drop and roll.
+- Beat your own time, then use **Share this run** on the end screen to copy a challenge link (**N** switches the ghost).
 
 ![The Training run: the runner clears every obstacle in one go (sped up 2.5 times)](docs/evidence/cc-133-readme-run/training-run.gif)
 - The clip above is the ideal run, sped up 2.5 times.
@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ## 📸 Screens
 
-- Click a picture to see it full size (1920 x 1020).
+- Click a picture to see it full size (about 1920 px wide).
 - Every picture is a real screen of the running game.
 
 ### Course: run it, see the report, pick a course
@@ -121,7 +121,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Time | Do this | You will see |
 |---|---|---|
 | 0-10 s | Open https://conquercourse.pages.dev/ and press **Courses**, then run the First Course (arrows or A/D, Space to jump) | A runner on real-object obstacles; falling costs one key press (R) |
-| 10-20 s | Press **I** | The ideal run, found and proved by the simulator, as a ghost to chase |
+| 10-20 s | Press **I** | The best line over the next obstacle, found and proved by the simulator, as a ghost to chase (**Shift+I** shows the whole course) |
 | 20-35 s | Open **World Editor** (`?mode=editor`), place a piece, choose **Ask AI for ideas** | The design partner (Muse Spark Open) proposes; the simulator checks and says in plain words what to change |
 | 35-45 s | Open **World Slicer** (`?mode=map`), pin a place | A real street becomes a lane, with Mapillary street photos |
 | 45-60 s | Open **Community** (`?mode=communities`) and press **Segment Objects** on a photo | SAM 3 outlines the objects; pick one and SAM 3D Objects lifts it to a 3D piece (needs the server jobs on; otherwise watch the [promo video](#-promo-video) or read [click by click](docs/community-flow-guide.md)) |
@@ -137,8 +137,8 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Use of Meta AI tooling | 25% | Ten Meta models and services, each with one visible job; the models propose and the simulator decides | [Meta tool use](#meta-tool-use), [open weights split](#-open-weights-split) |
 | Technical depth | 20% | A deterministic 120 Hz simulator, an ideal-run proof, a plausibility gate, cross-machine tests, failures written up | [Proof in numbers](#-proof-in-numbers), [Architecture](#-architecture-at-a-glance) |
 | Demo | 25% | An 85 second film from the real game, and a 60 second path you can click yourself | [Promo video](#-promo-video), [60-second judge path](#-60-second-judge-path) |
-| Bonus: Best Agentic Use-Case | bonus | An agent designs a course from a sentence, proves it clearable with the real simulator, and repairs it until proven: 40 of 44 runs proven, none by deleting obstacles, $0.36 for all 44 | [Best Agentic Use-Case](#-best-agentic-use-case) |
-| Bonus: Most Viral | bonus | A short challenge link and a 15 second clip, with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
+| Bonus: Best Agentic Use-Case | bonus | In code and measured, not a player button: an agent designs a course from a sentence, proves it clearable with the real simulator, and repairs it until proven: 40 of 44 runs proven, none by deleting obstacles, $0.36 for all 44; players get the simulator-checked **Ask AI for ideas** and **Fix it** | [Best Agentic Use-Case](#-best-agentic-use-case) |
+| Bonus: Most Viral | bonus | A short challenge link and a short clip (up to about 20 seconds), with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
 | Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
 | Bonus: Best Creative Build | bonus | Anyone can type a sentence and get a playable character: Muse Image paints it, SAM 3.1 cuts it out, SAM 3D Objects makes the mesh, and one fixed skeleton and one set of physics keep every character fair. Real parks, streets and photos become courses too | [Characters (UGC)](#user-made-characters-and-pieces-ugc), [Meta tool use](#meta-tool-use) |
 
