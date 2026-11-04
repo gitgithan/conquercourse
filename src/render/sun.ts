@@ -37,7 +37,7 @@ export const TIME_PRESETS: readonly TimePreset[] = [
   { id: 'golden', label: 'Golden hour', hour: 17.5 },
   { id: 'dusk', label: 'Dusk', hour: 19.3 },
 ];
-export const DEFAULT_PRESET: TimePreset['id'] = 'golden'; // late afternoon: long shadows and warm walls look best
+export const DEFAULT_PRESET: TimePreset['id'] = 'noon'; // the product owner chose noon as the default (2026-11-04): bright, with short shadows; golden hour stays one click away
 export const DEFAULT_DAY = 150; // the end of May; a day when every populated latitude has a sun in the evening
 export const presetOf = (id: string | null | undefined): TimePreset => TIME_PRESETS.find((p) => p.id === id) ?? TIME_PRESETS.find((p) => p.id === DEFAULT_PRESET)!;
 

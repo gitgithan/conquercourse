@@ -54,9 +54,9 @@ describe('sunVector', () => {
 });
 
 describe('presets and looks', () => {
-  it('four presets, golden hour is the default and low, noon is high, dusk is lower still', () => {
+  it('four presets, noon is the default, golden hour is low, noon is high, dusk is lower still', () => {
     expect(TIME_PRESETS.map((p) => p.id)).toEqual(['morning', 'noon', 'golden', 'dusk']);
-    expect(presetOf(null).id).toBe('golden');
+    expect(presetOf(null).id).toBe('noon');
     const el = (id: string) => sunPosition(48.85, DEFAULT_DAY, presetOf(id).hour).elevation;
     expect(el('noon')).toBeGreaterThan(55);
     expect(el('golden')).toBeGreaterThan(8);
