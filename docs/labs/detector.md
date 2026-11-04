@@ -4,6 +4,11 @@
 - Live: it opens on the recorded detector data with the scores and the "what the game does" card already shown.
 - A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
 
+## See also
+- A chip at the top jumps to the computer vision Lab: "See where the threshold comes from".
+- Both Labs keep their own widgets; the link carries no state.
+- The list lives in `SEE_ALSO` in `src/ui/labs-series.ts`, by mode name.
+
 ## The question
 - A helper program looked at six park objects and was asked to point at the part a hand could hold.
 - Is it good enough to place holds for us?

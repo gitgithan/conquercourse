@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { LAB_GROUPS, LAB_LIST, PIPELINE_MAP, flowOf, usedIn, usesOf } from '../src/ui/labs-series';
+import { SEE_ALSO, seeAlsoOf, LAB_GROUPS, LAB_LIST, PIPELINE_MAP, flowOf, usedIn, usesOf } from '../src/ui/labs-series';
 import { flowPieces } from '../src/ui/lab-flow';
 
 // CC-133: pipeline Labs say where they come from, which Foundation Labs they use and what is next; Foundation Labs say where they are used.
@@ -29,5 +29,19 @@ describe('lab flow (two tiers)', () => {
     expect(flowPieces('lab-motion')!.end).toContain('Back to the game');
     const sig = flowPieces('lab-signal')!; expect(sig.top).toContain('used in:'); expect(sig.top).toContain('Video to motion: Smooth'); expect(sig.end).toBe('');
     expect(flowPieces('lab-nope')).toBeNull();
+  });
+
+  it('see-also links: precision/recall Labs point both ways, every link resolves, both ways exist, no hard-coded numbers', () => {
+    const modes = new Set(LAB_LIST.map((l) => l.mode));
+    for (const x of SEE_ALSO) {
+      expect(modes.has(x.from) && modes.has(x.to), `${x.from}->${x.to}`).toBe(true);
+      expect(SEE_ALSO.some((y) => y.from === x.to && y.to === x.from), `no way back ${x.to}->${x.from}`).toBe(true);
+    }
+    expect(seeAlsoOf('lab-vision').map((x) => x.to)).toContain('lab-detector');
+    expect(seeAlsoOf('lab-detector').map((x) => x.to)).toContain('lab-vision');
+    const v = flowPieces('lab-vision')!.top; expect(v).toContain('id="lab-flow-see"'); expect(v).toContain('data-lab="lab-detector"'); expect(v).toContain('same trade-off with real detector scores');
+    expect(flowPieces('lab-detector')!.top).toContain('See where the threshold comes from');
+    expect(flowPieces('lab-lift')!.top).toContain('data-lab="lab-camera"'); // a pipeline Lab gets the row too
+    expect(flowPieces('lab-ik')!.top).not.toContain('lab-flow-see'); // none listed, none shown
   });
 });

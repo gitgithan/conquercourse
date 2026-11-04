@@ -139,3 +139,15 @@
 ### 20. Detector in the lift Lab
 - The lift Lab says "after the object exists, is the part found right?" and links Lab 10.
   - No repeat.
+
+## Cross-links added (CC-133)
+- A "see also" chip row at the top of a Lab, from `SEE_ALSO` in `src/ui/labs-series.ts`, by mode name, both ways.
+- Done:
+  - Precision and recall (overlap 2): computer vision and detector.
+  - Replay and determinism (overlap 1): integration and hashing.
+  - Search, learning and optimization (overlap 3): search with learning, and search with optimization.
+  - Press timing (overlap 5): optimization and timing.
+  - Depth is a guess (overlaps 8 and 17): camera and lift.
+  - Replay in the collision Lab (overlap 19): collision and hashing.
+- Already linked: the gate (14) and the detector in the lift Lab (20), through the "uses" chips.
+- Still text only (docs, not Labs): 6, 7, 9, 10, 16, 18.

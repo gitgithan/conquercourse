@@ -4,6 +4,11 @@
 - Live: it opens on the mask threshold the game uses; the photo table and the kept-versus-missed numbers are already filled.
 - A small label at the top says "Showing our setting, already run" (or "Precomputed with the same code (seed N)"); change a control and press Run to try your own.
 
+## See also
+- A chip at the top jumps to the detector Lab: "See the same trade-off with real detector scores".
+- Both Labs keep their own widgets; the link carries no state.
+- The list lives in `SEE_ALSO` in `src/ui/labs-series.ts`, by mode name.
+
 ## The question
 - How many street photos can the game keep without leaving a person visible in one?
 - The game finds people with a detector, blurs them, and drops a photo when too much of it is blurred.
