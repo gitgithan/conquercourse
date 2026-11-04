@@ -29,6 +29,16 @@ try {
   check('stage line', (await page.textContent('#lab-collision')).includes('Pipeline stage 4 of 8'));
   const sim = await page.textContent('#lcol-sim-says');
   check('simulator clears', sim.includes('cleared'), sim);
+  await page.waitForFunction(() => !document.querySelector('#lskin-all')?.textContent.includes('working it out'), null, { timeout: 90000 });
+  const skinAll = await page.textContent('#lskin-all');
+  check('skin card: only the 5 cm box keeps the run', !/undefined|NaN/.test(skinAll) && (skinAll.match(/keeps the run/g) ?? []).length === 1, skinAll.slice(0, 400));
+  await page.check('input[name=lskin-m][value=collider]');
+  await page.waitForFunction(() => document.querySelector('#lskin-verdict')?.textContent.includes('The same run'), null, { timeout: 30000 });
+  await page.check('input[name=lskin-p][value=box-snapped]'); await page.click('#lskin-check');
+  check('challenge answers yes', (await page.textContent('#lskin-result')).includes('Yes'));
+  await page.check('input[name=lskin-m][value=skin]');
+  await page.waitForFunction(() => document.querySelector('#lskin-verdict')?.textContent.includes('different run'), null, { timeout: 30000 });
+  await page.locator('#lskin').scrollIntoViewIfNeeded(); await page.locator('#lskin').screenshot({ path: 'test-results/lab-collision/skin-card.png' });
   await page.screenshot({ path: 'test-results/lab-collision/open.png', fullPage: true });
   for (const s of [1, 2, 3, 4, 5, 7, 8, 9]) { await page.click(`#lcol-steps button[data-step="${s}"]`); const t = await page.textContent('#lcol-title'); check(`step ${s}`, t.startsWith(`Step ${s} of 9`), t); }
   await page.selectOption('#lcol-brk', 'fused');
