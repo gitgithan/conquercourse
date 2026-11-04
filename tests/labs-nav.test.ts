@@ -14,11 +14,11 @@ describe('labs bar', () => {
   it('keeps the first twelve numbers fixed (links in docs and films use them)', () => {
     expect(LABS.slice(0, 12).map((l) => l.mode)).toEqual(['lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl']);
   });
-  it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 16 fixed', () => {
+  it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 17 fixed', () => {
     const all = LAB_GROUPS.flatMap((g) => g.modes);
     expect([...all].sort()).toEqual(LAB_LIST.map((l) => l.mode).sort());
     expect(new Set(all).size).toBe(all.length);
-    expect(LAB_LIST).toHaveLength(16);
+    expect(LAB_LIST).toHaveLength(17);
     for (const g of LAB_GROUPS) expect(TIERS.map((t) => t.id), g.id).toContain(g.tier);
     const names = (id: string) => LAB_GROUPS.find((g) => g.id === id)!.modes.map((m) => LAB_LIST.findIndex((l) => l.mode === m) + 1);
     expect(names('search-learn')).toEqual([1, 2, 12, 9]);
