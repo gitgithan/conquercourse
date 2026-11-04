@@ -160,7 +160,7 @@ describe("Lab 15: collision from a 3D lift", () => {
   });
 
   describe("skin versus collider", () => {
-    const load = (id: string) => { const b = readFileSync(`public/assets/objects/${id}.glb`); return readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer); };
+    const load = (id: string) => { const b = readFileSync(`public/assets/lab/lift/real/${id}.glb`); return readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer); };
     const box = load("box-skate-03");
     it("a flat box under the ball gives a flat, snag-free run (the law: a smooth floor does not slow the ball or bend its height)", () => {
       const r = roll(boxMesh([-1, 0, -1], [1, 0.5, 1]), { lo: [-1, 0, -1], hi: [1, 0.5, 1] });

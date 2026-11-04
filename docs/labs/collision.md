@@ -50,7 +50,7 @@
 
 ## Step 10: Skin versus collider
 - **The idea:** a photo becomes a skin (what the player sees), never a collision shape; the collider is a simple shape the simulator can trust (see [lessons](../lessons.md), "The body and obstacles" and "Photos to 3D objects", and [lessons-obstacle-creation](../lessons-obstacle-creation.md)).
-- **The widget:** a real lifted object (skate box, gabion wall or picnic table from `public/assets/objects/`) is drawn side-on with what the ball collides with on top.
+- **The widget:** a real lifted object (skate box, gabion wall, iron bollard, spruce stump or concrete planter from `public/assets/lab/lift/real/`) is drawn side-on with what the ball collides with on top.
   - One ball is dropped on the left end and pushed to 1.5 m/s along the object at 120 Hz; it is a sphere of 10 cm against triangles.
   - The same run is played on the lift and on the same photo lifted again (every point moved by up to 5 mm, a seeded draw).
 - **The toggle:** "Collide with the skin" uses every triangle (or a thinner skin from the detail slider); "Collide with the collider" uses a box with each side rounded to the 5 cm cell.
