@@ -98,12 +98,13 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     // each group shows a dozen at a time, never the whole list; search results from the community store come from the server one page at a time
     const mineShown = mine.slice(0, shownMine), sharedShown = sharedP.slice(0, shownShared);
     const moreBtn = (id: string, left: number, bump: () => void) => { const b = h('button', { class: 'pb-more', type: 'button', textContent: `Show more (${left} left)`, id }); b.onclick = () => { bump(); paint(); }; return b; };
-    const found: PieceInfo[] = q ? (communityFound.q === q ? communityFound.items : []) : [];
+    const haveIds = new Set(sharedP.map((x) => x.id)); // owner 2026-11-04: the newest pieces other players shared are listed without searching
+    const found: PieceInfo[] = communityFound.q === q ? communityFound.items.filter((x) => !haveIds.has(x.id)) : [];
     const foundCards = found.map((f) => { const c = card(f); c.onclick = () => (window as unknown as { ccAddShared?: (id: string, name: string) => void }).ccAddShared?.(f.id.slice(6), f.name); return c; });
     const mineCards: HTMLElement[] = [
       ...(mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mineShown.map(card), ...(mine.length > shownMine ? [moreBtn('pb-mine-more', mine.length - shownMine, () => { shownMine += GROUP_SHOWN; })] : [])] : []),
       ...(sharedP.length ? [h('div', { class: 'pb-group', textContent: 'Shared pieces', id: 'pb-shared' }), ...sharedShown.map(card), ...(sharedP.length > shownShared ? [moreBtn('pb-shared-more', sharedP.length - shownShared, () => { shownShared += GROUP_SHOWN; })] : [])] : []),
-      ...(foundCards.length ? [h('div', { class: 'pb-group', textContent: 'Shared by players (search)', id: 'pb-found' }), ...foundCards, ...(communityFound.next ? [(() => { const b = h('button', { class: 'pb-more', type: 'button', textContent: 'Show more', id: 'pb-found-more' }); b.onclick = () => { void fetchFound(q, communityFound.next ?? undefined); }; return b; })()] : [])] : []),
+      ...(foundCards.length ? [h('div', { class: 'pb-group', textContent: q ? 'Shared by players (search)' : 'Shared by players', id: 'pb-found' }), ...foundCards, ...(communityFound.next ? [(() => { const b = h('button', { class: 'pb-more', type: 'button', textContent: 'Show more', id: 'pb-found-more' }); b.onclick = () => { void fetchFound(q, communityFound.next ?? undefined); }; return b; })()] : [])] : []),
     ];
     if (grouped) {
       const cards: HTMLElement[] = [], ordered: PieceInfo[] = [];
@@ -139,6 +140,7 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   let mineCount = 0;
   new MutationObserver(() => { const n = mineOf().length * 1000 + sharedOf().length; if (n !== mineCount) { mineCount = n; paint(); } }).observe(menu, { childList: true });
   paint();
+  void fetchFound(''); // the newest shared pieces, so they show in Add pieces before anyone searches
   // the real objects from photos arrive from the object list: their words come from piece-info, the credit from the index
   void fetch('/assets/objects/index.json').then((r) => r.json()).then((idx: { objects: { name: string; label: string; author: string; licence: string }[] }) => {
     pieces = [...STATIC_PIECES.filter((p) => p.section !== 'tools'), ...idx.objects.map(realInfo), ...STATIC_PIECES.filter((p) => p.section === 'tools')];
