@@ -40,7 +40,7 @@ export const ease = (k) => k * k * (3 - 2 * k);
 
 export async function openSession({ url, out, pw = 'playwright', fps = 30, w = 1280, h = 720, dsf = 1.5, clock = true, gl = 'gl-egl', rafStep = false, marker = true }) {
   const { chromium } = await import(pw);
-  const browser = await chromium.launch({ args: ['--ignore-gpu-blocklist', '--use-gl=angle', `--use-angle=${gl}`, '--enable-unsafe-swiftshader'] });
+  const browser = await chromium.launch({ args: ["--ignore-gpu-blocklist", "--use-gl=angle", `--use-angle=${process.env.CC_GL || gl}`, '--enable-unsafe-swiftshader'] });
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: dsf });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => console.log('pageerror', e.message.slice(0, 200)));

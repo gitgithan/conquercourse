@@ -114,3 +114,21 @@
 - Capture lessons:
   - Another agent's vite can hold a port: use `--strictPort` and check the page served is yours.
   - Software GL on a shared VM is slow; run one clip per VM.
+
+## Filming on a Modal GPU (CC-133)
+- Why: the VMs use a software GPU and are slow; a Modal container has a real GPU, one clip per container.
+- Command: `modal run scripts/promo-v2/modal_film.py --clip entrance`.
+  - With clip arguments: `--clip scene1 --args b`.
+  - Only print the GPU the browser sees: `--probe-only 1`.
+  - Any script in `scripts/promo-v2/` works if it takes `<args> <playwright> <outdir> [baseUrl]` like `entrance.mjs`.
+  - Frames come back to `../conquercourse-assets/promo-v2b-modal/<name>/` (not git); `modal-run.json` there holds the GPU name and timings.
+- How: the image has Node 22, ffmpeg, Chromium (Playwright) and `npm ci`; the repo goes in as one tarball (about 5000 small uploads dropped the connection on this uplink).
+  - Chromium runs `--use-angle=gl-egl` and reports `ANGLE (NVIDIA Corporation, Tesla T4 ...)`, not SwiftShader; `lib.mjs` reads `CC_GL` to switch backend.
+  - The stepped clock is unchanged, so the pictures show the same game moments.
+- GPU: T4 by default (starts at once); `FILM_GPU=L4` queued for over 10 minutes on 2026-11-05.
+  - Cost: T4 about $0.59 per hour, so the 55 s captures below cost about $0.01 each; with start-up and the image build, a clip is well under $0.05.
+- Measured (2026-11-05, T4):
+  - Entrance: 150 frames, same marks, capture 58 s; frame difference to the VM film: 0.5 mean grey level, 0.02 % of pixels differ by more than 40.
+  - Scene 1b: 251 frames, marks identical (2.4, 7.97, 8.37), capture 53 s (map tiles load from Modal); 0.1 to 0.4 % of pixels differ by more than 40 (map tiles).
+  - VM reference: the slicer segment took about 17 minutes for 51 s of film (see above).
+- Three at a time: the function is capped at `max_containers=3`.
