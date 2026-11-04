@@ -1,6 +1,6 @@
 # Lab 15: Collision from a 3D lift
 
-*Pipeline stage 4 of 8: Collision from 3D.*
+*Photo to course object, stage 5 of 6: Collision (see [the series map](pipelines.md)).*
 *Before it: baking a lift to a game object.*
 *After it: placing the object on a course and proving it with the simulator (the last step of this Lab does that for the bars).*
 *The whole pipeline is in [pipelines](../pipelines.md); the method this Lab runs is in [collision-from-3d](../collision-from-3d.md).*
