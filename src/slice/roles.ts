@@ -200,15 +200,16 @@ export function applySuggestion(pieces: P[], s: RoleSuggestion): P[] {
 }
 
 // Candidates for the whole world, each proved by the simulator (the lane clears with the change). `budgetMs` stops the proving early; the rest stay `proved: null`.
-export function suggestRoles(pieces: P[], lane: LaneSetting, opts: { budgetMs?: number; only?: number; moves?: MoveId[]; onProgress?: (done: number, of: number) => void } = {}): RoleSuggestion[] {
+export interface RoleProgress { index: number; total: number; candidate: RoleSuggestion; verified: RoleSuggestion[] }
+export function suggestRoles(pieces: P[], lane: LaneSetting, opts: { budgetMs?: number; only?: number; moves?: MoveId[]; onProgress?: (p: RoleProgress) => void } = {}): RoleSuggestion[] {
   const t0 = Date.now(), budget = opts.budgetMs ?? 20000, out: RoleSuggestion[] = [];
   const have = new Set(movesInWorld(pieces, lane).filter((m) => m.have === 'yes').map((m) => m.id));
   const cands = pieces.filter((p) => opts.only === undefined || p.id === opts.only).flatMap((p) => roleCandidates(p, lane)).filter((s) => !opts.moves || opts.moves.includes(s.move));
   // moves the world lacks first, then smaller changes
   const size = (s: RoleSuggestion) => Math.abs(Math.log(s.change.scale ?? 1)) + Math.abs(s.change.yaw ?? 0) / 3 + Math.abs(s.change.dy ?? 0) / 4;
   cands.sort((a, b) => Number(have.has(a.move)) - Number(have.has(b.move)) || size(a) - size(b));
-  for (const [i, s] of cands.entries()) {
-    opts.onProgress?.(i, cands.length);
+  for (const [index, s] of cands.entries()) {
+    opts.onProgress?.({ index: index + 1, total: cands.length, candidate: s, verified: out.filter((v) => v.proved === true) });
     if (Date.now() - t0 > budget) { out.push(s); continue; }
     const next = applySuggestion(pieces, s);
     if (s.role === 'turn') {
@@ -217,6 +218,7 @@ export function suggestRoles(pieces: P[], lane: LaneSetting, opts: { budgetMs?: 
     }
     s.proved = clears(next, lane);
     if (s.proved) out.push(s);
+    opts.onProgress?.({ index: index + 1, total: cands.length, candidate: s, verified: out.filter((v) => v.proved === true) });
   }
   return out;
 }
