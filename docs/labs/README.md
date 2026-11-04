@@ -15,6 +15,7 @@
 | 10 | Cut-out | [Evaluating a detector](detector.md) | Is this detector good enough to place holds? | `?mode=lab-detector&labs=1` | `tests/lab-detector.test.ts` (8) | 22 scored cases from one run on six hand-labelled objects |
 | 5 | Lift to 3D | [Camera and perspective](camera.md) | Why can one photo not give depth? | `?mode=lab-camera&labs=1` | `tests/lab-camera.test.ts` (14) | Hand-made bodies and no real photo; the compare card is not checked against the game |
 | 14 | Bake | [Cut-out, lift and bake](lift.md) | What is each bake step for when a photo becomes a game object? | `?mode=lab-lift&labs=1` | `tests/lab-lift.test.ts` (19) | The raw lift is a stand-in made from the baked object (recorded raw size only for the bench and the railing) |
+| 15 | Collision | [Collision from a 3D lift](collision.md) | How does a noisy 3D lift become a clean collider, and what does the fit hold when the lift breaks? | `?mode=lab-collision&labs=1` | `tests/lab-collision.test.ts` (27) | The answer depends on the cell size, and the breaks act on the rung peaks, not on the mesh |
 | 9 | Place and prove | [Generate and test](gentest.md) | How many proposals does the simulator throw out? | `?mode=lab-gentest&labs=1` | `tests/lab-gentest.test.ts` (10) | Recorded replies of one model only, and a simple easing instead of the editor's Fix it |
 
 ### Video to motion
