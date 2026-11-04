@@ -847,3 +847,9 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/editor-preview-progress.jpg` | Visible simulator stage and progress while checking an AI-proposed edit | 2026-11-04 | Local Playwright desktop capture at 1280 px, real Muse Spark Open request and simulator worker | Two small real model requests across validation, paid from Baseten credit | Ours; documentation evidence only |
 | `docs/evidence/editor-applied-changes.jpg` | Applied suggestions shown as separate move and turn bullet points | 2026-11-04 | Local Playwright desktop capture at 1280 px, real Muse Spark Open request and simulator worker | Same two validation requests as the progress capture | Ours; documentation evidence only |
+
+## Apply stays in the editor (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-apply-only.jpg` | Applied course change while remaining in the editor | 2026-11-04 | Local Playwright desktop capture at 1280 px with the real simulator | None; no model request | Ours; documentation evidence only |

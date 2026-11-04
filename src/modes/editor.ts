@@ -328,8 +328,8 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const { drawProfile } = createProfile({ ed, profileCanvas, howto, currentProfile, barsNow, draw, drawPanel, changed: () => changed() });
   const proofResults = new Map<string, PresetPlan>();
   const previewSearch = createSearch({ progress: (p) => helperUi.previewProgress(p), results: proofResults, preview: true });
-  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, goToCourse, tools, previewSearch });
-  const { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
+  const helperUi = createHelper({ ed, lane, root, top, aside, chosen, draw, drawProfile, changed, handoff, tools, previewSearch });
+  const { adviceBox, setSuggest, showAdvice, runEasier, closePreview, ghostData } = helperUi;
   const movesUi = createMoves({ ed, lane, planWrap, addBarPiece, changed, helper: helperUi });
 
   // when the world is complete (its photo objects are in): open at the obstacle the player was at, and look for an easier way if that was asked
@@ -380,14 +380,10 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   }
   const persistHist = () => editHistory.persist();
   // back to the Course: the same course, rebuilt from the pieces now, at the same obstacle (the Course reads this the way it reads a return from the Dojo)
-  // check: wait for the simulator and stay when it proves the lane cannot be cleared ('Apply and try it'); 'Back to the Course' and T never wait and never refuse (CC-147)
-  async function goToCourse(check = false) {
+  async function goToCourse() {
     if (!handoff) return;
     const base = courseNow();
-    const clear = check ? await searchClearable(base) : null;
     const course = withProof(base); // the plan of the lane check (stored, or just found) goes with the course: the Course does not search again
-    // null: no check, or it was cut short (a change in the editor starts a newer one); that is no reason to stay, only a proof that the lane does not clear is
-    if (clear === false) { ed.verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); reply.className = 'reply bad'; reply.textContent = ed.verdict; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true'); return; }
     course.scene = sceneFor(ground(), { angle: ed.angle, offset: ed.offset, level: ed.level }, course.uMap ?? []);
     const focus = ed.pieces.find((q) => q.id === ed.selected) ?? ed.pieces.find((q) => q.id === focusId);
     const retryX = focus ? startBefore(course, xOfPiece(focus, course)) : checkpointFor(course, handoff.zone);

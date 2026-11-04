@@ -31,7 +31,7 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Look for routes you did not plan: when it works and you wonder if an obstacle can be skipped; about a minute; a list with Close it / Keep it.
 - What should I change?: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
 - Each item is a stand-in for the original button (same id, hidden), so tests and the palette keep working.
-- Context buttons that appear only when needed stay where they appear: Apply, Apply and try it, Cancel (the preview row), Fix it from here (after a partner change blocks the lane), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
+- Context buttons that appear only when needed stay where they appear: Apply, Cancel (the preview row), Fix it from here (after a partner change blocks the lane), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
 
 ## On the picture
 - Moves card: Add two bars, Start in a trebuchet, What could this be?, Find ways to add the missing moves, Show it.
@@ -75,6 +75,6 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Apply is disabled while the preview check is unfinished.
 - Only the simulator may show a successful clearance result.
 - After a completed check, Apply carries the matching result into the main editor in one undo step.
-- Apply and try it requires a verified clear run.
+- Apply stays in the editor; Play this lane starts the changed course separately.
 - Play receives that same successful run without a duplicate search.
 - See the [UX and data-flow diagrams](editor-proof-flow.md).
