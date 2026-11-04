@@ -94,6 +94,7 @@ flowchart LR
 ## 4. Course design partner (Muse Spark Open)
 - **Data in:** the course as the editor describes it.
 - **Model:** Muse Spark Open (`meta-models/muse-spark-open-1026`) through Baseten, which the hackathon key allows.
+- **Where players meet it:** the editor's Ask AI chat (`/api/designer`) and the System design Lab's one-shot critique (`/api/design-partner`).
 - **Our code:** a Cloudflare Pages Function keeps the key on the server, drops the model's reasoning text, rate-limits, and returns a layout or advice.
 - **Result:** the simulator checks every layout the model suggests, so the model proposes and the physics decides.
 - **Not a chat tutor:** it builds and fixes courses, it does not coach a person's technique.
@@ -129,7 +130,7 @@ flowchart LR
   - Caveat: the prompt was tuned on the same 19 objects.
 - **Status:** both need the `BASETEN_API_KEY` secret at deploy.
   - The upload check is called live by `/api/object-lift`, `/api/segment`, `/api/community-items` (Share in Community) and `/api/character` (the prompt).
-  - Move tips are called from the object cards.
+  - Move tips (`/api/move-tips`) are deployed, but no page calls them today; tests and `scripts/cc121-move-tips-run.ts` do (`docs/llm-calls.md`).
   - Which credit pays: [docs/model-ledger.md](model-ledger.md).
 
 ```mermaid
@@ -142,7 +143,7 @@ flowchart LR
   TF --> MM
   MM --> TP["Moves + one idea"]
   TP --> CK["Check against our move list"]
-  CK --> CD["Object cards (CC-108)<br/>the simulator decides"]
+  CK --> CD["Object cards (CC-108)<br/>not wired to a page today"]
   classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
   class MM meta;
 ```
@@ -171,7 +172,7 @@ flowchart LR
 - **Model:** MusicGen medium (`facebook/musicgen-medium`) on a Modal GPU, 30 s per clip.
 - **How it is loaded:** AudioCraft's own pip package failed to build on its `av` dependency, so the same Meta weights are loaded through the transformers library.
 - **Our code:** it finds the tempo, keeps whole bars, picks the start that makes the wrap continuous, checks the seam, and can cut loud highs with a gentle high-shelf (the chosen Report loop needed none).
-- **In the game:** one loop per screen, on by default (`?music=0` turns it off), quiet, 2 s fade-in, crossfaded between screens, M mutes.
+- **In the game:** one loop per screen, always on and quiet, 2 s fade-in, crossfaded between screens, M or the volume button mutes (`?music=0` silences one page load only).
 - **Licence, said plainly:** the weights are CC BY-NC 4.0 (non-commercial) and the code is MIT; the entry is non-commercial, and a commercial release would need the loops remade.
 - **Measured, not heard:** wrap jump, bar length, tempo and the share of energy above 5 kHz (`docs/music.md`).
 
@@ -220,7 +221,7 @@ flowchart LR
   - Cost: $2.38 for the run, about $0.18 per real bug.
   - It did well on the physics code and gave nothing useful on the contraptions chunk.
   - Details: [data/eval/cc-wonder-review/README.md](../data/eval/cc-wonder-review/README.md).
-- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model is what the Course Agent uses in the game.
+- **Muse Spark Open** (on Baseten) also helped as a dev aid: bulk course drafts (CC-122) and photo triage (CC-123); the same model runs the design partner chat in the editor.
 
 ## What we tried that did not work
 - **PartLLM** (find hang points on object meshes): 2 of 9 real parts found and 11 false claims in 13 absent cases; parked (CC-49).

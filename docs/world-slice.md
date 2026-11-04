@@ -3,6 +3,13 @@
 *Draft v0.1, 2026-10-27, from the product owner's brief: boxes are boring; make the obstacles look like the real thing, with curves; a fixed set of primitives needs a fixed set of moves; start the water at any level, "like lifting our world up to a higher slice of the 3D scan".*
 *Related: [primitives](primitives.md), [pipelines](pipelines.md) (pipeline 7), CC-38 (the 3D lift), CC-39 (placing it).*
 
+## Status note (2026-11-04)
+- This page is a dated log, newest ideas first at the top of each section and older work after it.
+- Where an older section names the **Fix it** button, that button no longer exists in the editor.
+  - Its code (`src/slice/fixit.ts` and the `fix*.ts` files beside it) still runs behind the editor's Ask AI repair ideas, Make it easier and Find shortcut.
+- Sections about the photo-to-course draft are history (dropped 2026-10-31); the files they name are removed.
+- The "What is built, what is next" list near the top is the state of 2026-10-27: the slice maker, the 3D lift and real meshes have all since shipped (see the sections below it).
+
 ## So what
 - **The idea:** the game runs on a flat slice of the real object, and the 3D object is only what you see.
   - The simulator stays two-dimensional (along the run, and up), which keeps its exact, testable physics.
@@ -409,7 +416,7 @@ flowchart TD
   - The demo beat is "drop a photo, get a draft, the simulator tells you if it clears".
   - It is not "drop a photo, get a finished course".
 - **How it works:**
-  - Muse Spark Open (it can see images) is asked for a short list of ground, gaps, blocks (steps, ledges, boxes, benches, rails) and bars, in metres (`src/slice/photo-course.ts`, `functions/api/photo-course.ts`).
+  - Muse Spark Open (it can see images) is asked for a short list of ground, gaps, blocks (steps, ledges, boxes, benches, rails) and bars, in metres (`src/slice/photo-course.ts` and `functions/api/photo-course.ts`, both removed).
   - The answer becomes editor pieces, the simulator proves them, Fix it repairs what it can (`src/slice/photo-proof.ts`).
   - Try it in the editor with `?mode=editor&labs=1` (button "Photo to course (labs)") or `?photo=/assets/park/park01.jpg`; it is hidden without `labs`.
 - **The test:** 10 park photos (6 we had, 4 new CC0 ones), 2 answers each, scored against a hand-made answer key (`data/eval/photo-course/answer-key.json`).
@@ -438,9 +445,9 @@ flowchart TD
   - Give the model a known object for scale.
   - Allow bars only when the photo shows a bar.
 - **Evidence:**
-  - Screenshots `data/eval/photo-course/screens/1-bars-draft.png` and `2-skate-draft-fixed.png` (VM run of `scripts/photo-check.mjs`, saved model answers, ALL OK).
+  - Screenshots `data/eval/photo-course/screens/1-bars-draft.png` and `2-skate-draft-fixed.png` (VM run of `photo-check.mjs`, since removed; saved model answers, ALL OK).
   - Raw answers `data/eval/photo-course/outputs/`, scores `results.json`, `run.json`.
-  - Scripts `scripts/photo-course-ask.ts` (needs the key, runs where the key lives), `scripts/photo-course-score.ts` (no key, heavy, run on the VM).
+  - Scripts `photo-course-ask.ts` (needs the key; removed with the feature) and `scripts/photo-course-score.ts` (no key, heavy, run on the VM).
 
 
 ## Shift+I and hazard floors (CC-57)
@@ -1405,7 +1412,7 @@ flowchart TD
 | Gas Works Park, Seattle | 16 m | 27 | 96.9 m | 0.556 |
 | Dolores Park, San Francisco | 37 m | 40 | 38.2 m | 0.455 |
 - **Where to find it:** the Course's "Open another course" menu has "Pick a real place on the map (labs)" with `?labs=1` (the browser remembers it); `?mode=map` works without it.
-- **Checks:** `tests/places.test.ts` (14 tests) and `scripts/map-places-check.mjs` (14 checks, a test proxy refuses the map servers: ready place in about 1.4 s, a pin far from any place with the saved answer, the error with ready places offered, Cancel in under a second); `scripts/map-check.mjs` follows the new flow.
+- **Checks:** `tests/places.test.ts` (14 tests) and `scripts/map-check.mjs` (the desktop browser check of the map flow; its earlier companion `map-places-check.mjs` was removed, and it had checked: ready place in about 1.4 s, a pin far from any place with the saved answer, the error with ready places offered, Cancel in under a second).
 - **Known gaps**
   - A new place still needs a public server (the first pin there); the ready places are the fallback.
   - The footprints named on the map are the buildings the lane runs over or brushes; the search also counts steps and walls at the cuts between roofs, so the counts can be higher than the number of footprints (Alfama: 8 steps, 2 footprints).
@@ -1763,7 +1770,7 @@ flowchart TD
   - A lane that was found is kept in the browser for that pin and shown at once next time.
   - `?speed=0` turns it off.
   - `scripts/warm-places.mjs` asks the site for a list of places so its cache answers them; run it from the demo network.
-- **Numbers and the check:** `data/eval/cc-152-osm-speed/README.md`, `scripts/osm-speed.ts`, `scripts/map-speed-check.mjs`.
+- **Numbers and the check:** `data/eval/cc-152-osm-speed/README.md`, `scripts/osm-speed.ts` (the browser check `map-speed-check.mjs` was removed).
 - **Which calls go direct and which go through a Pages Function (asked by the product owner):**
 
 | Call | Goes | Why | Could it go direct? | What would be lost |
