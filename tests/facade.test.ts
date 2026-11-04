@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { applyH, facadeAspect, facadeOn, homography, pickWall, rectifyMap, wallQuad, type Quad } from '../src/world/facade';
+import { FACADES, applyH, facadeAspect, facadeOn, homography, pickWall, rectifyMap, wallQuad, type Quad } from '../src/world/facade';
 
 const near = (a: number[], b: number[], eps = 1e-6) => a.forEach((v, i) => expect(Math.abs(v - b[i])).toBeLessThan(eps));
 
@@ -89,7 +89,7 @@ describe('in the scenery', async () => {
       for (let i = 0; i < ring.length; i++) {
         const w = Math.hypot(ring[(i + 1) % ring.length].x - ring[i].x, ring[(i + 1) % ring.length].z - ring[i].z);
         if (w < 5) continue;
-        for (let f = 0; f < 360; f += 5) if (pickWall(ring, w, f)) return { place: 'montmartre-paris', building: (e.tags.name ??= 'Test building'), width: w, facing: f, image: '', aspect: 1.4 };
+        for (let f = 0; f < 360; f += 5) if (pickWall(ring, w, f)) return { place: 'montmartre-paris', building: (e.tags.name ??= 'Test building'), width: w, facing: f, image: '', aspect: 1.4, credit: 'test' };
       }
     }
     throw new Error('no wall');
@@ -103,4 +103,28 @@ describe('in the scenery', async () => {
     const box = (g: import('three').Group) => new THREE.Box3().setFromObject(g);
     expect(box(on.group).min.x).toBeCloseTo(box(off.group).min.x, 6);
   });
+});
+
+describe('every shipped facade', async () => {
+  const { existsSync, readFileSync, statSync } = await import('node:fs');
+  const assets = readFileSync('docs/ASSETS.md', 'utf8');
+  it('lists at least one facade, each place once', () => {
+    expect(FACADES.length).toBeGreaterThan(0);
+    expect(new Set(FACADES.map((f) => f.place)).size).toBe(FACADES.length);
+  });
+  for (const f of FACADES) {
+    it(`${f.place}: has its picture (300 KB or less), an ASSETS row, a credit and a footprint wall in the stored answer`, () => {
+      const file = `public${f.image}`;
+      expect(existsSync(file)).toBe(true);
+      expect(statSync(file).size).toBeLessThanOrEqual(310 * 1024);
+      expect(assets).toContain(f.image.slice(1));
+      expect(f.credit).toMatch(/CC (0|BY)/);
+      const pl = JSON.parse(readFileSync(`public/assets/places/${f.place}.json`, 'utf8'));
+      const mLon = 111320 * Math.cos((pl.lat * Math.PI) / 180);
+      const e = pl.answer.elements.find((x: { tags?: { name?: string } }) => x.tags?.name === f.building);
+      expect(e, 'the named building is in the stored answer').toBeTruthy();
+      const ring = e.geometry.slice(0, -1).map((q: { lat: number; lon: number }) => ({ x: (q.lon - pl.lon) * mLon, z: -(q.lat - pl.lat) * 111320 }));
+      expect(pickWall(ring, f.width, f.facing), 'pickWall finds the wall').toBeTruthy();
+    });
+  }
 });

@@ -1077,7 +1077,8 @@
         "type": "way",
         "tags": {
           "building": "yes",
-          "height": "20.5"
+          "height": "20.5",
+          "name": "Tessinska palatset"
         },
         "geometry": [
           {
