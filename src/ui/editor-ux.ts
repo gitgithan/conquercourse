@@ -39,6 +39,7 @@ const CSS = `
   .ed.ux .fixmenu button{display:grid;gap:2px;text-align:left;white-space:normal;border-color:transparent;background:transparent;box-shadow:none;padding:7px 9px;border-radius:8px;min-height:0}
   .ed.ux .fixmenu button:hover{background:var(--soft)}
   .ed.ux .fixmenu button b{font-size:14px}.ed.ux .fixmenu button span{font-weight:400;font-size:12px;color:var(--muted);line-height:1.35}
+  .ed.ux .fixmenu .engines,.ed.ux .action-engines{display:flex;gap:6px;flex-wrap:wrap}
   .ed.ux .fixmenu button .engine,.ed.ux .action-engine{justify-self:start;font-size:11px;font-weight:700;line-height:1.4;padding:2px 7px;border-radius:5px;background:#e3f2ed;color:#0b5a4d}
   .ed.ux .fixmenu button .engine[data-kind="ai"],.ed.ux .action-engine[data-kind="ai"]{background:#fff0de;color:#824a00}
   .ed.ux .helper-engines{padding:8px 14px;font-size:12px;line-height:1.4;color:#33403a;border-bottom:1px solid var(--line)}
@@ -145,9 +146,10 @@ export function styleEditor(root: HTMLElement): void {
   for (const f of FIXES) {
     const b = mk('button', { id: `fixmenu-${f.id}`, title: actionTitle(f) });
     b.dataset.proxy = '1';
-    b.innerHTML = `<b></b><span class="engine"></span><span class="w"></span><span class="e"></span>`;
+    b.innerHTML = `<b></b><span class="engines"></span><span class="w"></span><span class="e"></span>`;
     (b.querySelector('b') as HTMLElement).textContent = f.label;
-    const engine = b.querySelector('.engine') as HTMLElement; engine.textContent = f.engine; engine.dataset.kind = f.kind;
+    const engines = b.querySelector('.engines') as HTMLElement;
+    for (const e of f.engines) { const pill = mk('span', { className: 'engine', textContent: e.label }); pill.dataset.kind = e.kind; engines.append(pill); }
     (b.querySelector('.w') as HTMLElement).textContent = f.when;
     (b.querySelector('.e') as HTMLElement).textContent = 'Expect: ' + f.expect;
     b.onclick = () => {

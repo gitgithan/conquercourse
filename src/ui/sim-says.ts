@@ -1,3 +1,4 @@
+import { BLOCKED_LANE_GUIDANCE } from './editor-actions';
 import { ensureSaysStyle, saysOn, sayBadge } from './says';
 
 // CC-243: the Simulator's live voice while a person edits (World Editor) or slices (World Slicer).
@@ -20,7 +21,7 @@ export function editorWords(verdict: string, laneKind = 'idle'): { state: SimSta
   const v = verdict.trim();
   if (laneKind === 'searching' || /^Checking this lane/.test(v)) return { state: 'checking', words: 'I am checking this lane. A ghost runs it with the real game physics.' };
   if (/^The simulator can clear/.test(v)) return { state: 'clear', words: v.replace(/^The simulator can clear this lane/, 'I can clear this lane') };
-  if (/^The simulator cannot find a way/.test(v)) return { state: 'blocked', words: 'I cannot find a way to clear this lane. Widen a gap or lower a step, then I will check again.' };
+  if (v === BLOCKED_LANE_GUIDANCE || /^The simulator cannot find a way/.test(v)) return { state: 'blocked', words: 'I have not found a clear run. Choose Find a repair to search for changes.' };
   if (/^No lane the runner can clear/.test(v)) return { state: 'blocked', words: 'I found no lane I can clear. Try other pieces or other levels.' };
   if (/^Nothing is in the lane/.test(v)) return { state: 'idle', words: 'There is nothing in the lane for me to run on. Move the lane or the pieces.' };
   if (/^(Stopped|Timed out)/.test(v)) return { state: 'stopped', words: `I did not finish. ${v.replace(/^(Stopped|Timed out)[^:]*: ?/, '')}` };

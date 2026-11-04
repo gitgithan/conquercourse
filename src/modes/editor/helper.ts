@@ -110,7 +110,7 @@ export function createHelper(env: HelperEnv) {
   const askRow = el('div', helper, { className: 'row' });
   const aiLabel = el('div', askRow); aiLabel.style.gridColumn = '1 / -1';
   if (saysOn()) { const badge = sayBadge('partner'); badge.classList.add('says-small'); aiLabel.append(badge); }
-  else aiLabel.textContent = ACTIONS.what.engine;
+  else aiLabel.textContent = ACTIONS.what.engines[0].label;
   el('div', aiLabel, { className: 'muted', text: 'AI suggests edits. Preview checks them with the simulator.' });
   const ask = el('textarea', askRow, { id: 'ask', rows: 2, placeholder: 'e.g. make the gap easier, or a harder second half' });
   const sendBtn = el('button', askRow, { text: 'Send to AI', id: 'send', className: 'go' });
@@ -246,8 +246,10 @@ export function createHelper(env: HelperEnv) {
     if (!pr) return;
     reply.className = 'reply'; reply.replaceChildren();
     if (ed.leadText) el('div', reply, { text: ed.leadText });
-    const engine = el('div', reply, { className: 'action-engine', text: pr.source === 'partner' ? ACTIONS.what.engine : ACTIONS.fixit.engine });
-    engine.dataset.kind = pr.source === 'partner' ? 'ai' : 'simulator';
+    const engines = el('div', reply, { className: 'action-engines' });
+    for (const e of (pr.source === 'partner' ? ACTIONS.what : ACTIONS.fixit).engines) {
+      const pill = el('span', engines, { className: 'action-engine', text: e.label }); pill.dataset.kind = e.kind;
+    }
     el('strong', reply, { text: pr.title });
     el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
     const timing = el('div', reply, { id: 'easiertiming', hidden: pr.source !== 'easier' || pr.items.some((i) => !i.on) });
@@ -369,7 +371,7 @@ export function createHelper(env: HelperEnv) {
   // the editor calls this after every change: a verdict of "cannot" is old now, and an open preview no longer fits
   const onChanged = () => {
     if (easierSession) cancelEasier('The layout changed, so the search was cancelled.');
-    if (reply.textContent?.startsWith('The simulator cannot')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }
+    if (reply.textContent?.startsWith('The simulator cannot') || reply.textContent?.startsWith('The simulator has not')) { reply.className = 'reply muted'; reply.textContent = 'You changed the course, so the simulator is checking it again.'; }
     if (ed.proposal) closePreview('The layout changed, so the preview was closed.');
   };
   // Some lane/device controls draw live and verify on release without calling changed().

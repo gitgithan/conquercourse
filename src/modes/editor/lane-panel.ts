@@ -1,3 +1,4 @@
+import { BLOCKED_LANE_GUIDANCE } from '../../ui/editor-actions';
 import { HAZARDS, HAZARD_INFO, type Hazard } from '../../course/hazard';
 import { startCourse } from '../course';
 import { bestSlices } from '../../slice/slice';
@@ -23,6 +24,7 @@ export interface LanePanelEnv {
   searchClearable: (course: CourseData) => Promise<boolean | null>;
   laneCheck: LaneCheck; verifyVersion: () => number;
   draw: () => void; drawProfile: () => void; save: () => void; verify: () => void;
+  findRepair: () => void;
   remember: () => void; interruptSearch: () => void; launchCourse: (course: CourseData) => void; persistHist: () => void;
 }
 
@@ -33,6 +35,7 @@ export function createLanePanel(env: LanePanelEnv) {
   function drawLanePanel() {
     lanePanel.replaceChildren();
     if (simSays) lanePanel.prepend(simSays.el);
+    el('button', lanePanel, { text: 'Find a repair', id: 'lane-repair-next', className: 'go', title: 'Search for course changes with the simulator, then review them before Apply' }).onclick = () => env.findRepair();
     el('strong', lanePanel, { text: 'The lane the runner takes', title: 'The runner goes left to right along the orange band; the shapes in it are what you see underneath.' }); // the long help line moved here: the panel must fit at 1024 x 640
     const slider = (label: string, id: string, min: number, max: number, step: number, get: () => number, set: (v: number) => void, fmt: (v: number) => string) => {
       const l = el('label', lanePanel, { text: `${label}: ${fmt(get())}` });
@@ -67,7 +70,8 @@ export function createLanePanel(env: LanePanelEnv) {
       if (isStopped(laneCheck.state()) || version !== env.verifyVersion()) return; // Cancel, the cap or a newer edit answered for this check
       if (clear === null) { laneCheck.reset(); ed.verdict = 'The lane check could not finish. Try again after editing stops.'; drawLanePanel(); return; }
       laneCheck.done(clear);
-      if (!clear) { ed.verdict = 'The simulator cannot find a way to clear this lane: widen a gap or lower a step.'; drawLanePanel(); return; }
+      document.documentElement.dataset.laneClear = clear ? '1' : '0';
+      if (!clear) { ed.verdict = BLOCKED_LANE_GUIDANCE; drawLanePanel(); return; }
       // the real objects are drawn in the game instead of blocks (a cropped photo object is drawn whole; its collision is still the cropped lane)
       launchCourse(course); // the plan the check just found goes along: the Course does not search again
     };

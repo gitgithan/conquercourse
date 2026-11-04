@@ -78,3 +78,11 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - Apply stays in the editor; Play this lane starts the changed course separately.
 - Play receives that same successful run without a duplicate search.
 - See the [UX and data-flow diagrams](editor-proof-flow.md).
+
+## Repair guidance and stage-specific engine pills (2026-11-04)
+
+- A blocked lane points to Find a repair and offers that button beside the Simulator result.
+- Find a repair, Make it easier and Find shortcut routes use the simulator directly.
+- Ask AI for ideas shows Muse Spark Open for its suggestion stage and Simulator for its later Preview check.
+- Model suggestions use the current layout and available simulator findings as context.
+- Badges describe actual stages; the direct simulator tools are not labelled as model calls.

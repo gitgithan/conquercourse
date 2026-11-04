@@ -315,3 +315,11 @@
 - Keep the comparison after Apply so the reason for the change is still readable.
 - Animate only the drawing after the final course commits; do not create intermediate simulation inputs or extra undo steps.
 - For social clips, widen the highlight area on the original UI and label both outlines; a larger region is not a zoomed duplicate view.
+
+### Attribute each action's actual engines and name the next step (2026-11-04)
+
+- Trace direct button handlers before crediting a model; a tool can be used by an agent elsewhere while a direct click bypasses that model.
+- The editor's three search tools use simulation algorithms; Ask AI for ideas calls Muse Spark Open with the layout and simulator findings, then simulator Preview checks proposed edits.
+- Stage-specific pills credit both suggestion and checking without implying that every search is a model call.
+- A negative check should lead to a concrete action: Find a repair searches and previews changes.
+- Generic advice to widen a gap points in the wrong direction for many blocked lanes; use the repair workflow instead.
