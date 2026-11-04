@@ -80,7 +80,7 @@ EDGE_JS = """
   const edgeHot = getComputedStyle(root).getPropertyValue('--edge-hot').trim();
   if (edgeColor && edgeColor !== themeEdgeColor) {
     themeEdgeColor = edgeColor;
-    edgesDS.update(edgesDS.get().map(e => ({ id: e.id, color: { color: edgeColor, highlight: edgeHot, hover: edgeHot, opacity: 0.95 }, width: Math.max(e.width || 1, 1.6) })));
+    edgesDS.update(edgesDS.get().map(e => ({ id: e.id, color: { color: edgeColor, highlight: edgeHot, hover: edgeHot, opacity: 0.38 } })));
   }
 """
 
@@ -115,7 +115,7 @@ def polish(path):
             n['title'] = f"{names[cid]} ({n.get('member_count', '?')} items)\n{full[cid]}"
     t = t[:nm.start(1)] + json.dumps(nodes) + t[nm.end(1):]
     # Edges: brighter, a little thicker, theme aware (whole page, both themes).
-    t = re.sub(r'"width": 1, "color": \{"opacity": 0\.35\}', '"width": 1.6, "color": {"opacity": 0.95}', t)
+    t = re.sub(r'"width": 1, "color": \{"opacity": 0\.35\}', '"width": 1, "color": {"opacity": 0.38}', t)
     if '--edge:' not in t:
         t = t.replace('--neighbor-border: #333; --node-label: #ffffff;', '--neighbor-border: #333; --node-label: #ffffff; ' + EDGE_CSS_VARS[0], 1)
         t = t.replace('--neighbor-border: #ccc; --node-label: #222222;', '--neighbor-border: #ccc; --node-label: #222222; ' + EDGE_CSS_VARS[1], 1)
