@@ -61,6 +61,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     #lab-collision button.link{background:none;border:0;color:${TEAL};font:600 14px system-ui;cursor:pointer;padding:0;text-decoration:underline}
     #lab-collision a.back{color:${TEAL};font-weight:600}
     #lab-collision .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+    #lab-collision [hidden]{display:none !important}
     #lab-collision .good{color:${TEAL};font-weight:700}#lab-collision .bad{color:${RED};font-weight:700}
   `;
   root.append(style);

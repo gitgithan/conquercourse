@@ -73,7 +73,7 @@ export const BREAKS: { kind: BreakKind; name: string; says: string }[] = [
   { kind: 'split', name: 'A rung is split in two', says: 'One extra peak sits half way between two rungs: two half gaps.' },
   { kind: 'fused', name: 'Two rungs are fused', says: 'Two neighbouring rungs make one peak in the middle.' },
 ];
-export const DEFAULT_BREAK: Break = { kind: 'missed', index: 6, sigma: 0.04, seed: 7 };
+export const DEFAULT_BREAK: Break = { kind: 'missed', index: 3, sigma: 0.04, seed: 7 };
 function rng(seed: number): () => number { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 export function breakPeaks(peaks: number[], b: Break): number[] {
   const p = [...peaks], i = Math.max(0, Math.min(p.length - 2, b.index));
