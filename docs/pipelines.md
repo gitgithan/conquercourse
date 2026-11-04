@@ -37,6 +37,7 @@
 ## 1. Video → motion
 - **Purpose:** turn a short clip of a real person into a 30-joint motion on the clip's own clock, with its contacts; feeds the Park's "film a move" and moves no mocap has.
 - **Inputs:** a constant-frame-rate video (a file whose average rate differs from its nominal rate is refused); a start and end time; licence and author.
+- **Lab 13 data (CC-133):** the raw joints of two filmed rolls (before any smoothing or repair) are packed by `scripts/lab13_pose_pack.py` into `public/assets/lab/motion/real/`; no GPU runs at runtime, and the build step reused the stored output of the real runs (cost in `data/eval/cc-133-lab13-pose/run.json`).
 - **Outputs:** frames plus `times.json` (each frame's time from the video's own rate); `measured.json` (MHR parameters per frame); `soma.json`; `motion.json` (30 joints at the frame times); a contacts/targets file; a contact sheet.
 - **Steps:**
   1. **Cut frames by frame number, not by seek time** (seeking before the input put early sheets about 3 s off); write each frame's time.

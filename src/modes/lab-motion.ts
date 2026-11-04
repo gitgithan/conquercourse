@@ -11,14 +11,14 @@ import { TICKS_PER_SECOND } from "../sim/units";
 import { GATE_LIMITS, type SignalClip } from "../lab/signal-lab";
 import {
   LAB_CLIPS, RULE_WORDS, applyGameSmoothing, buildClip, checkShape, clipFrameAtTick, clipSeconds, clockOffPercent, dropLastName, frameTime, liftToFloor,
-  onlyBoneLengths, retargetScale, ticksFor, verdict, whyFailed, withFps, type LabClip, type Verdict,
+  onlyBoneLengths, REAL_MANIFEST_URL, retargetScale, ticksFor, verdict, whyFailed, withFps, type LabClip, type Verdict,
 } from "../labs/motion/motion-core";
 
 // Lab 13: Video to motion. Pipeline stage 2 of 3 (video -> pose -> gate -> clip on the character). Every number comes from the game's own gate and clip reader.
 const INK = "#17201d", TEAL = "#0f6b5c", GREY = "#a7b0ab", BAD = "#b91c1c", AMBER = "#b45309";
 const UNITS: Record<string, [number, string]> = { knees_bend_forward: [1, "deg"], legs_not_twisted: [1, "deg"], knees_within_range: [1, "deg"], flight_is_ballistic: [1, "m/s2"], held_clips_are_held: [1, "s"], feet_dont_sink: [100, "cm"], no_teleport: [1, "m/s"], bones_keep_length: [100, "%"], feet_dont_slide: [100, "cm"], no_jitter: [1, "m/s2"] };
 const LIMITS: Record<string, string> = { knees_bend_forward: "under 120", legs_not_twisted: "at most 60", knees_within_range: "at most 165", flight_is_ballistic: "9.81 within 15%", held_clips_are_held: "at most 1", feet_dont_sink: "at most 3", no_teleport: "at most 12", bones_keep_length: "at most 2", feet_dont_slide: "at most 3", no_jitter: `at most ${GATE_LIMITS.maxAccel}` };
-const ORIGIN_WORDS = { "recorded-pass": "recorded, passes", "recorded-fail": "recorded, fails", "broken-by-us": "made broken by us" } as const;
+const ORIGIN_WORDS = { "recorded-pass": "recorded, passes", "recorded-fail": "recorded, fails", "broken-by-us": "made broken by us", "measured-raw": "raw, from the pose finder" } as const;
 
 export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   const root = document.createElement("div");
@@ -79,7 +79,8 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       <p class="small" style="margin:0 0 6px">Nothing plays before it passes. Hard rules block a clip; soft rules only report.</p>
       <div id="mo-s4"></div>
       <h2 style="margin-top:12px">The gate on every clip</h2><div id="mo-all"></div>
-      <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div></div>
+      <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div>
+      <h2 style="margin-top:12px">The pose finder's own output</h2><div id="mo-real"></div></div>
 
     <div class="two">
       <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
@@ -107,8 +108,8 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   function pill(s: LabClip): void {
     const p = $("mo-origin");
     p.textContent = ORIGIN_WORDS[s.origin];
-    p.style.background = s.origin === "recorded-pass" ? "#e6f2ee" : s.origin === "recorded-fail" ? "#fde8e8" : "#fff1de";
-    p.style.color = s.origin === "recorded-pass" ? TEAL : s.origin === "recorded-fail" ? BAD : AMBER;
+    p.style.background = s.origin === "recorded-pass" ? "#e6f2ee" : s.origin === "recorded-fail" ? "#fde8e8" : s.origin === "measured-raw" ? "#e8eefb" : "#fff1de";
+    p.style.color = s.origin === "recorded-pass" ? TEAL : s.origin === "recorded-fail" ? BAD : s.origin === "measured-raw" ? "#1d4ed8" : AMBER;
     $("mo-note").textContent = s.note;
   }
 
@@ -183,6 +184,18 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       return `<tr data-clip="${s.id}"><td><button class="link" data-pick="${s.id}" style="border:0;background:none;padding:0;color:${TEAL};text-decoration:underline">${s.label}</button></td><td>${ORIGIN_WORDS[s.origin]}</td><td class="${x.pass ? "ok" : "bad"}">${x.pass ? "passes" : "fails"}</td><td>${x.pass ? (x.softFailed.length ? "soft only: " + x.softFailed.map((k) => RULE_WORDS[k]).join(", ") : "") : x.failed.map((k) => RULE_WORDS[k]).join(", ")}</td></tr>`;
     }).join("")}</tbody></table><p class="small" style="margin:6px 0 0">The last four are made from shipped clips by this Lab (a recorded clip changed in one way) so that each rule can be seen failing. They are not recorded failures.</p>`;
     wrap.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((b) => { b.onclick = () => { sel.value = b.dataset.pick!; change(); }; });
+  }
+
+  /** The pose finder's recorded raw tracks: what the Python gate said when they were made, and what this page's gate and smoothing say now. */
+  async function fillRealPack(): Promise<void> {
+    const man = await (await fetch(REAL_MANIFEST_URL)).json();
+    const rows = man.clips.filter((m: any) => LAB_CLIPS.some((x) => x.url.endsWith("/" + m.file))).map((m: any) => {
+      const spec = LAB_CLIPS.find((x) => x.url.endsWith("/" + m.file))!, id = spec.id, c = clipOf(spec);
+      const now = verdicts.get(id)!, sm = verdict(spec, applyGameSmoothing(c)), s = (v: Verdict, k: string) => `<td class="n ${v.report.soft[k].ok ? "" : "bad"}">${fmt((v.report.soft[k].value ?? 0) * UNITS[k][0], k === "bones_keep_length" ? 1 : 1)} ${UNITS[k][1]}</td>`;
+      return `<tr><td>${m.label}</td><td class="n">${m.frames_measured} of ${m.frames}</td>${s(now, "bones_keep_length")}${s(sm, "bones_keep_length")}${s(now, "no_jitter")}${s(sm, "no_jitter")}<td class="${now.pass ? "ok" : "bad"}">${now.pass ? "passes" : "fails"}</td></tr>`;
+    }).join("");
+    $("mo-real").innerHTML = `<p class="small" style="margin:0 0 6px">Recorded when this Lab was built: a pose-finding model ran on a GPU over the frames of a filmed roll (one adult, London Parkour, CC BY), and these are its joints, before any cleaning. This page does not run the model.</p>
+      <table><thead><tr><th>Clip</th><th class="n">Frames found</th><th class="n">Bone change, raw</th><th class="n">after smoothing</th><th class="n">Peak acceleration, raw</th><th class="n">after smoothing</th><th>Hard rules, raw</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   async function fillRecorded(): Promise<void> {
@@ -265,12 +278,16 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
 
   (async () => {
     const urls = [...new Set(LAB_CLIPS.map((c) => c.url))];
-    await Promise.all(urls.map(async (u) => { files[u] = await (await fetch(u)).json(); }));
+    // the recorded pose pack is optional: if it cannot load, the Lab keeps its other clips
+    await Promise.all(urls.map(async (u) => { try { files[u] = await (await fetch(u)).json(); } catch { if (!u.includes("/lab/motion/real/")) throw new Error("clip missing: " + u); } }));
+    for (let i = LAB_CLIPS.length - 1; i >= 0; i--) if (!files[LAB_CLIPS[i].url]) LAB_CLIPS.splice(i, 1);
+    sel.innerHTML = LAB_CLIPS.map((c) => `<option value="${c.id}">${c.label} (${ORIGIN_WORDS[c.origin]})</option>`).join("");
     for (const s of LAB_CLIPS) { const c = buildClip(s, files); built.set(s.id, c); verdicts.set(s.id, verdict(s, c)); }
     sel.value = "roll-whole"; // opens on the real failure so the gate's work is the first thing seen
     labDefaultNote(wrap, "live", $("mo-h1"));
     change();
     await fillRecorded();
+    await fillRealPack().catch(() => { $("mo-real").textContent = ""; });
     document.documentElement.dataset.labReady = "true";
     labPopulated("lab-motion");
     loop();

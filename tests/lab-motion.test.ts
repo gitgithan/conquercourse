@@ -154,3 +154,37 @@ describe("registration", () => {
   });
   it("the made-broken constants are the ones the page says", () => { expect(SINK_M).toBe(0.08); expect(JUMP_M).toBe(1.5); });
 });
+
+describe("the pose finder's recorded raw tracks (public/assets/lab/motion/real)", () => {
+  const man = JSON.parse(readFileSync("public/assets/lab/motion/real/manifest.json", "utf8"));
+  const spec = (m: { file: string }) => LAB_CLIPS.find((c) => c.url.endsWith("/" + m.file))!;
+  it("the manifest lists each file with its size and checksum, and each file is small", async () => {
+    const { createHash } = await import("node:crypto");
+    for (const m of man.clips) {
+      const text = readFileSync("public/assets/lab/motion/real/" + m.file, "utf8");
+      expect(createHash("sha256").update(text).digest("hex"), m.file).toBe(m.sha256);
+      expect(text.length).toBe(m.bytes);
+      expect(m.bytes).toBeLessThan(300_000);
+      expect(spec(m), m.file).toBeTruthy();
+    }
+  });
+  it("the page's gate agrees with the Python gate on every hard rule (same verdict, values within 0.25, the file is rounded to a millimetre)", () => {
+    for (const m of man.clips) {
+      const x = v(spec(m).id);
+      for (const [k, r] of Object.entries<{ ok: boolean; value: number }>(m.python_gate.hard)) {
+        expect(x.report.hard[k].ok, `${m.id} ${k}`).toBe(r.ok);
+        expect(Math.abs((x.report.hard[k].value ?? 0) - r.value), `${m.id} ${k}`).toBeLessThan(0.25);
+      }
+      expect(x.pass).toBe(m.python_gate.pass);
+    }
+  });
+  it("the raw pose finder track is held back, and the game's smoothing cuts its bone changes and jitter", () => {
+    for (const m of man.clips) {
+      const raw = v(spec(m).id), sm = verdict(spec(m), applyGameSmoothing(get(spec(m).id)));
+      expect(raw.pass).toBe(false);
+      expect(raw.softFailed).toEqual(expect.arrayContaining(["bones_keep_length", "no_jitter"]));
+      expect(sm.report.soft.bones_keep_length.value!).toBeLessThan(raw.report.soft.bones_keep_length.value! / 5);
+      expect(sm.report.soft.no_jitter.value!).toBeLessThan(raw.report.soft.no_jitter.value!);
+    }
+  });
+});
