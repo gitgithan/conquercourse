@@ -1,0 +1,32 @@
+{
+  "name": "bench-concrete",
+  "photoMade": true,
+  "photo": "bench01",
+  "label": "bench",
+  "typedHeightM": 0.8,
+  "credit": "Photo by Rick Obst, CC BY 2.0",
+  "licence": "CC BY 2.0",
+  "rawMesh": "assets/lab/lift/real/bench-concrete.glb",
+  "maskPicture": "assets/lab/lift/real/bench-concrete-mask.png",
+  "bakedGlb": "assets/objects/bench-concrete.glb",
+  "stats": {
+    "rawHeight": 0.4495,
+    "rawExtents": [
+      0.9962,
+      0.362,
+      0.4495
+    ],
+    "rawFaces": 425120,
+    "previewFaces": 7760,
+    "previewBytes": 152472,
+    "yawDeg": 0.0,
+    "tiltDeg": 2.18,
+    "splatPoints": 294432,
+    "liftSeconds": 12.5,
+    "maskSeconds": 1.5,
+    "costUsd": 0.0071,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": true
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

@@ -1,0 +1,32 @@
+{
+  "name": "railing-red",
+  "photoMade": true,
+  "photo": "railing-red",
+  "label": "metal railing",
+  "typedHeightM": 0.999,
+  "credit": "Photo by AgainErick, CC BY-SA 4.0",
+  "licence": "CC BY-SA 4.0",
+  "rawMesh": "assets/lab/lift/real/railing-red.glb",
+  "maskPicture": "assets/lab/lift/real/railing-red-mask.png",
+  "bakedGlb": "assets/objects/railing-red.glb",
+  "stats": {
+    "rawHeight": 0.2492,
+    "rawExtents": [
+      1.002,
+      0.0498,
+      0.2492
+    ],
+    "rawFaces": 74718,
+    "previewFaces": 7760,
+    "previewBytes": 152032,
+    "yawDeg": 0.0,
+    "tiltDeg": 0.09,
+    "splatPoints": 58048,
+    "liftSeconds": 8.0,
+    "maskSeconds": 0.3,
+    "costUsd": 0.0044,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

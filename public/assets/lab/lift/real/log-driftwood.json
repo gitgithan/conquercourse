@@ -1,0 +1,32 @@
+{
+  "name": "log-driftwood",
+  "photoMade": true,
+  "photo": "log-driftwood",
+  "label": "log",
+  "typedHeightM": 0.798,
+  "credit": "Photo by Awinsongyababa, CC BY 4.0",
+  "licence": "CC BY 4.0",
+  "rawMesh": "assets/lab/lift/real/log-driftwood.glb",
+  "maskPicture": "assets/lab/lift/real/log-driftwood-mask.png",
+  "bakedGlb": "assets/objects/log-driftwood.glb",
+  "stats": {
+    "rawHeight": 0.3872,
+    "rawExtents": [
+      0.7426,
+      0.9951,
+      0.3872
+    ],
+    "rawFaces": 250208,
+    "previewFaces": 7760,
+    "previewBytes": 152576,
+    "yawDeg": 95.0,
+    "tiltDeg": 0.74,
+    "splatPoints": 195776,
+    "liftSeconds": 9.1,
+    "maskSeconds": 0.3,
+    "costUsd": 0.005,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}

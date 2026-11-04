@@ -1,0 +1,32 @@
+{
+  "name": "rail-skate-02",
+  "photoMade": true,
+  "photo": "park02",
+  "label": "handrail",
+  "typedHeightM": 1,
+  "credit": "Photo by Neoclassicism Enthusiast, CC0",
+  "licence": "CC0",
+  "rawMesh": "assets/lab/lift/real/rail-skate-02.glb",
+  "maskPicture": "assets/lab/lift/real/rail-skate-02-mask.png",
+  "bakedGlb": "assets/objects/rail-skate-02.glb",
+  "stats": {
+    "rawHeight": 0.2757,
+    "rawExtents": [
+      0.0235,
+      0.9993,
+      0.2757
+    ],
+    "rawFaces": 14220,
+    "previewFaces": 7760,
+    "previewBytes": 152580,
+    "yawDeg": 90.5,
+    "tiltDeg": 8.6,
+    "splatPoints": 10720,
+    "liftSeconds": 7.8,
+    "maskSeconds": 0.3,
+    "costUsd": 0.00429,
+    "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
+    "padded": false
+  },
+  "note": "Real raw lift (SAM 3D Objects, seed 42), z up, in the lift's own units, thinned to a preview. Re-lifted 2026-11-04 with the same photo, box and settings as the shipped object."
+}
