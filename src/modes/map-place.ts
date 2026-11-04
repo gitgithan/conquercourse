@@ -70,8 +70,7 @@ export function installPlaces(ctx: PlaceCtx) {
   const explainEl = document.createElement('div'); explainEl.className = 'explain'; explainEl.id = 'explain'; explainEl.hidden = true;
   const buildBtn = side.querySelector('#build') as HTMLElement;
   buildBtn.after(stepsEl, errEl, openBtn, explainEl);
-  (side.querySelector('#hits') as HTMLElement).after(readyEl);
-  openBtn.onclick = () => { location.search = '?mode=editor'; };
+    openBtn.onclick = () => { location.search = '?mode=editor'; };
 
   // ---- ready places
   let index: ReadyIndexEntry[] = [];
@@ -102,19 +101,18 @@ export function installPlaces(ctx: PlaceCtx) {
       b.append(img);
       b.insertAdjacentHTML('beforeend', `<span class="nm"></span><span class="ct"></span><span class="bd"><span class="rd${ready ? '' : ' no'}">${ready ? 'ready' : p.kind === 'parkour' ? 'no lane found yet' : 'no photos or no lane'}</span>${p.kind === 'parkour' && p.visible === false ? '<span class="sp" title="The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom">small on the map</span>' : ''}${streetSet.has(p.slug) ? `<span class="sp" title="${STREET_CHIP_TITLE}">${STREET_CHIP}</span>` : ''}${p.hill_m >= 3 ? `hill ${p.hill_m} m` : 'flat'}</span>${th ? `<span class="cr">${p.kind === 'parkour' ? 'Photo of the area nearby' : 'Photo'}: ${th.author.replace(/<[^>]*>/g, '')}, ${th.licence}</span>` : ''}`);
       (b.querySelector('.nm') as HTMLElement).textContent = nm; (b.querySelector('.ct') as HTMLElement).textContent = p.kind === 'parkour' ? [city, p.country].filter(Boolean).join(', ') : city;
-      b.onclick = () => { list.querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
+      b.onclick = () => { (b.closest('.gal') ?? list).querySelectorAll('button.card').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); pick(p); };
       return b;
     };
     // CC-133: with parkour parks in the list the cards sit under headings (street places, then one heading per region); with none it is the plain grid as before
     const groups = groupShown(shown);
-    list.replaceChildren(...groups.flatMap((g) => [...(g.title && gallery ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
-    readyEl.replaceChildren(head, list);
-    if (gallery) { readyEl.open = true; readyEl.hidden = true; } // owner 2026-11-04: the full-screen gallery replaces the side list (kept hidden because the map pick and the checks read its buttons)
+    if (!gallery) list.replaceChildren(...groups.flatMap((g) => [...(g.title && gallery ? [Object.assign(document.createElement('div'), { className: 'gh', textContent: g.title })] : []), ...g.items.map(card)]));
+    if (!gallery) { readyEl.replaceChildren(head, list); (side.querySelector('#hits') as HTMLElement).after(readyEl); } // the new screen has no side list: the full-screen gallery is the only list
     if (gallery && !document.getElementById('ready-gallery-btn')) { // owner request 2026-11-04: the ready places as a full-screen gallery over the map, not only a small side list
       const big = Object.assign(document.createElement('button'), { type: 'button', id: 'ready-gallery-btn', textContent: `Browse ${shown.length} ready places (each with a 3D look)` });
       big.style.cssText = 'display:block;width:100%;margin:6px 0;padding:9px 12px;font:700 14px system-ui,sans-serif;color:#fff;background:#2f7d5b;border:0;border-radius:10px;cursor:pointer';
       big.onclick = () => openReadyGallery(groups, card, shown.length);
-      readyEl.before(big);
+      (side.querySelector('#hits') as HTMLElement).after(big);
     }
     dset('readyPlaces', shown.length); dset('readyPlacesAll', index.length);
   })();
