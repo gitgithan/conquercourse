@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { adviseLane } from '../src/slice/advice';
 import { fixBars } from '../src/slice/fixbars';
 import { barMesh, isHold, type P } from '../src/slice/holds-world';
-import { diffProposal, enabledCount, fromAdvice, fromEdits, labelsOf, resultOf } from '../src/slice/preview';
+import { diffProposal, enabledCount, fromAdvice, fromEdits, labelsOf, pieceWordLines, resultOf } from '../src/slice/preview';
 import { proves } from '../src/slice/photo-proof';
 import { newPiece } from '../src/slice/world';
 import { box, deck, lane } from './helpers/pieces';
@@ -84,4 +84,11 @@ describe('preview before apply', () => {
     expect(ids.filter((n) => n.startsWith('Bar')).sort()).toEqual(['Bar 1', 'Bar 2']);
     expect(ids).toContain('Deck');
   });
+});
+
+
+it('keeps move and turn instructions on separate lines without splitting decimals or object names', () => {
+  const from = { x: 0, y: 0, z: 0, yaw: 0, scale: 1 };
+  const lines = pieceWordLines('St. Block', lane, from, { ...from, z: 1.5, yaw: Math.PI / 12 }, 1);
+  expect(lines).toEqual(['Move “St. Block” 1.5 m sideways.', 'Turn “St. Block” 15°.']);
 });

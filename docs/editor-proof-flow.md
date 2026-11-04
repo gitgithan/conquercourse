@@ -54,6 +54,7 @@ flowchart TD
 - Switching a change off invalidates the preview proof until that exact selection has been checked.
 - Switching back to an already checked selection reuses its result.
 - Apply updates the main simulator verdict immediately from the matching proof.
+- The applied summary separates its heading, simulator verdict and changes; each change gets its own bullet line.
 - Play receives the same successful run and timing windows instead of searching again.
 - Editing a physics input or a device setting requires a check for the new course.
 
@@ -73,6 +74,35 @@ flowchart TD
   D -->|"Toggle a suggested edit"| D
 ```
 
+## While the preview is being checked
+
+- A dedicated progress card stays visible below the scrolling edits, beside the Apply workflow.
+- While it is visible, the repeated engine introduction is hidden and the AI input is compacted to preserve edit-review space.
+- It explains that the simulator is finding movement timings for a complete run through the proposed course.
+- The proposed object positions stay fixed during this check; the simulator tries ways to run through them.
+- Live worker reports name the current obstacle or timing search and show obstacle progress within the current search pass.
+- Elapsed time stays visible even during a long batch without a new stage report.
+- The bar is indeterminate before measurable obstacle progress and during the final whole-course replay.
+- It never claims 100% or a clearance verdict from a progress message.
+- Obstacle progress is not an estimate of time remaining; searches can revisit obstacles in another pass.
+- Stop check terminates the preview worker, retains the proposed edits and leaves Apply locked.
+- Retry check tests that same preview again without another Muse Spark Open request.
+- A failed or unavailable worker also offers Retry check.
+- Cancelling the preview, starting a new helper request, changing the course or leaving the editor clears obsolete progress.
+- A cached exact-course proof completes immediately without waiting on a new worker.
+- [Preview progress screenshot](evidence/editor-preview-progress.jpg).
+- [Applied actions on separate lines](evidence/editor-applied-changes.jpg).
+
+```mermaid
+flowchart LR
+  PREVIEW["Proposed course"] --> WORKER["Simulator worker"]
+  WORKER -->|"Stage reports"| PROGRESS["Visible progress card<br/>current obstacle and elapsed time"]
+  WORKER -->|"Completed result"| VERDICT["Simulator verdict<br/>Apply unlocked after completed check"]
+  PROGRESS -->|"Stop check"| STOP["Worker terminated<br/>edits retained, Apply locked"]
+  STOP -->|"Retry check"| WORKER
+  CACHE["Matching complete proof"] --> VERDICT
+```
+
 ## Data flow
 
 - The only Design Partner system prompt is `SYSTEM` in [the server API](../functions/api/designer.ts).
@@ -81,6 +111,7 @@ flowchart TD
 - [helper.ts](../src/modes/editor/helper.ts) turns accepted model edits into a proposal and a preview snapshot.
 - [lane.ts](../src/modes/editor/lane.ts) builds both preview and live courses through `courseFor`.
 - [search.ts](../src/modes/editor/search.ts) gives preview and live checks independent workers with a shared result store.
+- Preview stage reports are forwarded to [preview-check.ts](../src/modes/editor/preview-check.ts), instead of being discarded by a no-op callback.
 - A stored result contains the clearance verdict, successful run, timing windows and routes returned by the simulator.
 - The result key serializes the search input, including terrain, movement parameters and active device settings.
 - Source metadata, hazard appearance and designer-marked shortcuts are excluded from that key.

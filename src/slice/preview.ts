@@ -28,7 +28,7 @@ export function labelsOf(pieces: Piece[]): Map<number, string> {
   return out;
 }
 
-function pieceWords(name: string, lane: LaneSetting, from: PieceState, to: PieceState, heightNow: number): string {
+export function pieceWordLines(name: string, lane: LaneSetting, from: PieceState, to: PieceState, heightNow: number): string[] {
   const dx = to.x - from.x, dz = to.z - from.z, dy = to.y - from.y, ca = Math.cos(lane.angle), sa = Math.sin(lane.angle);
   const along = dx * ca + dz * sa, across = -dx * sa + dz * ca;
   const parts: string[] = [];
@@ -42,7 +42,7 @@ function pieceWords(name: string, lane: LaneSetting, from: PieceState, to: Piece
   const turn = ((to.yaw - from.yaw) * 180) / Math.PI;
   if (Math.abs(turn) >= 0.5) out.push(`Turn “${name}” ${Math.round(Math.abs(turn))}°.`);
   if ((from.role ?? 'ground') !== (to.role ?? 'ground')) out.push(`Use “${name}” as ${ROLE_WORDS[to.role ?? 'ground']}.`);
-  return out.join(' ');
+  return out;
 }
 
 export const ROLE_WORDS: Record<Role, string> = { ground: 'plain ground', wall: 'the Warped Wall', rope: 'a rope anchor', trampoline: 'a trampoline bed', bar: 'a swing bar' };
@@ -76,7 +76,7 @@ export function diffProposal(source: Proposal['source'], title: string, pieces: 
   for (const p of pieces) {
     const q = nextPieces.find((x) => x.id === p.id);
     if (!q || same(stateOf(p), stateOf(q))) continue;
-    items.push({ kind: 'piece', id: p.id, name: names.get(p.id)!, from: stateOf(p), to: stateOf(q), words: pieceWords(names.get(p.id)!, lane, stateOf(p), stateOf(q), realSize(p).h), on: true });
+    items.push({ kind: 'piece', id: p.id, name: names.get(p.id)!, from: stateOf(p), to: stateOf(q), words: pieceWordLines(names.get(p.id)!, lane, stateOf(p), stateOf(q), realSize(p).h).join(' '), on: true });
   }
   for (const key of ['angle', 'offset', 'level'] as const) if (Math.abs(lane[key] - nextLane[key]) > 1e-6) items.push({ kind: 'lane', key, from: lane[key], to: nextLane[key], words: laneWords(key, lane[key], nextLane[key]), on: true });
   items.push(...machineItems(machine, nextMachine));

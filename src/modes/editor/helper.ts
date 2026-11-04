@@ -1,4 +1,6 @@
 import { EDITOR_ACTIONS as ACTIONS, actionTitle } from '../../ui/editor-actions';
+import { createPreviewCheck } from './preview-check';
+import type { LaneProgress } from '../../slice/lane-check';
 import { realSize } from '../../slice/world';
 import { workSeconds } from '../../sim/ideal';
 import { type Ghosts } from '../../slice/view3d';
@@ -15,7 +17,7 @@ import { type Advice } from '../../slice/advice';
 import { sayBadge, saysOn } from '../../ui/says';
 import { barsInWorker, fixInWorker } from '../../slice/proof-client';
 import { parseReply, worldBrief } from '../../slice/designer';
-import { diffProposal, enabledCount, fromAdvice, fromEdits, resultOf, type Proposal } from '../../slice/preview';
+import { diffProposal, enabledCount, fromAdvice, fromEdits, pieceWordLines, resultOf, type Proposal } from '../../slice/preview';
 import { shortcutLine, type Shortcut } from '../../sim/shortcuts';
 import { closeShortcut } from '../../slice/shortcut-close';
 import { easierWorkers } from './easier-workers';
@@ -90,7 +92,7 @@ export function createHelper(env: HelperEnv) {
   }
   findRoutesBtn.onclick = lookForRoutes;
   function closeRoute(s: Shortcut) {
-    cancelEasier();
+    cancelEasier(); closePreview();
     reply.className = 'reply'; reply.textContent = 'Working out a change that closes it… (up to two minutes)'; helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     setTimeout(() => {
       const now = { angle: ed.angle, offset: ed.offset, level: ed.level }, r = closeShortcut(ed.pieces as P[], now, s);
@@ -100,6 +102,10 @@ export function createHelper(env: HelperEnv) {
     }, 30);
   }
   const reply = el('div', helper, { className: 'reply muted', id: 'reply', text: 'Choose Find a repair for a simulator search, or Ask AI for ideas from Muse Spark Open.' });
+  const previewCheck = createPreviewCheck(helper, {
+    stop: () => { ed.proofRun++; previewSearch.stopSearch(); paintVerdict('unavailable', 'Check stopped. Retry to test the same preview again.'); },
+    retry: () => updatePreview(),
+  });
   const askRow = el('div', helper, { className: 'row' });
   const aiLabel = el('div', askRow); aiLabel.style.gridColumn = '1 / -1';
   if (saysOn()) { const badge = sayBadge('partner'); badge.classList.add('says-small'); aiLabel.append(badge); }
@@ -149,7 +155,7 @@ export function createHelper(env: HelperEnv) {
     return { ok: r.ok, pieces: r.pieces as P[], lane: r.lane, steps: r.steps, machine: m };
   }
   function runFix(from?: { pieces: P[]; lane: { angle: number; offset: number; level: number } }) {
-    cancelEasier();
+    cancelEasier(); closePreview();
     helper.classList.remove('closed'); helperBtn.setAttribute('aria-pressed', 'true');
     reply.className = 'reply'; reply.textContent = 'Simulator: searching for a repair…' + (ed.pieces.some(isHold) ? ' (bars take a while: up to 40 seconds)' : '');
     setTimeout(async () => {
@@ -183,7 +189,7 @@ export function createHelper(env: HelperEnv) {
     reply.className = 'reply';
     const c0 = courseNow(), lane = { angle: ed.angle, offset: ed.offset, level: ed.level };
     const pieces = ed.pieces.map((p) => ({ ...p }));
-    const visible = flag('easierview') === '1' || (import.meta.env.DEV && flag('easierview') !== '0');
+    const visible = flag('easierview') !== '0';
     const progress = visible ? easierProgress(reply, c0, () => cancelEasier('Search cancelled. Nothing changed.')) : null;
     if (!progress) {
       reply.replaceChildren();
@@ -227,6 +233,7 @@ export function createHelper(env: HelperEnv) {
     document.documentElement.dataset.previewItems = String(pr.items.length);
   }
   function closePreview(message?: string) {
+    previewCheck.hide();
     previewProof = null; previewSearch.stopSearch();
     ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
     document.documentElement.dataset.preview = '';
@@ -255,12 +262,15 @@ export function createHelper(env: HelperEnv) {
     if (handoff) el('button', row, { text: 'Apply and try it', id: 'applytry', className: 'go', title: 'Apply the changes and play again from the last checkpoint' }).onclick = () => { if (applyProposal()) void goToCourse(true); };
     el('button', row, { text: 'Cancel', id: 'cancelpreview' }).onclick = () => closePreview('Cancelled: nothing changed.');
   }
-  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none' | 'unavailable') {
+  function paintVerdict(state: 'checking' | 'clears' | 'blocked' | 'none' | 'unavailable', message?: string) {
     const v = document.getElementById('previewverdict'), apply = document.getElementById('applypreview') as HTMLButtonElement | null, rowEl = document.getElementById('previewbuttons');
-    if (!v || !apply || !rowEl) return;
+    if (!v || !apply || !rowEl) { previewCheck.hide(); return; }
     document.documentElement.dataset.preview = state;
     v.className = state === 'clears' ? 'ok' : state === 'blocked' ? 'bad' : 'muted';
-    v.textContent = state === 'checking' ? 'Checking with the simulator…' : state === 'clears' ? 'Simulator verified: this lane can clear.' : state === 'blocked' ? 'The simulator did not find a clear run for these changes.' : state === 'unavailable' ? 'The simulator could not finish this check. Reopen the preview to try again.' : 'Nothing is switched on.';
+    if (state === 'checking') previewCheck.start();
+    else if (state === 'unavailable') previewCheck.unavailable(message ?? 'This check could not finish. Retry the same preview or cancel.');
+    else previewCheck.hide();
+    v.textContent = message ?? (state === 'checking' ? 'Apply is waiting for the simulator check below.' : state === 'clears' ? 'Simulator verified: this lane can clear.' : state === 'blocked' ? 'The simulator did not find a clear run for these changes.' : state === 'unavailable' ? 'The simulator could not finish this check. Retry the check below.' : 'Nothing is switched on.');
     apply.disabled = state !== 'clears' && state !== 'blocked';
     const tryBtn = document.getElementById('applytry') as HTMLButtonElement | null; if (tryBtn) tryBtn.disabled = state !== 'clears';
     rowEl.querySelector('#fixfromhere')?.remove();
@@ -270,7 +280,7 @@ export function createHelper(env: HelperEnv) {
     }
   }
   function updatePreview() {
-    if (!ed.proposal) { ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
+    if (!ed.proposal) { previewCheck.hide(); ed.preview = null; ed.previewProfile = null; ed.previewBars = []; return; }
     ed.preview = resultOf(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level }, ed.proposal, machineNow());
     ed.previewProfile = profileFor(ed.preview.pieces, ed.preview.lane);
     ed.previewBars = holdsOf(ed.preview.pieces, ed.preview.lane);
@@ -295,7 +305,11 @@ export function createHelper(env: HelperEnv) {
     if (!ed.proposal || !ed.preview || !previewProof) return;
     const current = courseFor(ed.preview.pieces, ed.preview.lane, ed.preview.machine);
     if (JSON.stringify(searchInput(current)) !== JSON.stringify(searchInput(previewProof.course))) { updatePreview(); return; }
-    const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).map((i) => i.words).join(' ');
+    const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).flatMap((item) => {
+      if (item.kind !== 'piece') return [item.words];
+      const piece = ed.pieces.find((q) => q.id === item.id);
+      return piece ? pieceWordLines(item.name, { angle: ed.angle, offset: ed.offset, level: ed.level }, item.from, item.to, realSize(piece).h) : [item.words];
+    });
     for (const q of r.pieces) { const mine = ed.pieces.find((x) => x.id === q.id); if (mine) { mine.x = q.x; mine.z = q.z; mine.y = q.y; mine.yaw = q.yaw; mine.scale = q.scale; mine.role = q.role; } }
     ed.angle = r.lane.angle; ed.offset = r.lane.offset; ed.level = r.lane.level;
     if (r.machine && ed.trebuchetKg) { updateDeviceSource('device:trebuchet', `device:trebuchet:${r.machine.counterweight}`); ed.trebuchetExtra = { ...(r.machine.short !== undefined ? { short: r.machine.short } : {}), ...(r.machine.pin !== undefined ? { pin: r.machine.pin } : {}) }; } // the counterweight lives in the machine piece
@@ -303,8 +317,15 @@ export function createHelper(env: HelperEnv) {
     previewProof = null;
     changed(); // one undo step; the editor reuses the exact preview result and plan
     const appliedProof = previewSearch.proofFor(courseNow());
-    reply.className = appliedProof?.cleared ? 'reply ok' : 'reply muted';
-    reply.textContent = appliedProof ? (appliedProof.cleared ? `Applied. The simulator's verified run is ready. ${words}` : `Applied. The simulator has not found a clear run. ${words}`) : `Applied. The simulator is checking the changed layout. ${words}`;
+    reply.className = 'reply'; reply.replaceChildren();
+    el('strong', reply, { text: 'Applied.' });
+    el('div', reply, {
+      className: appliedProof?.cleared ? 'ok' : 'muted',
+      text: appliedProof ? (appliedProof.cleared ? "The simulator's verified run is ready." : 'The simulator has not found a clear run.') : 'The simulator is checking the changed layout.',
+    });
+    const appliedChanges = el('ul', reply, { id: 'appliedchanges' });
+    appliedChanges.style.cssText = 'margin:2px 0;padding-left:20px;display:grid;gap:6px';
+    for (const text of words) el('li', appliedChanges, { text });
     document.documentElement.dataset.preview = 'applied';
     return true;
   }
@@ -319,7 +340,7 @@ export function createHelper(env: HelperEnv) {
     }
   }
   async function askPartner(text: string) {
-    cancelEasier();
+    cancelEasier(); closePreview();
     chat.push({ role: 'user', content: text });
     reply.className = 'reply'; reply.textContent = 'Muse Spark Open: thinking of design ideas…'; sendBtn.disabled = whatBtn.disabled = true;
     try {
@@ -350,8 +371,9 @@ export function createHelper(env: HelperEnv) {
   // Some lane/device controls draw live and verify on release without calling changed().
   const editInput = (event: Event) => { if (event.target instanceof Node && !helper.contains(event.target)) onChanged(); };
   root.addEventListener('input', editInput); root.addEventListener('change', editInput);
-  const removal = new MutationObserver(() => { if (!helper.isConnected) { cancelEasier(); removal.disconnect(); } });
+  const removal = new MutationObserver(() => { if (!helper.isConnected) { cancelEasier(); previewCheck.hide(); previewSearch.stopSearch(); removal.disconnect(); } });
   removal.observe(document.body, { childList: true, subtree: true });
-  return { helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runFix, runEasier, showProposal, closePreview, ghostData, onChanged };
+  const previewProgress = (p: LaneProgress) => previewCheck.progress(p);
+  return { previewProgress, helper, helperBtn, reply, adviceBox, setSuggest, showAdvice, runFix, runEasier, showProposal, closePreview, ghostData, onChanged };
 }
 export type Helper = ReturnType<typeof createHelper>;
