@@ -13,7 +13,7 @@ export interface PanelLayout { columns: PanelColumn[]; boxes: PanelBoxRect[]; ti
 export interface PanelOptions { tileW?: number; tileH?: number; gap?: number; pad?: number; head?: number; boxGap?: number; colGap?: number; top?: number; maxPerRow?: number; iconY?: number; minColW?: number }
 
 export function layoutPanel(src: MapSource = DEFAULT_SOURCE, o: PanelOptions = {}): PanelLayout {
-  const tileW = o.tileW ?? 96, tileH = o.tileH ?? 84, gap = o.gap ?? 10, pad = o.pad ?? 10, head = o.head ?? 28, boxGap = o.boxGap ?? 14, colGap = o.colGap ?? 110, top = o.top ?? 30, maxPer = o.maxPerRow ?? 5, iconY = o.iconY ?? 32, minColW = o.minColW ?? 170;
+  const tileW = o.tileW ?? 112, tileH = o.tileH ?? 92, gap = o.gap ?? 8, pad = o.pad ?? 8, head = o.head ?? 26, boxGap = o.boxGap ?? 10, colGap = o.colGap ?? 100, top = o.top ?? 24, maxPer = o.maxPerRow ?? 5, iconY = o.iconY ?? 32, minColW = o.minColW ?? 170;
   const nameOf = (m: string): string => src.labs.find((l) => l.mode === m)?.name ?? m;
   const tiers = src.tiers.filter((t) => src.groups.some((g) => g.tier === t.id && g.modes.length));
   const columns: PanelColumn[] = [], boxes: PanelBoxRect[] = [];

@@ -30,7 +30,8 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
     #labs-nav a[aria-disabled=true]{opacity:.4;pointer-events:none}
     #labs-nav .now{display:flex;gap:8px;align-items:center;min-width:0;font-weight:700}#labs-nav .now svg{flex:0 0 auto;width:24px;height:24px;border-radius:5px}
     #labs-nav .now span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #labs-nav .sp{flex:1}`;
+    #labs-nav .sp{flex:1}
+    #courses-btn{display:none!important}`; /* the page's own corner Courses button would show as an outline under ours */
   document.head.appendChild(style);
   const nav = document.createElement('nav');
   nav.id = 'labs-nav';

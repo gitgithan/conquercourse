@@ -45,8 +45,14 @@ try {
   check('hover dims all but neighbours', hov.dim > 10 && hov.bright >= 2 && hov.hot >= 1, JSON.stringify(hov));
   await page.screenshot({ path: 'test-results/labs-panel/hover.png' });
   await page.mouse.move(640, 790);
+  const cover = await page.evaluate(() => { const sb = document.getElementById('soundbutton'), nav = document.getElementById('labs-nav'); return { inBar: !!sb && nav.contains(sb) }; });
+  check('Sound button in the bar', cover.inBar, JSON.stringify(cover));
   await page.keyboard.press('Escape'); await page.waitForTimeout(600);
   check('Esc closes', await hidden(page));
+  await page.click('#labs-open'); await page.waitForTimeout(600);
+  await page.mouse.click(640, 790); await page.waitForTimeout(600);
+  check('backdrop click closes', await hidden(page));
+  check('Courses still reachable', await page.evaluate(() => { const b = document.getElementById('labs-courses').getBoundingClientRect(); return b.width > 0 && document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2)?.id === 'labs-courses'; }));
   await page.click('#labs-open'); await page.waitForTimeout(600);
   await page.click('#labs-panel-close'); await page.waitForTimeout(600);
   check('close button closes', await hidden(page));
@@ -55,6 +61,11 @@ try {
   check('picking a Lab opens it', page.url().includes('mode=lab-wait'), page.url());
   await page.waitForSelector('#labs-now', { timeout: 90000 });
   check('bar names the current Lab', (await page.textContent('#labs-now')).includes('Hide the wait'));
+  for (const m of ['lab-camera', 'lab-limits', 'lab-collision']) {
+    await page.goto(`${base}/?mode=${m}&labs=1&welcome=0&sunat=noon&backend=webgl2`);
+    await page.waitForSelector('#labs-open', { timeout: 90000 }); await page.waitForTimeout(2000);
+    await page.screenshot({ path: `test-results/labs-panel/${m}.png` });
+  }
   await page.goto(`${base}/?mode=labs-map&labs=1&sunat=noon&backend=webgl2`);
   await page.waitForSelector('#labs-panel.open', { timeout: 90000 });
   check('old labs-map link opens the panel', true);

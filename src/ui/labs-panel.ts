@@ -26,14 +26,14 @@ const STYLE = `
   #labs-panel .lp-head h2{margin:0;font-size:18px}#labs-panel .lp-key{color:#52605a;font-size:12px;display:flex;gap:14px;align-items:center;flex:1}
   #labs-panel .lp-key i{display:inline-block;width:24px;border-top:3px solid #0f6b5c;margin-right:5px;vertical-align:middle}#labs-panel .lp-key i.flow{border-top:3px dashed #d9741a}
   #labs-panel .lp-close{font:700 14px system-ui;color:#fff;background:#17201d;border:0;border-radius:6px;padding:6px 12px;cursor:pointer}
-  #labs-panel .lp-body{overflow:auto;padding:12px 20px 20px}
+  #labs-panel .lp-body{overflow:auto;padding:8px 20px 14px}
   #labs-panel .lp-stage{position:relative}
   #labs-panel .lp-colhead{position:absolute;top:0;font:700 12px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#52605a}
   #labs-panel .lp-box{position:absolute;box-sizing:border-box;background:#fff;box-shadow:inset 0 0 0 1.5px #b9c4bb;border-radius:12px}
   #labs-panel .lp-box[data-tier=pipelines]{background:#eef6f3;box-shadow:inset 0 0 0 1.5px #0f6b5c}
   #labs-panel .lp-box[data-tier=finale]{background:#fff6e4;box-shadow:inset 0 0 0 1.5px #d9741a}
   #labs-panel .lp-box h3{white-space:nowrap;margin:0;padding:6px 10px;font-size:14px;line-height:16px}
-  #labs-panel a.lp-tile{position:absolute;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;text-decoration:none;color:#17201d;font-size:11.5px;line-height:1.2;border-radius:8px;padding:4px;background:#fff;transition:opacity .12s}
+  #labs-panel a.lp-tile{position:absolute;z-index:2;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;text-decoration:none;color:#17201d;font-size:11.5px;line-height:1.15;border-radius:8px;padding:2px 3px;background:#fff;transition:opacity .12s}
   #labs-panel a.lp-tile svg{flex:0 0 auto}
   #labs-panel .lp-box[data-tier=pipelines] a.lp-tile{background:#eef6f3}#labs-panel .lp-box[data-tier=finale] a.lp-tile{background:#fff6e4}
   #labs-panel a.lp-tile:hover,#labs-panel a.lp-tile:focus-visible{background:#e6f2ee;outline:none}#labs-panel a.lp-tile:focus-visible{box-shadow:0 0 0 2px #ffb347}
