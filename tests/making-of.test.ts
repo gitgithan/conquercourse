@@ -1,101 +1,118 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
 // @ts-expect-error plain .mjs script
-import { findings } from '../scripts/check-personal.mjs';
+import { findings } from "../scripts/check-personal.mjs";
 // @ts-expect-error plain .mjs script
-import { buildAll } from '../scripts/making-of.mjs';
+import { buildAll } from "../scripts/making-of.mjs";
 
-const DIR = 'public/making-of';
+const DIR = "public/making-of";
 const files = readdirSync(DIR);
-const read = (f: string) => readFileSync(join(DIR, f), 'utf8');
+const read = (f: string) => readFileSync(join(DIR, f), "utf8");
 
 const DENY: [string, RegExp][] = [
-  ['source path', /\b(src|server|functions|migrations|scripts|tests)\//],
-  ['docs path', /\bdocs\//],
-  ['home path', /\/home\/|\/Users\/|C:\\Users/],
-  ['e-mail', /[\w.+-]+@[\w-]+\.[a-z]{2,}/i],
-  ['IP address', /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/],
-  ['tracker link', /linear\.app/i],
-  ['private theme', /anti-?cheat|\badmin|\btoken|secret/i],
+  ["source path", /\b(src|server|functions|migrations|scripts|tests)\//],
+  ["docs path", /\bdocs\//],
+  ["home path", /\/home\/|\/Users\/|C:\\Users/],
+  ["e-mail", /[\w.+-]+@[\w-]+\.[a-z]{2,}/i],
+  ["IP address", /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/],
+  ["tracker link", /linear\.app/i],
+  ["private theme", /anti-?cheat|\badmin|\btoken|secret/i],
 ];
 
-describe('The Making Of public files', () => {
-  it('has the pages, the timeline data and its pictures', () => {
-    expect([...files].sort()).toEqual(['code-map.html', 'course-map.html', 'index.html', 'site-map.html', 'timeline', 'timeline-events.json', 'timeline.html']);
-    expect(files.filter((f) => f.endsWith('.json'))).toEqual(['timeline-events.json']);
+describe("The Making Of public files", () => {
+  it("has the pages, the timeline data and its pictures", () => {
+    expect([...files].sort()).toEqual([
+      "code-map.html",
+      "course-map.html",
+      "index.html",
+      "site-map.html",
+      "timeline",
+      "timeline-events.json",
+      "timeline.html",
+    ]);
+    expect(files.filter((f) => f.endsWith(".json"))).toEqual([
+      "timeline-events.json",
+    ]);
   });
 
-  for (const f of ['index.html', 'site-map.html', 'course-map.html']) {
+  for (const f of ["index.html", "site-map.html", "course-map.html"]) {
     it(`${f} holds nothing private`, () => {
       const t = read(f);
-      for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
+      for (const [name, re] of DENY)
+        expect(t.match(re), `${f}: ${name}`).toBeNull();
     });
   }
 
-  for (const f of ['index.html', 'site-map.html', 'course-map.html']) {
+  for (const f of ["index.html", "site-map.html", "course-map.html"]) {
     it(`${f} has no external requests`, () => {
       const t = read(f);
       const urls = t.match(/https?:\/\/[^\s"'<>)]+/g) ?? [];
-      for (const u of urls) expect(u, `${f} links ${u}`).toMatch(/openstreetmap\.org/);
-      expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
+      for (const u of urls)
+        expect(u, `${f} links ${u}`).toMatch(/openstreetmap\.org/);
+      expect(t).not.toMatch(
+        /<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i,
+      );
     });
   }
 
-  it('the code map is the drill-down graph page and the index links to it', () => {
-    const t = read('code-map.html');
-    expect(t).toContain('community-panel:start');
+  it("the code map is the drill-down graph page and the index links to it", () => {
+    const t = read("code-map.html");
+    expect(t).toContain("community-panel:start");
     expect(t).not.toMatch(/"label": "Community \d+"/);
-    expect(t).toContain('--edge-hot');
-    expect(read('index.html')).toContain('href="code-map.html"');
+    expect(t).toContain("--edge-hot");
+    expect(read("index.html")).toContain('href="code-map.html"');
   });
 
   it('the index links to the live game page "How a course is made" with a relative link', () => {
-    const t = read('index.html');
-    expect(t).toContain('How a course is made');
+    const t = read("index.html");
+    expect(t).toContain("How a course is made");
     expect(t).toContain('href="../?mode=parts"');
   });
 
-  for (const f of ['site-map.html', 'course-map.html']) {
+  for (const f of ["site-map.html", "course-map.html"]) {
     it(`${f} offers the page download and no data download`, () => {
       const t = read(f);
-      expect(t).toContain('Download this page (.html)');
-      expect(t).toContain('new Blob');
+      expect(t).toContain("Download this page (.html)");
+      expect(t).toContain("new Blob");
       expect(t).not.toMatch(/Download data|course-map\.json|\.json'/);
     });
   }
 
-  it('the index needs no download control', () => {
-    expect(read('index.html')).not.toContain('Download this page');
+  it("the index needs no download control", () => {
+    expect(read("index.html")).not.toContain("Download this page");
   });
 
-  it('the course map has no URL at all, is lanes by theme only (no 3D toggle, no milestone lanes)', () => {
-    const t = read('course-map.html');
+  it("the course map has no URL at all, is lanes by theme only (no 3D toggle, no milestone lanes)", () => {
+    const t = read("course-map.html");
     expect(t.match(/https?:\/\//)).toBeNull();
-    expect(t).not.toMatch(/preserve-3d|id="v-3d"|id="v-lane"|rotateX|perspective/);
+    expect(t).not.toMatch(
+      /preserve-3d|id="v-3d"|id="v-lane"|rotateX|perspective/,
+    );
     expect(t).not.toMatch(/>3D</);
-    expect(t).toContain('ConquerCourse issue map');
-    expect(t).toContain('Kind of work');
-    expect(t).toContain('NEXT');
+    expect(t).toContain("ConquerCourse issue map");
+    expect(t).toContain("Kind of work");
+    expect(t).toContain("NEXT");
   });
 
-  it('the site map shows only Part 1: screens and journeys', () => {
-    const t = read('site-map.html');
-    expect(t).toContain('Play your first course');
+  it("the site map shows only Part 1: screens and journeys", () => {
+    const t = read("site-map.html");
+    expect(t).toContain("Play your first course");
     expect(t).not.toMatch(/Where things live|refactor safety net|known red/i);
   });
 
-  it('the course map data is embedded: ids, states, milestones and links, without URLs', () => {
-    const m = read('course-map.html').match(/var DATA=(\{.*?\});\n/);
+  it("the course map data is embedded: ids, states, milestones and links, without URLs", () => {
+    const m = read("course-map.html").match(/var DATA=(\{.*?\});\n/);
     expect(m).not.toBeNull();
     const d = JSON.parse(m![1]);
     expect(d.issues.length).toBeGreaterThan(100);
     const ids = new Set(d.issues.map((i: { id: string }) => i.id));
     for (const i of d.issues) {
       expect(i.id).toMatch(/^CC-\d+$/);
-      expect(['Done', 'In Progress', 'Backlog', 'Canceled']).toContain(i.state);
+      expect(["Done", "In Progress", "Backlog", "Canceled"]).toContain(i.state);
       expect(i.milestone).toMatch(/^(M[0-5]|Later)$/);
-      for (const r of [...i.dependsOn, ...i.affects]) expect(ids.has(r)).toBe(true);
+      for (const r of [...i.dependsOn, ...i.affects])
+        expect(ids.has(r)).toBe(true);
     }
     const byTheme: Record<string, number> = {};
     const byKind: Record<string, number> = {};
@@ -108,75 +125,195 @@ describe('The Making Of public files', () => {
     const themes = Object.keys(byTheme);
     expect(themes.length).toBeGreaterThanOrEqual(10);
     expect(themes.length).toBeLessThanOrEqual(15);
-    for (const [name, n] of Object.entries(byTheme)) expect(n, name).toBeLessThanOrEqual(30);
-    expect(byTheme['Other'] ?? 0).toBeLessThan(d.issues.length * 0.08);
+    for (const [name, n] of Object.entries(byTheme))
+      expect(n, name).toBeLessThanOrEqual(30);
+    expect(byTheme["Other"] ?? 0).toBeLessThan(d.issues.length * 0.08);
     expect(Object.keys(byKind).length).toBe(7);
-    for (const dropped of ['CC-107', 'CC-108', 'CC-112', 'CC-120', 'CC-134', 'CC-169', 'CC-174', 'CC-218', 'CC-242', 'CC-33', 'CC-176']) {
+    for (const dropped of [
+      "CC-107",
+      "CC-108",
+      "CC-112",
+      "CC-120",
+      "CC-134",
+      "CC-169",
+      "CC-174",
+      "CC-218",
+      "CC-242",
+      "CC-33",
+      "CC-176",
+    ]) {
       expect(ids.has(dropped), dropped).toBe(false);
     }
   });
 
-  it('is up to date with the generator (run `node scripts/making-of.mjs`)', () => {
+  it("is up to date with the generator (run `node scripts/making-of.mjs`)", () => {
     const built = buildAll() as Record<string, string>;
-    for (const [name, text] of Object.entries(built)) expect(read(name), name).toBe(text);
+    for (const [name, text] of Object.entries(built))
+      expect(read(name), name).toBe(text);
   });
 
-  it('the timeline: six categories, short plain cards, real pictures, nothing private, no external requests', () => {
-    type Ev = { id: string; category: number; when: string; title: string; text: string; kind: string; image?: string; stat?: { n: string; caption: string }; model?: string; plate?: string };
-    const ev = JSON.parse(read('timeline-events.json')) as Ev[];
+  it("the timeline: six categories, short plain cards, real pictures, nothing private, no external requests", () => {
+    type Ev = {
+      id: string;
+      category: number;
+      when: string;
+      title: string;
+      text: string;
+      kind: string;
+      image?: string;
+      stat?: { n: string; caption: string };
+      model?: string;
+      plate?: string;
+    };
+    const ev = JSON.parse(read("timeline-events.json")) as Ev[];
     expect(ev.length).toBeGreaterThanOrEqual(60);
     expect(new Set(ev.map((e) => e.id)).size).toBe(ev.length);
-    const days = ['10-26', '10-27', '10-28', '10-29', '10-30', '10-31', '11-01', '11-02', '11-03', '11-04'];
+    const days = [
+      "10-26",
+      "10-27",
+      "10-28",
+      "10-29",
+      "10-30",
+      "10-31",
+      "11-01",
+      "11-02",
+      "11-03",
+      "11-04",
+    ];
     for (let c = 1; c <= 6; c++) {
       const own = ev.filter((e) => e.category === c);
       expect(own.length, `category ${c}`).toBeGreaterThanOrEqual(10);
-      for (const day of days) expect(own.some((e) => e.when.startsWith(day)), `category ${c} on ${day}`).toBe(true);
+      for (const day of days)
+        expect(
+          own.some((e) => e.when.startsWith(day)),
+          `category ${c} on ${day}`,
+        ).toBe(true);
     }
     for (const e of ev) {
-      expect(['picture', 'stat', 'text', 'diagram']).toContain(e.kind);
+      expect(["picture", "stat", "text", "diagram"]).toContain(e.kind);
       expect(e.when, e.id).toMatch(/^\d\d-\d\d( \d\d:\d\d| to \d\d-\d\d)?$/);
       expect(e.text.length, e.id).toBeLessThanOrEqual(130);
-      if (e.kind === 'stat') expect(e.stat?.n && e.stat?.caption, e.id).toBeTruthy();
+      if (e.kind === "stat")
+        expect(e.stat?.n && e.stat?.caption, e.id).toBeTruthy();
       if (e.image) expect(existsSync(join(DIR, e.image)), e.image).toBe(true);
     }
     type More = Ev & { more?: string; commit?: string };
-    expect(read('timeline-events.json')).not.toMatch(/\bLab \d+\b/); // a Lab is named, never numbered
-    expect(read('timeline.html')).not.toMatch(/\bLab \d+\b/);
+    expect(read("timeline-events.json")).not.toMatch(/\bLab \d+\b/); // a Lab is named, never numbered
+    expect(read("timeline.html")).not.toMatch(/\bLab \d+\b/);
     for (const e of ev as More[]) {
-      if (e.model || e.plate || /simulator/i.test(e.title + e.text)) expect(e.more, `${e.id} needs a longer text`).toBeTruthy();
+      if (e.model || e.plate || /simulator/i.test(e.title + e.text))
+        expect(e.more, `${e.id} needs a longer text`).toBeTruthy();
       if (e.more) {
         expect(e.more.length, e.id).toBeGreaterThanOrEqual(100);
         expect(e.more.length, e.id).toBeLessThanOrEqual(480);
-        for (const [name, re] of DENY) expect(e.more.match(re), `${e.id} more: ${name}`).toBeNull();
+        for (const [name, re] of DENY)
+          expect(e.more.match(re), `${e.id} more: ${name}`).toBeNull();
         expect(e.more, e.id).not.toMatch(/https?:/);
       }
       if (e.commit) expect(e.commit, e.id).toMatch(/^[0-9a-f]{7,40}$/);
     }
     expect(ev.filter((e) => e.model).length).toBeGreaterThanOrEqual(10);
-    expect(ev.some((e) => e.plate === 'Modal') && ev.some((e) => e.plate === 'Baseten')).toBe(true);
-    expect(ev.filter((e) => /simulator/i.test(e.title + e.text)).length).toBeGreaterThanOrEqual(5);
-    for (const f of ['timeline.html', 'timeline-events.json']) expect(read(f), f).not.toMatch(new RegExp(['vul', 'tr'].join('') + '|digitalocean|linode', 'i'));
-    for (const f of ['timeline.html', 'timeline-events.json']) {
+    expect(
+      ev.some((e) => e.plate === "Modal") &&
+        ev.some((e) => e.plate === "Baseten"),
+    ).toBe(true);
+    expect(
+      ev.filter((e) => /simulator/i.test(e.title + e.text)).length,
+    ).toBeGreaterThanOrEqual(5);
+    for (const f of ["timeline.html", "timeline-events.json"])
+      expect(read(f), f).not.toMatch(
+        new RegExp(["vul", "tr"].join("") + "|digitalocean|linode", "i"),
+      );
+    for (const f of ["timeline.html", "timeline-events.json"]) {
       const t = read(f);
-      for (const [name, re] of DENY) expect(t.match(re), `${f}: ${name}`).toBeNull();
-      expect(t).not.toMatch(/<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i);
+      for (const [name, re] of DENY)
+        expect(t.match(re), `${f}: ${name}`).toBeNull();
+      expect(t).not.toMatch(
+        /<(script|link|img|iframe)[^>]+(src|href)=["']https?:/i,
+      );
     }
-    const page = read('timeline.html');
-    expect(page).toContain('github.com/gitgithan/conquercourse/commit/');
+    const page = read("timeline.html");
+    expect(page).toContain("github.com/gitgithan/conquercourse/commit/");
     expect(page).toContain("role','button'");
     expect(page).not.toMatch(/line-clamp|text-overflow/);
-    expect(page).toContain('/assets/entrance-walkers.js');
-    expect(page).toContain('timeline/training-front.jpg');
-    expect(existsSync(join(DIR, 'timeline/training-front.jpg'))).toBe(true);
-    expect(page).toContain('Enter the course');
-    expect(page).toContain('?course=/assets/demo/training.course.json');
-    expect(page).toContain('/assets/music/dojo.ogg');
+    expect(page).toContain("/assets/entrance-walkers.js");
+    expect(page).toContain("timeline/training-front.jpg");
+    expect(existsSync(join(DIR, "timeline/training-front.jpg"))).toBe(true);
+    expect(page).toContain("Enter the course");
+    expect(page).toContain("?course=/assets/demo/training.course.json");
+    expect(page).toContain("/assets/music/dojo.ogg");
     expect(page).not.toMatch(/music[^;\n]*(pause|stop\()/i);
-    expect(read('index.html')).toContain('href="timeline.html"');
+    expect(read("index.html")).toContain('href="timeline.html"');
   });
 
-  it('passes the personal-details check', () => {
-    const paths = files.filter((f) => !/\.(jpg|png)$/.test(f) && f !== 'timeline').map((f) => join(DIR, f));
+  it("the arrow ramp speeds up, starts at the arrow speed and never passes the Space speed", () => {
+    const page = read("timeline.html");
+    const num = (n: string) => Number(new RegExp(`${n}=(\\d+)`).exec(page)![1]);
+    const AUTO = num("AUTO");
+    const ARROW0 = num("ARROW0");
+    const RAMP = num("RAMP");
+    const rampSpeed = new Function(
+      `${/function rampSpeed[^\n]*/.exec(page)![0]}; return rampSpeed;`,
+    )() as (t: number, s: number, c: number, f: number) => number;
+    expect(rampSpeed(0, ARROW0, AUTO, RAMP)).toBe(ARROW0);
+    let prev = 0;
+    for (let t = 0; t <= 4; t += 0.05) {
+      const v = rampSpeed(t, ARROW0, AUTO, RAMP);
+      expect(v).toBeGreaterThanOrEqual(prev);
+      expect(v).toBeLessThanOrEqual(AUTO);
+      prev = v;
+    }
+    expect(rampSpeed(RAMP, ARROW0, 1e9, RAMP)).toBe(5 * ARROW0); // uncapped it is exactly 5x after RAMP seconds
+    expect(rampSpeed(RAMP, ARROW0, AUTO, RAMP)).toBe(
+      Math.min(AUTO, 5 * ARROW0),
+    );
+  });
+
+  it("the lanes have one dot per event (left wall categories 1-3, right wall 4-6) and one tick per day", () => {
+    const page = read("timeline.html");
+    const src = /function plan\([\s\S]*?\nreturn \{items:out[^\n]*/.exec(
+      page,
+    )![0];
+    const sortSrc = /function sortKey[^\n]*/.exec(page)![0];
+    const days = /var DAYS=(\[[^\]]*\])/.exec(page)![1];
+    const plan = new Function(
+      `${sortSrc}; ${src}; return (l) => plan(l, 380, sortKey, ${days});`,
+    )() as (l: unknown[]) => {
+      items: {
+        gate?: boolean;
+        left?: boolean;
+        e?: { id: string };
+        depth: number;
+      }[];
+    };
+    const events = JSON.parse(read("timeline-events.json")) as {
+      id: string;
+      category: number;
+      when: string;
+    }[];
+    const items = plan(events).items;
+    const dots = items.filter((i) => !i.gate);
+    expect(dots.length).toBe(events.length);
+    expect(new Set(dots.map((d) => d.e!.id)).size).toBe(events.length);
+    expect(dots.filter((d) => d.left).length).toBe(
+      events.filter((e) => e.category <= 3).length,
+    );
+    expect(dots.filter((d) => !d.left).length).toBe(
+      events.filter((e) => e.category >= 4).length,
+    );
+    expect(items.filter((i) => i.gate).length).toBe(
+      new Set(events.map((e) => e.when.split(" to ").pop()!.slice(0, 5))).size,
+    );
+    for (let i = 1; i < items.length; i++)
+      expect(items[i].depth).toBeGreaterThan(items[i - 1].depth);
+    expect(page).toContain('id="laneL"');
+    expect(page).toContain("PageDown");
+  });
+
+  it("passes the personal-details check", () => {
+    const paths = files
+      .filter((f) => !/\.(jpg|png)$/.test(f) && f !== "timeline")
+      .map((f) => join(DIR, f));
     expect(findings(paths)).toEqual([]);
   });
 });
