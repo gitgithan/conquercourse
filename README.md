@@ -15,6 +15,9 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 - It has every move in one run: gap jump, vault, curved wall, climb, planks, hanging bar, rope swing and trampoline.
 - Beat your own time, then press **N** to share your run as a challenge link.
 
+![The Training run: the runner clears every obstacle in one go (sped up 2.5 times)](docs/evidence/cc-133-readme-run/training-run.gif)
+- The clip above is the ideal run, sped up 2.5 times.
+
 </div>
 
 ## 🎬 Promo video
