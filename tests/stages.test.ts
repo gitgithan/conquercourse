@@ -82,5 +82,6 @@ describe('refusal sentences', () => {
     const busy = submitFailure(429, refusalBody('busy', 'x', 120), now);
     expect(busy.final).toBe(false); expect(busy.retryAt).toBe(now + 120_000);
     expect(submitFailure(503, { error: 'not allowed' }, now).message).toMatch(/not switched on/);
+    expect(submitFailure(404, {}, now).message).toMatch(/preview site/); // the local dev server has no photo service: say so, not "3D service not answering"
   });
 });

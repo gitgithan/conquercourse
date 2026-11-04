@@ -53,6 +53,7 @@ export class JobError extends Error { constructor(message: string, readonly fina
 export function submitFailure(status: number, data: Record<string, unknown>, now = Date.now()): JobError {
   const err = String(data.error ?? ''), wait = typeof data.retryAfterSeconds === 'number' ? data.retryAfterSeconds : 0;
   const words = refusalWords({ error: err, message: typeof data.message === 'string' ? data.message : undefined, retryAfterSeconds: wait } as Refusal, now);
+  if (!words && !err && status === 404) return new JobError('This copy of the game (the local one) has no photo service. Use the preview site for this step.', true);
   return new JobError(words || (typeof data.message === 'string' && data.message ? data.message : failWords(String(err || (status === 503 ? 'not allowed' : 'down')))), ['daily', 'budget', 'moderation'].includes(err), wait ? now + wait * 1000 : null);
 }
 
