@@ -189,10 +189,10 @@ export function boardBox(key: string, hash: string, me = '', hooks: BoardHooks =
   return box;
 }
 
-/** The board on the Course itself: a small card on the right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
+/** The board on the Course itself: a small card at the top right, under the buttons, open from the start, that folds to a pill so it never covers the run. */
 export function boardCorner(key: string, hash: string, me = '', hooks: BoardHooks = {}): HTMLElement {
   const card = document.createElement('div'); card.id = 'board-corner';
-  card.style.cssText = 'position:fixed;left:16px;top:360px;z-index:30;width:290px;max-height:calc(100vh - 360px - 190px);overflow-y:auto;background:#fff;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
+  card.style.cssText = 'position:fixed;right:64px;top:130px;z-index:30;width:290px;max-height:calc(100vh - 130px - 230px);overflow-y:auto;background:#fff;border:1px solid #cfd6d0;border-radius:12px;box-shadow:0 4px 16px #0003;font:500 13px system-ui,sans-serif;color:#17201d';
   const toggle = document.createElement('button'); toggle.type = 'button'; toggle.id = 'board-toggle';
   toggle.style.cssText = 'width:100%;text-align:left;border:0;background:transparent;font:700 14px system-ui,sans-serif;padding:8px 12px;cursor:pointer';
   const makeBody = (): HTMLElement => { const b = boardBox(key, hash, me, hooks); b.style.margin = '0'; b.style.border = '0'; b.style.padding = '0 12px 10px'; (b.firstElementChild as HTMLElement).style.display = 'none'; return b; }; // the pill is the title
@@ -200,18 +200,19 @@ export function boardCorner(key: string, hash: string, me = '', hooks: BoardHook
   let fold = (open: boolean): void => { body.style.display = open ? '' : 'none'; toggle.textContent = `${open ? '▾' : '▸'} Fastest runs`; toggle.setAttribute('aria-expanded', String(open)); };
   toggle.onclick = () => fold(body.style.display === 'none');
   card.append(toggle, body); fold(true);
-  // it sits on the left, just under the Controls card, and follows it when Controls fold (H) or grow; it never reaches the course or the end card.
-  // When the Controls card leaves too little room under it (a 720 px screen), it waits as a pill there and, when opened, lays over the Controls card (the left strip only) until it is folded again.
-  const keys = document.getElementById('keys');
+  // owner 2026-11-04: it sits at the top right, under the Edit / Whole course / Customize background buttons and the camera button, left of the "?" button,
+  // and stops above the Looking-ahead picture (bottom right), so it covers neither buttons nor the run. When the screen is short it starts as a pill.
+  const RIGHT_COLUMN = ['editcourse', 'wholeideal', 'custombg', 'cam'];
   const place = (): void => {
-    const b = keys?.getBoundingClientRect(), under = Math.round((b && b.height ? b.bottom : 56) + 10), room = window.innerHeight - under - 24, open = body.style.display !== 'none';
-    const over = open && room < 230; // not enough room under Controls for the open card
-    const top = over ? 56 : under; card.style.top = `${top}px`; card.style.maxHeight = `${Math.max(over ? window.innerHeight - 56 - 24 : room, 36)}px`;
+    const under = Math.round(Math.max(56, ...RIGHT_COLUMN.map((id) => { const r = document.getElementById(id)?.getBoundingClientRect(); return r && r.height ? r.bottom : 0; })) + 10);
+    const room = window.innerHeight - under - 230; // the Looking-ahead picture and the bottom row need the rest
+    card.style.top = `${under}px`; card.style.maxHeight = `${Math.max(room, 36)}px`;
   };
   const foldHere = fold; fold = (open: boolean): void => { foldHere(open); place(); };
   place(); window.addEventListener('resize', place);
-  if (keys && typeof ResizeObserver !== 'undefined') new ResizeObserver(place).observe(keys);
-  { const b = keys?.getBoundingClientRect(); if (b && window.innerHeight - b.bottom - 34 < 230) fold(false); } // little room: start as the pill
+  if (typeof ResizeObserver !== 'undefined') for (const id of RIGHT_COLUMN) { const e = document.getElementById(id); if (e) new ResizeObserver(place).observe(e); }
+  setTimeout(place, 600); setTimeout(place, 2500); // the buttons appear a moment after the card
+  if (window.innerHeight - 150 - 230 < 200) fold(false); // little room: start as the pill
   return card;
 }
 
