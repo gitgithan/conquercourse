@@ -269,7 +269,7 @@ flowchart TB
 | Meta AI | Muse Spark Open (Baseten), Muse Image, SAM 3, SAM 3.1, SAM 3D Objects, SAM 3D Body, DINOv3, Meta-Llama-3-8B-Instruct (inside Kimodo), MusicGen, Mapillary |
 | Other open models | Kimodo (NVIDIA), MoGe 2, TRELLIS.2, torchvision detectors |
 | GPU jobs | Modal (Python), for build-time pipelines and the live photo-to-3D and character jobs |
-| Tests | Vitest (about 2,700 tests), Playwright browser checks, golden traces of the simulator |
+| Tests | Vitest (about 3,150 tests), Playwright browser checks, golden traces of the simulator |
 | Tooling | Node, Python, ffmpeg, Linear, GitHub pull requests |
 
 ## 🚀 Set it up
@@ -595,7 +595,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 | Community, World Editor objects | **SAM 3D Objects** | Photo and mask to a 3D object (the 19 editor objects and "Mine" objects) | Modal GPU |
 | Motion clips (2 of 12: vault and climb), custom-look body | **SAM 3D Body + MHR, DINOv3** | Measures body and pose from filmed parkour; the other clips are CMU motion capture and Kimodo | Build time |
 | Generated motion | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA) for the roll and slide clips | Build time |
-| World Editor: design partner, Fix it | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
+| World Editor: design partner (Ask AI for ideas) | **Muse Spark Open** (Baseten) | Proposes a layout; the simulator checks it | Live, server function |
 | Photo and upload review (outline step, 3D lift, characters, Share in Community) | **Muse Spark Open** (Baseten, `meta-models/muse-spark-open-1026`) | Reads each uploaded photo before anything is made or shared and answers ok, review or block with one reason; if it cannot answer, nothing is made | Live, server function |
 | Community: move tips | **Muse Spark Open** (Baseten) | Names the moves that fit a cut-out object | Live, server function |
 | Characters | **Muse Image, SAM 3.1** | A player's sentence becomes a picture (Muse Image), a cut-out (SAM 3.1) and a mesh (SAM 3D Objects on Modal); the two Rookies were built earlier with Tripo, with one Muse Image reference for Rookie B | Live: a Modal job calls the Meta Model API (Meta credit); see [docs/model-ledger.md](docs/model-ledger.md) |
@@ -667,7 +667,8 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
   - **From a sentence:** 40 of 44 runs proven clearable (22 at the first test, 18 after one repair); none needed more than 2 steps.
   - **From a park photo:** 40 of 40 proven in at most 3 steps ([results](data/eval/cc-126-course-agent/README.md)).
   - **The 4 misses:** 2 empty courses and 2 empty model answers; none was a wrong "proven".
-- **What a player can try today:** in the World Editor, **Ask AI for ideas** (one model proposal, then the simulator checks) and **Fix it** (the simulator searches for changes that make the course clearable).
+- **What a player can try today:** in the World Editor, **Ask AI for ideas** (one model proposal, then the simulator checks) and, with no model at all, **Make it easier** and **Find shortcut** (the simulator searches for the smallest change).
+- **Removed:** the old standalone Fix it button went on 2026-11-04.
 - **What is not a button:** the full design-test-repair loop (`src/slice/course-agent.ts` and its server route) is in the code and measured above; its player button was removed on 2026-10-31 when scope was cut to photo to object.
 - **The catch, in plain words:** some repairs made an object easier to fit (a "3 metre wall" became 0.68 m), so "proven" means "proven with sizes the simulator accepts".
 - Pipeline diagram: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), section 4c.
@@ -676,14 +677,14 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - **Dojo:** one obstacle at a time, slow; the player turns knobs, predicts, tests, and only then gets a name for what they found.
   - A formula may appear only as the last, earned step of a lesson, never on the Course.
   - Each obstacle carries one saying, such as "Speed gets you over the obstacle; speed also throws you off it" ([sayings](docs/sayings.md)); the Dojo is how a player discovers it.
-- **Labs:** 12 university-level workbenches on the game's own algorithms (search, camera, IK, hashing, detector and more).
+- **Labs:** 22 university-level workbenches on the game's own algorithms (search, camera, IK, hashing, detector and more).
   - The player changes a heuristic, a threshold or a target, runs it, and reads facts about the result.
   - Equations are allowed in the Labs only; a Lab never talks to you and never grades you.
   - Index: [docs/labs/README.md](docs/labs/README.md); design: [docs/university-labs.md](docs/university-labs.md).
 - **Why it matters:** the physics you learn is the physics of the real thing; the game never grades or coaches a person's technique.
 
 ### 🔗 The viral challenge: a link, a ghost, a clip
-- Every cleared run can be shared as a short link (`?c=` and ten characters) that carries only the keys of the run.
+- Every cleared run can be shared as a short link (`?c=` and ten characters) that points to a run the server keeps as keys only: no name, no time.
 - The friend's browser plays those keys on the same simulator, so the time cannot be faked, and the friend chases your ghost.
 - A 15 second vertical clip is made in the browser on a stepped clock.
 - Design and evidence: [docs/challenge.md](docs/challenge.md); plan: [docs/viral-plan.md](docs/viral-plan.md).
@@ -728,11 +729,11 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Parts gallery (every move and obstacle, special ones first, played live): [docs/parts-gallery.md](docs/parts-gallery.md), open `?mode=parts`.
 
 ## 🔢 Proof in numbers
-- **About 2,700 tests** (2,764 passed in the last full run on 2026-11-04), run with `npm run test:quick`, and physics-law tests come first.
+- **About 3,150 tests** (3,155 passed, 9 expected failures and 2 skipped, in a full `npm run test:quick` run on 2026-11-04), run with `npm run test:quick`, and physics-law tests come first.
 - **7,525 cross-hardware runs** gave the same outcome, tick count and end place on Node 22, Node 24 and local `workerd` (Cloudflare's runtime): [lesson and method](docs/lessons-cross-hardware-testing.md).
   - The exact last digit did differ on six courses at first; we fixed the cause (`**` and `Math.pow`) on 2026-11-03 and say so in the lesson.
   - `workerd` still differs in the last digit where the tick uses sin, cos, tan or exp; no outcome flipped.
-- **100 golden traces** guard the simulator: a change to the physics fails a test the moment it happens.
+- **108 golden traces** (planned and button-mash runs on the shipped courses) guard the simulator: a change to the physics fails a test the moment it happens.
 - **40 of 44 agent runs proven** in at most 2 steps for $0.36 ([Best Agentic Use-Case](#-best-agentic-use-case)).
 - **13 real bugs in 21 claims** when Muse Wonder reviewed the simulator code, each checked by us, for $2.38 ([details](docs/hackathon.md)).
 - **Measured cost:** $0.164 for 14 photos through SAM 3 and SAM 3D Objects; about 2 cents for one object end to end ([pipelines](docs/pipelines.md)).
@@ -766,6 +767,6 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Learn how we build it, four shareable lessons: [create a move](docs/lessons-move-creation.md), [create an obstacle](docs/lessons-obstacle-creation.md), [moves meeting obstacles](docs/lessons-move-obstacle-interactions.md), [test on a different machine](docs/lessons-cross-hardware-testing.md)
 - Pipelines with diagrams: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), recipes in [docs/pipelines.md](docs/pipelines.md)
 - Stages and courses: [docs/stages.md](docs/stages.md), [docs/course-design.md](docs/course-design.md)
-- The Making Of (public maps; each page can be downloaded as one .html file): [site map](public/making-of/site-map.html) and [course map](public/making-of/course-map.html), built by `scripts/making-of.mjs` from [docs/site-map.md](docs/site-map.md) and a saved task snapshot
+- The Making Of (public maps; each page can be downloaded as one .html file): [site map](public/making-of/site-map.html) and [course map](public/making-of/course-map.html) (plus a [code map](public/making-of/code-map.html) page), the first two built by `scripts/making-of.mjs` from [docs/site-map.md](docs/site-map.md) and a saved task snapshot
 - The code map (download and open `docs/codegraph/graph.html`; GitHub shows its source, not the page): [graph.html](docs/codegraph/graph.html) is the clickable code map, and clicking a community shows what it is for, its files and symbols
 - How the code map is built and rebuilt: [docs/codegraph.md](docs/codegraph.md)

@@ -12,13 +12,13 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 | **SAM 3D Body + MHR (Momentum Human Rig)** | Measures a person's body and pose from filmed parkour; the vault and climb clips (2 of the 12 shipped) and the custom-look body come from it; the other clips are CMU motion capture and Kimodo | Build time (Modal GPU) |
 | **DINOv3** | Image encoder inside SAM 3D Body | Build time (inside SAM 3D Body) |
 | **Meta-Llama-3-8B-Instruct** | Text encoder inside Kimodo (NVIDIA), which generated the roll and slide clips | Build time (Modal GPU) |
-| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The in-editor design partner and "Fix it" (the Course Agent loop and its photo-to-course draft were dropped from the game on 2026-10-31: scope is photo to object only) | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
+| **Muse Spark Open** (`meta-models/muse-spark-open-1026`, on Baseten) | The in-editor design partner ("Ask AI for ideas") (the Course Agent loop and its photo-to-course draft were dropped from the game on 2026-10-31: scope is photo to object only) | Live, through a server function (needs the `BASETEN_API_KEY` secret) |
 | **Muse Spark Open**, photo and upload review (`askModeration` in `functions/api/moderate.ts`) | Looks at every uploaded photo before the outline step, the 3D lift, a character picture or Share in Community, and answers ok, review or block with one reason; errors stop the step (CC-120). It is a model, so the same photo can get different answers; the owner-only admin page lists the stopped photos with the reason | Live, through a server function (needs `BASETEN_API_KEY`); called by the moderation queue (CC-112) |
 | **Muse Spark Open**, move tips (`/api/move-tips`) | Names the moves that could get past a cut-out object and gives one plain idea for the course; checked against our move list (CC-121) | Live, through a server function (needs `BASETEN_API_KEY`); feeds the object cards (CC-108) |
 | **Muse Spark** (Meta Model API, `muse-spark-1.3`) | Vision calls in the video-ingest pipeline and contact targets from move descriptions (`pipelines/ccpipe/vision.py`) | Build time |
 | **Muse Image** (Meta Model API) | Drew one style-reference picture for the second Rookie (build time; Tripo made both Rookie meshes); it is also step 1 of the community character maker, which draws a picture for each player's sentence (`docs/character-pipeline.md`) | Build time for Rookie B; live for the character maker, paid from the Meta credit |
 | **MusicGen (Meta AudioCraft)** | Writes the original loop for each screen (Course, Map, Editor, Dojo, Report, Library) from a text prompt; no melody or recording goes in | Build time (Modal GPU); loops play by default, `?music=0` turns them off |
-| **Mapillary** (owned by Meta) | Street photos along a built place, masked for people before they are shown | Live, through a server proxy (token never in the browser) |
+| **Mapillary** (owned by Meta) | Street photos along a built place, faces and plates blurred by Mapillary itself, and photos with a close-up or large person are rejected; never stored | Live, through a server proxy (token never in the browser) |
 
 ### What is not Meta, said plainly
 - The full table, with who made each model, how we use it and whether it runs at build time or live, is in `README.md` under "Models that are not Meta's".
@@ -52,7 +52,7 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 - MusicGen composes the music: original loops from text prompts, so the soundtrack has no licensed songs in it.
 - The two live ones (Muse Spark Open, Mapillary) sit behind server functions, so keys never reach the browser.
 - The models propose and the simulator decides: every layout from Muse Spark Open is run through the ideal-run search before it is offered.
-- The design partner and Fix it use the simulator as the judge: the model proposes, the simulator checks.
+- The design partner uses the simulator as the judge: the model proposes, the simulator checks (Make it easier and Find shortcut are pure simulator searches).
 - Cost and speed were measured, not guessed (for example $0.164 for 14 photos through SAM 3 and SAM 3D Objects).
 
 ### Technical depth (20%)
@@ -85,11 +85,11 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 - **Earlier, from a park photo:** 40 of 40 proven in at most 3 steps ([results](../data/eval/cc-126-course-agent/README.md)).
 - **Where it lives:** `src/slice/course-agent.ts` and `/api/course-agent`.
   - On 2026-10-31 the scope was cut to photo to object only, so the photo input and the editor button were removed; the loop has no player entry today.
-  - We claim the loop as measured code, not a button; the editor's design partner and Fix it are the player-facing parts (one model call then the simulator, and a pure simulator search).
+  - We claim the loop as measured code, not a button; the editor's design partner and the simulator-only Make it easier and Find shortcut are the player-facing parts (one model call then the simulator, and pure simulator searches).
 - **History:** [docs/meta-ai-pipelines.md](meta-ai-pipelines.md), section 4c.
 
 ## Scorecard and proof numbers
-- The judging scorecard, the proof numbers (about 2,700 tests, 7,525 cross-hardware runs), the honest limits and the open-weights split are in the root [README](../README.md).
+- The judging scorecard, the proof numbers (about 3,150 tests, 7,525 cross-hardware runs), the honest limits and the open-weights split are in the root [README](../README.md).
 - Cross-hardware method: [lessons-cross-hardware-testing.md](lessons-cross-hardware-testing.md).
 - Viral challenge: [challenge.md](challenge.md).
 
