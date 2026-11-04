@@ -16,7 +16,7 @@ describe('the pull-up bar to monkey bars demo course', () => {
     expect(v.cleared).toBe(true);
     expect(v.ticks).toBe(run.ticks);
   });
-  it('the run hangs from the bar, lets go, then takes the row: a bar grab, then a bars grab, five reaches of each hand', () => {
+  it('the run hangs from the bar, lets go, then takes the row: a bar grab, then a bars grab, one reach per rung, the hands taking turns', () => {
     let w = newWorld(course);
     const order: string[] = [];
     const hands: Record<number, number> = {};
@@ -28,7 +28,7 @@ describe('the pull-up bar to monkey bars demo course', () => {
       }
     }
     expect(order).toEqual(['hang-catch', 'hang-release', 'bars-grab', 'bars-release']);
-    expect(hands).toEqual({ 1: 5, 2: 5 });
+    const n = course.bars![0].n; expect(hands).toEqual({ 1: Math.ceil(n / 2), 2: Math.floor(n / 2) });
   });
   it('needs both: without the row the same keys fall, and without the bar they never get started', () => {
     expect(verifyLog({ ...course, bars: undefined }, run.log).cleared).toBe(false);
