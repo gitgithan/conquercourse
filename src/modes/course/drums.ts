@@ -24,7 +24,7 @@ export function mountDrums(c: DrumsCtx) {
       const fb = branchesOf(course)[0];
       const drums = forkDrums ?? (result.cleared ? drumsFor(course, result.plan) : []);
       drumLane.set(drums, forkDrums && fb ? [{ x: fb.forkX, label: `Fork: top ${fb.routes[0].name.split(':')[0]}, bottom ${fb.routes[1].name.split(':')[0]}` }, { x: fb.joinX, label: 'Join' }] : []);
-      toastDrums = drums;
+      toastDrums = forkDrums ?? (course.branches?.length ? drumsForPaths(course) : null) ?? drums; // the toasts teach BOTH ways of a fork even when the drum lane shows the fastest one (CC-133: the bulb lane's pole had no toast)
       const show = forceDrums || drums.length > 0;
       if (drumLane.shown !== show) drumLane.toggle();
     } catch {

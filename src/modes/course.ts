@@ -289,7 +289,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     for (const o of aheadOf) { const d = o.x - x; if (d > -0.2 && (!best || d < best.distance)) best = { kind: o.kind, distance: Math.max(0, d) }; }
     return best;
   }
-  const toastStack = createHintHistory(document.body), barsKeys = createBarsKeys(document.body);
+  const toastStack = createHintHistory(), barsKeys = createBarsKeys();
   const hintFor = createHint(ctx, { toastDrums: toastDrumsNow, shotPreview });
 
   ghostCtl = mountCourseGhost({ scene, course, params, idealCache, runSearch, progressZones, strip, look: () => wear.choice() });
