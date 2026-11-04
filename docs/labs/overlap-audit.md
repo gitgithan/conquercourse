@@ -96,6 +96,7 @@
 
 ### 12. Three Labs each say "Lab 13"
 - The collision, lift and motion docs were each written as "Lab 13"; numbers come from the place in `src/ui/labs-series.ts`, so only one can be 13.
+- Motion landed first and is Lab 13.
 - **Recommendation:** whoever merges last fixes the title lines to the numbers the list gives (13, 14, 15 in merge order); the numbers are ids, so fix the titles and not the list.
 
 ### 13. Different words for "which stage": 4 of 8, 2 and 3 of 8, 2 of 3

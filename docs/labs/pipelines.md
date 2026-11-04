@@ -10,7 +10,7 @@
 - "Partly" means the Lab teaches an idea the stage depends on, not the stage itself.
 - "Not yet" means no Lab covers the stage.
   - It is listed so the series stays honest.
-- Labs 13 to 15 (collision, lift, motion) are being written now; their rows say "arriving" until their doc is on `main`.
+- Labs 13 and up (motion, lift, collision) are numbered in the order they landed; rows say "arriving" until the doc is on `main`.
 
 ## 1. Photo to course object
 *A street or park photo becomes an object on a course that the simulator can prove.*
@@ -29,10 +29,10 @@
 
 | Stage | What happens | Lab that teaches it | How well |
 |---|---|---|---|
-| 1. Video | A film of a person moving | Lab 15 (motion), arriving | Not yet on `main` |
-| 2. Pose | Joints found in each frame | Lab 15 (motion), arriving; Lab 5, Camera and perspective | Partly (Lab 5: why a 2D pose cannot give depth) |
+| 1. Video | A film of a person moving | Lab 13, [Video to motion](motion.md) | Teaches (the frame clock; recorded clips, no video is processed live) |
+| 2. Pose | Joints found in each frame | Lab 13, [Video to motion](motion.md); Lab 5, Camera and perspective | Lab 13 shows the joint check on recorded poses (the pose finder is not run); Lab 5 explains why a 2D pose cannot give depth |
 | 3. Smooth | Wobble removed from each joint | Lab 8, Signal processing | Teaches (lag, flat peaks, sliding feet) |
-| 4. Gate | The plausibility check decides what may be shown | Lab 8, Signal processing | Teaches (a TypeScript port of the gate, checked against the Python gate) |
+| 4. Gate | The plausibility check decides what may be shown | Lab 13, Video to motion; Lab 8, Signal processing | Lab 13 runs the gate on ten clips and gives a reason a person can read; Lab 8 holds the port, checked against the Python gate |
 | 5. Clip | The clip plays on the character, with reach and neck rules | Lab 3, Posing a character | Teaches (the game's two-bone reach and neck rule) |
 
 ## 3. Run to shared link
@@ -70,10 +70,11 @@
 | 10 | Evaluating a detector | Photo | Cut-out |
 | 11 | Verification and hashing | Run | Hash |
 | 12 | Reinforcement learning | Methods | Learn |
+| 13 | Video to motion | Video | Gate (also Video, Pose) |
 
 ## Gaps, shown honestly
 - Photo: Bake has no Lab; Lift and Collision are being written.
-- Video: Video and Pose are being written; the Python gate itself has no Lab of its own beyond Lab 8's port.
+- Video: no Lab runs a pose finder on a video (Lab 13 uses recorded clips); the Python gate itself has no Lab of its own beyond Lab 8's port.
 - Run: no Lab opens a real share link or shows the server's replay check.
 - Labs 4 and 10 both sit at "Cut-out" and neither cuts a game object out of a photo: Lab 4 hides people, Lab 10 scores a recorded detector.
 - See [the overlap audit](overlap-audit.md) for topics several Labs repeat.
