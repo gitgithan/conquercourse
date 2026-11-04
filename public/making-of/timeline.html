@@ -10,7 +10,7 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
 #view{position:fixed;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 46%,#4a2f14 0%,#2a1a0b 38%,#150e07 78%)}
 #glow{position:absolute;left:50%;top:46%;width:520px;height:520px;margin:-260px 0 0 -260px;border-radius:50%;background:radial-gradient(circle,rgba(255,190,90,.38),rgba(255,160,60,0) 68%);pointer-events:none}
-#cam{position:absolute;inset:0;perspective:800px;perspective-origin:50% 46%}
+#cam{position:absolute;inset:0;perspective:700px;perspective-origin:50% 46%}
 #world{position:absolute;left:50%;top:46%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
 .card{position:absolute;width:300px;height:210px;margin:-105px 0 0 -150px;padding:14px 16px 12px;border-radius:12px;background:linear-gradient(160deg,#3a2812,var(--card));border:1px solid #6b4a24;box-shadow:0 0 40px rgba(255,170,70,.35),inset 0 0 30px rgba(255,170,70,.08);overflow:hidden;backface-visibility:hidden;will-change:transform,opacity}
 .card::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:var(--cat)}
@@ -84,7 +84,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font:16px
 <script>
 (function(){
 var CATS=['','Milestones and firsts','Technical achievements','UX improvements','Bugs found and fixed','Privacy and trust','Process and tooling'];
-var SPACING=300, WALL=330, WALK=520, AUTO=420;
+var SPACING=300, WALL=400, WALK=520, AUTO=420;
 var world=document.getElementById('world'),stage=document.getElementById('stage'),rookie=document.getElementById('rookie');
 var help=document.getElementById('help'),bar=document.querySelector('#bar i'),enter=document.getElementById('enter');
 var cards=[],END=0,STAGE_Z=0,pos=0,vel=0,held=false,auto=false,last=0,moved=0;
@@ -117,19 +117,19 @@ var lastDepth=cards.length*SPACING;END=lastDepth+400;STAGE_Z=lastDepth+1100;
 }
 function layout(){
 for(var i=0;i<cards.length;i++){var c=cards[i],rel=c.depth-pos;
-var vis=rel>-120&&rel<4200;
+var vis=rel>-120&&rel<4600;
 if(!vis){if(c.on!==false){c.el.style.opacity=0;c.el.style.visibility='hidden';c.on=false}continue}
 c.on=true;c.el.style.visibility='visible';
 var bump=Math.exp(-Math.pow((rel-260)/450,2));
 var ang=70-22*bump,sx=c.left?-1:1;
-var op=Math.min(1,Math.max(0,(3800-rel)/1400))*Math.min(1,Math.max(0,(rel+120)/220));
+var op=Math.min(1,Math.max(0,(4200-rel)/1600))*Math.min(1,Math.max(0,(rel+120)/220));
 c.el.style.opacity=op.toFixed(3);
 c.el.style.transform='translate3d('+(sx*WALL)+'px,0,'+(-c.depth)+'px) rotateY('+(c.left?ang:-ang).toFixed(2)+'deg)';}
 world.style.transform='translate3d(0,0,'+pos.toFixed(2)+'px)';
 var rs=STAGE_Z-pos;var sop=Math.min(1,Math.max(0,(3600-rs)/1600));
 stage.style.opacity=sop.toFixed(3);stage.style.transform='translate3d(0,0,'+(-STAGE_Z)+'px)';
 bar.style.width=(100*pos/END).toFixed(1)+'%';
-enter.style.display=pos>END-700?'block':'none';
+enter.style.display=pos>END-700?'block':'none';if(pos>END-700)help.style.opacity=0;
 }
 function frame(t){
 var dt=Math.min(0.05,(t-last)/1000||0.016);last=t;
