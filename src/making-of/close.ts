@@ -12,7 +12,7 @@ const ease = (u: number) => { const c = Math.max(0, Math.min(1, u)); return c * 
 
 // where each stands: centre x, feet y (pixels in the picture), size (1 = 1.8 m is 225 px). The link band is x 560..1360, y 880..1040: nobody goes there.
 const SPOTS: [number, number, number][] = [
-  [960, 300, 1.2],                                              // the ninja warrior, top centre above the logo
+  [960, 228, 1.0],                                              // the ninja warrior, top centre above the logo
   [600, 285, 1.0], [1320, 285, 1.0],                             // top, either side of the ninja
   [150, 500, 1.05], [400, 500, 1.05], [1520, 500, 1.05], [1770, 500, 1.05],   // middle rows, left and right of the logo
   [150, 800, 1.05], [400, 800, 1.05], [1520, 800, 1.05], [1770, 800, 1.05],   // lower rows
