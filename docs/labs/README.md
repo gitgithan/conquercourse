@@ -70,7 +70,7 @@
 - Slow runs are precomputed once with the same code and a fixed seed, and shipped as a small file:
   - Statistics of timing (`timing-default.json`), Generate and test (`gentest-default.json`) and Reinforcement learning (`rl-default.json`) in `public/assets/lab/`.
   - `scripts/labs-default-precompute.ts` makes them; `tests/lab-populated.test.ts` re-runs the code and fails if a file drifts.
-- `scripts/labs-default-smoke.mjs` opens all 12 with no click at 1280 px and fails on a page error, a placeholder or an empty output; its first-paint times and shots are in `docs/evidence/cc-118-labs-default/`.
+- `scripts/labs-default-smoke.mjs` opens the first 12 Labs (search to reinforcement learning) with no click at 1280 px and fails on a page error, a placeholder or an empty output; its first-paint times and shots are in `docs/evidence/cc-118-labs-default/`.
 - The controls sit at our setting; Run stays for trying your own.
 
 ## Moving between Labs
@@ -89,7 +89,7 @@
 - **How to make the lesson better:** ranked next steps.
 
 ## Reading the status of a Lab
-- All twelve Labs are on `main` with their code, tests and a doc with the four sections.
+- All 22 Labs are on `main` with their code, tests and a doc with the four sections.
 - Statistics of timing, Signal processing and Generate and test were deleted from `main` once by a stale-base ship and restored by PR 420.
   - `tests/no-conflict-markers.test.ts` and the delete guard in `scripts/ship.sh` exist so that cannot happen quietly again.
 - Every Lab has a card in the world picker, shown only with the labs switch on.
