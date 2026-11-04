@@ -45,7 +45,8 @@
 | stretching arm | the shipped vault, left hand up to 25% away (made by us) | passes; soft rule reported |
 
 ## Overlaps with other Labs
-- Lab 8 (Signal processing): step 3 only shows the game's smoothing and its soft numbers; the filters, noise and trade-off are Lab 8's. The gate code is Lab 8's TypeScript port (`src/lab/signal-lab.ts`).
+- Lab 8 (Signal processing): step 3 only shows the game's smoothing and its soft numbers; the filters, noise and trade-off are Lab 8's.
+  - The gate code is Lab 8's TypeScript port (`src/lab/signal-lab.ts`).
 - Lab 3 (Inverse kinematics): the Rookie is posed by the game's bone solver; this Lab does not teach reaching.
 - Lab 5 (Camera): why a single photo gives no depth is Lab 5's; here the pose is already measured.
 

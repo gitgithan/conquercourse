@@ -146,7 +146,7 @@ describe("retarget and the move table", () => {
 
 describe("registration", () => {
   it("the Lab is in the nav, the loaders, the picker and has a doc with the four sections", () => {
-    expect(readFileSync("src/ui/labs-nav.ts", "utf8")).toContain("lab-motion");
+    expect(readFileSync("src/ui/labs-series.ts", "utf8")).toContain("lab-motion");
     expect(readFileSync("src/main-loaders.ts", "utf8")).toContain("lab-motion");
     expect(readFileSync("src/ui/world-picker.ts", "utf8")).toContain("Lab 13: Video to motion");
     const doc = readFileSync("docs/labs/motion.md", "utf8");
