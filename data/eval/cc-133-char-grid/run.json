@@ -1,0 +1,29 @@
+{
+  "experiment": "cc-133-char-grid",
+  "date": "2026-11-04",
+  "what": "3x3 grid of the real Course: Banana, Skater, Potato Blob; as made, fixed running right, fixed running left",
+  "script": "scripts/film-char-facing.mjs, data/eval/cc-133-char-grid/scripts/compose.sh",
+  "course": "/assets/parts/run.course.json",
+  "characters": {
+    "banana": "7c95df17d131f152",
+    "skater": "8f72bd8e9c1937ce",
+    "potato": "9c187602415901db"
+  },
+  "clock": "stepped, 30 pictures a second, 2 game frames per picture",
+  "take": {
+    "frames_taken": 90,
+    "frames_kept": 75,
+    "size": "1280x720",
+    "crop": "400x300 at 0,305 scaled to 480x360"
+  },
+  "left_runs": "5 s run right (not kept), then Left held, 1.2 s settle",
+  "as_made": "film-only uncommitted switch ?nofacing=1 in src/characters/fit.ts skipping the turn; not in the game",
+  "machines": "two Vultr 4 vCPU 8 GB VMs (Singapore), headless Chromium on SwiftShader, one browser at a time each",
+  "cost_note": "the two VMs already existed and were already paid for; about 1.5 hours of use; no new spend",
+  "outputs_outside_git": "../conquercourse-assets/cc-133-char-grid/ (cc-133-char-grid.mp4 340 KB 2.5 s, cc-133-char-grid-x3.mp4 1 MB 7.5 s loop, frames.tar 69 MB), SHA256SUMS there",
+  "sha256": {
+    "cc-133-char-grid.mp4": "8b2cc051c5517f48d1ff3847afe184c4c24d3c53720a2c459d8e9eceea96ca53",
+    "cc-133-char-grid-x3.mp4": "b8afb72e99fefb09c6a28de79ac09d631de9e0815a5c300caca3a1550e6513ea",
+    "frames.tar": "93e99f8493e898498a4f2892a91f7a51853ff706e97ac6f35291732a7927511b"
+  }
+}
