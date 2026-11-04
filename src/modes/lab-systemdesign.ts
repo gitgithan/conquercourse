@@ -1,7 +1,7 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { labPopulated } from "../ui/lab-default";
-import { labName, labNumberOf } from "../ui/labs-series";
+import { labName } from "../ui/labs-series";
 import { BRIEFS, METERS, SLOTS, STARTER, blocksOf, briefById, ladderOf, otherGoodDesign, pblockById, score, tradeOff, type BriefId, type Design, type Outcome, type PBlock, type SlotId } from "../labs/systemdesign/pipeline";
 import { MAX_NOTE } from "../labs/systemdesign/partner-core";
 import { askDesignPartner, type PartnerAnswer } from "../labs/systemdesign/partner-client";
@@ -25,7 +25,7 @@ function facts(b: PBlock, volume: number): string {
 }
 
 export function startLabSystemdesign(host: HTMLElement): { backend: "canvas2d" } {
-  const num = labNumberOf("lab-systemdesign"), title = `Lab ${num}: System design: build the whole game`;
+  const title = "System design: build the whole game";
   const root = document.createElement("div");
   root.id = "lab-systemdesign";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
@@ -116,7 +116,7 @@ export function startLabSystemdesign(host: HTMLElement): { backend: "canvas2d" }
   let snap: { design: Design; out: Outcome; brief: BriefId } | null = null;
   let open: Partial<Record<SlotId, number>> = {}; // how many hints are open per card
   let running = -1, timers: number[] = [], partnerBusy = false;
-  const labChip = (mode: string): string => `<a class="chip" data-lab="${mode}" href="?mode=${mode}&labs=1&welcome=0">Lab ${labNumberOf(mode)}: ${esc(labName(mode))}</a>`;
+  const labChip = (mode: string): string => `<a class="chip" data-lab="${mode}" href="?mode=${mode}&labs=1&welcome=0">${esc(labName(mode))}</a>`;
 
   function renderMeters(): void {
     const br = briefById(brief), cur = snap && snap.brief === brief ? snap : null;
