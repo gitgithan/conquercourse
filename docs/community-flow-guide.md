@@ -77,7 +77,7 @@ flowchart LR
   - The recorded price is about 2 cents for a warm piece and 3 to 4 cents for the first one after a quiet spell (`docs/pipelines.md`, `docs/community-characters.md`).
   - Segment Objects is one run for the whole photo, however many things it finds, so choosing among them is free.
 - Why both jobs are slow sometimes: it is a cold start.
-  - Each of the two GPU programs (finder and 3D maker) is set to keep one machine, `max_containers=1`, and to switch it off after 240 s with nobody asking (`scaledown_window=240`).
+  - Each of the two GPU programs (finder and 3D maker) is set to keep one machine, `max_containers=1`, and to switch it off after a quiet spell with nobody asking (`scaledown_window=60` for the finder, `240` for the 3D maker, in `pipelines/photo_to_object.py`).
   - After a quiet spell the first call has to start a machine and load the model: a first piece took 90 to 100 s and the model load alone was 45 to 54 s (`data/eval/cc-38-photo-to-3d/README.md`, `docs/community-characters.md`).
   - A warm run is quick: in the live run of 2026-10-31 (`docs/evidence/cc-247-upload-run.json`) Segment Objects took about 18 s and a piece 32 s.
   - Only one machine each means two people at once wait in line; this page also queues your own pieces one at a time.
@@ -96,7 +96,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   A["Photo"] --> C["Pick: Segment Objects<br/>whole photo, one run"]
-  C --> D["Click the things you want<br/>outlined on the photo, hover lights one"]
+  C --> D["Click the things you want<br/>outlined on the photo, hover lights one<br/>(or Mark it yourself: drag a box)"]
   D --> F["Make N pieces<br/>one lift each, queued, per-piece bar"]
   F --> G["Prize: spinning turntable in the middle"]
   G --> H["Keep / Share / Make another"]
@@ -118,9 +118,9 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Browser["Your browser"]
-    S["cc.session: a random code, never sent anywhere else"]
+    S["cc.session: a random code, sent only to our own server"]
     IDB["IndexedDB: your 3D pieces"]
-    LS["localStorage: the share links"]
+    LS["localStorage: cc.session and the shared pieces you used"]
   end
   subgraph Pages["Cloudflare Pages Functions"]
     API["/api/community-items"]
@@ -233,13 +233,13 @@ sequenceDiagram
 
 ## Things to know (gaps)
 - Segmentation finds outlines on its own; a click only chooses among them.
-- If the thing you want is not outlined, press Segment Objects again or pick a different photo; there is no way to draw one.
+- If the thing you want is not outlined, press **Mark it yourself** and drag a box, or press Segment Objects again, or pick a different photo.
 - Cancel stops the page waiting; the job on the server may still finish, and it still counts for today.
 - Pieces stay in this browser until you press Share in Community.
 - A shared item is held for a person to approve whenever the safety check is unsure (`npm run community items` lists them; see `docs/deploy.md`).
 - The World Editor "Share to Community" button and the contributed-photo rule are not built yet.
 - The tray badge is a camera sign on the "Mine:" buttons; the place name is not on it yet.
-- Pieces appear in the tray only with `?uploadobj=1` (the "Open the World Editor" button adds it).
+- Your pieces are always listed under **My pieces** in the editor's Add pieces window (`?uploadobj=1` is no longer needed for that).
 - Generate Piece uses the paid photo-to-3D job; the existing daily limits and safety check apply.
 - The unit tests stub the network; `scripts/community-upload-e2e.mjs` runs the whole path against the preview site with the real jobs (live run of 2026-10-31).
 - Pictures of that run, in order:

@@ -7,7 +7,7 @@
 - A player types one sentence and, a few minutes later, runs the course as that character.
 - The maker is a row of five steps, and each step can be swapped for another provider.
 - Route A (Meta's Muse Image, SAM 3.1 and SAM 3D Objects, plus our own rigger) is the first provider and costs about five cents a character.
-- Tripo made the two Rookie meshes at build time; no Tripo code or key is in the game.
+- Tripo made the two Rookie meshes at build time; the game has no Tripo code or key, and `pipelines/charmaker/providers/tripo.py` is an empty slot that answers "not configured".
 - Every character is checked against hard size caps before the server keeps it, so a gallery of them stays cheap.
 - Abuse limits: kept in the private notes.
 
@@ -67,6 +67,7 @@ flowchart TB
 flowchart LR
   API["API: PROVIDERS table"] --> A["route-a<br/>Muse + SAM + SAM 3D + our rig"]
   API --> N["your provider<br/>one object + one Python maker"]
+  A -.-> T["tripo.py<br/>empty slot, not configured"]
 ```
 - A server provider is one object with `configured`, `submit` and `status` (`src/characters/providers.ts`).
 - A Python maker is one class with `picture`, `cutout`, `mesh` and `fallback` (`pipelines/charmaker/contracts.py`).
