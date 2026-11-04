@@ -21,8 +21,8 @@ export const browserStore: Store = {
 };
 
 export const onboardingOn = (params: URLSearchParams, build = ONBOARDING_ON): boolean => build && params.get('onboarding') !== '0';
-/** CC-133: the fifth tour card, The Grand Entrance. ?entrance=1 or 0 decides; with no word it is ON on a dev machine and the preview site, OFF on the live site. */
-export const entranceOn = (params: URLSearchParams, host: string): boolean => { const v = params.get('entrance'); return v === '1' ? true : v === '0' ? false : host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.startsWith('preview.'); };
+/** CC-133: The Grand Entrance (tour card and Home tile). On for everyone; only ?entrance=0 turns it off. The host is kept in the signature so callers stay the same. */
+export const entranceOn = (params: URLSearchParams, _host?: string): boolean => params.get('entrance') !== '0';
 export const isReturning = (store: Store): boolean => store.get(TOUR_DONE) === '1' || store.get(OLD_WELCOME) === '1';
 
 export interface TourIn { params: URLSearchParams; store: Store; automated: boolean; mode?: string | null; resume?: boolean; build?: boolean }
