@@ -55,6 +55,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['lab-partner', 'Lab 16: Design partner loop', 'Watch a recorded AI design partner propose a course, the simulator check it in plain words, and Fix it repair it. Edit the pieces and try the challenges.'],
     ['lab-systemdesign', 'Lab 17: System design: build the whole game', 'Drag blocks to build the photo-to-object service, watch cost, time, privacy and failures move, and ask the AI partner for one opinion.'],
     ['lab-slicer', 'Lab 18: World Slicer: map to lane', 'Drop a pin on a real map, slice the buildings at one height, and watch the simulator try the lane. Then fix four lanes that fail.'],
+    ['lab-determinism', 'Lab 19: Same run, any machine', 'Replay one run on machines that round and count a little differently, and find the fewest pins that make every frame agree.'],
   ]],
 ];
 
@@ -95,7 +96,7 @@ export const MAKING_OF_CARDS: [string, string, string, string][] = [
   ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
 ];
 
-export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl', 'lab-motion', 'lab-lift', 'lab-collision', 'lab-partner', 'lab-systemdesign', 'lab-slicer'];
+export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl', 'lab-motion', 'lab-lift', 'lab-collision', 'lab-partner', 'lab-systemdesign', 'lab-slicer', 'lab-determinism'];
 /** The Parts card is the third card of The Making Of; it opens ?mode=parts through onPick like a course card. */
 export const PARTS_CARD: Demo = ['parts', 'Parts: moves and obstacles', 'Every move and every obstacle on one page, each playing the real game on its own. See what a course is made of.'];
 export const DEMOS: [string, string][] = [...DEMO_GROUPS, ['', [PARTS_CARD]] as [string, Demo[]]].flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
@@ -160,6 +161,7 @@ const ICONS: Record<string, string> = {
   'lab-partner': '<rect x="6" y="10" width="20" height="14" rx="3"/><path d="M10 40h44M14 40v-8h10v8M34 40V28h12v12"/><path d="M26 17h14l6 8M44 51l4 4 8-9"/>',
   'lab-systemdesign': '<rect x="6" y="8" width="16" height="12" rx="2"/><rect x="42" y="8" width="16" height="12" rx="2"/><rect x="24" y="44" width="16" height="12" rx="2"/><path d="M22 14h20M14 20v10h36V20M32 30v14"/>',
   'lab-slicer': '<path d="M32 56S14 40 14 26a18 18 0 0 1 36 0c0 14-18 30-18 30z"/><circle cx="32" cy="26" r="5"/><path d="M6 60h12v-6h10v-8h10v8h10v-6h10v6"/>',
+  'lab-determinism': '<rect x="6" y="12" width="22" height="16" rx="3"/><rect x="36" y="12" width="22" height="16" rx="3"/><path d="M8 44h6v6H8zM16 44h6v6h-6zM38 44h6v6h-6zM46 44h6v6h-6z"/><path d="M28 20h8M32 30v10"/>',
   'lab-lift': '<rect x="8" y="14" width="22" height="30" rx="3"/><path d="M36 40l10-14 10 14z"/><path d="M36 50h20"/>',
   'lab-motion': '<circle cx="32" cy="10" r="4"/><path d="M32 14v18M32 20l-12 8M32 20l12 8M32 32l-10 18M32 32l10 18"/><path d="M8 56h48"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',

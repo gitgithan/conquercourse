@@ -18,7 +18,7 @@
   - Search and learn: Lab 1, Lab 2, Lab 12, Lab 9.
   - See the world: Lab 4, Lab 5, Lab 10.
   - Move and measure: Lab 3, Lab 6, Lab 7, Lab 8.
-  - Trust the result: Lab 11.
+  - Trust the result: Lab 11, Lab 19 (same run on any machine).
 - Tier 2, Pipelines: how a photo, a video, an idea and a map became part of the game, in the order the data flows.
   - Photo to course object: Lab 14, then Lab 15.
   - Video to motion: Lab 13.
@@ -85,6 +85,7 @@
 | 9 | Generate and test | Photo | Place and prove |
 | 10 | Evaluating a detector | Photo | Cut-out |
 | 11 | Verification and hashing | Methods | Hash |
+| 19 | Same run, any machine | Methods | Hash |
 | 12 | Reinforcement learning | Methods | Learn |
 | 13 | Video to motion | Video | Gate (also Video, Pose) |
 | 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |

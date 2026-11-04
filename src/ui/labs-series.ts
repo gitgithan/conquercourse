@@ -32,6 +32,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-partner', name: 'Design partner loop', pipeline: 'idea', stage: 'Fix it' },
   { mode: 'lab-systemdesign', name: 'System design: build the whole game', pipeline: 'methods', stage: 'Design' },
   { mode: 'lab-slicer', name: 'World Slicer: map to lane', pipeline: 'map', stage: 'Simulator' },
+  { mode: 'lab-determinism', name: 'Same run, any machine', pipeline: 'methods', stage: 'Hash' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
@@ -51,7 +52,7 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'search-learn', tier: 'foundations', title: 'Search and learn', modes: ['lab-search', 'lab-optimization', 'lab-rl', 'lab-gentest'] },
   { id: 'see-world', tier: 'foundations', title: 'See the world', modes: ['lab-vision', 'lab-camera', 'lab-detector'] },
   { id: 'move-measure', tier: 'foundations', title: 'Move and measure', modes: ['lab-ik', 'lab-integration', 'lab-timing', 'lab-signal'] },
-  { id: 'trust', tier: 'foundations', title: 'Trust the result', modes: ['lab-hashing'] },
+  { id: 'trust', tier: 'foundations', title: 'Trust the result', modes: ['lab-hashing', 'lab-determinism'] },
   { id: 'photo', tier: 'pipelines', title: 'Photo to course object', modes: ['lab-lift', 'lab-collision'] },
   { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
   { id: 'idea', tier: 'pipelines', title: 'Idea to course', modes: ['lab-partner'] },
