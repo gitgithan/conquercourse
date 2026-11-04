@@ -22,7 +22,7 @@
     "yawDeg": 0.5,
     "tiltDeg": 1.33,
     "splatPoints": 175168,
-    "liftSeconds": 9.0,
+    "liftSeconds": 9,
     "maskSeconds": 0.3,
     "costUsd": 0.00494,
     "costBasis": "container seconds only (L40S 1.95/h, L4 0.80/h); model loads and idle time not included",
