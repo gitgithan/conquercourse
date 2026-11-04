@@ -145,6 +145,8 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'welcome', default: 'on', doc: "0 skips the welcome screen; 1 opens it for tests", quiet: false },
   { name: 'z', default: '15', doc: "map zoom", quiet: false },
   { name: 'labs', default: 'on', doc: "never read by name; kept in the quiet list so a Labs link keeps the first visit", quiet: true },
+  { name: 'tx', default: '0', doc: "metres east of the centre to look at on the skin test page (to film one building)", quiet: false },
+  { name: 'tz', default: '0', doc: "metres south of the centre to look at on the skin test page (to film one building)", quiet: false },
 ];
 
 export const SWITCH_NAMES: ReadonlySet<string> = new Set(SWITCHES.map((s) => s.name));

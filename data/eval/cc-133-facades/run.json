@@ -9,7 +9,16 @@
       "photo": "File:Église Saint-Pierre de Montmartre - portail.jpg",
       "author": "BastienM",
       "licence": "CC BY-SA 3.0",
-      "corners_px_TL_TR_BR_BL": [690, 355, 1340, 350, 1385, 1160, 625, 1165],
+      "corners_px_TL_TR_BR_BL": [
+        690,
+        355,
+        1340,
+        350,
+        1385,
+        1160,
+        625,
+        1165
+      ],
       "photo_width_px": 1920,
       "wall_width_m": 10.5,
       "facing_deg": 274
@@ -20,7 +29,16 @@
       "photo": "File:Tessinska palatset Slottsbacken 4 Gamla Stan Stockholm 2016 01.jpg",
       "author": "Julian Herzog",
       "licence": "CC BY 4.0",
-      "corners_px_TL_TR_BR_BL": [1042, 568, 1790, 430, 1775, 1005, 1052, 985],
+      "corners_px_TL_TR_BR_BL": [
+        1042,
+        568,
+        1790,
+        430,
+        1775,
+        1005,
+        1052,
+        985
+      ],
       "photo_width_px": 1920,
       "wall_width_m": 18.1,
       "facing_deg": 62

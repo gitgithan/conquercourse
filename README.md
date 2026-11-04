@@ -34,6 +34,40 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 - Prefer to read: [demo script](docs/demo-script-v2.md), [Meta tool use](#meta-tool-use), [what is new](#what-is-new-and-what-is-not).
 
+## 📋 Judging scorecard
+- Where to look for each criterion, in one table.
+
+| Criterion | Weight | The short answer | Look here |
+|---|---|---|---|
+| Impact | 30% | Real parks, streets and objects become courses; players learn physics by doing, and makers share what they build | [Dojo and Labs](#-the-dojo-and-the-labs), [challenge link](#-the-viral-challenge-a-link-a-ghost-a-clip) |
+| Use of Meta AI tooling | 25% | Ten Meta models and services, each with one visible job; the models propose and the simulator decides | [Meta tool use](#meta-tool-use), [open weights split](#-open-weights-split) |
+| Technical depth | 20% | A deterministic 120 Hz simulator, an ideal-run proof, a plausibility gate, cross-machine tests, failures written up | [Proof in numbers](#-proof-in-numbers), [Architecture](#-architecture-at-a-glance) |
+| Demo | 25% | An 85 second film from the real game, and a 60 second path you can click yourself | [Promo video](#-promo-video), [60-second judge path](#-60-second-judge-path) |
+| Bonus: Best Agentic Use-Case | bonus | A loop that proposes a course, tests it with the simulator, repairs it and stops when it is proven | [Best Agentic Use-Case](#-best-agentic-use-case) |
+| Bonus: Most Viral | bonus | A short challenge link and a 15 second clip, with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
+| Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
+
+## 🔢 Proof in numbers
+- **About 2,700 tests** (2,764 passed in the last full run on 2026-11-04), run with `npm run test:quick`, and physics-law tests come first.
+- **7,525 cross-hardware runs** gave the same outcome, tick count and end place on Node 22, Node 24 and local `workerd` (Cloudflare's runtime): [lesson and method](docs/lessons-cross-hardware-testing.md).
+  - The exact last digit did differ on six courses at first; we fixed the cause (`**` and `Math.pow`) on 2026-11-03 and say so in the lesson.
+  - `workerd` still differs in the last digit where the tick uses sin, cos, tan or exp; no outcome flipped.
+- **100 golden traces** guard the simulator: a change to the physics fails a test the moment it happens.
+- **40 of 44 agent runs proven** in at most 2 steps for $0.36 ([Best Agentic Use-Case](#-best-agentic-use-case)).
+- **13 real bugs in 21 claims** when Muse Wonder reviewed the simulator code, each checked by us, for $2.38 ([details](docs/hackathon.md)).
+- **Measured cost:** $0.164 for 14 photos through SAM 3 and SAM 3D Objects; about 2 cents for one object end to end ([pipelines](docs/pipelines.md)).
+
+## ⚠️ Honest limits
+- Where the models are weak, and what we do about it: [docs/model-limits.md](docs/model-limits.md).
+- The finder (SAM 3) is poor on thin overhead bars; the demo lifts bars from a box the player draws, and says so.
+- A single photo gives a guess of size, so size comes from a typed or typical height, never from the model.
+- Community photo-to-object needs the server jobs switched on; if they are off, watch the promo or follow [the click-by-click guide](docs/community-flow-guide.md).
+- Muse Spark Open is a language model: it can give different answers for the same photo, so a failed answer stops the step and a person reviews.
+- The agent loop is not in the editor (see below); the editor's design partner makes one proposal and the simulator checks it.
+- Exact bit-for-bit equality across machines is not claimed; outcome and tick count are.
+- The MusicGen music is a demo (weights are CC BY-NC); we swap it before any sale ([copyright audit](docs/copyright-audit.md)).
+- Desktop keyboard at 1280 px only; there is no phone support.
+
 ## 🏗️ Architecture at a glance
 - One page of the whole codebase: what runs where, and who pays.
 - Blue boxes are Meta models; grey boxes are our code or other services.
@@ -511,6 +545,46 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
 - **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
 - Details for every criterion: [docs/hackathon.md](docs/hackathon.md).
+
+### 🔓 Open weights split
+- **Meta models, open weights:** SAM 3 (runs on our Modal GPU for player photos), SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Meta-Llama-3-8B-Instruct, MusicGen (AudioCraft), and Muse Spark Open (Meta's open model, hosted by Baseten).
+- **Meta models through the Meta Model API (hosted):** SAM 3.1 and Muse Image for the character maker, Muse Spark for build-time vision calls.
+- **Meta-owned data, not a model:** Mapillary street photos, shown live and never stored.
+- **Not Meta, open or open weights:** Kimodo (NVIDIA), MoGe 2 (Microsoft), TRELLIS.2 and Pixal3D (MIT), torchvision detectors; see [Models that are not Meta's](#models-that-are-not-metas).
+- **Not Meta, closed:** Tripo, used once at build time for the two Rookie meshes; nothing closed runs while someone plays.
+- Licences for every file that ships: [docs/ASSETS.md](docs/ASSETS.md); what calls which model: [docs/model-ledger.md](docs/model-ledger.md).
+
+### 🤖 Best Agentic Use-Case
+- **The loop:** an idea in words goes to Muse Spark Open, which proposes a course layout.
+  - The simulator's ideal-run search tests it and answers in plain words: cleared, or what blocks it.
+  - The model repairs the layout from that answer, and the loop stops when the simulator proves a clear (or after a step cap of 6).
+  - The model never judges; the simulator does: **models propose, the simulator decides.**
+- **Measured from a sentence, with no photo** (44 runs, 22 ideas, 2 runs each; [full report](data/eval/cc-133-agent-text/README.md)):
+  - 40 of 44 runs were proven clearable: 22 at the first test and 18 after one repair; none needed more than 2 steps.
+  - The 4 that were not proven were 2 empty courses (a rule of the tool) and 2 empty model answers.
+  - In all 18 repairs the number of obstacles stayed the same, so no clear was bought by deleting obstacles.
+  - **Cost:** $0.357 for all 44 runs (70 model calls), covered by the hackathon credits.
+- **Earlier run from a park photo:** 40 of 40 proven in at most 3 steps ([results](data/eval/cc-126-course-agent/README.md)).
+- **The honest catch:** some clears came from easing a size the sentence asked for (a "3 metre wall" became 0.68 m), so "proven" means "proven with sizes the simulator accepts".
+- **Not in the editor:** on 2026-10-31 the player entry was removed when scope was cut to photo to object; the loop (`src/slice/course-agent.ts`) and its server route remain in the code, and the measurement above is of that code path, not a button a player can press.
+- **What a player does get:** the design partner (one model call, then the simulator checks) and Fix it (a pure simulator search).
+- Pipeline diagram: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), section 4c.
+
+### 🥋 The Dojo and the Labs
+- **Dojo:** one obstacle at a time, slow; the player turns knobs, predicts, tests, and only then gets a name for what they found.
+  - A formula may appear only as the last, earned step of a lesson, never on the Course.
+  - Each obstacle carries one saying, such as "Speed gets you over the obstacle; speed also throws you off it" ([sayings](docs/sayings.md)); the Dojo is how a player discovers it.
+- **Labs:** 12 university-level workbenches on the game's own algorithms (search, camera, IK, hashing, detector and more).
+  - The player changes a heuristic, a threshold or a target, runs it, and reads facts about the result.
+  - Equations are allowed in the Labs only; a Lab never talks to you and never grades you.
+  - Index: [docs/labs/README.md](docs/labs/README.md); design: [docs/university-labs.md](docs/university-labs.md).
+- **Why it matters:** the physics you learn is the physics of the real thing; the game never grades or coaches a person's technique.
+
+### 🔗 The viral challenge: a link, a ghost, a clip
+- Every cleared run can be shared as a short link (`?c=` and ten characters) that carries only the keys of the run.
+- The friend's browser plays those keys on the same simulator, so the time cannot be faked, and the friend chases your ghost.
+- A 15 second vertical clip is made in the browser on a stepped clock.
+- Design and evidence: [docs/challenge.md](docs/challenge.md); plan: [docs/viral-plan.md](docs/viral-plan.md).
 
 ### Safe by design
 - No sign-in and no real names; a short tag of up to 12 characters at most, checked against a block list.

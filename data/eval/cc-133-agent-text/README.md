@@ -48,7 +48,8 @@
 
 ## Failures, said plainly (4 of 44)
 - Empty course (idea 10, "a long flat run with nothing in the way"), 2 runs: no layout.
-  - The layout reader refuses a course with nothing to clear, so both answers were thrown away. It is a rule of the tool, not a model fault.
+  - The layout reader refuses a course with nothing to clear, so both answers were thrown away.
+    - It is a rule of the tool, not a model fault.
 - Model gave no answer, 2 runs not proven (idea 8 run 2, idea 19 run 1; idea 8 run 1 lost one call but recovered):
   - Both were long staircases (5 and 8 steps).
   - The call came back empty after 2 tries; the reasoning model spends its 4,000 token budget before it writes the answer.
@@ -57,7 +58,8 @@
 - The step cap of 6 was never reached, so the capped fallback ("could not prove it, keep the best tested attempt") ran only because of the empty answers, not at the cap.
 
 ## Did a clear come from deleting obstacles?
-- No. Matched against the ask, every repaired run kept the same number of obstacles as its first try (18 of 18).
+- No.
+  - Matched against the ask, every repaired run kept the same number of obstacles as its first try (18 of 18).
 - Sizes were eased in the runs whose sentence gave a size (9 runs that needed repair):
   - 3 m wall to 0.68 m (2 runs), 2.5 m wall to 0.75 m (2 runs), 9 m bar gap to 6.75 m (2 runs).
   - 1.2 m ledge to 0.31 m and 0.9 m, 3 m gap to 2.25 m, 1.5 m wall to 1.13 m.
