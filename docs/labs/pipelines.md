@@ -10,7 +10,7 @@
 - "Partly" means the Lab teaches an idea the stage depends on, not the stage itself.
 - "Not yet" means no Lab covers the stage.
   - It is listed so the series stays honest.
-- Labs 13 to 15 (motion, lift, collision) are numbered in the order they landed.
+- Labs 13 to 15 (motion, lift, collision) and Lab 18 (map to lane) are numbered in the order they landed.
 - Lab 17, [System design](system-design.md), is the finale: it uses Labs 1, 5, 8, 11, 13, 14 and 15 and has no stage of its own.
 
 ## Two tiers (numbers and URLs never change)
@@ -24,7 +24,7 @@
   - Video to motion: Lab 13.
   - Run to shared link: no Lab planned (owner decision: not visual enough); its stages and the Foundation Labs it uses are listed.
   - Idea to course: Lab 16 (design partner loop).
-  - More Labs join at the end of the list as one line each; Lab 16 (map to lane) and Lab 17 (idea to course) get their own sub-headers.
+  - More Labs join at the end of the list as one line each; Lab 16 (idea to course) and Lab 18 (map to lane) get their own sub-headers.
 - The groups are one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; the bar, the Courses picker and this page follow it.
 
 ## How the Labs hand over to each other
@@ -89,6 +89,10 @@
 | Lab 2, Optimization | Choosing the best settings after the proof (plans, windows, drone and rope settings) |
 | Lab 12, Reinforcement learning | Learning a run from points; shows what the replay and the hash would have to check |
 
+## Map to lane
+- Lab 18, [World Slicer: map to lane](slicer.md), teaches the six steps from a pin on a recorded OpenStreetMap area to a lane the simulator proves.
+- It uses Lab 15 (the simulator proves it), Lab 9 (propose, then throw out) and Lab 1 (the proof search).
+
 ## Where each Lab sits
 | # | Lab | Section | Stage |
 |---|---|---|---|
@@ -108,6 +112,7 @@
 | 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |
 | 15 | Collision from a 3D lift | Photo | Collision |
 | 16 | Design partner loop | Idea | Fix it |
+| 18 | World Slicer: map to lane | Map to lane | Slice, Prove (the whole pipeline) |
 
 ## Gaps, shown honestly
 - Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).

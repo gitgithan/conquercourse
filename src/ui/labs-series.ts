@@ -1,6 +1,6 @@
 // CC-133: the Labs as a series. One list of {mode, name, pipeline, stage}: the nav bar, the world picker and the tests all read it.
 // A Lab's number is its place in this list and never changes (links in docs and films use it); a new Lab is one line at the END.
-export type Pipeline = 'photo' | 'video' | 'run' | 'idea' | 'methods';
+export type Pipeline = 'photo' | 'video' | 'run' | 'idea' | 'methods' | 'map';
 export interface LabEntry { mode: string; name: string; pipeline: Pipeline; stage: string }
 
 /** The sections, in the order they are taught. */
@@ -10,9 +10,10 @@ export const PIPELINES: readonly { id: Pipeline; title: string; stages: readonly
   { id: 'run', title: 'Run to shared link', stages: ['Run', 'Keys', 'Replay', 'Hash', 'Share'] },
   { id: 'idea', title: 'Idea to course', stages: ['Brief', 'Propose', 'Check', 'Fix it', 'Show'] },
   { id: 'methods', title: 'Methods behind all three', stages: [] },
+  { id: 'map', title: 'Map to lane', stages: ['Pin', 'Elements', 'Cut', 'Lane', 'Rules', 'Simulator'] },
 ];
 
-// Numbers 1 to 12 are fixed; 13 (motion), 14 (lift) and 15 (collision) followed in the order they landed. A new Lab is one line at the end.
+// Numbers 1 to 12 are fixed; 13 (motion), 14 (lift) and 15 (collision) followed in the order they landed; 16 (slicer) is the Map to lane pipeline. A new Lab is one line at the end.
 export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-search', name: 'Search', pipeline: 'methods', stage: 'Search' },
   { mode: 'lab-optimization', name: 'Optimization', pipeline: 'methods', stage: 'Optimize' },
@@ -31,6 +32,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-collision', name: 'Collision from a 3D lift', pipeline: 'photo', stage: 'Collision' },
   { mode: 'lab-partner', name: 'Design partner loop', pipeline: 'idea', stage: 'Fix it' },
   { mode: 'lab-systemdesign', name: 'System design: build the whole game', pipeline: 'methods', stage: 'Design' },
+  { mode: 'lab-slicer', name: 'World Slicer: map to lane', pipeline: 'map', stage: 'Simulator' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
@@ -54,6 +56,7 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'photo', tier: 'pipelines', title: 'Photo to course object', modes: ['lab-lift', 'lab-collision'] },
   { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
   { id: 'idea', tier: 'pipelines', title: 'Idea to course', modes: ['lab-partner'] },
+  { id: 'map', tier: 'pipelines', title: 'Map to lane', modes: ['lab-slicer'] },
   { id: 'run', tier: 'pipelines', title: 'Run to shared link', modes: [] }, // no Lab planned (owner): the stage list and the Foundation Labs it uses are shown, not a gap to fill
   { id: 'finale', tier: 'finale', title: 'System design', modes: ['lab-systemdesign'] }, // the last Lab: it sums up the three pipelines
 ];
@@ -63,7 +66,7 @@ export const labName = (mode: string): string => LAB_LIST.find((l) => l.mode ===
 
 /** One pipeline stage: the Foundation Labs it relies on ("uses") and the pipeline Lab that teaches it (null = no Lab yet, an honest gap). */
 export interface PipelineStage { stage: string; uses: readonly string[]; lab: string | null }
-export const PIPELINE_MAP: Record<'photo' | 'video' | 'run' | 'idea', readonly PipelineStage[]> = {
+export const PIPELINE_MAP: Record<'photo' | 'video' | 'run' | 'idea' | 'map', readonly PipelineStage[]> = {
   photo: [
     { stage: 'Photo', uses: ['lab-camera'], lab: null },
     { stage: 'Cut-out', uses: ['lab-vision', 'lab-detector'], lab: 'lab-lift' },
@@ -85,6 +88,14 @@ export const PIPELINE_MAP: Record<'photo' | 'video' | 'run' | 'idea', readonly P
     { stage: 'Check', uses: ['lab-search'], lab: 'lab-partner' },
     { stage: 'Fix it', uses: ['lab-search'], lab: 'lab-partner' },
     { stage: 'Show', uses: ['lab-gentest'], lab: 'lab-partner' },
+  ],
+  map: [
+    { stage: 'Pin', uses: [], lab: 'lab-slicer' },
+    { stage: 'Elements', uses: ['lab-detector'], lab: 'lab-slicer' },
+    { stage: 'Cut', uses: [], lab: 'lab-slicer' },
+    { stage: 'Lane', uses: ['lab-camera'], lab: 'lab-slicer' },
+    { stage: 'Rules', uses: ['lab-timing'], lab: 'lab-slicer' },
+    { stage: 'Simulator', uses: ['lab-search'], lab: 'lab-slicer' },
   ],
   run: [
     { stage: 'Run', uses: ['lab-integration'], lab: null },
