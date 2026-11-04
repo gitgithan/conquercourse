@@ -22,9 +22,6 @@ describe('lab flow (two tiers)', () => {
     expect(usedIn('lab-signal').map((u) => u.stage)).toEqual(['Smooth', 'Gate']);
     expect(usedIn('lab-ik').some((u) => u.pipeline === 'video')).toBe(true);
   });
-  it('the run pipeline has no Lab: no Lab is planned, every stage lists its Foundation Labs', () => {
-    expect(PIPELINE_MAP.run.every((s) => s.lab === null)).toBe(true);
-  });
   it('gives pipeline Labs a from chip, uses chips and a next link; Foundation Labs a used-in row', () => {
     const lift = flowPieces('lab-lift')!;
     expect(lift.top).toContain('id="lab-flow-from"'); expect(lift.top).toContain('uses:'); expect(lift.end).toContain('href="?mode=lab-collision&labs=1&welcome=0"');

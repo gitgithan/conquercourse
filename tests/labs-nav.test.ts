@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { screenFor } from '../src/ui/music';
 import { LAB_GROUPS, LAB_LIST, TIERS } from '../src/ui/labs-series';
-import { LABS, labHref, labNeighbours, labNumber } from '../src/ui/labs-nav';
+import { LABS, labHref, labNeighbours, labNumber, navLayout } from '../src/ui/labs-nav';
 
 // CC-118: the Labs bar lists all 12 Labs, knows which one is current, and every Lab page mounts it.
 describe('labs bar', () => {
@@ -29,11 +29,29 @@ describe('labs bar', () => {
     expect(names('video')).toEqual([13]);
     expect(names('idea')).toEqual([16]);
     expect(names('map')).toEqual([18]);
-    expect(LAB_GROUPS.find((g) => g.id === 'run')!.modes).toEqual([]); // the honest gap
+    expect(LAB_GROUPS.some((g) => g.id === 'run')).toBe(false); // owner: no 'Run to shared link' section
   });
-  it('draws tier and sub-header headings in the bar and the picker', () => {
-    expect(readFileSync('src/ui/labs-nav.ts', 'utf8')).toContain("th.className = 'group tier'");
-    expect(readFileSync('src/ui/labs-nav.ts', 'utf8')).toContain("h.className = 'group sub'");
+  it('lays the strip out from the data: every Lab once, under its own tier and sub-header, in number order', () => {
+    const layout = navLayout();
+    const seen = layout.flatMap((t) => t.groups.flatMap((g) => g.labs.map((l) => l.mode)));
+    expect([...seen].sort()).toEqual(LAB_LIST.map((l) => l.mode).sort());
+    expect(new Set(seen).size).toBe(seen.length);
+    for (const t of layout) for (const g of t.groups) {
+      const def = LAB_GROUPS.find((x) => x.id === g.id)!;
+      expect(def.tier).toBe(t.id);
+      expect(g.labs.length).toBeGreaterThan(0);
+      expect(g.labs.map((l) => l.mode).sort()).toEqual([...def.modes].sort());
+      expect(g.labs.map((l) => l.n)).toEqual([...g.labs.map((l) => l.n)].sort((a, b) => a - b));
+      for (const l of g.labs) expect(l.n).toBe(labNumber(l.mode));
+    }
+    expect(layout.map((t) => t.id)).toEqual(TIERS.map((t) => t.id).filter((id) => layout.some((t) => t.id === id)));
+  });
+  it('draws a labelled row per tier, wrapping chips, and sizes the Labs under it with one shared variable', () => {
+    const src = readFileSync('src/ui/labs-nav.ts', 'utf8');
+    expect(src).toContain("row.className = 'tier'");
+    expect(src).toContain("box.className = 'group'");
+    expect(src).toContain('flex-wrap:wrap');
+    expect(src).toContain("'var(--labs-nav-h)'");
     expect(readFileSync('src/ui/world-picker.ts', 'utf8')).toContain('LAB_GROUPS');
   });
   it('numbers a Lab from 1 and gives 0 to anything else', () => {

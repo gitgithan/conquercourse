@@ -19,10 +19,9 @@
   - See the world: Lab 4, Lab 5, Lab 10.
   - Move and measure: Lab 3, Lab 6, Lab 7, Lab 8.
   - Trust the result: Lab 11.
-- Tier 2, Pipelines: how a photo, a video and a run became part of the game, in the order the data flows.
+- Tier 2, Pipelines: how a photo, a video, an idea and a map became part of the game, in the order the data flows.
   - Photo to course object: Lab 14, then Lab 15.
   - Video to motion: Lab 13.
-  - Run to shared link: no Lab planned (owner decision: not visual enough); its stages and the Foundation Labs it uses are listed.
   - Idea to course: Lab 16 (design partner loop).
   - More Labs join at the end of the list as one line each; Lab 16 (idea to course) and Lab 18 (map to lane) get their own sub-headers.
 - The groups are one list, `LAB_GROUPS` in `src/ui/labs-series.ts`; the bar, the Courses picker and this page follow it.
@@ -59,28 +58,7 @@
 | 4. Gate | The plausibility check decides what may be shown | Lab 13, Video to motion; Lab 8, Signal processing | Lab 13 runs the gate on ten clips and gives a reason a person can read; Lab 8 holds the port, checked against the Python gate |
 | 5. Clip | The clip plays on the character, with reach and neck rules | Lab 3, Posing a character | Teaches (the game's two-bone reach and neck rule) |
 
-## 3. Run to shared link
-*A run is only keys; a link carries the keys; anyone's browser replays them and gets the same run.*
-
-| Stage | What happens | Lab that teaches it | How well |
-|---|---|---|---|
-| 1. Run | The simulator steps in fixed ticks | Lab 6, Numerical integration | Teaches (step rule and size, energy invented) |
-| 2. Keys | The presses are recorded as keys | Lab 7, Statistics of timing | Partly (how shaky presses change a clear; not the key log) |
-| 3. Replay | The keys are played again from the start | Lab 6, Numerical integration; Lab 11, Verification and hashing | Teaches (does a replay at your step match the recording; the judge `verifyLog`) |
-| 4. Hash | A fingerprint shows a changed tick | Lab 11, Verification and hashing | Teaches (what to hash, which function, avalanche) |
-| 5. Share | The link carries a version, a course hash, a nick and the keys | Lab 11, Verification and hashing | Partly (the "what the game hashes" card; no Lab builds or opens a link) |
-
-## Idea to course
-*A design partner proposes a course; the simulator checks it; Fix it repairs it.*
-
-| Stage | What happens | Lab that teaches it | How well |
-|---|---|---|---|
-| Propose | A recorded partner answer is read | Lab 16, Design partner loop (uses Lab 9) | Teaches |
-| Check | The simulator runs and says why | Lab 16 (uses Lab 1) | Teaches |
-| Fix it | One proved easing is applied | Lab 16 | Partly (not the editor's search) |
-| Show | Only a cleared course is shown | Lab 16 | Teaches |
-
-## 4. Methods behind all three
+## 3. Methods behind the pipelines
 *Ideas the pipelines lean on, not a stage of any one of them.*
 
 | Lab | Why it sits here |
@@ -101,12 +79,12 @@
 | 3 | Posing a character | Video | Clip |
 | 4 | Computer vision | Photo | Cut-out |
 | 5 | Camera and perspective | Photo | Lift to 3D |
-| 6 | Numerical integration | Run | Replay |
-| 7 | Statistics of timing | Run | Keys |
+| 6 | Numerical integration | Methods | Replay |
+| 7 | Statistics of timing | Methods | Keys |
 | 8 | Signal processing | Video | Smooth |
 | 9 | Generate and test | Photo | Place and prove |
 | 10 | Evaluating a detector | Photo | Cut-out |
-| 11 | Verification and hashing | Run | Hash |
+| 11 | Verification and hashing | Methods | Hash |
 | 12 | Reinforcement learning | Methods | Learn |
 | 13 | Video to motion | Video | Gate (also Video, Pose) |
 | 14 | Cut-out, lift and bake | Photo | Bake (also Cut-out, Lift) |
@@ -117,7 +95,6 @@
 ## Gaps, shown honestly
 - Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).
 - Video: no Lab runs a pose finder on a video (Lab 13 uses recorded clips); the Python gate itself has no Lab of its own beyond Lab 8's port.
-- Run: no Lab opens a real share link or shows the server's replay check.
 - Labs 4 and 10 both sit at "Cut-out" and neither cuts a game object out of a photo: Lab 4 hides people, Lab 10 scores a recorded detector.
 - See [the overlap audit](overlap-audit.md) for topics several Labs repeat.
 

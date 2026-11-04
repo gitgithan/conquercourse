@@ -1,15 +1,14 @@
 // CC-133: the Labs as a series. One list of {mode, name, pipeline, stage}: the nav bar, the world picker and the tests all read it.
 // A Lab's number is its place in this list and never changes (links in docs and films use it); a new Lab is one line at the END.
-export type Pipeline = 'photo' | 'video' | 'run' | 'idea' | 'methods' | 'map';
+export type Pipeline = 'photo' | 'video' | 'idea' | 'methods' | 'map';
 export interface LabEntry { mode: string; name: string; pipeline: Pipeline; stage: string }
 
 /** The sections, in the order they are taught. */
 export const PIPELINES: readonly { id: Pipeline; title: string; stages: readonly string[] }[] = [
   { id: 'photo', title: 'Photo to course object', stages: ['Photo', 'Cut-out', 'Lift to 3D', 'Bake', 'Collision', 'Place and prove'] },
   { id: 'video', title: 'Video to motion', stages: ['Video', 'Pose', 'Smooth', 'Gate', 'Clip'] },
-  { id: 'run', title: 'Run to shared link', stages: ['Run', 'Keys', 'Replay', 'Hash', 'Share'] },
   { id: 'idea', title: 'Idea to course', stages: ['Brief', 'Propose', 'Check', 'Fix it', 'Show'] },
-  { id: 'methods', title: 'Methods behind all three', stages: [] },
+  { id: 'methods', title: 'Methods behind the pipelines', stages: [] },
   { id: 'map', title: 'Map to lane', stages: ['Pin', 'Elements', 'Cut', 'Lane', 'Rules', 'Simulator'] },
 ];
 
@@ -20,12 +19,12 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-ik', name: 'Posing a character', pipeline: 'video', stage: 'Clip' },
   { mode: 'lab-vision', name: 'Computer vision', pipeline: 'photo', stage: 'Cut-out' },
   { mode: 'lab-camera', name: 'Camera and perspective', pipeline: 'photo', stage: 'Lift to 3D' },
-  { mode: 'lab-integration', name: 'Numerical integration', pipeline: 'run', stage: 'Replay' },
-  { mode: 'lab-timing', name: 'Statistics of timing', pipeline: 'run', stage: 'Keys' },
+  { mode: 'lab-integration', name: 'Numerical integration', pipeline: 'methods', stage: 'Replay' },
+  { mode: 'lab-timing', name: 'Statistics of timing', pipeline: 'methods', stage: 'Keys' },
   { mode: 'lab-signal', name: 'Signal processing', pipeline: 'video', stage: 'Smooth' },
   { mode: 'lab-gentest', name: 'Generate and test', pipeline: 'photo', stage: 'Place and prove' },
   { mode: 'lab-detector', name: 'Evaluating a detector', pipeline: 'photo', stage: 'Cut-out' },
-  { mode: 'lab-hashing', name: 'Verification and hashing', pipeline: 'run', stage: 'Hash' },
+  { mode: 'lab-hashing', name: 'Verification and hashing', pipeline: 'methods', stage: 'Hash' },
   { mode: 'lab-rl', name: 'Reinforcement learning', pipeline: 'methods', stage: 'Learn' },
   { mode: 'lab-motion', name: 'Video to motion', pipeline: 'video', stage: 'Gate' },
   { mode: 'lab-lift', name: 'Cut-out, lift and bake', pipeline: 'photo', stage: 'Bake' },
@@ -57,7 +56,6 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
   { id: 'idea', tier: 'pipelines', title: 'Idea to course', modes: ['lab-partner'] },
   { id: 'map', tier: 'pipelines', title: 'Map to lane', modes: ['lab-slicer'] },
-  { id: 'run', tier: 'pipelines', title: 'Run to shared link', modes: [] }, // no Lab planned (owner): the stage list and the Foundation Labs it uses are shown, not a gap to fill
   { id: 'finale', tier: 'finale', title: 'System design', modes: ['lab-systemdesign'] }, // the last Lab: it sums up the three pipelines
 ];
 export const groupOf = (mode: string): LabGroup | undefined => LAB_GROUPS.find((g) => g.modes.includes(mode));
@@ -66,7 +64,7 @@ export const labName = (mode: string): string => LAB_LIST.find((l) => l.mode ===
 
 /** One pipeline stage: the Foundation Labs it relies on ("uses") and the pipeline Lab that teaches it (null = no Lab yet, an honest gap). */
 export interface PipelineStage { stage: string; uses: readonly string[]; lab: string | null }
-export const PIPELINE_MAP: Record<'photo' | 'video' | 'run' | 'idea' | 'map', readonly PipelineStage[]> = {
+export const PIPELINE_MAP: Record<'photo' | 'video' | 'idea' | 'map', readonly PipelineStage[]> = {
   photo: [
     { stage: 'Photo', uses: ['lab-camera'], lab: null },
     { stage: 'Cut-out', uses: ['lab-vision', 'lab-detector'], lab: 'lab-lift' },
@@ -96,13 +94,6 @@ export const PIPELINE_MAP: Record<'photo' | 'video' | 'run' | 'idea' | 'map', re
     { stage: 'Lane', uses: ['lab-camera'], lab: 'lab-slicer' },
     { stage: 'Rules', uses: ['lab-timing'], lab: 'lab-slicer' },
     { stage: 'Simulator', uses: ['lab-search'], lab: 'lab-slicer' },
-  ],
-  run: [
-    { stage: 'Run', uses: ['lab-integration'], lab: null },
-    { stage: 'Keys', uses: ['lab-timing'], lab: null },
-    { stage: 'Replay', uses: ['lab-integration', 'lab-hashing'], lab: null },
-    { stage: 'Hash', uses: ['lab-hashing'], lab: null },
-    { stage: 'Share', uses: ['lab-hashing'], lab: null },
   ],
 };
 const PIPELINE_TITLE = (id: string): string => LAB_GROUPS.find((g) => g.id === id)?.title ?? id;
