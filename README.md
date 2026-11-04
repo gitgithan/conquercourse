@@ -34,6 +34,91 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 - Prefer to read: [demo script](docs/demo-script-v2.md), [Meta tool use](#meta-tool-use), [what is new](#what-is-new-and-what-is-not).
 
+## 🏗️ Architecture at a glance
+- One page of the whole codebase: what runs where, and who pays.
+- Blue boxes are Meta models; grey boxes are our code or other services.
+- The one rule in the middle: **models propose, the simulator decides.**
+
+```mermaid
+flowchart TB
+  subgraph BROWSER["Browser: TypeScript, three.js, MapLibre (src/)"]
+    direction TB
+    MODES["modes/: Courses, World Editor,<br/>World Slicer, Community, Dojo, Labs"]
+    SIM["sim/: the 120 Hz simulator<br/>(the judge, no dependencies)"]
+    WORLD["world/ + course/: the lane,<br/>objects, course files, ghosts"]
+    REND["render/ + motion/ + characters/:<br/>drawing, body clips, plausibility gate"]
+    SLICE["slice/ + community/:<br/>place to lane, photo to piece, ideal-run proof"]
+    MODES --> SIM
+    MODES --> WORLD
+    WORLD --> SIM
+    SIM --> REND
+    MODES --> SLICE
+    SLICE --> SIM
+  end
+
+  subgraph EDGE["Cloudflare Pages Functions + D1 (functions/, migrations/)"]
+    direction TB
+    API["api/: courses, runs, leaderboard,<br/>photos, segment, object-lift, designer"]
+    REPLAY["Server replay: same simulator,<br/>same keys, same time"]
+    DB[("D1 database")]
+    API --> REPLAY
+    API --> DB
+  end
+
+  subgraph GPU["Modal GPU jobs (pipelines/)"]
+    direction TB
+    SAM3["SAM 3<br/>cut-out of an object"]
+    SAM3D["SAM 3D Objects<br/>photo to 3D piece"]
+    BAKE["CPU bake to a GLB"]
+    SAM3 --> SAM3D --> BAKE
+  end
+
+  subgraph MODELAPI["Hosted Meta models"]
+    direction TB
+    SPARK["Muse Spark Open (Baseten)<br/>design partner, safety check"]
+    IMG["Muse Image + SAM 3.1<br/>(Meta Model API): characters"]
+  end
+
+  subgraph DATA["Open data, shown live"]
+    direction TB
+    OSM["OpenStreetMap: lanes, buildings, ground"]
+    MAP["Mapillary: street photos, blurred by Mapillary"]
+    COM["Wikimedia Commons: facade photos"]
+  end
+
+  subgraph BUILD["Build time (scripts/, pipelines/)"]
+    direction TB
+    MOT["SAM 3D Body + MHR, Kimodo, CMU mocap:<br/>motion clips"]
+    MUS["MusicGen: music loops"]
+    FILES["public/assets/: files the game ships"]
+    MOT --> FILES
+    MUS --> FILES
+  end
+
+  BROWSER -->|"keys, photos, ideas"| API
+  API -->|"proposals, checked by the simulator"| BROWSER
+  API --> SPARK
+  API --> IMG
+  API -->|"photo jobs"| SAM3
+  BAKE -->|"GLB piece"| API
+  BROWSER -->|"places, photos"| OSM
+  BROWSER --> MAP
+  BROWSER --> COM
+  FILES --> BROWSER
+
+  classDef meta fill:#dbeafe,stroke:#1d4ed8,color:#0f172a;
+  class SAM3,SAM3D,SPARK,IMG,MOT,MUS meta;
+  classDef judge fill:#dcfce7,stroke:#15803d,color:#0f172a;
+  class SIM,REPLAY judge;
+```
+
+- **Play:** the browser runs the simulator; on a finish the server plays the same keys again and keeps the time only if it matches.
+- **Make:** a photo goes to the server, which checks it, blurs people, cuts the object out (SAM 3) and lifts it to 3D (SAM 3D Objects); the piece comes back as a file.
+- **Design:** the design partner (Muse Spark Open) proposes a layout; the browser's simulator proves it or says in plain words what to change.
+- **Places:** OpenStreetMap gives the lane and the look; Mapillary photos are shown live and never stored.
+- **Build time:** motion and music are made once, checked, and shipped as files; no body or music model runs while you play.
+- Per-feature paths with more detail: [Architecture and happy paths](#architecture-and-happy-paths).
+
 ## 🧠 Modelling decisions, and why
 - One rule runs through all of them: **models propose, the simulator decides.**
 
@@ -161,7 +246,7 @@ conquercourse/
 ├── docs/         the spec, lessons, assets and one page per feature
 │   ├── spec/       SPEC.md, the source of truth
 │   ├── labs/       one page per Lab
-│   ├── promo/      the promo video and its poster
+│   ├── promo/      the promo video (the file the README player was uploaded from)
 │   └── codegraph/ evidence/ feedback/ film-a/ film-b/ research/
 ├── data/         experiment trail
 │   ├── eval/       README and run.json per experiment (raw output stays out of git)
@@ -381,8 +466,6 @@ flowchart LR
 - MusicGen is Meta's AudioCraft model; the clips come from a written prompt only, with no melody or recording as input.
 - The MusicGen weights are CC BY-NC 4.0, so these clips are a demo: swap them before a sale (see `docs/copyright-audit.md`).
 - The film rebuild script is `scripts/film-d/assemble.mjs`; the music scripts are `pipelines/music_film*.py`.
-- GitHub does not play an mp4 from the repo inside a README (it strips the video tag), so the page shows a small looping picture of the whole promo (`docs/promo/promo-inline.gif`, 480 px, no sound, about 5 MB).
-- Pressing the picture, or the "Play the promo video" link, opens the full 1920 by 1080 mp4 with sound.
 
 ## 🏆 Hackathon
 
