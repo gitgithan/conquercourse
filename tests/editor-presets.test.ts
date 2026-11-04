@@ -54,3 +54,20 @@ describe('Fix it for a coaster world', () => {
     // not tested: a coaster world that fails (every break tried here still cleared, so there is no failing case to repair yet; CC-244 keeps this open)
   });
 });
+
+describe('the fork course in the editor list', { timeout: 120000 }, () => {
+  for (const id of ['fork']) {
+    it(`${id} opens from its saved sources and the simulator clears it`, () => {
+      const pre = PRESETS.find((p) => p.id === id)!;
+      const objs = pre.pieces.filter((q) => q.src.startsWith('obj:')).map((q) => {
+        const b = readFileSync(`public/assets/objects/${q.src.slice(4)}`);
+        const m = readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
+        return { ...newPiece(q.src, m, { x: q.x, z: q.z }), y: q.y, yaw: q.yaw, scale: q.scale, noGround: q.decor };
+      });
+      const rest = piecesFromSource(pre.pieces.filter((q) => !q.src.startsWith('obj:'))) as never[];
+      const r = searchIdealRun(roleCourse([...objs, ...rest] as never[], lane).course);
+      console.log('FORK', id, r.cleared);
+      expect(r.cleared).toBe(true);
+    });
+  }
+});

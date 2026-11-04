@@ -88,6 +88,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const add = (id: string, at = { x: 0, z: 0 }): P => { const p: P = { ...newPiece(lib(id).label, lib(id).mesh(), at), src: id }; if (id === 'brick') p.scale = 15; ed.pieces.push(p); ed.selected = p.id; return p; };
   // the pieces of a saved world, built again from their sources (the photo objects come later, once their list is in)
   const buildPieces = (list: Saved['pieces']): P[] => piecesFromSource(list);
+  const stayIds = new Set<number>(); // preset scenery that keeps its saved place
   function restore(s: Saved) {
     s = { ...s, pieces: s.pieces.filter((q) => !isSizeReference(q as P)) };
     ed.start = s.start;
@@ -232,12 +233,13 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
           const mesh = readGlbMesh(mine ? mine.glb : await (await fetch(url)).arrayBuffer());
           const p: P = { ...newPiece(reference ? 'Person' : mine ? mine.prov.name : q.src, mesh, { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: reference ? 1 : q.scale, ...(q.role ? { role: q.role } : {}) };
           if (reference) Object.assign(p, scaleToHeight(p, 1.75));
+          if (q.stay) stayIds.add(p.id);
           if (q.decor) p.noGround = true; // scenery: seen, but the lane check ignores it (the film's photo box, CC-238)
           if (hangOf.has(q.src)) p.noGround = true; // its crossbar is a saved hold of its own
           ed.pieces.push(p);
         } catch { /* a missing object is skipped */ }
       }
-      for (const d of ed.pieces.filter((q) => q.noGround && q.src?.startsWith('obj:') && !hangOf.has(q.src))) { // scenery sits on the roof under it, not in the air (CC-238)
+      for (const d of ed.pieces.filter((q) => q.noGround && q.src?.startsWith('obj:') && !hangOf.has(q.src) && !stayIds.has(q.id))) { // scenery sits on the roof under it, not in the air (CC-238)
         const pr = laneProfile(ed.pieces.filter((q) => !q.noGround), { angle: ed.angle, offset: ed.offset, level: ed.level }), u = d.x * Math.cos(ed.angle) + d.z * Math.sin(ed.angle), i0 = Math.floor(u / CELL) - Math.round((pr.origin ?? 0) / CELL);
         const w = Math.min(6, Math.ceil((size(d.mesh).w * d.scale) / 2 / CELL)), nm = pr.cells.length; // the nearest stretch of real roof wide enough to hold it (a street gap has none)
         let best = -1;

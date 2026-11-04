@@ -17,7 +17,7 @@ export function presetCourse(pre: Preset): CourseData {
   const objs = pre.pieces.filter((q) => q.src.startsWith('obj:')).map((q) => {
     const b = readFileSync(`public/assets/objects/${q.src.slice(4)}`);
     const p: P = { ...newPiece(q.src, readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer), { x: q.x, z: q.z }), src: q.src, y: q.y, yaw: q.yaw, scale: q.scale };
-    if (hangOf.has(q.src)) p.noGround = true;
+    if (hangOf.has(q.src) || q.decor) p.noGround = true; // the editor does the same for scenery (decor)
     return p;
   });
   const ps = [...(piecesFromSource(pre.pieces.filter((q) => !q.src.startsWith('obj:'))) as P[]), ...objs].filter((p) => !isDevice(p));

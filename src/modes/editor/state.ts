@@ -16,7 +16,7 @@ import { DEFAULT_WATER_LEVEL } from '../../slice/editor-defaults';
 export type P = Piece & { src?: string };
 export interface Lane { angle: number; offset: number; level: number }
 // What a saved world holds (localStorage `cc.world.v1`, and the source a Course carries so the editor can open the same pieces again).
-export interface Saved { start?: StartPoint; pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
+export interface Saved { start?: StartPoint; pieces: { src: string; x: number; z: number; y: number; yaw: number; scale: number; role?: Role; decor?: boolean; stay?: boolean }[]; angle: number; offset: number; level: number; floor?: string }
 export interface Preview { pieces: P[]; lane: Lane; machine: Machine | null }
 
 export const isSizeReference = (p: P) => p.src === 'obj:../characters/rookie-a.glb' || p.src === 'obj:../characters/rookie-b.glb';
