@@ -240,5 +240,109 @@
   "failing": {
     "key": "h5zoqn",
     "cleared": false
+  },
+  "fork": {
+    "key": "eqnn18",
+    "cleared": true,
+    "plan": {
+      "jumpXs": [
+        4.72,
+        28.96,
+        32.2,
+        36.8,
+        41.3,
+        62.96
+      ],
+      "releaseAfter": 60,
+      "bouncePress": 8
+    },
+    "windows": [
+      {
+        "obstacle": "edge at 6 m",
+        "best": 4.72,
+        "lo": 3.48,
+        "hi": 5.96,
+        "widthMs": 337.8378378378378
+      },
+      {
+        "obstacle": "edge at 29.2 m",
+        "best": 28.96,
+        "lo": 28.74,
+        "hi": 29.16,
+        "widthMs": 59.459459459459694
+      },
+      {
+        "obstacle": "edge at 33.7 m",
+        "best": 32.2,
+        "lo": 30.7,
+        "hi": 33.7,
+        "widthMs": 408.1081081081085
+      },
+      {
+        "obstacle": "edge at 38.3 m",
+        "best": 36.8,
+        "lo": 35.3,
+        "hi": 38.3,
+        "widthMs": 408.1081081081081
+      },
+      {
+        "obstacle": "edge at 42.8 m",
+        "best": 41.3,
+        "lo": 39.8,
+        "hi": 42.8,
+        "widthMs": 408.1081081081081
+      },
+      {
+        "obstacle": "edge at 64.5 m",
+        "best": 62.96,
+        "lo": 61.5,
+        "hi": 64.42,
+        "widthMs": 397.2972972972975
+      }
+    ],
+    "timingWindows": [
+      {
+        "obstacle": "edge at 6 m",
+        "best": 4.72,
+        "lo": 3.48,
+        "hi": 5.96,
+        "widthMs": 337.8378378378378
+      },
+      {
+        "obstacle": "edge at 29.2 m",
+        "best": 28.96,
+        "lo": 28.74,
+        "hi": 29.16,
+        "widthMs": 59.459459459459694
+      },
+      {
+        "obstacle": "edge at 33.7 m",
+        "best": 32.2,
+        "lo": 30.7,
+        "hi": 33.7,
+        "widthMs": 408.1081081081085
+      },
+      {
+        "obstacle": "edge at 38.3 m",
+        "best": 36.8,
+        "lo": 35.3,
+        "hi": 38.3,
+        "widthMs": 408.1081081081081
+      },
+      {
+        "obstacle": "edge at 42.8 m",
+        "best": 41.3,
+        "lo": 39.8,
+        "hi": 42.8,
+        "widthMs": 408.1081081081081
+      },
+      {
+        "obstacle": "edge at 64.5 m",
+        "best": 62.96,
+        "lo": 61.5,
+        "hi": 64.42,
+        "widthMs": 397.2972972972975
+      }
+    ]
   }
 }
