@@ -4,7 +4,7 @@ import { LIBRARY } from './shapes';
 import { PATTERNS } from './stack';
 
 export type Section = 'ground' | 'swing' | 'contraptions' | 'real' | 'stacks' | 'tools';
-export const SECTION_NAME: Record<Section, string> = { ground: 'Ground', swing: 'Swing', contraptions: 'Contraptions', real: 'Real objects', stacks: 'Stacks', tools: 'Tools' };
+export const SECTION_NAME: Record<Section, string> = { ground: 'Ground', swing: 'Swing', contraptions: 'Contraptions', real: 'Real objects', stacks: 'Stacks', tools: 'Extras' };
 export const SECTION_ORDER: Section[] = ['real', 'ground', 'swing', 'contraptions', 'stacks', 'tools']; // Real objects first, and the one that opens (owner 2026-11-01)
 
 // The move that gets a player past a real object (CC-110): the by-move view of the Real objects tab groups by these.
