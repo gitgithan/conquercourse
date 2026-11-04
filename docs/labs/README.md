@@ -2,6 +2,7 @@
 
 *One row per Lab, grouped into the pipelines the game was built with.*
 *Open a Lab at its URL; the labs switch (`labs=1`) keeps new players from seeing them.*
+*Every Lab opens with a summary box (what you can do, what you take away); the text lives in `src/ui/labs-summary.ts`, keyed by mode name, and a new Lab must add its entry (`tests/labs-summary.test.ts` fails without one).*
 *Every Lab doc has the same four sections: How it was designed, How we prove the lesson is right, Limits, How to make the lesson better.*
 *The plan and the rules for all Labs are in [university-labs](../university-labs.md).*
 
