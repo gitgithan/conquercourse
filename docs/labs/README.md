@@ -1,24 +1,40 @@
 # University Labs: index
 
-*One row per Lab.*
+*One row per Lab, grouped into the three pipelines the game was built with.*
 *Open a Lab at its URL; the labs switch (`labs=1`) keeps new players from seeing them.*
 *Every Lab doc has the same four sections: How it was designed, How we prove the lesson is right, Limits, How to make the lesson better.*
 *The plan and the rules for all Labs are in [university-labs](../university-labs.md).*
 
-| # | Lab | Question | URL | Tests | Biggest limit |
-|---|---|---|---|---|---|
-| 1 | [Search](search.md) | Which way of looking finds a clear run, and what does it cost? | `?mode=lab-search&labs=1` | `tests/lab-search.test.ts` (7) | The heuristic sliders are untested, and "what the game does" is a sentence, not a measured run |
-| 2 | [Optimization](optimization.md) | Which settings are fastest, and how many tries to find them? | `?mode=lab-optimization&labs=1` | `tests/lab-optimization.test.ts` (15) | Only 24 cells per map are replayed live, and the rope claim is pinned at 4 peaks, not 6 |
-| 3 | [Inverse kinematics](ik.md) | Where does the arm bend and break when the hand must reach a bar? | `?mode=lab-ik&labs=1` | `tests/lab-ik.test.ts` (12) | Side plane only, and the joint limits are round numbers |
-| 4 | [Computer vision](vision.md) | Which mask threshold trades photos kept against people missed? | `?mode=lab-vision&labs=1` | `tests/lab-vision.test.ts` (9) | The table counts overlapping masks twice (125 photos against the game's 131) and the photos are COCO, not the game's |
-| 5 | [Camera and perspective](camera.md) | Why can one photo not give depth? | `?mode=lab-camera&labs=1` | `tests/lab-camera.test.ts` (14) | Hand-made bodies and no real photo; the compare card is not checked against the game |
-| 6 | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
-| 7 | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
-| 8 | [Signal processing](signal.md) | Jitter against lag when smoothing a clip | `?mode=lab-signal&labs=1` | `tests/lab-signal.test.ts` (15) | The noise is a stand-in (white, equal on all joints), not real video noise |
-| 9 | [Generate and test](gentest.md) | How many proposals does the simulator throw out? | `?mode=lab-gentest&labs=1` | `tests/lab-gentest.test.ts` (10) | Recorded replies of one model only, and a simple easing instead of the editor's Fix it |
-| 10 | [Evaluating a detector](detector.md) | Is this detector good enough to place holds? | `?mode=lab-detector&labs=1` | `tests/lab-detector.test.ts` (8) | 22 scored cases from one run on six hand-labelled objects |
-| 11 | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
-| 12 | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
+*Read in series order: [the series map](pipelines.md) says which Lab teaches which stage, and which stages have no Lab yet.*
+*The numbers are the stable ids; the order below is the order the pipelines are taught.*
+
+### Photo to course object
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 4 | Cut-out | [Computer vision](vision.md) | Which mask threshold trades photos kept against people missed? | `?mode=lab-vision&labs=1` | `tests/lab-vision.test.ts` (9) | The table counts overlapping masks twice (125 photos against the game's 131) and the photos are COCO, not the game's |
+| 10 | Cut-out | [Evaluating a detector](detector.md) | Is this detector good enough to place holds? | `?mode=lab-detector&labs=1` | `tests/lab-detector.test.ts` (8) | 22 scored cases from one run on six hand-labelled objects |
+| 5 | Lift to 3D | [Camera and perspective](camera.md) | Why can one photo not give depth? | `?mode=lab-camera&labs=1` | `tests/lab-camera.test.ts` (14) | Hand-made bodies and no real photo; the compare card is not checked against the game |
+| 9 | Place and prove | [Generate and test](gentest.md) | How many proposals does the simulator throw out? | `?mode=lab-gentest&labs=1` | `tests/lab-gentest.test.ts` (10) | Recorded replies of one model only, and a simple easing instead of the editor's Fix it |
+
+### Video to motion
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 8 | Smooth, gate | [Signal processing](signal.md) | Jitter against lag when smoothing a clip | `?mode=lab-signal&labs=1` | `tests/lab-signal.test.ts` (15) | The noise is a stand-in (white, equal on all joints), not real video noise |
+| 3 | Clip | [Inverse kinematics](ik.md) | Where does the arm bend and break when the hand must reach a bar? | `?mode=lab-ik&labs=1` | `tests/lab-ik.test.ts` (12) | Side plane only, and the joint limits are round numbers |
+
+### Run to shared link
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 7 | Keys | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
+| 6 | Replay | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
+| 11 | Hash | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
+
+### Methods behind all three
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 1 | Search | [Search](search.md) | Which way of looking finds a clear run, and what does it cost? | `?mode=lab-search&labs=1` | `tests/lab-search.test.ts` (7) | The heuristic sliders are untested, and "what the game does" is a sentence, not a measured run |
+| 2 | Optimize | [Optimization](optimization.md) | Which settings are fastest, and how many tries to find them? | `?mode=lab-optimization&labs=1` | `tests/lab-optimization.test.ts` (15) | Only 24 cells per map are replayed live, and the rope claim is pinned at 4 peaks, not 6 |
+| 12 | Learn | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
 
 ## When you open a Lab (owner, 2026-11-01)
 - Every Lab opens with our setting already run and every output filled, so a demo needs no click on Run.
@@ -33,10 +49,12 @@
 - The controls sit at our setting; Run stays for trying your own.
 
 ## Moving between Labs
-- Every Lab page has a bar across the top with all 12 Labs by number and name; the current one is highlighted.
+- Every Lab page has a bar across the top with all the Labs by number and name, under a heading for each pipeline; the current one is highlighted.
 - One click on a name opens that Lab; Previous and Next step along the list (no wrap at the ends).
 - The keys `[` and `]` do the same when you are not typing in a box.
 - Each switch is a link, so the browser closes the old Lab fully (workers, listeners, audio) and the Dojo music rule runs again on the new page.
+- The grouping is one list, `src/ui/labs-series.ts` (`{mode, name, pipeline, stage}`); a new Lab is one line there plus its card in the picker.
+- The Courses picker shows the same groups ("Labs: Photo to course object" and so on).
 - The bar is one file, `src/ui/labs-nav.ts`, mounted by one line in each Lab; it is hidden when the labs switch is off (`?labs=0`).
 
 ## What to read in each doc
