@@ -36,6 +36,7 @@ export class ToastQueue {
 
 const CSS = `#toasts{order:1;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:100%}
 #toasts .toast{font:700 18px/1.25 system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;text-align:center;box-shadow:0 2px 10px #0002;max-width:100%;box-sizing:border-box;transition:transform .45s ease-in,opacity .45s ease-in,margin .45s ease-in;opacity:1;transform:translateY(0)}
+#toasts .toast:not(:last-child){display:none} /* CC-133: one toast in the main slot; the ones before it live on in the dimmed history above */
 #toasts .toast.in{animation:toastin .25s ease-out}
 #toasts .toast.leaving{transform:translateY(-34px);opacity:0}
 @keyframes toastin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}`;

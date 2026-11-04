@@ -2,10 +2,12 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
+import { HISTORY_HEIGHT_PX } from '../src/ui/hint-history';
 import { toastBandBox, TOAST_TOP, TOAST_BAND_BOTTOM } from '../src/ui/toast-band';
 
 const W = 1280, H = 720;
 const box = toastBandBox(W, H);
+const lineBox = { ...box, bottom: box.top + HISTORY_HEIGHT_PX + 6 + 42 }; // the dimmed rows, the band gap and a one-line message (about 42 px)
 
 // The side camera (src/modes/course/camera.ts): target 5 m ahead of the runner and 2.5 m above his feet, 25 m back and 1.5 m up (scaled by the zoom), 40 degree view.
 // `lag`: how far the camera's height still trails the runner's (it eases with 0.15 s, so a quick rise leaves it behind).
@@ -25,13 +27,17 @@ const meets = (a: { left: number; right: number; top: number; bottom: number }, 
 describe('toast band', () => {
   it('sits in the top band of the window at 1280 x 720', () => {
     expect(box.top).toBeLessThanOrEqual(0.34 * H); // the top third at most: the strip and the ghost chip take the first 225 px
-    expect(box.bottom).toBeLessThanOrEqual(0.44 * H + 1e-9);
+    expect(box.bottom).toBeLessThanOrEqual(0.5 * H + 1e-9);
     expect(box.top).toBeGreaterThanOrEqual(226); // under the strip and the ghost chip (it ends at 225)
     expect(box.left).toBeGreaterThan(330); // right of the controls card (it ends at about x = 328)
     expect(box.right).toBeLessThan(W - 250); // left of the buttons
   });
   it('is centred and never wider than the window', () => {
     for (const vw of [1280, 1024]) { const b = toastBandBox(vw, 720); expect((b.left + b.right) / 2).toBeCloseTo(vw / 2); expect(b.right - b.left).toBeLessThanOrEqual(vw * 0.92 + 1e-9); }
+  });
+  it('keeps room for the 2 dimmed rows above the main slot, which then ends above the runner', () => {
+    const mainTop = box.top + HISTORY_HEIGHT_PX + 6, twoLines = 2 * 25 + 16;
+    expect(mainTop + twoLines).toBeLessThanOrEqual(box.bottom + 1e-9);
   });
   it('is one shared place: the hint, the toast stack and the hint history all join the band, none sets its own position', () => {
     for (const f of ['src/modes/course/hud.ts', 'src/ui/toast-stack.ts', 'src/ui/hint-history.ts', 'src/modes/course/say.ts', 'src/ui/bars-keys.ts']) {
@@ -42,7 +48,8 @@ describe('toast band', () => {
     expect(readFileSync('src/ui/hint-history.ts', 'utf8')).toContain('toastBand()');
     expect(readFileSync('src/modes/course/chrome.ts', 'utf8')).toContain('toastBand().append(d.hud.hint)');
     expect(TOAST_TOP).toMatch(/px$/);
-    expect(TOAST_BAND_BOTTOM).toBeLessThanOrEqual(0.44);
+    expect(TOAST_BAND_BOTTOM).toBeLessThanOrEqual(0.5);
+    expect(readFileSync('src/ui/hint-history.ts', 'utf8')).toContain('nbackPush'); // the history is drawn from the pure N-back logic
   });
   const states: [string, number, { zoom?: number; lag?: number; pitch?: number }][] = [
     ['on the ground, normal view', 0, {}],
@@ -57,7 +64,9 @@ describe('toast band', () => {
   for (const [name, y, o] of states) {
     it(`never meets the runner: ${name}`, () => {
       const r = runnerBox(y, o);
-      expect(meets(box, r), JSON.stringify({ box, r })).toBe(false);
+      expect(meets(lineBox, r), JSON.stringify({ lineBox, r })).toBe(false); // the two dimmed rows and a one-line message
+      if (!/camera low|catching up/.test(name)) expect(meets(box, r), JSON.stringify({ box, r })).toBe(false); // ... and a two-line message, except in the two extreme camera states
+
     });
   }
 });

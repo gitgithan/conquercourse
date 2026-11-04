@@ -20,7 +20,7 @@ export function mountDrums(c: DrumsCtx) {
   let toastDrums: Drum[] = []; // the same drums as the key strip: each obstacle's toast starts a fixed lead before its key (CC-195)
   const showDrums = (result: { plan: Plan; cleared: boolean }): void => {
     try {
-      const forkDrums = pathsOn(params) ? drumsForPaths(course) : null; // CC-225: both ways of a fork, each in its own row
+      const forkDrums = pathsOn(params) || course.branches?.length ? drumsForPaths(course) : null; // CC-225: both ways of a fork, each in its own row (CC-133: always on a course with a fork, so the high way has its drums too)
       const fb = branchesOf(course)[0];
       const drums = forkDrums ?? (result.cleared ? drumsFor(course, result.plan) : []);
       drumLane.set(drums, forkDrums && fb ? [{ x: fb.forkX, label: `Fork: top ${fb.routes[0].name.split(':')[0]}, bottom ${fb.routes[1].name.split(':')[0]}` }, { x: fb.joinX, label: 'Join' }] : []);
