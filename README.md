@@ -24,9 +24,6 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 
 https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
-- The scripts behind the film: [docs/promo-v2.md](docs/promo-v2.md) says how every shot is captured and how to rebuild it.
-- The one-command build is [scripts/promo-v2-build.mjs](scripts/promo-v2-build.mjs), and the shot scripts are in [scripts/promo-v2/](scripts/promo-v2/).
-
 ## 📸 Screens
 
 - Click a picture to see it full size (1920 x 1020).
