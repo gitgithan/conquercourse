@@ -20,6 +20,7 @@ export function installPhotoDots(map: maplibregl.Map, f: typeof fetch = fetch): 
 
   const draw = () => {
     const vis = map.getZoom() >= DOTS_MIN_ZOOM;
+    for (const l of ['pd-cone', 'pd-dot']) if (map.getLayer(l)) map.moveLayer(l); // keep the dots on top of the slice layers, or the slice plane hides them from the click
     for (const l of ['pd-cone', 'pd-dot']) if (map.getLayer(l)) map.setLayoutProperty(l, 'visibility', vis ? 'visible' : 'none');
     if (!vis) { host.dataset.photodots = '0'; return; }
     const c = map.getCenter(), pick = nearest(all, c.lat, c.lng, DOTS_MAX), g = dotsGeoJSON(pick);
