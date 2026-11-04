@@ -24,6 +24,50 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 
 https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
+## 📸 Screens
+
+- Click a picture to see it full size (1920 x 1020).
+- Every picture is a real screen of the running game.
+
+### Course: run it, see the report, pick a course
+
+<table>
+<tr>
+<td><a href="README_MEDIA/course-1-training-run.png"><img src="README_MEDIA/course-1-training-run.png" width="480" alt="The Training run: the runner on the start block, the ghost ahead and the Fastest runs card at the top right"></a></td>
+<td><a href="README_MEDIA/course-2-end-screen.png"><img src="README_MEDIA/course-2-end-screen.png" width="480" alt="The end of a run: the time, your path as a chart, and what you learned"></a></td>
+</tr>
+<tr>
+<td><a href="README_MEDIA/course-3-courses-page.png"><img src="README_MEDIA/course-3-courses-page.png" width="480" alt="The Courses page: ready-made courses and real places"></a></td>
+<td><a href="README_MEDIA/course-4-parts-all.png"><img src="README_MEDIA/course-4-parts-all.png" width="480" alt="Parts: every obstacle piece we have"></a></td>
+</tr>
+</table>
+
+### World Slicer: a real place becomes a lane
+
+<table>
+<tr>
+<td><a href="README_MEDIA/slicer-1-gallery-top.webp"><img src="README_MEDIA/slicer-1-gallery-top.webp" width="480" alt="Ready places: street places, each with a 3D look"></a></td>
+<td><a href="README_MEDIA/slicer-2-gallery-parkour-parks.webp"><img src="README_MEDIA/slicer-2-gallery-parkour-parks.webp" width="480" alt="Ready places: real parkour parks in Europe and Asia"></a></td>
+</tr>
+<tr>
+<td><a href="README_MEDIA/slicer-3-shibuya-street-photo.webp"><img src="README_MEDIA/slicer-3-shibuya-street-photo.webp" width="480" alt="Shibuya sliced: buildings, the lane, and a live street photo from Mapillary"></a></td>
+<td><a href="README_MEDIA/slicer-4-gerlev-send-to-editor.png"><img src="README_MEDIA/slicer-4-gerlev-send-to-editor.png" width="480" alt="Gerlev Parkour Park sliced, with Send to the World Editor at the bottom"></a></td>
+</tr>
+</table>
+
+### World Editor: change a course, check it with the simulator
+
+<table>
+<tr>
+<td><a href="README_MEDIA/editor-1-improve-menu-after-ai-ideas.webp"><img src="README_MEDIA/editor-1-improve-menu-after-ai-ideas.webp" width="480" alt="A broken course: the design partner's checked ideas (teal) and the Improve menu"></a></td>
+<td><a href="README_MEDIA/editor-2-top-view.png"><img src="README_MEDIA/editor-2-top-view.png" width="480" alt="The same course from the top"></a></td>
+</tr>
+<tr>
+<td><a href="README_MEDIA/editor-3-add-pieces.webp"><img src="README_MEDIA/editor-3-add-pieces.webp" width="480" alt="Add pieces: real objects lifted from photos"></a></td>
+<td><a href="README_MEDIA/editor-4-moves.webp"><img src="README_MEDIA/editor-4-moves.webp" width="480" alt="Moves in this world: which moves the course uses"></a></td>
+</tr>
+</table>
+
 ## ⏱️ In one minute
 - You run, jump, hang, swing and climb a small runner through obstacles.
 - The obstacles come from the real world: a pin on a map, a photo of a bench, a park you know.
