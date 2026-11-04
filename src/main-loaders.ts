@@ -26,6 +26,7 @@ export const MODE_LOADERS: Record<string, ScreenLoader> = {
   'lab-hashing': async (h) => (await import('./modes/lab-hashing')).startLabHashing(h),
   'lab-lift': async (h) => (await import('./modes/lab-lift')).startLabLift(h),
   'lab-detector': async (h) => (await import('./modes/lab-detector')).startLabDetector(h),
+  'lab-wait': async (h) => (await import('./modes/lab-wait')).startLabWait(h),
   'lab-collision': async (h) => (await import('./modes/lab-collision')).startLabCollision(h),
   'lab-partner': async (h) => (await import('./modes/lab-partner')).startLabPartner(h),
   'lab-systemdesign': async (h) => (await import('./modes/lab-systemdesign')).startLabSystemdesign(h),
