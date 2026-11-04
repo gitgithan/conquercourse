@@ -1,1 +1,15 @@
-{ "segment": "dojo", "replaces": "dojo (old film: Dojo gap Try It sliders)", "url": "/?mode=dojo&ex=gap&welcome=0&hooks=1&backend=webgl2", "zoom": 0.9, "moveSecs": 1.0, "holdStart": 0.8, "holdEnd": 0.6, "tags": [{ "text": "Score made with MusicGen (Meta)", "note": "last second" }] }
+{
+  "segment": "dojo",
+  "replaces": "dojo (old film: Dojo gap Try It sliders)",
+  "url": "/?mode=dojo&ex=gap&welcome=0&hooks=1&backend=webgl2",
+  "zoom": 0.9,
+  "moveSecs": 1,
+  "holdStart": 0.8,
+  "holdEnd": 0.6,
+  "tags": [
+    {
+      "text": "Score made with MusicGen (Meta)",
+      "note": "last second"
+    }
+  ]
+}

@@ -3,23 +3,35 @@
   "replaces": "slicer_editor (old film part 1: Mapillary and Muse Spark Open tags)",
   "url": "/?mode=map&welcome=0&hooks=1&slicehow=0&backend=webgl2&sunat=noon",
   "place": "Alfama",
-  "galleryHold": 1.0,
+  "galleryHold": 1,
   "galleryScrollSecs": 2.5,
   "afterPlaceSecs": 0.6,
   "tiltTo": 76,
   "tiltSecs": 1.4,
-  "orbitSecs": 3.0,
+  "orbitSecs": 3,
   "orbitPx": 300,
   "fitHold": 1.2,
   "personHold": 1.4,
   "simHold": 1.6,
   "partnerHold": 2.4,
   "topPlanHold": 2.4,
-  "addTabs": ["Real objects", "Ground", "Swing", "Contraptions", "Stacks"],
+  "addTabs": [
+    "Real objects",
+    "Ground",
+    "Swing",
+    "Contraptions",
+    "Stacks"
+  ],
   "addScrollSecs": 1.6,
   "tags": [
-    { "text": "Mapillary street photos (Meta)", "note": "shown while the gallery and slice flight play" },
-    { "text": "Muse Spark Open design partner (Meta)", "note": "shown while the Design partner panel is open" }
+    {
+      "text": "Mapillary street photos (Meta)",
+      "note": "shown while the gallery and slice flight play"
+    },
+    {
+      "text": "Muse Spark Open design partner (Meta)",
+      "note": "shown while the Design partner panel is open"
+    }
   ],
   "designerStandIn": "The Design partner reply is a scripted stand-in in the same JSON format as the live model reply (no model key on the capture machine); the panel, the preview and the simulator check are the real app."
 }
