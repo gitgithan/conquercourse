@@ -21,7 +21,7 @@ describe('labs bar', () => {
     expect(LAB_LIST).toHaveLength(22);
     for (const g of LAB_GROUPS) expect(TIERS.map((t) => t.id), g.id).toContain(g.tier);
     const names = (id: string) => LAB_GROUPS.find((g) => g.id === id)!.modes.map((m) => LAB_LIST.findIndex((l) => l.mode === m) + 1);
-    expect(names('search-learn')).toEqual([1, 2, 12, 9, 21]);
+    expect(names('search-learn')).toEqual([1, 2, 12, 9, 22]);
     expect(names('see-world')).toEqual([4, 5, 10]);
     expect(names('move-measure')).toEqual([3, 6, 7, 8]);
     expect(names('trust')).toEqual([11, 19]);
