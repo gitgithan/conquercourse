@@ -8,7 +8,7 @@ import { DEFAULT_SOURCE, edgePath, focusState, layoutLabsMap, neighboursOf, type
 const INK = '#17201d', TEAL = '#0f6b5c', ORANGE = '#d9741a', PALE = '#cdd8d1';
 const SVGNS = 'http://www.w3.org/2000/svg';
 const href = (mode: string): string => `?mode=${mode}&labs=1&welcome=0`;
-const short = (s: string, max = 30): string => (s.length > max ? `${s.slice(0, max - 1)}…` : s);
+const short = (s: string, max = 38): string => (s.length > max ? `${s.slice(0, max - 1)}…` : s);
 
 function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number> = {}): SVGElementTagNameMap[K] {
   const e = document.createElementNS(SVGNS, tag);
@@ -17,7 +17,7 @@ function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<strin
 }
 
 /** Draw the map into a host element; returns a way to set the focus from code (the tests and the check script use it). */
-export function drawLabsMap(host: HTMLElement, map: LabsMap = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 })): { focus(mode: string | null): void } {
+export function drawLabsMap(host: HTMLElement, map: LabsMap = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46, nodeW: 296 })): { focus(mode: string | null): void } {
   const pad = 8, padR = 72, svg = svgEl('svg', { viewBox: `${-pad} 0 ${map.width + pad + padR} ${map.height}`, width: map.width + pad + padR, height: map.height, role: 'group', 'aria-label': 'Map of how the Labs depend on each other' });
   svg.id = 'lmap-svg';
   for (const c of map.columns) {
