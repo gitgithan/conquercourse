@@ -106,6 +106,7 @@ export const MAKING_OF_GROUP = 'The Making Of';
 export const MAKING_OF_CARDS: [string, string, string, string][] = [
   ['/making-of/site-map.html', 'Site map', 'Every screen a player can see, how to get there and where it leads.', 'making-site-map'],
   ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
+  ['/making-of/code-map.html', 'Code map', 'The whole codebase as a graph, grouped into communities you can open one by one.', 'making-code-map'],
 ];
 
 export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl', 'lab-motion', 'lab-lift', 'lab-collision', 'lab-partner', 'lab-systemdesign', 'lab-slicer', 'lab-determinism', 'lab-spike', 'lab-limits', 'lab-wait'];
