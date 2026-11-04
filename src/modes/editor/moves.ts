@@ -1,7 +1,7 @@
+import { rolesInWorker } from '../../slice/roles-client';
 import { isHold } from '../../slice/holds-world';
 import { diffProposal, type Proposal } from '../../slice/preview';
-import { ROLE_NAME, applySuggestion, movesInWorld, suggestRoles, type Role, type RoleSuggestion } from '../../slice/roles';
-import type { RolesJob, RolesReply } from '../../slice/roles-job';
+import { ROLE_NAME, applySuggestion, movesInWorld, type RoleProgress, type Role, type RoleSuggestion } from '../../slice/roles';
 import { el } from './dom';
 import { isDevice, isSizeReference, type EditorState, type P } from './state';
 import type { EditorLane } from './lane';
@@ -20,41 +20,61 @@ export function createMoves(env: MovesEnv) {
   const movesBtn = el('button', planWrap, { text: 'Moves', id: 'movesbtn', title: 'Which moves this world has, what each needs, and what your pieces could be' }); // a chip on the picture, so the top bar does not grow a line
   movesBtn.style.cssText = 'position:absolute;left:10px;top:10px;z-index:6';
   movesBtn.setAttribute('aria-pressed', 'false');
-  movesBtn.onclick = () => { document.documentElement.dataset.dock = ''; const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); };
+  movesBtn.onclick = () => { document.documentElement.dataset.dock = ''; const closed = movesBox.classList.toggle('closed'); movesBtn.setAttribute('aria-pressed', String(!closed)); if (!closed) renderMoves(); else stop('Search cancelled.'); };
   const laneNow = () => ({ angle: ed.angle, offset: ed.offset, level: ed.level });
   function roleProposal(sg: RoleSuggestion): Proposal {
     const next = applySuggestion(ed.pieces, sg);
     return diffProposal('role', 'A way to use a piece', ed.pieces, laneNow(), next, laneNow(), [sg.words], sg.proved === true ? true : undefined);
   }
-  // CC-133: the search runs in a worker, so the page keeps answering; a newer click or Stop makes the older answer stale
-  let roleWorker: Worker | null = null, roleRun = 0, roleProgress = '';
-  const stopWays = () => { roleRun++; roleWorker?.terminate(); roleWorker = null; ed.movesBusy = ''; roleProgress = ''; renderMoves(); };
-  function finishWays(only: number | undefined, items: RoleSuggestion[]) {
-    ed.movesList = { label: only === undefined ? 'Ways to add a missing move (each one checked by the simulator)' : 'What this piece could be (each one checked by the simulator)', items: items.filter((x) => x.proved) };
-    ed.movesBusy = ''; roleProgress = ''; document.documentElement.dataset.roleSuggestions = String(ed.movesList.items.length); renderMoves();
+  let task: ReturnType<typeof rolesInWorker> | null = null, generation = 0;
+  let progress: RoleProgress | null = null, message = '', started = 0;
+  let heartbeat: ReturnType<typeof setInterval> | undefined;
+  function clearHeartbeat() { if (heartbeat !== undefined) clearInterval(heartbeat); heartbeat = undefined; }
+  function stop(reason: string, redraw = true) {
+    generation++; task?.cancel(); task = null; clearHeartbeat();
+    if (ed.movesBusy) { ed.movesBusy = ''; progress = null; message = reason; if (redraw) renderMoves(); }
   }
-  function findWays(only?: number) {
+  function paintProgress() {
+    const text = movesBox.querySelector<HTMLElement>('#moves-search-status');
+    const bar = movesBox.querySelector<HTMLProgressElement>('#moves-search-progress');
+    if (!text || !bar) return;
+    const elapsed = Math.floor((performance.now() - started) / 1000);
+    text.textContent = progress
+      ? `Trying change ${progress.index} of ${progress.total}: ${progress.candidate.words} (${progress.verified.length} simulator-verified so far; ${elapsed}s elapsed)`
+      : `Preparing suggestions for ${ed.movesBusy}… ${elapsed}s elapsed`;
+    if (progress?.total) { bar.max = progress.total; bar.value = Math.max(0, progress.index - 1); }
+    else bar.removeAttribute('value');
+  }
+  async function findWays(only?: number) {
     if (ed.movesBusy) return;
-    ed.movesBusy = only === undefined ? 'the world' : 'this piece'; roleProgress = ''; renderMoves();
-    const id = ++roleRun, opts = { budgetMs: 40000, ...(only !== undefined ? { only } : {}) };
-    let worker: Worker;
-    try { worker = new Worker(new URL('../../sim/roles-worker.ts', import.meta.url), { type: 'module' }); }
-    catch { setTimeout(() => { if (id === roleRun) finishWays(only, suggestRoles(coursePieces(), laneNow(), opts)); }, 30); return; } // no worker here: the old way, on the page's thread
-    roleWorker = worker;
-    worker.onmessage = (e: MessageEvent<RolesReply>) => {
-      if (e.data.id !== id || id !== roleRun) return;
-      if ('progress' in e.data) { roleProgress = ` (${e.data.progress.done} of ${e.data.progress.of})`; const b = document.getElementById('findways'); if (b) b.textContent = `Checking ${ed.movesBusy} with the simulator${roleProgress}…`; return; }
-      worker.terminate(); roleWorker = null; finishWays(only, e.data.items);
-    };
-    worker.onerror = () => { if (id !== roleRun) return; worker.terminate(); roleWorker = null; ed.movesBusy = ''; renderMoves(); };
-    worker.postMessage({ id, pieces: JSON.parse(JSON.stringify(coursePieces())), lane: laneNow(), opts } satisfies RolesJob);
+    const token = ++generation;
+    ed.movesBusy = only === undefined ? 'the world' : ed.pieces.find((p) => p.id === only)?.name ?? 'this piece';
+    ed.movesList = null; message = ''; progress = null; started = performance.now(); renderMoves();
+    heartbeat = setInterval(paintProgress, 500);
+    task = rolesInWorker(coursePieces(), laneNow(), { budgetMs: 40000, ...(only !== undefined ? { only } : {}), progress: (p) => { if (generation === token) { progress = p; paintProgress(); } } });
+    try {
+      const result = await task.promise;
+      if (generation !== token) return;
+      ed.movesList = { label: 'Ways to add a move (each shown result checked by the simulator)', items: result.items };
+      message = result.limited ? 'Time limit reached. Only completed, simulator-verified results are shown; other possibilities remain unchecked.' : '';
+      document.documentElement.dataset.roleSuggestions = String(result.items.length);
+    } catch (error) {
+      if (generation !== token) return;
+      message = error instanceof Error ? error.message : 'The simulator search failed. Try again.';
+    } finally {
+      if (generation === token) { task = null; ed.movesBusy = ''; clearHeartbeat(); progress = null; renderMoves(); }
+    }
   }
+  const dispose = () => { stop('Search cancelled.', false); observer.disconnect(); window.removeEventListener('pagehide', dispose); };
+  const observer = new MutationObserver(() => { if (!movesBox.isConnected) dispose(); });
+  observer.observe(document.body, { childList: true });
+  window.addEventListener('pagehide', dispose);
   function renderMoves() {
     if (movesBox.classList.contains('closed')) return;
     movesBox.replaceChildren();
     const hd = el('div', movesBox, { className: 'row' });
     el('strong', hd, { text: 'Moves in this world' });
-    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { document.documentElement.dataset.dock = ''; movesBox.classList.add('closed'); movesBtn.setAttribute('aria-pressed', 'false'); };
+    el('button', hd, { text: '✕', id: 'closemoves', title: 'Hide' }).onclick = () => { document.documentElement.dataset.dock = ''; movesBox.classList.add('closed'); stop('Search cancelled.'); movesBtn.setAttribute('aria-pressed', 'false'); };
     const status = movesInWorld(coursePieces(), laneNow(), { trebuchet: !!ed.trebuchetKg });
     document.documentElement.dataset.moves = JSON.stringify(Object.fromEntries(status.map((m) => [m.id, m.have])));
     for (const m of status) {
@@ -75,13 +95,22 @@ export function createMoves(env: MovesEnv) {
       for (const r of ['ground', 'wall', 'rope', 'trampoline', 'bar'] as Role[]) el('option', pick, { value: r, text: ROLE_NAME[r] });
       pick.value = sel.role ?? 'ground';
       pick.onchange = () => { sel.role = pick.value === 'ground' ? undefined : (pick.value as Role); changed(); };
-      el('button', row, { text: 'What could this be?', id: 'whatcould' }).onclick = () => findWays(sel.id);
+      const what = el('button', row, { text: 'What could this be?', id: 'whatcould' }); what.disabled = !!ed.movesBusy; what.onclick = () => void findWays(sel.id);
     }
-    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator${roleProgress}…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
-    if (ed.movesBusy) { (document.getElementById('findways') as HTMLButtonElement).disabled = true; el('button', movesBox, { text: 'Stop', id: 'stopways', title: 'Stop checking' }).onclick = stopWays; }
+    el('button', movesBox, { text: ed.movesBusy ? `Checking ${ed.movesBusy} with the simulator…` : 'Find ways to add the missing moves', id: 'findways', className: 'go' }).onclick = () => findWays();
+    if (ed.movesBusy) {
+      (movesBox.querySelector('#findways') as HTMLButtonElement).disabled = true;
+      const box = el('div', movesBox, { className: 'sg' });
+      const status = el('div', box, { id: 'moves-search-status' }); status.setAttribute('role', 'status');
+      const bar = el('progress', box, { id: 'moves-search-progress' }); bar.style.width = '100%'; bar.setAttribute('aria-label', 'Changes tried');
+      el('div', box, { className: 'muted', text: 'You can keep editing. Editing or closing Moves cancels this search; nothing changes until Preview and Apply.' });
+      el('button', box, { id: 'moves-search-cancel', text: 'Cancel search' }).onclick = () => stop('Search cancelled. No changes made.');
+      paintProgress();
+    }
+    if (message) el('div', movesBox, { className: 'sg', text: message });
     if (ed.movesList) {
       el('strong', movesBox, { text: ed.movesList.label });
-      if (!ed.movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No single change gives a missing move here. Try other pieces, or scale one by hand.' });
+      if (!ed.movesList.items.length) el('div', movesBox, { className: 'muted', text: 'No verified suggestion was found in this search. Try one piece, or adjust a piece by hand.' });
       for (const sg of ed.movesList.items) {
         const row = el('div', movesBox, { className: 'sg' });
         el('div', row, { text: sg.words });
@@ -91,5 +120,5 @@ export function createMoves(env: MovesEnv) {
       }
     }
   }
-  return { renderMoves };
+  return { renderMoves, dispose, onChanged: () => { const busy = !!ed.movesBusy; ed.movesList = null; stop('The world changed. Search again to check the new layout.', false); if (!busy) message = ''; renderMoves(); } };
 }
