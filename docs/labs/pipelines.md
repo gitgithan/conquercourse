@@ -92,6 +92,7 @@
 | 15 | Collision from a 3D lift | Photo | Collision |
 | 16 | Design partner loop | Idea | Fix it |
 | 18 | World Slicer: map to lane | Map to lane | Slice, Prove (the whole pipeline) |
+| 20 | Spike the riskiest call first | Methods | Plan |
 
 ## Gaps, shown honestly
 - Photo: no Lab runs the lift model or the cut-out tool live (Lab 14 uses recordings); Collision is taught on one lift (the monkey bars).
