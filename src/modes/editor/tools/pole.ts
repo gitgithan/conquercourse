@@ -12,7 +12,7 @@ export const poleTool = (c: ToolCtx): PieceTool => {
   return {
     id: 'pole',
     mount() {
-      if (pageQuery().get('fork') !== '1') return; // new feature: off until the link asks for it
+      if (pageQuery().get('fork') === '0') return; // on by default; ?fork=0 hides it
       el('button', addBar, { text: 'Climbing pole', id: 'addpole', title: 'A pole you climb with E; its top hands over to the first bar after it' }).onclick = () => {
         const q = polePiece(DEFAULT_POLE_TOP, { x: nextX() + 1, z: 0 }); ed.pieces.push(q); ed.selected = q.id; changed();
       };

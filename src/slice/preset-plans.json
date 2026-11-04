@@ -242,16 +242,16 @@
     "cleared": false
   },
   "fork": {
-    "key": "1r3xtgl",
+    "key": "1db4w1h",
     "cleared": true,
     "plan": {
       "jumpXs": [
         4.72,
-        28.96,
-        32.2,
-        36.8,
-        41.3,
-        62.96
+        22.54,
+        25.7,
+        30.3,
+        34.8,
+        56.5
       ],
       "releaseAfter": 60,
       "bouncePress": 8
@@ -262,8 +262,8 @@
       {
         "id": "fork",
         "name": "The fork: benches or bulbs",
-        "forkX": 29.3,
-        "joinX": 44.6,
+        "forkX": 22.8,
+        "joinX": 38.1,
         "routes": [
           {
             "id": "bench",
@@ -287,18 +287,18 @@
             "plan": {
               "jumpXs": [
                 4.72,
-                28.96,
-                32.2,
-                36.8,
-                41.3,
-                62.96
+                22.54,
+                25.7,
+                30.3,
+                34.8,
+                56.5
               ],
               "releaseAfter": 60,
               "bouncePress": 8
             },
-            "ticks": 1107,
+            "ticks": 1031,
             "effort": 6,
-            "narrowestMs": 59
+            "narrowestMs": 30
           },
           {
             "id": "bulb",
@@ -329,12 +329,12 @@
             "plan": {
               "jumpXs": [
                 5.95,
-                63.4
+                56.9
               ],
               "releaseAfter": 60,
               "bouncePress": 8,
               "climbXs": [
-                28.6
+                22.1
               ],
               "hands": true,
               "hangTicks": [
@@ -348,7 +348,7 @@
                 0
               ]
             },
-            "ticks": 2811,
+            "ticks": 2721,
             "effort": 3.7,
             "narrowestMs": 508
           }
