@@ -16,12 +16,11 @@
 | 4 | Plausibility gate and repairs | CPU | Nothing impossible is ever shown |
 | 5 | Contact IK | CPU | Hands and feet exactly on obstacles |
 | 6 | Coaching text → contact targets | Meta Model API | New moves from written coaching |
-| 7 | Photo → obstacle | Modal (L4 + L40S) + CPU | The hero beat: the park becomes the course |
+| 7 | Photo → obstacle, including player uploads | Pages Function + Modal (L4 + L40S) + CPU | The park or a player’s photo becomes a piece in the editor |
 | 8 | Character: generate, rig, check | Tripo + Meta Model API + Blender (CPU) | The rookies |
 | 9 | Filming at true speed | Laptop or VM (headless Chromium) | Every clip in the video |
 | 10 | Ideal-run search, par times, size ideals | CPU (Node) | Timing windows, difficulty, the "line that would have made it" |
 | 11 | Blind-test pages | CPU + a static page | Deciding looks by evidence |
-| 12 | Player photo → 3D object | Pages Function + Modal (L4 + L40S) + CPU | A player's own photo becomes a piece in the editor |
 
 ## Shared conventions
 - **Skeleton:** NVIDIA SOMA, the 30 joints Kimodo uses as its model skeleton (Hips, Spine1, Spine2, Chest, Neck1, Neck2, Head, Jaw, LeftEye, RightEye, Left/Right Shoulder, Arm, ForeArm, Hand, HandThumbEnd, HandMiddleEnd, Left/Right Leg (hip joint), Shin (knee), Foot (ankle), ToeBase).
@@ -142,6 +141,11 @@
 - **Sources used:** Wikibooks "Parkour/Basic Moves/Tic Tac" and Wikipedia "Vault (urban movement)" (CC BY-SA 4.0).
 
 ## 7. Photo → obstacle
+
+One reconstruction recipe serves both shipped obstacles and player uploads.
+The upload flow below adds request checks, progress, browser storage and Community sharing.
+
+### Shared reconstruction recipe
 - **Purpose:** the hero beat: a photographed object becomes a game obstacle with real size; collision comes from a fitted primitive, never the mesh.
 - **Inputs:** a photo, a text prompt for the object ("bench"), licence and author.
 - **Outputs:** a masked photo plus a privacy receipt; a mask; a mesh with a layout (rotation, translation, scale in the camera's frame from MoGe's point map); a baked game asset (GLB, at most 6,000 faces); `mesh.json` (extents, photo height, typical height); a primitive in a world file.
@@ -171,6 +175,48 @@
   - Give GPU classes a fallback list (`["L4", "A10G", "L40S"]`, `["L40S", "A100-80GB"]`): one run waited 10 minutes with no container; a killed local run can leave its container alive, so stop the app (`modal app stop --yes <id>`).
 - **Photo tricks that mattered:** a wall that fills the frame was lifted as a table until the photo was pasted onto a 1.5 x canvas (edge pixels repeated); a thin box (a shadow strip) is lifted as a slab and scaled by its typical height to 33 m, so check the box before the lift.
 - **Fallback that must exist:** the photo as a backdrop with editable boxes the player drags onto the objects.
+
+### Player upload, progress and storage (CC-221)
+- **Mark it yourself (CC-133, owner decision 2026-11-03):** the Community Pick step lets a player drag a box when the finder missed the thing; it goes down this same path as a picked outline (switch `markbox`, on by default; rules in `src/slice/markbox.ts`).
+  - It reverses the old "you never draw a box" rule; every gate below still applies, and the finder's `person_boxes` let the page refuse a box that covers a person or a face.
+- **Purpose:** a player drops a photo in the editor, draws a box round one real thing, and a few minutes later it is a 3D piece with its credit.
+- **Switch:** the editor shows "Make an object from my photo" only with `?uploadobj=1`; the server route answers 503 until its secrets are set.
+- **Steps:**
+  - The page shrinks the photo to 1280 px (this drops the camera's location data) and makes a 640 px copy for the safety check.
+  - `POST /api/object-lift` (`functions/api/object-lift.ts`) checks size, type, box, label and height, and limits one address to 6 jobs in 10 minutes.
+  - Muse Spark Open looks at the small copy (`askModeration`); a person in the photo is allowed (the pipeline blurs people), worries (minor, private info, sexual, violence, hate, weapon) stop the job; a broken checker is recorded as `skipped`.
+  - The server calls the Modal web function `submit` (`pipelines/photo_to_object.py`) with a shared token; it starts `lift_job` and returns a call id.
+  - `lift_job`: the shared reconstruction steps above (privacy blur → SAM 3 mask → SAM 3D Objects lift → CPU bake), with pad-and-retry when the mask touches the photo edge (CC-170), and a .glb back.
+  - The page asks `status` every few seconds; the .glb comes back as base64 with the privacy receipt and the pad note.
+  - The object is kept in this browser (IndexedDB) with its provenance record; a saved world refers to it as `user:<id>`.
+  - **Share in Community** (CC-247) then sends the .glb and a small picture to `POST /api/community-items`, which stores them in D1; see `docs/community-flow-guide.md`.
+- **Gates, in order (CC-221):**
+  - Request shape: size, type, box, label, height.
+    - A bad request is refused before any check costs money.
+  - Burst limit: 6 jobs in 10 minutes for one address.
+  - Safety check: a blocked photo or a worry that needs a person stops the job (403, plain words).
+    - If the checker cannot run, the job also stops, so a broken checker never lets a photo through.
+    - With no checker key set (preview), the check is recorded as `skipped`.
+  - Daily slots: 3 per player and 100 for the whole game per UTC day (429, "try again tomorrow" or "today's makers are used up").
+    - The count sits behind a small `Ledger` interface (`src/slice/upload-gates.ts`): in memory today, D1 later, with the same gate order.
+  - A slot is taken only after the photo passes the safety check, and given back if the job never starts, so a refusal never costs a try.
+  - Refusals that cannot be fixed by trying again (blocked, daily, budget) hide the retry button.
+- **Tests:** `tests/object-lift.test.ts` (every gate, with a fake network) and `scripts/upload-object-gates.mjs` (ten refusal messages on screen, run on a VM).
+  - Server answers are stubbed there; the real safety check on a preview waits for the Baseten key in the preview secrets.
+- **Provenance:** one JSON record per object (`src/slice/provenance.ts`): photo fingerprint (sha256) and size, box, label, height and where it came from, pipeline and settings, credit line, date; the photo itself is never stored.
+- **Library objects:** `scripts/object-provenance.py` writes `public/assets/objects/provenance.json` for the 19 shipped objects; the editor shows the credit under the name of the selected piece.
+- **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
+- **Deploy:** `modal deploy pipelines/photo_to_object.py` (the web functions need a deployed app).
+- **Box cut-out (CC-133):** `suggest_submit` with an optional `box` starts `box_job` (`Mask.mask_box`: privacy blur, then one box-prompted SAM 3 pass on the blurred photo, no lift); `suggest_status` returns it like a finder item.
+- **Finder phrases (CC-133, owner 2026-11-03):** the 17 phrases plus "overhead bars", "metal bars" and "bar grid"; an outline for those three is kept only if it is wide and low (box width 120 px or more, wide:high 2.5 or more, height 160 px or less; `ccpipe/suggest.py` `bar_shaped`, tested in `pipelines/tests/test_suggest.py`).
+  - No upper-half second pass, no upscaling, no tiles (`data/eval/crop-finder/README.md`).
+- **Batch runs survive a dropped link:** `main` spawns one job per photo and writes the call ids to `<exp>/<round>/calls.json`.
+- **To resume or collect:** run `modal run --detach pipelines/photo_to_object.py::main ...` again; finished photos and spawned calls are reused (`pipelines/ccpipe/calls.py`).
+- **Pitfalls:**
+  - Modal asks for the GPU only when a job starts; a cold start (two GPU containers) can take minutes, and a busy workspace can wait longer.
+  - The Community page hides this by calling the `warm` endpoint early (Make tab opens: Mask; Segment Objects pressed: Lift); the extra cost is a short idle window per visit and is not measured yet (`docs/community-flow-guide.md`).
+  - The Modal call id lives for a limited time; the page gives up after about 20 minutes.
+  - Player objects are drawn in the 3D view from a blob url; in the Course (scene export) they fall back to their plain mesh.
 
 ## 8. Character: generate, rig, check
 - **Purpose:** game-ready characters on the SOMA skeleton.
@@ -213,45 +259,3 @@
 - **Steps:** physics checks run first (only clips that pass are shown); pairs of clips of the same move on the same character, viewer and camera, at true speed (pipeline 9); the order inside each pair shuffled with a fixed seed and the key kept out of the page; trim clips to the same window (for example from 40 frames before take-off to 30 after landing) so length doesn't give a source away; per pair, "which looks better?" and "which is real?" (or a similar question) plus optional notes; a "copy answers" button produces text to paste back; reveal from the key afterwards.
 - **Results so far:** Kimodo leaps preferred to CMU mocap 3/3 ("mocap jumps look weak"); Unity and Godot judged the same.
 - **Pitfall:** without trimming, the generated clips were noticeably longer than mocap; keep obstacles, if any, drawn in both versions.
-
-## 12. Player photo → 3D object (CC-221)
-- **Mark it yourself (CC-133, owner decision 2026-11-03):** the Community Pick step lets a player drag a box when the finder missed the thing; it goes down this same path as a picked outline (switch `markbox`, on by default; rules in `src/slice/markbox.ts`).
-  - It reverses the old "you never draw a box" rule; every gate below still applies, and the finder's `person_boxes` let the page refuse a box that covers a person or a face.
-- **Purpose:** a player drops a photo in the editor, draws a box round one real thing, and a few minutes later it is a 3D piece with its credit.
-- **Switch:** the editor shows "Make an object from my photo" only with `?uploadobj=1`; the server route answers 503 until its secrets are set.
-- **Steps:**
-  - The page shrinks the photo to 1280 px (this drops the camera's location data) and makes a 640 px copy for the safety check.
-  - `POST /api/object-lift` (`functions/api/object-lift.ts`) checks size, type, box, label and height, and limits one address to 6 jobs in 10 minutes.
-  - Muse Spark Open looks at the small copy (`askModeration`); a person in the photo is allowed (the pipeline blurs people), worries (minor, private info, sexual, violence, hate, weapon) stop the job; a broken checker is recorded as `skipped`.
-  - The server calls the Modal web function `submit` (`pipelines/photo_to_object.py`) with a shared token; it starts `lift_job` and returns a call id.
-  - `lift_job`: privacy blur and SAM 3 mask, pad-and-retry when the mask touches the photo edge (CC-170), SAM 3D Objects lift (seed 42), CPU bake with a 1024 texture, and a .glb back.
-  - The page asks `status` every few seconds; the .glb comes back as base64 with the privacy receipt and the pad note.
-  - The object is kept in this browser (IndexedDB) with its provenance record; a saved world refers to it as `user:<id>`.
-  - **Share in Community** (CC-247) then sends the .glb and a small picture to `POST /api/community-items`, which stores them in D1; see `docs/community-flow-guide.md`.
-- **Gates, in order (CC-221):**
-  - Request shape: size, type, box, label, height.
-    - A bad request is refused before any check costs money.
-  - Burst limit: 6 jobs in 10 minutes for one address.
-  - Safety check: a blocked photo or a worry that needs a person stops the job (403, plain words).
-    - If the checker cannot run, the job also stops, so a broken checker never lets a photo through.
-    - With no checker key set (preview), the check is recorded as `skipped`.
-  - Daily slots: 3 per player and 100 for the whole game per UTC day (429, "try again tomorrow" or "today's makers are used up").
-    - The count sits behind a small `Ledger` interface (`src/slice/upload-gates.ts`): in memory today, D1 later, with the same gate order.
-  - A slot is taken only after the photo passes the safety check, and given back if the job never starts, so a refusal never costs a try.
-  - Refusals that cannot be fixed by trying again (blocked, daily, budget) hide the retry button.
-- **Tests:** `tests/object-lift.test.ts` (every gate, with a fake network) and `scripts/upload-object-gates.mjs` (ten refusal messages on screen, run on a VM).
-  - Server answers are stubbed there; the real safety check on a preview waits for the Baseten key in the preview secrets.
-- **Provenance:** one JSON record per object (`src/slice/provenance.ts`): photo fingerprint (sha256) and size, box, label, height and where it came from, pipeline and settings, credit line, date; the photo itself is never stored.
-- **Library objects:** `scripts/object-provenance.py` writes `public/assets/objects/provenance.json` for the 19 shipped objects; the editor shows the credit under the name of the selected piece.
-- **Secrets:** Modal secret `cc-upload` (key `CC_UPLOAD_TOKEN`) and the same token in the Pages secret of the same name, plus `CC_UPLOAD_SUBMIT_URL` and `CC_UPLOAD_STATUS_URL` (the two Modal web urls); keys live in `~/.config/ninja/upload.env`, never in the repo.
-- **Deploy:** `modal deploy pipelines/photo_to_object.py` (the web functions need a deployed app).
-- **Box cut-out (CC-133):** `suggest_submit` with an optional `box` starts `box_job` (`Mask.mask_box`: privacy blur, then one box-prompted SAM 3 pass on the blurred photo, no lift); `suggest_status` returns it like a finder item.
-- **Finder phrases (CC-133, owner 2026-11-03):** the 17 phrases plus "overhead bars", "metal bars" and "bar grid"; an outline for those three is kept only if it is wide and low (box width 120 px or more, wide:high 2.5 or more, height 160 px or less; `ccpipe/suggest.py` `bar_shaped`, tested in `pipelines/tests/test_suggest.py`).
-  - No upper-half second pass, no upscaling, no tiles (`data/eval/crop-finder/README.md`).
-- **Batch runs survive a dropped link:** `main` spawns one job per photo and writes the call ids to `<exp>/<round>/calls.json`.
-- **To resume or collect:** run `modal run --detach pipelines/photo_to_object.py::main ...` again; finished photos and spawned calls are reused (`pipelines/ccpipe/calls.py`).
-- **Pitfalls:**
-  - Modal asks for the GPU only when a job starts; a cold start (two GPU containers) can take minutes, and a busy workspace can wait longer.
-  - The Community page hides this by calling the `warm` endpoint early (Make tab opens: Mask; Segment Objects pressed: Lift); the extra cost is a short idle window per visit and is not measured yet (`docs/community-flow-guide.md`).
-  - The Modal call id lives for a limited time; the page gives up after about 20 minutes.
-  - Player objects are drawn in the 3D view from a blob url; in the Course (scene export) they fall back to their plain mesh.
