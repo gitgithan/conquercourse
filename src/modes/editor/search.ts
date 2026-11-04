@@ -17,10 +17,10 @@ export function createSearch(env: { progress: (p: LaneProgress) => void; results
     if (stored || cached) report(cached ? 'cached' : 'stored');
     return cached ?? stored ?? null;
   };
-  const rememberProof = (course: CourseData, proof: Pick<PresetPlan, 'cleared' | 'plan' | 'windows' | 'routes'> & { timingWindows?: PresetPlan['windows'] }): PresetPlan | null => {
+  const rememberProof = (course: CourseData, proof: Pick<PresetPlan, 'cleared' | 'plan' | 'windows' | 'routes' | 'branches'> & { timingWindows?: PresetPlan['windows'] }): PresetPlan | null => {
     if (proof.cleared && !proof.plan) return null;
     const key = keyOf(course);
-    const result: PresetPlan = { key, cleared: proof.cleared, ...(proof.cleared ? { plan: proof.plan, windows: xWindows(proof.windows ?? []), timingWindows: proof.timingWindows ?? proof.windows ?? [], ...(proof.routes ? { routes: proof.routes } : {}) } : {}) };
+    const result: PresetPlan = { key, cleared: proof.cleared, ...(proof.cleared ? { plan: proof.plan, windows: xWindows(proof.windows ?? []), timingWindows: proof.timingWindows ?? proof.windows ?? [], ...(proof.routes ? { routes: proof.routes } : {}), ...(proof.branches ? { branches: proof.branches } : {}) } : {}) };
     results.delete(key); results.set(key, result);
     if (results.size > 24) results.delete(results.keys().next().value!);
     return result;
@@ -39,7 +39,7 @@ export function createSearch(env: { progress: (p: LaneProgress) => void; results
     catch { return Promise.resolve(null); }
     const promise = new Promise<PresetPlan | null>((resolve) => {
       searchWorker = worker; finishSearch = resolve;
-      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'> & { timingWindows?: PresetPlan['windows'] }>) => {
+      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'> & { branches?: PresetPlan['branches']; timingWindows?: PresetPlan['windows'] }>) => {
         if (e.data.id !== id || id !== searchVersion) return;
         if (e.data.progress) { env.progress(e.data.progress); return; }
         const result = rememberProof(course, e.data);

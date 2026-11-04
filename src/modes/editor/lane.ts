@@ -2,6 +2,7 @@ import { centred, newPiece, laneProfile } from '../../slice/world';
 import { sceneFor } from '../../slice/scene';
 import { holdsOf, isHold } from '../../slice/holds-world';
 import { isPlankPiece } from '../../slice/plank-world';
+import { isPolePiece } from '../../slice/pole-world';
 import { isBarsPiece } from '../../slice/bars-world';
 import { withTrebuchet, wrapFor, type Machine } from '../../slice/launch-lane';
 import { withRecoil } from '../../slice/recoil-lane';
@@ -36,7 +37,7 @@ export function createLane(ed: EditorState) {
     const p = ed.pieces.find((q) => q.src?.startsWith(prefix));
     if (p) { p.src = src; p.mesh = centred(deviceMesh(src)); }
   };
-  const groundOf = (ps: P[]) => ps.filter((q) => !isSizeReference(q) && !isDevice(q)).filter((q) => !isHold(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q) && !isBarsPiece(q)); // references, bars, rope anchors and planks are not ground
+  const groundOf = (ps: P[]) => ps.filter((q) => !isSizeReference(q) && !isDevice(q)).filter((q) => !isHold(q) && !isPolePiece(q) && q.role !== 'rope' && q.role !== 'bar' && !isPlankPiece(q) && !isBarsPiece(q)); // references, bars, rope anchors and planks are not ground
   const ground = () => groundOf(ed.pieces);
   const profileFor = (ps: P[], ln: { angle: number; offset: number; level: number }) => laneProfile(groundOf(ps), ln);
   const currentProfile = () => profileFor(ed.pieces, { angle: ed.angle, offset: ed.offset, level: ed.level });
