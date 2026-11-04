@@ -13,6 +13,7 @@ import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
 import { DEFAULT_HANG, gripLoad } from '../sim/holds';
 import { MODE_INFO } from '../course/modes';
+import { canReach, pivotOf, rungX, DEFAULT_BARS } from '../sim/bars';
 import { createDebugPanel, type Row } from './debug-panel';
 
 // The debug view (like a fighting game's hitbox mode): draws what the simulator really uses, and says what a jump right now would do.
@@ -47,6 +48,14 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
     for (let a = 0; a <= 90; a += 3) { const t = (a * Math.PI) / 180; pts.push(new THREE.Vector3(x0 + R * Math.sin(t), R - R * Math.cos(t), Z)); }
     groundLines.push(line(pts, 0xffe14a));
   }
+  // monkey bars: every rung is a collision object the hands can close on (a ring), joined by a line at the rung height
+  for (const row of course.bars ?? []) {
+    groundLines.push(line(Array.from({ length: row.n }, (_, i) => new THREE.Vector3(rungX(row, i), row.y, Z)), 0xffe14a));
+    for (let i = 0; i < row.n; i++) groundLines.push(line(Array.from({ length: 13 }, (_, k) => new THREE.Vector3(rungX(row, i) + Math.cos((k / 12) * 2 * Math.PI) * 0.09, row.y + Math.sin((k / 12) * 2 * Math.PI) * 0.09, Z)), 0xffb02e));
+  }
+  // the reach zone of the next hand (monkey bars): green while that hand can take its rung now, red while it cannot
+  const reachMat = mat(0x38d26b);
+  const reachLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), reachMat); reachLine.renderOrder = 999; reachLine.frustumCulled = false; reachLine.visible = false; group.add(reachLine);
   // the runner's body box and feet point
   const box = line([new THREE.Vector3(-0.16, 0, Z), new THREE.Vector3(0.16, 0, Z), new THREE.Vector3(0.16, 1.75, Z), new THREE.Vector3(-0.16, 1.75, Z)], 0x2de0ff, true);
   const feet = line(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos((i / 16) * 2 * Math.PI) * 0.07, Math.sin((i / 16) * 2 * Math.PI) * 0.07, Z)), 0x2de0ff, true);
@@ -106,6 +115,16 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const advised = fall > 0 && (fall * fall) / (2 * GRAVITY) > safeDrop('stiff', DEFAULT_LANDING).clean;
       rollMark.visible = advised && L.roll;
       if (advised) { const q = pr.path[rollWindowStart(pr.path)]; rollMark.position.set(q.x, q.y, 0); now.push({ label: 'Roll', value: 'Hold X at the ring', colour: '#ffb02e', tip: `Hold X from the orange ring on.\nIt counts in the last ${ROLL_WINDOW_S} s and ${ROLL_WINDOW_M} m.\nEarlier does nothing.\nThe fall is ${((fall * fall) / (2 * GRAVITY)).toFixed(1)} m.` }); }
+      // the monkey bars: how far the next hand reaches right now
+      const bh = w.mode === 'bars' && w.bars && course.bars?.[w.bars.run] ? w.bars : null;
+      reachLine.visible = bh !== null && L.ground;
+      if (bh) {
+        const row = course.bars![bh.run], hand: 1 | 2 = bh.last === 1 ? 2 : 1, c = canReach(row, bh, hand), pv0 = pivotOf(row, bh);
+        const far = pv0.x + 2 * DEFAULT_BARS.arm * Math.max(0, Math.sin(bh.theta));
+        reachLine.geometry.dispose(); reachLine.geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(pv0.x, row.y - 0.2, Z), new THREE.Vector3(far, row.y - 0.2, Z)]);
+        reachMat.color.setHex(c.ok ? 0x38d26b : 0xff5a4a);
+        now.push({ label: 'Next hand', value: hand === 1 ? 'Q (left)' : 'T (right)', colour: '#ffe14a' }, { label: 'Reach now', value: c.ok ? 'Yes: press it' : c.why === 'swing' ? 'Not yet: swing forward' : c.why === 'end' ? 'Last rung: let go' : 'Other hand first', colour: c.ok ? '#38d26b' : '#ff5a4a' }, { label: 'Rungs taken', value: String(bh.reaches) });
+      }
       // the vault path
       const pv = w.mode === 'run' && r.grounded ? planVault(course.terrain, r.x, r.y, r.vx) : null;
       const live = w.mode === 'vault' ? w.vault : null;
