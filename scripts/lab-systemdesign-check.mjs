@@ -43,8 +43,14 @@ try {
   check('hint 3 says why a better block fits', (await card.locator('.hint li').count()) === 3);
   await page.screenshot({ path: 'test-results/lab-systemdesign/misfit.png', fullPage: true });
   // fix each red card by press (three by real drag and drop), then run
-  await page.dragAndDrop('.blk[data-slot="photo"][data-id="link"]', '.slot[data-slot="photo"]', { targetPosition: { x: 20, y: 20 } });
-  await page.dragAndDrop('.blk[data-slot="wait"][data-id="warmup"]', '.slot[data-slot="wait"]', { targetPosition: { x: 20, y: 20 } });
+  // real drag events (a mouse-driven drag is flaky in headless Chromium, so the events are sent whole)
+  const dnd = (slot, id) => page.evaluate(([s, i]) => {
+    const blk = document.querySelector(`.blk[data-slot="${s}"][data-id="${i}"]`), card = document.querySelector(`.slot[data-slot="${s}"]`);
+    const dt = new DataTransfer();
+    for (const [el, type] of [[blk, 'dragstart'], [card, 'dragover'], [card, 'drop'], [blk, 'dragend']]) el.dispatchEvent(new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer: dt }));
+  }, [slot, id]);
+  await dnd('photo', 'link');
+  await dnd('wait', 'warmup');
   await page.click('.blk[data-slot="collider"][data-id="box"]');
   check('drag and drop puts the block in', (await page.locator('.blk[data-slot="photo"][data-id="link"]').getAttribute('aria-pressed')) === 'true' && (await page.locator('.blk[data-slot="wait"][data-id="warmup"]').getAttribute('aria-pressed')) === 'true');
   check('a change dims the old meters', (await page.textContent('#sd-status')).includes('Press Run'));

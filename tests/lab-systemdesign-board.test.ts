@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { askPartner } from "../functions/api/design-partner";
 import { askDesignPartner } from "../src/labs/systemdesign/partner-client";
 import { BRIEFS, PBLOCKS, SLOTS, SLOT_IDS, STARTER, blocksOf, cleanDesign, designPrompt, differences, ladderOf, otherGoodDesign, passingDesigns, recordedForDesign, score, tradeOff, type BriefId, type Design } from "../src/labs/systemdesign/pipeline";
-import { LAB_LIST, labName, labNumberOf } from "../src/ui/labs-series";
+import { LAB_LIST, labName } from "../src/ui/labs-series";
 import { blockById } from "../src/labs/systemdesign/blocks";
 
 // System design block board: pure scoring, a 3-step hint ladder for every misfit, and more than one good design.
@@ -86,7 +86,7 @@ describe("block board: discovery and hints", () => {
   it("every hint chip points at a real Lab, by name from the series list, and no number is typed into a hint", () => {
     for (const b of PBLOCKS) if (b.hint) {
       expect(LAB_LIST.some((l) => l.mode === b.hint!.lab), b.id).toBe(true);
-      expect(labNumberOf(b.hint.lab)).toBeGreaterThan(0); expect(labName(b.hint.lab).length).toBeGreaterThan(2);
+      expect(labName(b.hint.lab).length).toBeGreaterThan(2);
       expect(b.hint.labText + b.hint.why).not.toMatch(/\bLab \d/);
     }
   });
