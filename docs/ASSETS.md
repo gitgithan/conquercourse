@@ -920,3 +920,5 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `public/assets/thumbs/lab-systemdesign.webp` | the Lab 17 card picture in the Courses gallery (640x360) | 2026-11-04 | Cropped from our own screenshot of our own page `?mode=lab-systemdesign&labs=1` at 1280 px | None | Ours; no third-party material |
 | `docs/evidence/cc-133-pipeline-labs/lab-systemdesign.png` | screenshot of Lab 17 (system design) at 1280 px, with the reveal against the real design (evidence only; the game does not use it) | 2026-11-04 | `scripts/lab-systemdesign-check.mjs`, headless browser | None | Ours; no third-party material |
+| `public/assets/lab/wait-recorded.json` | Hide the wait: what each job of the real ideal-run search cost, for three courses (trap, rail, bars), about 68 KB | 2026-11-04 | `scripts/lab-wait-record.ts` running `searchGen` from `src/sim/ideal.ts` | None | Ours; no third-party material |
+| `docs/evidence/cc-133-pipeline-labs/lab-wait.png` | screenshot of Hide the wait at 1280 px (evidence only; the game does not use it) | 2026-11-04 | `scripts/lab-wait-check.mjs`, headless browser | None | Ours |

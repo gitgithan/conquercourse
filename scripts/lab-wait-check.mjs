@@ -1,0 +1,52 @@
+// Hide the wait in the browser at 1280 px: off without the labs switch; with it every output is filled on open, the steps scrub, break-it changes the comparison.
+// Screenshots go to test-results/lab-wait/.
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { mkdirSync } from 'node:fs';
+const port = process.env.PORT ?? '5183';
+const server = spawn('node', ['node_modules/vite/bin/vite.js', '--port', port, '--strictPort'], { stdio: 'ignore' });
+const result = {};
+let failed = false;
+const check = (name, ok, extra = '') => { result[name] = ok ? 'ok' : `FAILED ${extra}`; if (!ok) failed = true; };
+try {
+  await new Promise((r) => setTimeout(r, 4000));
+  const browser = await chromium.launch({ args: process.env.WEBGL2 ? ['--use-gl=angle', '--use-angle=swiftshader'] : [] });
+  mkdirSync('test-results/lab-wait', { recursive: true });
+  const base = `http://localhost:${port}`;
+  const errors = [];
+  const off = await (await browser.newContext({ viewport: { width: 1280, height: 720 } })).newPage();
+  off.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
+  await off.goto(`${base}/?mode=lab-wait&labs=0&backend=webgl2`);
+  await off.waitForSelector('#lab-wait', { timeout: 60000 });
+  check('off message', (await off.textContent('#lab-wait')).includes('Labs are switched off'));
+  const page = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
+  page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
+  await page.goto(`${base}/?mode=lab-wait&labs=1&backend=webgl2`);
+  await page.waitForFunction(() => document.documentElement.dataset.labPopulated === 'lab-wait', null, { timeout: 90000 });
+  const tiles = await page.textContent('#lw-tiles');
+  check('meters filled', !/undefined|NaN/.test(tiles) && tiles.includes('First word on screen'), tiles.slice(0, 300));
+  check('nav names the Lab', (await page.textContent('#labs-nav')).includes('Hide the wait'));
+  const pills = await page.$$eval('#lw-ch .pill', (e) => e.map((x) => x.textContent));
+  check('four challenges', pills.length === 4, String(pills));
+  const worst = async () => (await page.$$eval('#lw-tiles .tile', (e) => e.map((x) => x.textContent))).join('|');
+  const before = await worst();
+  await page.click('#lw-presets button[data-id="bare"]');
+  const after = await worst();
+  check('bare preset changes the meters', before !== after && /Frames missed/.test(after), after);
+  const bareFail = await page.$$eval('#lw-ch .pill.fail', (e) => e.length);
+  check('bare fails challenges', bareFail >= 2, String(bareFail));
+  await page.screenshot({ path: 'test-results/lab-wait/bare.png', fullPage: true });
+  await page.click('#lw-presets button[data-id="ours"]');
+  const failOurs = await page.$$eval('#lw-ch .pill.fail', (e) => e.length);
+  check('our setting passes most', failOurs <= 1, String(failOurs));
+  await page.$eval('#lw-cold', (e) => { e.value = '100'; e.dispatchEvent(new Event('input', { bubbles: true })); });
+  check('cold knob moves the meter', (await page.textContent('#lw-cold-v')) === '100 s');
+  await page.click('#lw-eq-btn');
+  check('maths opens', (await page.textContent('#lw-eq')).includes('wall time'));
+  check('links the Search Lab', (await page.textContent('#lw-l-search')).includes('Search'));
+  await page.screenshot({ path: 'test-results/lab-wait/ours.png', fullPage: true });
+  check('no page errors', errors.length === 0, errors.join(' | '));
+  await browser.close();
+} catch (e) { check('run', false, String(e)); } finally { server.kill(); }
+console.log(JSON.stringify(result, null, 2));
+process.exit(failed ? 1 : 0);

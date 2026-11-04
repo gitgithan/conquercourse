@@ -36,6 +36,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-determinism', name: 'Same run, any machine', pipeline: 'methods', stage: 'Hash' },
   { mode: 'lab-spike', name: 'Spike the riskiest call first', pipeline: 'methods', stage: 'Plan' },
   { mode: 'lab-limits', name: 'What the model cannot do', pipeline: 'limits', stage: 'Check' },
+  { mode: 'lab-wait', name: 'Hide the wait', pipeline: 'methods', stage: 'Wait' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
@@ -52,7 +53,7 @@ export const TIERS: readonly { id: Tier; title: string }[] = [
 ];
 /** In the order they are shown (Foundations first; inside a pipeline, the order the data flows). Lab numbers and URLs never change. */
 export const LAB_GROUPS: readonly LabGroup[] = [
-  { id: 'search-learn', tier: 'foundations', title: 'Search and learn', modes: ['lab-search', 'lab-optimization', 'lab-rl', 'lab-gentest'] },
+  { id: 'search-learn', tier: 'foundations', title: 'Search and learn', modes: ['lab-search', 'lab-optimization', 'lab-rl', 'lab-gentest', 'lab-wait'] },
   { id: 'see-world', tier: 'foundations', title: 'See the world', modes: ['lab-vision', 'lab-camera', 'lab-detector'] },
   { id: 'move-measure', tier: 'foundations', title: 'Move and measure', modes: ['lab-ik', 'lab-integration', 'lab-timing', 'lab-signal'] },
   { id: 'trust', tier: 'foundations', title: 'Trust the result', modes: ['lab-hashing', 'lab-determinism'] },
