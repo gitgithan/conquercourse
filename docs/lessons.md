@@ -39,13 +39,6 @@
   - Judge turning by the way the body faces, not the way it travels, or a backward somersault reads as forward.
 - **CMU has no forward roll (CC-64):** its nearest takes are flips and a backward somersault; Kimodo text made 4 passing rolls in 18 samples (about $0.04), so a move with no source is a Kimodo job, not a dead end.
 - **One mid-speed clip, time-warped, covers a whole human speed range** (3-7 m/s within 4 cm); add clips for new moves and outcomes, not new speeds.
-- **Film on a real GPU, not a software one (CC-133, 2026-11-05).**
-  - A Modal T4 captures a promo clip in about 1 minute (150 and 251 frames in 58 s and 53 s); a VM with software GL took about 17 minutes for 51 s of film.
-  - The frames match the VM films (mean difference about 0.5 grey levels; marks identical), so capture scripts need no changes.
-  - It costs about $0.01 per minute of capture.
-  - Once capture is fast, the slow step is writing each scene's capture script; start those first and in parallel.
-  - Gotchas: `max_containers` is per function (default 3), an L4 can queue for 10+ minutes (use T4), upload the repo as one tarball, the first upload is about 110 MB, and container output shows only at the end.
-  - Details: `data/eval/modal-film/README.md`.
 
 ## Characters and rigging
 - **Measure joints from the mesh.** An average-body skeleton put a stylised character's shoulder 10 cm above its arm and opened a gap at the shoulder when the arms rose.
