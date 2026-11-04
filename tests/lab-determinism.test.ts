@@ -7,7 +7,7 @@ import {
 } from "../src/labs/determinism/determinism-core";
 import { newWorld } from "../src/sim/world";
 
-// Lab 19 (same run, any machine): physics-law style checks first (the simulated habits do what real machines do), then the real recorded traces and the challenge.
+// The "Same run, any machine" Lab: physics-law style checks first (the simulated habits do what real machines do), then the real recorded traces and the challenge.
 const golden = JSON.parse(readFileSync("tests/golden/sim-trace.json", "utf8")) as Record<string, string>;
 const load = (file: string): CourseData => JSON.parse(readFileSync(`public/assets/demo/${file}`, "utf8"));
 const plank = load("plank.course.json");
@@ -15,7 +15,7 @@ const keys = recordKeys(plank);
 const M = (o: Partial<Machine>): Machine => ({ ...CLEAN, ...o });
 const ALL: Pins = { fixed: true, ordered: true, grid: 0.01 };
 
-describe("Lab 19: same run, any machine", () => {
+describe("Same run, any machine", () => {
   it("a machine with no habits is the game's own simulator: the same run twice gives the same hash on every frame", () => {
     const a = runMachine(plank, keys, CLEAN, true), b = runMachine(plank, keys, CLEAN, true);
     expect(hashStrip(a, CLEAN, NO_PINS)).toEqual(hashStrip(b, CLEAN, NO_PINS));
