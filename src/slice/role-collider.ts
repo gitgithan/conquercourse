@@ -136,17 +136,26 @@ export function regulariseRungs(peaks: number[]): { gap: number; first: number; 
   return { gap: Math.max(1e-6, gap), first, n: n0 };
 }
 
-export function measureBars(g: Grid, opts: { band?: number } = {}): BarsMeasure {
+// The top band, sliced along the long side: how many cells each slice holds, where the peaks are, which peaks are rungs. The Lab (src/labs/collision) draws these same numbers.
+export interface BarProfile {
+  axis: 'x' | 'z'; a0: number; a1: number; mid: number; top: number; band: number; bottom: number; // metres: the object's extent along the axis, the highest and the lowest cell
+  cols: number; count: number[]; sm: number[]; base: number; max: number; thr: number; // cells per slice, the smoothed count, the median, the biggest, the peak line
+  cand: number[]; kept: number[]; // slices that are peaks, and the ones left after "closer than a quarter metre is one rung" and the end-post rule
+  peakU: number[]; // the rung places from the object's middle, in metres
+  radii: number[]; tops: number[]; // per kept rung: the radius its thickness gives, the highest cell
+  notes: string[];
+}
+export function barProfile(g: Grid, opts: { band?: number } = {}): BarProfile {
   const e = extentOf(g), notes: string[] = [];
   const ax: 'x' | 'z' = e.x[1] - e.x[0] >= e.z[1] - e.z[0] ? 'x' : 'z';
   const [a0, a1] = e[ax], mid = (a0 + a1) / 2, top = e.y[1], band = opts.band ?? 0.3;
-  const cols = Math.round((a1 - a0) / g.size) + 1, count = new Float64Array(cols), topY = new Float64Array(cols).fill(-Infinity), botY = new Float64Array(cols).fill(Infinity), layers: Set<number>[] = Array.from({ length: cols }, () => new Set<number>());
+  const cols = Math.round((a1 - a0) / g.size) + 1, count = new Float64Array(cols), topY = new Float64Array(cols).fill(-Infinity), layers: Set<number>[] = Array.from({ length: cols }, () => new Set<number>());
   for (let z = 0; z < g.nz; z++) for (let y = 0; y < g.ny; y++) for (let x = 0; x < g.nx; x++) {
     if (!g.cells[at(g, x, y, z)]) continue;
     const yc = g.oy + (y + 0.5) * g.size;
     if (yc < top - band) continue;
     const u = ax === 'x' ? g.ox + (x + 0.5) * g.size : g.oz + (z + 0.5) * g.size, c = clamp(Math.floor((u - a0) / g.size), 0, cols - 1);
-    count[c]++; layers[c].add(y); topY[c] = Math.max(topY[c], yc + g.size / 2); botY[c] = Math.min(botY[c], yc - g.size / 2);
+    count[c]++; layers[c].add(y); topY[c] = Math.max(topY[c], yc + g.size / 2);
   }
   const sm = Array.from(count, (_, i) => (count[Math.max(0, i - 1)] + 2 * count[i] + count[Math.min(cols - 1, i + 1)]) / 4);
   const base = median(sm), mx = Math.max(...sm), thr = base + 0.4 * (mx - base);
@@ -162,20 +171,32 @@ export function measureBars(g: Grid, opts: { band?: number } = {}): BarsMeasure 
     const rest = kept.filter((_, k) => k !== 0 && k !== kept.length - 1).map(runOf), typical = median(rest);
     if (runOf(kept[end]) >= Math.max(4, 2 * typical)) { kept.splice(end, 1); notes.push('an end post was not counted as a rung'); break; }
   }
-  const peakU = kept.map((i) => a0 + (i + 0.5) * g.size - mid);
-  const reg = regulariseRungs(peakU);
-  let { gap, n } = reg; const first0 = reg.first;
-  const raw = peakU.slice(1).map((v, i) => r3(v - peakU[i]));
-  if (gap < GAP_MIN - 1e-6) { const k = Math.ceil(GAP_MIN / gap - 1e-6); notes.push(`measured spacing ${r3(gap)} m is under ${GAP_MIN} m: every ${k}th rung is used`); gap *= k; n = Math.floor((n - 1) / k) + 1; }
+  return { axis: ax, a0, a1, mid, top, band, bottom: e.y[0], cols, count: Array.from(count), sm, base, max: mx, thr, cand, kept, peakU: kept.map((i) => a0 + (i + 0.5) * g.size - mid), radii: kept.map((i) => (runOf(i) * g.size) / 2), tops: kept.map((i) => topY[i]), notes };
+}
+
+// From the rung places to the row the game keeps: one spacing, held inside what the editor allows (GAP_MIN, GAP_MAX in src/sim/bars.ts).
+export interface FittedRow { gap: number; first: number; n: number; fitGap: number; stride: number; notes: string[] } // fitGap: the spacing before the clamps; stride: every k-th rung is used when it was under GAP_MIN
+export function fitRow(peakU: number[], span: number): FittedRow {
+  const reg = regulariseRungs(peakU), notes: string[] = [];
+  let { gap, n } = reg, stride = 1;
+  const fitGap = gap;
+  if (gap < GAP_MIN - 1e-6) { const k = Math.ceil(GAP_MIN / gap - 1e-6); stride = k; notes.push(`measured spacing ${r3(gap)} m is under ${GAP_MIN} m: every ${k}th rung is used`); gap *= k; n = Math.floor((n - 1) / k) + 1; }
   if (gap > GAP_MAX) { notes.push(`measured spacing ${r3(gap)} m is over ${GAP_MAX} m: it is held at ${GAP_MAX} m`); gap = GAP_MAX; }
-  if (n < 2) { notes.push('fewer than two rungs found: two rungs at the default spacing across the span'); gap = GAP_DEFAULT; n = Math.max(2, Math.round((a1 - a0) / gap)); }
-  const radii = kept.map((i) => (runOf(i) * g.size) / 2);
-  const radius = clamp(median(radii), RADIUS_MIN, RADIUS_MAX);
-  const centreTop = median(kept.map((i) => topY[i]).filter(Number.isFinite)) || top;
-  const measuredHeight = centreTop - radius - e.y[0];
+  if (n < 2) { notes.push('fewer than two rungs found: two rungs at the default spacing across the span'); gap = GAP_DEFAULT; n = Math.max(2, Math.round(span / gap)); }
+  return { gap, first: reg.first, n, fitGap, stride, notes };
+}
+
+export function measureBars(g: Grid, opts: { band?: number } = {}): BarsMeasure {
+  const pr = barProfile(g, opts), notes = [...pr.notes];
+  const fit = fitRow(pr.peakU, pr.a1 - pr.a0);
+  notes.push(...fit.notes);
+  const raw = pr.peakU.slice(1).map((v, i) => r3(v - pr.peakU[i]));
+  const radius = clamp(median(pr.radii), RADIUS_MIN, RADIUS_MAX);
+  const centreTop = median(pr.tops.filter(Number.isFinite)) || pr.top;
+  const measuredHeight = centreTop - radius - pr.bottom;
   let height = measuredHeight;
   if (height < BAR_HEIGHT_MIN || height > BAR_HEIGHT_MAX) { height = clamp(height, BAR_HEIGHT_MIN, BAR_HEIGHT_MAX); notes.push(`rung height ${r3(measuredHeight)} m is outside what the hands can swing from: it is held at ${r3(height)} m`); }
-  return { axis: ax, height: r3(height), span: r3(a1 - a0), rungs: n, gap: r3(gap), first: r3(first0), radius: r3(radius), peaks: peakU.map(r3), gaps: raw, notes };
+  return { axis: pr.axis, height: r3(height), span: r3(pr.a1 - pr.a0), rungs: fit.n, gap: r3(fit.gap), first: r3(fit.first), radius: r3(radius), peaks: pr.peakU.map(r3), gaps: raw, notes };
 }
 
 export interface WallMeasure { height: number; width: number; depth: number }

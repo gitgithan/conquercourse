@@ -27,6 +27,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-rl', name: 'Reinforcement learning', pipeline: 'methods', stage: 'Learn' },
   { mode: 'lab-motion', name: 'Video to motion', pipeline: 'video', stage: 'Gate' },
   { mode: 'lab-lift', name: 'Cut-out, lift and bake', pipeline: 'photo', stage: 'Bake' },
+  { mode: 'lab-collision', name: 'Collision from a 3D lift', pipeline: 'photo', stage: 'Collision' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
