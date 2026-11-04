@@ -49,8 +49,8 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const viewBtn = h('button', { class: 'pb-view', type: 'button', id: 'pbbymove' });
   viewBtn.onclick = () => { byMove = !byMove; try { localStorage.setItem('cc-pb-bymove', byMove ? '1' : '0'); } catch { /* no storage */ } paint(); };
   bar.insertBefore(viewBtn, search);
-  let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section = 'real', shown = pieces[0];
-  const tabBtn = new Map<Section, HTMLButtonElement>();
+  let pieces: PieceInfo[] = [...STATIC_PIECES], section: Section | 'shared' | 'mine' = 'real', shown = pieces[0];
+  const tabBtn = new Map<Section | 'shared' | 'mine', HTMLButtonElement>();
   const mineThumb = new Map<string, string>();
   const feat = (p: PieceInfo) => {
     shown = p; const mt = mineThumb.get(p.id); fImg.style.visibility = isMine(p) && !mt ? 'hidden' : ''; fImg.src = isMine(p) ? (mt ?? '') : `/assets/pieces/${p.id}-large.webp`; fImg.alt = p.name;
@@ -77,7 +77,8 @@ export function mountPieceBrowser(menu: HTMLElement): void {
   const paint = () => {
     const q = search.value.trim().toLowerCase();
     const mine = mineOf().filter((p) => !q || p.name.toLowerCase().includes(q) || 'my pieces'.includes(q));
-    const list = pieces.filter((p) => (q ? `${p.name} ${p.does} ${SECTION_NAME[p.section]}`.toLowerCase().includes(q) : p.section === section));
+    const own = section === 'shared' || section === 'mine'; // these two tabs list player pieces, not built-in ones
+    const list = pieces.filter((p) => (q ? `${p.name} ${p.does} ${SECTION_NAME[p.section]}`.toLowerCase().includes(q) : !own && p.section === section));
     const card = (p: PieceInfo) => {
       const c = h('button', { class: 'pb-card', type: 'button' }); c.dataset.piece = p.id; c.title = p.name;
       if (isMine(p)) {
@@ -101,10 +102,11 @@ export function mountPieceBrowser(menu: HTMLElement): void {
     const haveIds = new Set(sharedP.map((x) => x.id)); // owner 2026-11-04: the newest pieces other players shared are listed without searching
     const found: PieceInfo[] = communityFound.q === q ? communityFound.items.filter((x) => !haveIds.has(x.id)) : [];
     const foundCards = found.map((f) => { const c = card(f); c.onclick = () => (window as unknown as { ccAddShared?: (id: string, name: string) => void }).ccAddShared?.(f.id.slice(6), f.name); return c; });
+    const showMine = q || section === 'mine', showShared = q || section === 'shared'; // a search looks everywhere; otherwise each group has its own tab
     const mineCards: HTMLElement[] = [
-      ...(mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mineShown.map(card), ...(mine.length > shownMine ? [moreBtn('pb-mine-more', mine.length - shownMine, () => { shownMine += GROUP_SHOWN; })] : [])] : []),
-      ...(sharedP.length ? [h('div', { class: 'pb-group', textContent: 'Shared pieces', id: 'pb-shared' }), ...sharedShown.map(card), ...(sharedP.length > shownShared ? [moreBtn('pb-shared-more', sharedP.length - shownShared, () => { shownShared += GROUP_SHOWN; })] : [])] : []),
-      ...(foundCards.length ? [h('div', { class: 'pb-group', textContent: q ? 'Shared by players (search)' : 'Shared by players', id: 'pb-found' }), ...foundCards, ...(communityFound.next ? [(() => { const b = h('button', { class: 'pb-more', type: 'button', textContent: 'Show more', id: 'pb-found-more' }); b.onclick = () => { void fetchFound(q, communityFound.next ?? undefined); }; return b; })()] : [])] : []),
+      ...(showMine && mine.length ? [h('div', { class: 'pb-group', textContent: 'My pieces', id: 'pb-mine' }), ...mineShown.map(card), ...(mine.length > shownMine ? [moreBtn('pb-mine-more', mine.length - shownMine, () => { shownMine += GROUP_SHOWN; })] : [])] : []),
+      ...(showShared && sharedP.length ? [h('div', { class: 'pb-group', textContent: q ? 'Shared pieces' : 'Shared pieces you added to this course', id: 'pb-shared' }), ...sharedShown.map(card), ...(sharedP.length > shownShared ? [moreBtn('pb-shared-more', sharedP.length - shownShared, () => { shownShared += GROUP_SHOWN; })] : [])] : []),
+      ...(showShared && foundCards.length ? [h('div', { class: 'pb-group', textContent: q ? 'Shared by players (search)' : 'Newest from other players', id: 'pb-found' }), ...foundCards, ...(communityFound.next ? [(() => { const b = h('button', { class: 'pb-more', type: 'button', textContent: 'Show more', id: 'pb-found-more' }); b.onclick = () => { void fetchFound(q, communityFound.next ?? undefined); }; return b; })()] : [])] : []),
     ];
     if (grouped) {
       const cards: HTMLElement[] = [], ordered: PieceInfo[] = [];
@@ -119,16 +121,20 @@ export function mountPieceBrowser(menu: HTMLElement): void {
       grid.replaceChildren(...mineCards, ...cards);
       list.splice(0, list.length, ...ordered);
     } else grid.replaceChildren(...mineCards, ...list.map(card));
-    list.unshift(...mineShown, ...sharedShown);
-    if (!list.length) grid.append(h('div', { class: 'pb-none', textContent: 'Nothing matches. Try another word.' }));
+    list.unshift(...(showMine ? mineShown : []), ...(showShared ? sharedShown : []));
+    if (q && list.length && mineCards.length) grid.insertBefore(h('div', { class: 'pb-group', textContent: 'Built-in pieces' }), grid.children[mineCards.length] ?? null); // after the player groups, so built-ins are not read as theirs
+    if (!grid.childElementCount) grid.append(h('div', { class: 'pb-none', textContent: q ? 'Nothing matches. Try another word.' : section === 'mine' ? 'Pieces you make from your own photos show here.' : 'No pieces shared by players yet.' }));
+    else if (!list.length) { /* a player tab: its cards are not in the arrow-key list */ }
     else if (!list.includes(shown)) feat(list[0]); else feat(shown);
     for (const [s, b] of tabBtn) b.setAttribute('aria-selected', String(!q && s === section));
   };
-  for (const s of SECTION_ORDER) {
-    const b = h('button', { class: 'pb-tab', type: 'button', textContent: SECTION_NAME[s] }); b.setAttribute('role', 'tab'); b.id = `pbtab-${s}`;
+  const TABS: (Section | 'shared' | 'mine')[] = [...SECTION_ORDER, 'shared', 'mine']; // Shared by players and My pieces are tabs of their own, beside the built-in ones
+  const TAB_NAME: Record<string, string> = { ...SECTION_NAME, shared: 'Shared by players', mine: 'My pieces' };
+  for (const s of TABS) {
+    const b = h('button', { class: 'pb-tab', type: 'button', textContent: TAB_NAME[s] }); b.setAttribute('role', 'tab'); b.id = `pbtab-${s}`;
     const go = () => { section = s; search.value = ''; paint(); };
     b.onclick = go; b.onmouseenter = go; // pointing at a section shows its pieces
-    b.onkeydown = (e) => { const i = SECTION_ORDER.indexOf(s), k = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (k) { tabBtn.get(SECTION_ORDER[(i + k + SECTION_ORDER.length) % SECTION_ORDER.length])?.focus(); e.preventDefault(); } };
+    b.onkeydown = (e) => { const i = TABS.indexOf(s), k = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (k) { tabBtn.get(TABS[(i + k + TABS.length) % TABS.length])?.focus(); e.preventDefault(); } };
     tabBtn.set(s, b); tabs.append(b);
   }
   search.oninput = () => { shownMine = shownShared = GROUP_SHOWN; paint(); clearTimeout(findTimer); const q = search.value.trim().toLowerCase(); if (q.length >= 2) findTimer = window.setTimeout(() => { void fetchFound(q); }, 350); };
