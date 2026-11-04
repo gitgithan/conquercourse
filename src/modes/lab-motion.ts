@@ -10,7 +10,6 @@ import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { TICKS_PER_SECOND } from "../sim/units";
 import { GATE_LIMITS, type SignalClip } from "../lab/signal-lab";
 import { mountSignalPanel } from "../labs/signal/panel";
-import { mountIkPanel } from "../labs/ik/panel";
 import {
   LAB_CLIPS, RULE_WORDS, applyGameSmoothing, buildClip, checkShape, clipFrameAtTick, clipSeconds, clockOffPercent, dropLastName, frameTime, liftToFloor,
   onlyBoneLengths, REAL_MANIFEST_URL, retargetScale, ticksFor, verdict, whyFailed, withFps, type LabClip, type Verdict,
@@ -49,9 +48,10 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     #lab-motion .eq{font:13px/1.5 ui-monospace,Menlo,monospace;background:#f1f4f1;border-radius:8px;padding:8px 10px;white-space:pre-wrap}
     #lab-motion a{color:${TEAL};font-weight:600}
     #lab-motion .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700}
-    #lab-motion #mo-view{width:100%;height:340px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
+    #lab-motion #mo-view{width:100%;height:520px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
     #lab-motion #mo-held{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:16px;background:rgba(245,247,244,.94);font-weight:700;color:${BAD}}
-    #lab-motion input[type=range]{width:100%}`;
+    #lab-motion input[type=range]{width:100%}
+    #lab-motion .s5ctl{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) auto;gap:14px;align-items:end;margin-top:8px}`;
   root.append(style);
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
@@ -88,30 +88,29 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       <h2 style="margin-top:12px">The pose finder's own output</h2><div id="mo-real"></div></div>
 
     <div class="stack">
-      <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
-        <p class="small" style="margin:0 0 6px">Legs are scaled to match, bones turned to the joints. A failed clip never plays.</p>
-        <div class="two s5grid">
-          <div><div id="mo-view"><div id="mo-held"></div></div>
-            <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
-          <details id="mo-w3" open><summary><b>Try the reach yourself</b> (the panel of the Posing a character Lab, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div></div>
-      <div class="card" id="s6"><h2>Step 6. The one clock</h2>
-        <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer.</p>
-        <div class="two s6grid">
-          <div><label class="small">Simulator tick: <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
-            <div id="mo-s6" style="margin-top:6px"></div></div>
-          <div><h2 style="margin:0 0 4px">Which move uses which clip</h2><div id="mo-table"></div></div></div></div>
+      <div class="card" id="s5"><h2>Step 5. Play the clip on the character, on the one clock</h2>
+        <p class="small" style="margin:0 0 6px">The bones are drawn inside the Rookie. Drag the clock and the character moves with it; drag the speed and it plays faster or slower.</p>
+        <div id="mo-view"><div id="mo-held"></div></div>
+        <div class="s5ctl">
+          <label class="small">The clock, tick <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
+          <label class="small">How fast the clock runs: <b id="mo-size-v"></b><input id="mo-size" type="range" min="0.1" max="2" step="0.05" value="1"></label>
+          <button id="mo-play" type="button">Pause</button></div>
+        <div id="mo-s6" style="margin-top:6px"></div>
+        <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
+      <div class="card" id="s6"><h2>Step 6. Which move uses which clip</h2>
+        <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer, so a replay, a ghost and a film cannot drift apart. The arm-reach panel is in the <b>Posing a character</b> Lab.</p>
+        <div id="mo-table"></div></div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   // the shared panels of Signal processing and Posing a character mount the first time their box is opened (no second 3D view is made: step 5 plays the Rookie)
   const lazy = (id: string, mount: (host: HTMLElement) => unknown) => { const d = wrap.querySelector<HTMLDetailsElement>("#" + id)!; let done = false; const go = () => { if (d.open && !done) { done = true; mount(d.querySelector<HTMLElement>("div")!); } }; d.addEventListener("toggle", go); go(); return d; };
   const w8 = lazy("mo-w8", (h) => void mountSignalPanel(h, { rookie: false, markPage: false }).start());
-  lazy("mo-w3", (h) => void mountIkPanel(h));
   $("mo-open-w8").addEventListener("click", () => { w8.open = true; w8.scrollIntoView({ block: "start" }); });
   const files: Record<string, SignalClip> = {};
   const built = new Map<string, SignalClip>();
   const verdicts = new Map<string, Verdict>();
   let current: LabClip = LAB_CLIPS[0];
-  let tick = 0, playing = true;
+  let tick = 0, playing = true, size = 1;
 
   const sel = $<HTMLSelectElement>("mo-clip");
   sel.innerHTML = LAB_CLIPS.map((c) => `<option value="${c.id}">${c.label} (${ORIGIN_WORDS[c.origin]})</option>`).join("");
@@ -223,6 +222,17 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   // ---------- the Rookie ----------
   let stage: Awaited<ReturnType<typeof createStage>> | null = null;
   let rookie: PosedRookie | null = null;
+  let boneGroup: THREE.Group | null = null;
+  function drawBones(): void {
+    if (!rookie || !boneGroup) return;
+    const w = rookie.world(), par = clipOf(current).parents, up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < w.length; i++) {
+      const dot = boneGroup.children[2 * i] as THREE.Mesh, rod = boneGroup.children[2 * i + 1] as THREE.Mesh;
+      dot.position.copy(w[i]);
+      const pi = par[i];
+      if (pi >= 0 && w[pi]) { const d = new THREE.Vector3().subVectors(w[i], w[pi]), len = d.length(); rod.visible = len > 1e-4; rod.position.copy(w[pi]).addScaledVector(d, 0.5); rod.scale.set(1, len, 1); if (len > 1e-4) rod.quaternion.setFromUnitVectors(up, d.normalize()); }
+    }
+  }
   async function initRookie(): Promise<void> {
     const host = $("mo-view"), c = clipOf(LAB_CLIPS[0]);
     try {
@@ -232,6 +242,14 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       for (let i = -4; i <= 40; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.01, 0.8), new THREE.MeshStandardMaterial({ color: i % 5 === 0 ? 0x33403a : 0x9fb59a })); m.position.set(i * 0.5, 0.005, 0); stage.scene.add(m); }
       rookie = await loadRookie("a", c.names, c.parents);
       stage.scene.add(rookie.object);
+      rookie.object.traverse((o: any) => { if (o.isMesh && o.material) { const ms = (Array.isArray(o.material) ? o.material : [o.material]).map((m: any) => { const k = m.clone(); k.transparent = true; k.opacity = 0.45; k.depthWrite = false; return k; }); o.material = Array.isArray(o.material) ? ms : ms[0]; } });
+      const mat = new THREE.MeshBasicMaterial({ color: 0xd9480f, depthTest: false, transparent: true });
+      boneGroup = new THREE.Group();
+      for (let i = 0; i < c.names.length; i++) {
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false })); dot.renderOrder = 1001; boneGroup.add(dot);
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1, 8), mat); rod.renderOrder = 1000; rod.visible = c.parents[i] >= 0; boneGroup.add(rod);
+      }
+      stage.scene.add(boneGroup);
       stage.renderer.setSize(host.clientWidth, host.clientHeight);
       stage.camera.aspect = host.clientWidth / host.clientHeight; stage.camera.updateProjectionMatrix();
       document.documentElement.dataset.motionRookie = "1";
@@ -242,7 +260,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     requestAnimationFrame(loop);
     const now = performance.now();
     // the tick count is the clock: wall time only decides how many ticks to add, one at a time
-    acc += now - last; last = now;
+    acc += (now - last) * size; last = now;
     const maxTick = ticksFor(clipOf(current));
     while (playing && acc >= 1000 / TICKS_PER_SECOND) { acc -= 1000 / TICKS_PER_SECOND; tick = tick >= maxTick + TICKS_PER_SECOND / 2 ? 0 : tick + 1; }
     if (acc > 1000) acc = 0;
@@ -262,7 +280,8 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     const first = c.frames[0], scale = retargetScale(rookie.legLength, legLength(c.names, (k) => new THREE.Vector3(...first[k])));
     const joints = c.frames[i].map((p, k) => { const q = c.frames[j][k]; return clipToWorld([p[0] + (q[0] - p[0]) * w, p[1] + (q[1] - p[1]) * w, p[2] + (q[2] - p[2]) * w]).multiplyScalar(scale); });
     rookie.apply(joints);
-    stage.camera.position.set(joints[0].x + 0.3, 1.5, 4.3); stage.camera.lookAt(joints[0].x, 0.85, 0);
+    drawBones();
+    stage.camera.position.set(joints[0].x + 0.2, 1.2, 2.6); stage.camera.lookAt(joints[0].x, 0.9, 0);
     document.documentElement.dataset.motionFrame = String(Math.round(f));
   }
   function fillS5(): void {
@@ -286,8 +305,11 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     document.documentElement.dataset.labDone = String((Number(document.documentElement.dataset.labDone ?? 0)) + 1);
   }
   sel.onchange = change;
-  $<HTMLInputElement>("mo-tick").addEventListener("input", (e) => { playing = false; tick = Number((e.target as HTMLInputElement).value); showTick(); });
-  $("mo-tick").addEventListener("change", () => { playing = true; });
+  $<HTMLInputElement>("mo-tick").addEventListener("input", (e) => { playing = false; $("mo-play").textContent = "Play"; tick = Number((e.target as HTMLInputElement).value); showTick(); });
+  $("mo-tick").addEventListener("change", () => { playing = true; $("mo-play").textContent = "Pause"; });
+  $("mo-play").onclick = () => { playing = !playing; $("mo-play").textContent = playing ? "Pause" : "Play"; };
+  $<HTMLInputElement>("mo-size").addEventListener("input", (e) => { size = Number((e.target as HTMLInputElement).value); playing = true; $("mo-play").textContent = "Pause"; $("mo-size-v").textContent = fmt(size, 2) + " x"; });
+  $("mo-size-v").textContent = "1.00 x";
 
   (async () => {
     const urls = [...new Set(LAB_CLIPS.map((c) => c.url))];
