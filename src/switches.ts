@@ -53,7 +53,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'film', default: 'off', doc: "present: hides the site bar", quiet: false },
   { name: 'filmx', default: 'middle', doc: "film focus along the lane", quiet: false },
   { name: 'filmy', default: '0.6', doc: "film focus height", quiet: false },
-  { name: 'facade', default: 'auto', doc: "1 or 0 forces the real photo facade on the library in the Bryant Park scenery; auto is on at localhost and the preview site, off on production", quiet: false },
+  { name: 'facade', default: 'auto', doc: "1 or 0 forces the real photo facade on the places that have a photo; auto is on at localhost and the preview site, off on production", quiet: false },
   { name: 'fit', default: 'on', doc: "0 stops fitting a made character to the rig", quiet: false },
   { name: 'fork', default: 'off', doc: "1 shows the fork (bench lane or bulb lane) on the strip and in the end report, like paths=1", quiet: false },
   { name: 'freeze', default: 'off', doc: "present: stops the demo clock", quiet: false },

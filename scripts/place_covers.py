@@ -8,7 +8,7 @@ from PIL import Image
 ROOT = 'public/assets/places'
 UA = {'User-Agent': 'ConquerCourse/1.0 (educational physics game; place cover photos)'}
 QUERY = {  # a famous view of the place, in plain words
-  'bryant-park-new-york': 'Bryant Park New York Public Library lawn', 'place-des-vosges-paris': 'Place des Vosges Paris arcades',
+  'place-des-vosges-paris': 'Place des Vosges Paris arcades',
   'jordaan-amsterdam': 'Jordaan Amsterdam Egelantiersgracht', 'stephansplatz-vienna': 'Stephansdom Vienna cathedral',
   'grand-place-brussels': 'Grand Place Brussels guildhalls', 'main-square-krakow': 'Main Square Krakow Cloth Hall',
   'castle-hill-budapest': 'Buda Castle Budapest Castle Hill', 'gamla-stan-stockholm': 'Stortorget Gamla Stan Stockholm',

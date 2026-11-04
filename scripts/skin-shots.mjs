@@ -3,7 +3,7 @@ import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 const base = process.env.BASE ?? 'http://localhost:5173', out = 'data/eval/cc-178-places/skin-shots';
 mkdirSync(out, { recursive: true });
-const places = ['montmartre-paris', 'bryant-park-new-york', 'retiro-park-madrid', 'circular-quay-sydney'];
+const places = ['montmartre-paris', 'retiro-park-madrid', 'circular-quay-sydney'];
 const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 page.on('pageerror', (e) => console.log('pageerror', e.message));

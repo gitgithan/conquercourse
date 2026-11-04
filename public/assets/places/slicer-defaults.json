@@ -228,21 +228,6 @@
       "checkVersion": 2
     },
     {
-      "slug": "bryant-park-new-york",
-      "clear": true,
-      "shrink": 0.556,
-      "cutM": 11,
-      "line": [
-        -128,
-        48.3,
-        -27.1,
-        85
-      ],
-      "lengthM": 59.7,
-      "clearS": 11.4,
-      "checkVersion": 2
-    },
-    {
       "slug": "gas-works-park-seattle",
       "clear": true,
       "shrink": 0.333,

@@ -240,22 +240,6 @@
     "country": "Spain"
   },
   {
-    "slug": "bryant-park-new-york",
-    "name": "Bryant Park, New York",
-    "lat": 40.7536,
-    "lon": -73.9832,
-    "radius": 120,
-    "hill_m": 3,
-    "buildings": 21,
-    "bytes": 28129,
-    "blurb": "A lawn and benches boxed in by tall blocks.",
-    "path": true,
-    "photos": 73,
-    "listed": false,
-    "live": false,
-    "country": "United States"
-  },
-  {
     "slug": "gas-works-park-seattle",
     "name": "Gas Works Park, Seattle",
     "lat": 47.6456,

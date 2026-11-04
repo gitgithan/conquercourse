@@ -53,7 +53,6 @@
 | alfama-lisbon | 19 | 12 | 18 | 57 m | 1 |
 | bo-kaap-cape-town | 27 | 9 | 27 | none | 0 |
 | boston-common-beacon-hill | 11 | 9 | 11 | none | 0 |
-| bryant-park-new-york | 5 | 3 | 5 | none | 0 |
 | bryggen-bergen | 13 | 10 | 8 | 18, 21, 24, 36, 39 m | 1 |
 | bukchon-seoul | 10 | 7 | 9 | 18 m | 1 |
 | caminito-buenos-aires | 6 | 4 | 6 | none | 0 |

@@ -1370,7 +1370,6 @@ The set of obstacle shapes is fixed, and each shape offers a fixed set of moves.
 | Park Güell, Barcelona | 67 m | 14 | 22.1 m | 0.2 |
 | Tuileries Garden, Paris | 17 m | 5 | 62.4 m | 0.36 |
 | Retiro Park, Madrid | 10 m | 9 | 22.8 m | 0.556 |
-| Bryant Park, New York | 3 m | 21 | 27 m | 0.556 |
 | Gas Works Park, Seattle | 16 m | 27 | 96.9 m | 0.556 |
 | Dolores Park, San Francisco | 37 m | 40 | 38.2 m | 0.455 |
 - **Where to find it:** the Course's "Open another course" menu has "Pick a real place on the map (labs)" with `?labs=1` (the browser remembers it); `?mode=map` works without it.

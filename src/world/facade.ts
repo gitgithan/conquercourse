@@ -92,5 +92,4 @@ export function facadeOn(value: string | null, host: string): boolean {
 
 /** The facades we ship: one hero building. The width and height come from the footprint edge and the straightened photo's own proportions. */
 export const FACADES: readonly FacadeSpec[] = [
-  { place: 'bryant-park-new-york', building: 'Stephen A. Schwarzman Building', width: 27.7, facing: 119, image: '/assets/places/facades/nypl-fifth-avenue.jpg', aspect: 1.4 },
 ];
