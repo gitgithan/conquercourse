@@ -33,7 +33,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 <table>
 <tr>
-<td><a href="README_MEDIA/course-1-training-run.png"><img src="README_MEDIA/course-1-training-run.png" width="480" alt="The Training run: the runner on the start block, the ghost ahead and the Fastest runs card at the top right"></a></td>
+<td><a href="README_MEDIA/course-1-training-run.png"><img src="README_MEDIA/course-1-training-run.png" width="480" alt="The Training run: the runner on the start block, the ghost ahead and the Fastest runs card at the top right, and debug mode on (B): the Debug panel at the left, yellow outlines on the shapes and the landing marker"></a></td>
 <td><a href="README_MEDIA/course-2-end-screen.png"><img src="README_MEDIA/course-2-end-screen.png" width="480" alt="The end of a run: the time, your path as a chart, and what you learned"></a></td>
 </tr>
 <tr>
