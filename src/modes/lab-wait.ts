@@ -181,7 +181,7 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
   function drawFrames(o: WaitOut) {
     const g = ($("lw-frames") as HTMLCanvasElement).getContext("2d")!;
     g.clearRect(0, 0, W, FH);
-    const L = 40, R = W - 10, base = FH - 24, top = 14, search = o.search, yMax = Math.max(40, search.worstFrameMs * 1.1);
+    const L = 56, R = W - 10, base = FH - 24, top = 14, search = o.search, yMax = Math.max(40, search.worstFrameMs * 1.1);
     const Y = (v: number) => base - (v / yMax) * (base - top), X = (t: number) => L + (t / Math.max(1, search.doneMs)) * (R - L);
     const lim = Y(ASSUME.frameMs);
     const frames = search.frames.length ? search.frames : Array.from({ length: Math.ceil(search.doneMs / ASSUME.frameMs) }, (_, i) => ({ start: i * ASSUME.frameMs, ms: ASSUME.renderMs + ASSUME.messageMs, work: 0 }));

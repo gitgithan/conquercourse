@@ -9,7 +9,7 @@ const result = {};
 let failed = false;
 const check = (name, ok, extra = '') => { result[name] = ok ? 'ok' : `FAILED ${extra}`; if (!ok) failed = true; };
 try {
-  await new Promise((r) => setTimeout(r, 4000));
+  for (let i = 0; i < 90; i++) { try { await fetch(`http://localhost:${port}/`); break; } catch { await new Promise((r) => setTimeout(r, 1000)); } }
   const browser = await chromium.launch({ args: process.env.WEBGL2 ? ['--use-gl=angle', '--use-angle=swiftshader'] : [] });
   mkdirSync('test-results/lab-wait', { recursive: true });
   const base = `http://localhost:${port}`;
@@ -19,7 +19,7 @@ try {
   await off.goto(`${base}/?mode=lab-wait&labs=0&backend=webgl2`);
   await off.waitForSelector('#lab-wait', { timeout: 60000 });
   check('off message', (await off.textContent('#lab-wait')).includes('Labs are switched off'));
-  const page = await (await browser.newContext({ viewport: { width: 1280, height: 1000 } })).newPage();
+  const page = await (await browser.newContext({ viewport: { width: 1280, height: 1500 } })).newPage();
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
   await page.goto(`${base}/?mode=lab-wait&labs=1&backend=webgl2`);
   await page.waitForFunction(() => document.documentElement.dataset.labPopulated === 'lab-wait', null, { timeout: 90000 });
@@ -44,7 +44,8 @@ try {
   await page.click('#lw-eq-btn');
   check('maths opens', (await page.textContent('#lw-eq')).includes('wall time'));
   check('links the Search Lab', (await page.textContent('#lw-l-search')).includes('Search'));
-  await page.screenshot({ path: 'test-results/lab-wait/ours.png', fullPage: true });
+  await page.$eval('#lab-wait', (e) => { e.scrollTop = 0; });
+  await page.screenshot({ path: 'test-results/lab-wait/ours.png' });
   check('no page errors', errors.length === 0, errors.join(' | '));
   await browser.close();
 } catch (e) { check('run', false, String(e)); } finally { server.kill(); }
