@@ -1,6 +1,6 @@
 // CC-133: the Labs as a series. One list of {mode, name, pipeline, stage}: the nav bar, the world picker and the tests all read it.
 // A Lab's number is its place in this list and never changes (links in docs and films use it); a new Lab is one line at the END.
-export type Pipeline = 'photo' | 'video' | 'idea' | 'methods' | 'map';
+export type Pipeline = 'photo' | 'video' | 'idea' | 'methods' | 'map' | 'limits';
 export interface LabEntry { mode: string; name: string; pipeline: Pipeline; stage: string }
 
 /** The sections, in the order they are taught. */
@@ -9,6 +9,7 @@ export const PIPELINES: readonly { id: Pipeline; title: string; stages: readonly
   { id: 'video', title: 'Video to motion', stages: ['Video', 'Pose', 'Smooth', 'Gate', 'Clip'] },
   { id: 'idea', title: 'Idea to course', stages: ['Brief', 'Propose', 'Check', 'Fix it', 'Show'] },
   { id: 'methods', title: 'Methods behind the pipelines', stages: [] },
+  { id: 'limits', title: 'Know the limits', stages: ['Failures', 'Check', 'Fall back'] },
   { id: 'map', title: 'Map to lane', stages: ['Pin', 'Elements', 'Cut', 'Lane', 'Rules', 'Simulator'] },
 ];
 
@@ -34,6 +35,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-slicer', name: 'World Slicer: map to lane', pipeline: 'map', stage: 'Simulator' },
   { mode: 'lab-determinism', name: 'Same run, any machine', pipeline: 'methods', stage: 'Hash' },
   { mode: 'lab-spike', name: 'Spike the riskiest call first', pipeline: 'methods', stage: 'Plan' },
+  { mode: 'lab-limits', name: 'What the model cannot do', pipeline: 'limits', stage: 'Check' },
 ];
 
 /** The Labs of one section, in number order, each with its number. */
@@ -59,6 +61,7 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'video', tier: 'pipelines', title: 'Video to motion', modes: ['lab-motion'] },
   { id: 'idea', tier: 'pipelines', title: 'Idea to course', modes: ['lab-partner'] },
   { id: 'map', tier: 'pipelines', title: 'Map to lane', modes: ['lab-slicer'] },
+  { id: 'limits', tier: 'pipelines', title: 'Know the limits', modes: ['lab-limits'] },
   { id: 'finale', tier: 'finale', title: 'System design', modes: ['lab-systemdesign'] }, // the last Lab: it sums up the three pipelines
 ];
 export const groupOf = (mode: string): LabGroup | undefined => LAB_GROUPS.find((g) => g.modes.includes(mode));
@@ -67,7 +70,7 @@ export const labName = (mode: string): string => LAB_LIST.find((l) => l.mode ===
 
 /** One pipeline stage: the Foundation Labs it relies on ("uses") and the pipeline Lab that teaches it (null = no Lab yet, an honest gap). */
 export interface PipelineStage { stage: string; uses: readonly string[]; lab: string | null }
-export const PIPELINE_MAP: Record<'photo' | 'video' | 'idea' | 'map', readonly PipelineStage[]> = {
+export const PIPELINE_MAP: Record<'photo' | 'video' | 'idea' | 'map' | 'limits', readonly PipelineStage[]> = {
   photo: [
     { stage: 'Photo', uses: ['lab-camera'], lab: null },
     { stage: 'Cut-out', uses: ['lab-vision', 'lab-detector'], lab: 'lab-lift' },
@@ -97,6 +100,11 @@ export const PIPELINE_MAP: Record<'photo' | 'video' | 'idea' | 'map', readonly P
     { stage: 'Lane', uses: ['lab-camera'], lab: 'lab-slicer' },
     { stage: 'Rules', uses: ['lab-timing'], lab: 'lab-slicer' },
     { stage: 'Simulator', uses: ['lab-search'], lab: 'lab-slicer' },
+  ],
+  limits: [
+    { stage: 'Failures', uses: ['lab-vision'], lab: 'lab-limits' },
+    { stage: 'Check', uses: ['lab-detector'], lab: 'lab-limits' },
+    { stage: 'Fall back', uses: ['lab-gentest'], lab: 'lab-limits' },
   ],
 };
 const PIPELINE_TITLE = (id: string): string => LAB_GROUPS.find((g) => g.id === id)?.title ?? id;

@@ -18,7 +18,7 @@ describe('labs bar', () => {
     const all = LAB_GROUPS.flatMap((g) => g.modes);
     expect([...all].sort()).toEqual(LAB_LIST.map((l) => l.mode).sort());
     expect(new Set(all).size).toBe(all.length);
-    expect(LAB_LIST).toHaveLength(20);
+    expect(LAB_LIST).toHaveLength(21);
     for (const g of LAB_GROUPS) expect(TIERS.map((t) => t.id), g.id).toContain(g.tier);
     const names = (id: string) => LAB_GROUPS.find((g) => g.id === id)!.modes.map((m) => LAB_LIST.findIndex((l) => l.mode === m) + 1);
     expect(names('search-learn')).toEqual([1, 2, 12, 9]);
@@ -30,6 +30,7 @@ describe('labs bar', () => {
     expect(names('idea')).toEqual([16]);
     expect(names('map')).toEqual([18]);
     expect(names('plan')).toEqual([20]);
+    expect(names('limits')).toEqual([21]);
     expect(LAB_GROUPS.some((g) => g.id === 'run')).toBe(false); // owner: no 'Run to shared link' section
   });
   it('lays the strip out from the data: every Lab once, under its own tier and sub-header, in number order', () => {

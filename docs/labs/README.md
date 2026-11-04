@@ -37,6 +37,11 @@
 |---|---|---|---|---|---|---|
 | 18 | Map to lane | [World Slicer: map to lane](slicer.md) | How does a pin on a real map become a lane the simulator can prove? | `?mode=lab-slicer&labs=1` | `tests/lab-slicer.test.ts` (23) | Buildings only (no trees or fences), five of 47 places, and the what-if limits change only the quick look |
 
+### Know the limits
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 19 | Check | [What the model cannot do](limits.md) | Which model failures do we give up on, cover with a check, or never needed a model for? | `?mode=lab-limits&labs=1` | `tests/lab-limits.test.ts` (16) | 14 photos rated by eye; the curves are steps |
+
 ### Methods behind the pipelines
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
