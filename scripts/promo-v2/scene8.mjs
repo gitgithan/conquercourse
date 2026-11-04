@@ -1,5 +1,5 @@
 // Promo storyboard scene 8 (CC-133), "Create your own Character". Clip a = the real app (the preview site, so the paid maker runs for real): Training course, Characters, type, Make it, trimmed wait, Play as, camera from side to front.
-// Clip b = the crowd stage (crowd-stage.html on the local dev server): ten characters run onto a platform from behind, leap up, land spread out round the ninja warrior, who then hops left and right.
+// Clip b = the crowd stage (crowd-stage.html on the local dev server): the made ninja stands alone (front view), the camera turns to 45 degrees, ten characters jump onto the platform, the camera turns to the side and zooms to fit, then from the middle outwards each jumps and freezes.
 // usage: node scene8.mjs <a|b> <playwright> <outdir> [baseUrl]
 //   env SITE=<site for clip a, default baseUrl>   DRY=1 types the words and stops before Make it (no paid call)   NINJA=<url of the glb for clip b>
 import { writeFileSync } from 'node:fs';
@@ -66,7 +66,7 @@ async function clipB() {
   const end = await p.evaluate(() => window.__crowdEnd);
   const frames = Math.ceil(end * 30);
   S.mark('start');
-  for (let i = 0; i < frames; i++) { await S.tick(); await S.shot(); if (i === Math.round(6.6 * 30)) S.mark('takeoff'); }
+  for (let i = 0; i < frames; i++) { await S.tick(); await S.shot();  }
   S.mark('end'); await S.finish({ seconds: end });
 }
 await (which === 'a' ? clipA() : clipB());

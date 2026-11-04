@@ -1,16 +1,16 @@
 // Promo storyboard scene 1 (CC-133): clip a = "Drop a pin anywhere", b = "Slice this place", c = "Cut a height" then "Send to the World Editor".
 // usage: node scene1.mjs <a|b|c> <playwright> <outdir> [baseUrl]      env PHOTO_API=<site> forwards GET /api/photos (Mapillary, shown live, nothing stored) when the dev server has no key
 // Stepped clock and the yellow click circle come from lib.mjs. The pin goes on the exact spot of the prepared Shibuya course: lat/lon of public/assets/places/shibuya-tokyo.json.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdirSync } from 'node:fs';
 import { openSession, retime, ease } from './lib.mjs';
 const [which, pw, out, base = 'http://localhost:5173'] = process.argv.slice(2);
 const P = JSON.parse(readFileSync(new URL('./params/scene1.json', import.meta.url), 'utf8'));
-const A = P[which], place = JSON.parse(readFileSync(new URL('../../' + P.placeFile, import.meta.url), 'utf8'));
+const A = P[which === 'd' ? 'a' : which], place = JSON.parse(readFileSync(new URL('../../' + P.placeFile, import.meta.url), 'utf8'));
 const S = await openSession({ url: null, out, pw }); const p = S.p;
 p.on('console', (m) => { if (/Slice|slice/.test(m.text())) console.log('console', m.text().slice(0, 100)); });
 if (process.env.PHOTO_API) await p.route('**/api/photos**', async (r) => { try { const u = new URL(r.request().url()); const res = await fetch(process.env.PHOTO_API + u.pathname + u.search); r.fulfill({ status: res.status, contentType: 'application/json', body: await res.text() }); } catch { r.fulfill({ status: 503, body: '{}' }); } });
 await p.addInitScript(() => { try { localStorage.setItem('cc.next.seen', '1'); } catch { /* ok */ } });
-const url = base + P.url + (which === 'a' ? '' : `&lat=${place.lat}&lon=${place.lon}&z=${A.zoom}`);
+const url = base + P.url + (which === 'a' || which === 'd' ? '' : `&lat=${place.lat}&lon=${place.lon}&z=${A.zoom}`);
 await p.goto(url);
 await p.waitForFunction(() => document.documentElement.dataset.mapready === 'true' && window.__ccMap, null, { timeout: 180000 }).catch(() => console.log('map not ready'));
 await S.settle(1500); await S.hideChrome();
@@ -90,11 +90,30 @@ async function clipC() {
   await S.rec(A.editorHold); S.mark('end');
 }
 
+// clip d (owner, 2026-11-05) sits between 1a and 1b: the view at the end of 1a (it runs first without pictures), click "Browse N ready places", pause 1 s,
+// scroll down to the Europe and Asia parkour parks, pause 1 s, straight back up and click Shibuya.
+async function clipD() {
+  await clipA();
+  rmSync(`${out}/frames`, { recursive: true, force: true }); mkdirSync(`${out}/frames`, { recursive: true });
+  S.n = 0; S.marks = {}; await S.rec(0.3); S.mark('start');
+  await S.clickSel('#ready-gallery-btn', { move: 0.8, hold: 0.3, after: 0.2 }); S.mark('browse');
+  await p.waitForSelector('#ready-gallery .card', { timeout: 60000 });
+  await S.until(() => [...document.querySelectorAll('#ready-gallery img.ph')].slice(0, 12).every((i) => i.complete), 'thumbs', 60000);
+  await S.rec(1.0); S.mark('pause1');
+  const sel = '#ready-gallery .gal', eu = await p.evaluate(() => { const g = document.querySelector('#ready-gallery .gal'), h = [...g.querySelectorAll('.gh.pk')][0]; return h ? h.getBoundingClientRect().top - g.getBoundingClientRect().top + g.scrollTop - 8 : 1200; });
+  await S.glideTo(sel, 0.4);
+  await S.scrollTo(sel, eu, 1.6); S.mark('parks');
+  await S.until(() => [...document.querySelectorAll('#ready-gallery img.ph')].filter((i) => { const r = i.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; }).every((i) => i.complete), 'thumbs2', 60000);
+  await S.rec(1.0); S.mark('pause2');
+  await S.scrollTo(sel, 0, 0.7); S.mark('top');
+  await S.clickSel('#ready-gallery button.card[data-slug="shibuya-tokyo"]', { move: 0.7, hold: 0.3, after: 0.5 }); S.mark('shibuya');
+  await S.rec(0.4); S.mark('end');
+}
 let extra = {};
-if (which === 'a') extra = await clipA(); else if (which === 'b') await clipB(); else await clipC();
+if (which === 'a') extra = await clipA(); else if (which === 'b') await clipB(); else if (which === 'd') await clipD(); else await clipC();
 await S.finish({ params: A, place: { name: place.name, lat: place.lat, lon: place.lon, source: P.placeFile }, ...extra });
 // retime so the final clip is about targetSecs long (never slower than real time)
-const secs = S.n / S.fps, k = Math.max(1, +(secs / A.targetSecs).toFixed(3));
+const secs = S.n / S.fps, k = which === 'd' ? 1 : Math.max(1, +(secs / A.targetSecs).toFixed(3));
 retime(out, `${out}/clip.mp4`, { k });
 writeFileSync(`${out}/retime.json`, JSON.stringify({ gameSeconds: +secs.toFixed(2), speedUp: k, finalSeconds: +(secs / k).toFixed(2) }, null, 2));
 console.log('done', secs.toFixed(1), 's game ->', (secs / k).toFixed(1), 's final, k', k);
