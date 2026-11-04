@@ -19,6 +19,7 @@ export const MODE_LOADERS: Record<string, ScreenLoader> = {
   'lab-signal': async (h) => (await import('./modes/lab-signal')).startLabSignal(h),
   'lab-ik': async (h) => (await import('./modes/lab-ik')).startLabIk(h),
   'lab-rl': async (h) => (await import('./modes/lab-rl')).startLabRl(h),
+  'lab-motion': async (h) => (await import('./modes/lab-motion')).startLabMotion(h),
   'lab-optimization': async (h) => (await import('./modes/lab-optimization')).startLabOptimization(h),
   'lab-integration': async (h) => (await import('./modes/lab-integration')).startLabIntegration(h),
   'lab-camera': async (h) => (await import('./modes/lab-camera')).startLabCamera(h),

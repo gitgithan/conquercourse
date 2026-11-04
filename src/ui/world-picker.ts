@@ -49,6 +49,7 @@ export const DEMO_GROUPS: [string, Demo[]][] = [
     ['lab-detector', 'Lab 10: Evaluating a detector', 'Check whether a helper program points at the right part of an object to hold.'],
     ['lab-hashing', 'Lab 11: Verification and hashing', 'Change one key press in a recorded run and see which kind of fingerprint notices.'],
     ['lab-rl', 'Lab 12: Reinforcement learning', 'Write the points a character earns, and watch it learn the course by trial and error.'],
+    ['lab-motion', 'Lab 13: Video to motion', 'Follow a filmed move from frames to joints to the gate, and see a clip that is wrong held back before it reaches the character.'],
   ]],
 ];
 
@@ -89,7 +90,7 @@ export const MAKING_OF_CARDS: [string, string, string, string][] = [
   ['/making-of/course-map.html', 'Course map', 'The building tasks of the project in plan order, and which wait on which.', 'making-course-map'],
 ];
 
-export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl'];
+export const WORD_VALUES = [...EXPERIMENTS.map((e) => `dojo-${e.id}`), 'parts', 'generate', 'editor', 'coaster-builder', 'map', 'lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl', 'lab-motion'];
 /** The Parts card is the third card of The Making Of; it opens ?mode=parts through onPick like a course card. */
 export const PARTS_CARD: Demo = ['parts', 'Parts: moves and obstacles', 'Every move and every obstacle on one page, each playing the real game on its own. See what a course is made of.'];
 export const DEMOS: [string, string][] = [...DEMO_GROUPS, ['', [PARTS_CARD]] as [string, Demo[]]].flatMap(([, ds]) => ds.map((d) => [d[0], d[1]] as [string, string]));
@@ -150,6 +151,7 @@ const ICONS: Record<string, string> = {
   'lab-detector': '<rect x="10" y="12" width="44" height="40" rx="4"/><rect x="22" y="22" width="20" height="20" rx="2"/><path d="M10 12l8 6M54 12l-8 6"/>',
   'lab-hashing': '<path d="M24 8l-4 48M44 8l-4 48M10 22h46M8 42h46"/>',
   'lab-rl': '<circle cx="14" cy="46" r="4"/><circle cx="32" cy="24" r="4"/><circle cx="50" cy="40" r="4"/><path d="M18 43l11-16M36 26l11 11"/><path d="M8 56h48"/>',
+  'lab-motion': '<circle cx=\"32\" cy=\"10\" r=\"4\"/><path d=\"M32 14v18M32 20l-12 8M32 20l12 8M32 32l-10 18M32 32l10 18\"/><path d=\"M8 56h48\"/>',
   map: '<path d="M32 56S14 38 14 26a18 18 0 0 1 36 0c0 12-18 30-18 30z"/><circle cx="32" cy="26" r="6"/>',
   stay: '<path d="M10 50h12V36h14V22h18"/><circle cx="54" cy="22" r="3"/>',
   'generate-same': '<rect x="14" y="14" width="36" height="36" rx="7"/><circle cx="25" cy="25" r="3"/><circle cx="39" cy="39" r="3"/><circle cx="32" cy="32" r="3"/>',
