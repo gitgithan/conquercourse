@@ -1,3 +1,4 @@
+import { summaryHtml } from './labs-summary';
 import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, seeAlsoOf, labNumberOf, usedIn, usesOf } from './labs-series';
 
 // CC-133: how the Labs hand over to each other. Pipeline Labs show "from" at the top, "uses: Lab N" chips for the Foundation Labs they rely on, and "next" at the end.
@@ -9,6 +10,9 @@ const STYLE = `
   .lab-flow-label{font:700 12px system-ui,sans-serif;color:#52605a}
   .lab-flow-next{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#fff;border:1px solid #d5ddd6;border-radius:10px;padding:12px}
   .lab-flow-next a{font:700 14px system-ui,sans-serif;color:#fff;background:#0f6b5c;border-radius:8px;padding:8px 14px;text-decoration:none}
+  .lab-summary{background:#fff;border:1px solid #b9d6cd;border-left:4px solid #0f6b5c;border-radius:10px;padding:8px 12px;font:13px/1.4 system-ui,sans-serif;color:#17201d;display:grid;gap:2px}
+  .lab-summary span+span::before{content:" \\00b7 ";color:#0f6b5c;font-weight:700}
+  .lab-summary b{color:#0f6b5c}
   .lab-flow-chip:focus-visible,.lab-flow-next a:focus-visible{outline:2px solid #ffd27a;outline-offset:1px}`;
 const href = (mode: string): string => `?mode=${mode}&labs=1&welcome=0`; // the same link the Labs bar uses
 const lab = (mode: string): string => `Lab ${labNumberOf(mode)}: ${labName(mode)}`;
@@ -49,7 +53,7 @@ export function mountLabFlow(root: HTMLElement, mode: string): void {
   const wrap = root.querySelector<HTMLElement>('.wrap'), p = flowPieces(mode);
   if (!wrap || !p || wrap.querySelector('#lab-flow-top')) return;
   if (!document.getElementById('lab-flow-style')) { const s = document.createElement('style'); s.id = 'lab-flow-style'; s.textContent = STYLE; document.head.appendChild(s); }
-  wrap.insertAdjacentHTML('afterbegin', p.top);
+  wrap.insertAdjacentHTML('afterbegin', summaryHtml(mode) + p.top); // the offset under the Labs strip is the Lab root's own top: var(--labs-nav-h)
   if (p.end) wrap.insertAdjacentHTML('beforeend', p.end);
   wrap.querySelector<HTMLAnchorElement>('a[data-courses]')?.addEventListener('click', (e) => { const c = document.getElementById('labs-courses'); if (c) { e.preventDefault(); c.click(); } }); // opens the Courses screen
 }
