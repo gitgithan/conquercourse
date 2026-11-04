@@ -31,6 +31,9 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ### Course: run it, see the report, pick a course
 
+- Top row: the Training run with debug mode on (B), then the end screen with your time and path.
+- Bottom row: the Courses page, then Parts, every obstacle piece we have.
+
 <table>
 <tr>
 <td><a href="README_MEDIA/course-1-training-run.png"><img src="README_MEDIA/course-1-training-run.png" width="480" alt="The Training run: the runner on the start block, the ghost ahead and the Fastest runs card at the top right, and debug mode on (B): the Debug panel at the left, yellow outlines on the shapes and the landing marker"></a></td>
@@ -43,6 +46,9 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 </table>
 
 ### World Slicer: a real place becomes a lane
+
+- Top row: the ready places, street places first, then the real parkour parks in Europe and Asia.
+- Bottom row: Shibuya sliced with a live street photo; then Gerlev Parkour Park with Send to the World Editor.
 
 <table>
 <tr>
@@ -57,6 +63,9 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ### World Editor: change a course, check it with the simulator
 
+- Top row: a broken course with the design partner's checked ideas and the Improve menu; then the same course from the top.
+- Bottom row: Add pieces, with real objects lifted from photos; then Moves in this world.
+
 <table>
 <tr>
 <td><a href="README_MEDIA/editor-1-improve-menu-after-ai-ideas.webp"><img src="README_MEDIA/editor-1-improve-menu-after-ai-ideas.webp" width="480" alt="A broken course: the design partner's checked ideas (teal) and the Improve menu"></a></td>
@@ -70,7 +79,6 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ### 🥋 Dojo and 🧪 Labs
 
-- Click a picture to open it full size.
 - Top row: the Dojo's Gap jump lesson, then the Labs map.
 - Bottom row: the Signal processing Lab, then the System design Lab.
 
@@ -87,7 +95,6 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 
 ### 🌍 Community
 
-- Click a picture to open it full size.
 - Top row: Explore, the pieces people made; then Mark it yourself, a box dragged round the red platform.
 - Bottom row: the 3D shape being built; then the finished Platform piece.
 - Park photo in the platform pieces: Alexis Jazz, Voltaplatz skatepark, ledge, CC BY 4.0.
