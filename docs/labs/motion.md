@@ -88,3 +88,18 @@
 2. Run all four pipeline repairs in the page and show the gate before and after each.
 3. Show the contacts step (which foot or hand touches what) between the pose and the gate.
 4. Compare the TypeScript and Python gates on all ten clips in a test fixture.
+
+## Longer explanations moved out of the page (CC-133)
+- Video: each frame's time comes from the video's own rate (frame i at i divided by the rate).
+  - We keep no pictures of the people; what follows the video is only the 30 joint positions per frame.
+- Pose: the file keeps a list of names and, for each frame, one position per name.
+  - The two lists must be the same length, always.
+- Smooth: the game smooths with a light 1-2-3-2-1 triangle, then gives every bone one length.
+  - How much to smooth, and what it costs in lag and flat peaks, is taught in Lab 8 and is not repeated in Lab 13.
+- Gate: no motion is shown before it passes.
+  - The code is a TypeScript port of the Python gate, checked against it in Lab 8.
+- Clip: the clip and the Rookie share the same 30 joint names.
+  - The clip's person has other leg lengths, so every position is scaled so the legs match, and the Rookie's bones are turned to point where the joints are.
+- Tick: the pose shown is read from the simulator's tick count, never from a timer.
+- Where this Lab sits: stage 2 of 3, after the photo-to-course Labs and before running, recording and sharing a run.
+
