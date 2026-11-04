@@ -10,6 +10,7 @@ import { heightOf } from './osm';
 import { buildingSeed, roofBox, roofFits, roofTriangles, shade, styleBuilding, type BuildingStyle } from './building-style';
 import { groundAt, lowest, type Ground } from './terrain';
 import { pickWall, wallQuad, type FacadeSpec } from './facade';
+import { paintGround } from '../slice/ground-colour';
 
 export type SkinMode = 'none' | 'tags' | 'full';
 export const skinFromQuery = (q: URLSearchParams, fallback: SkinMode = 'none'): SkinMode => { const s = q.get('skin'); return s === 'none' || s === 'tags' || s === 'full' ? s : fallback; };
@@ -133,7 +134,7 @@ function styledWallTexture(st: BuildingStyle): THREE.CanvasTexture {
 }
 
 export interface SkinStats { buildings: number; land: number; roads: number; trees: number; textures: number; facades?: number }
-export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number; ground?: Ground | null; noLand?: boolean; style?: boolean; facades?: { spec: FacadeSpec; texture: THREE.Texture }[] } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
+export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed?: number; ground?: Ground | null; noLand?: boolean; groundColour?: boolean; slopeGround?: Ground | null; style?: boolean; facades?: { spec: FacadeSpec; texture: THREE.Texture }[] } = { skin: 'full' }): { group: THREE.Group; stats: SkinStats } {
   const k = opts.k ?? 1, skin = opts.skin, full = skin === 'full', pr = project(osm), group = new THREE.Group();
   const stats: SkinStats = { buildings: 0, land: 0, roads: 0, trees: 0, textures: 0 };
   const plain = new THREE.MeshStandardMaterial({ color: '#a9a392', roughness: 0.85, flatShading: true });
@@ -141,14 +142,25 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
   const std = (color: string, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.9, ...extra });
 
   // ground
-  if (skin !== 'none' && !opts.noLand) {
+  // CC-133 (?groundcolour): one painted ground from the tags (src/slice/ground-colour.ts) replaces the flat plane, the flat land shapes and the road ribbons; colour only, same height
+  const paintedGround = skin !== 'none' && !opts.noLand && opts.groundColour === true;
+  if (paintedGround) {
+    const half = osm.radius + 60, p = paintGround(osm.elements, { half, project: pr, ground: opts.slopeGround ?? opts.ground ?? null });
+    // texture row 0 is the south edge of the plane (the plane is turned flat), the painted rows run north to south: flip them
+    const flipped = new Uint8Array(p.rgba.length); for (let j = 0; j < p.size; j++) flipped.set(p.rgba.subarray(j * p.size * 4, (j + 1) * p.size * 4), (p.size - 1 - j) * p.size * 4);
+    const tex = new THREE.DataTexture(flipped, p.size, p.size, THREE.RGBAFormat);
+    tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = THREE.LinearFilter; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.generateMipmaps = true; tex.anisotropy = 4; tex.needsUpdate = true;
+    const base = new THREE.Mesh(new THREE.PlaneGeometry(2000 * k, 2000 * k), std(GROUND_COLOUR)); base.rotation.x = -Math.PI / 2; base.position.y = -0.02 * k; base.receiveShadow = full; group.add(base);
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(2 * half * k, 2 * half * k), std('#ffffff', { map: tex })); top.rotation.x = -Math.PI / 2; top.position.y = -0.005 * k; top.receiveShadow = full; group.add(top);
+    stats.land = 1;
+  } else if (skin !== 'none' && !opts.noLand) {
     const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000 * k, 2000 * k), std(GROUND_COLOUR)); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02 * k; ground.receiveShadow = full; group.add(ground);
   }
 
   // land: parks, water, wood, paving, in the order grass, wood, sand, paving, water so water sits on top
   const order: LandKind[] = ['rock', 'paving', 'sand', 'grass', 'wood', 'water'];
   const woods: XY[][] = [];
-  if (skin !== 'none' && !opts.noLand) {
+  if (skin !== 'none' && !opts.noLand && !paintedGround) {
     for (const kind of order) {
       let n = 0;
       for (const e of osm.elements) {
@@ -166,7 +178,7 @@ export function buildSkin(osm: SkinOsm, opts: { skin: SkinMode; k?: number; seed
   }
 
   // roads and paths: a flat ribbon along each way
-  if (skin !== 'none' && !opts.noLand) {
+  if (skin !== 'none' && !opts.noLand && !paintedGround) {
     const byColour = new Map<string, { pos: number[]; idx: number[] }>();
     for (const e of osm.elements) {
       if (e.type !== 'way' || !e.geometry || e.geometry.length < 2) continue;

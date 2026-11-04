@@ -9,6 +9,8 @@ import { patternOf } from './stack';
 import { cupsGroup } from './cups';
 import { createPerf } from '../ui/perf';
 import { fitDistance, type ViewBounds } from './view-fit';
+import { installSkyLight, shadowsOn, skyLightOn, timeOfDayPicker, type SkyLight } from '../render/sky-light';
+import { pageQuery } from '../flags';
 import { START_LABEL } from './editor-defaults';
 import { SCALE_BEAM_HEIGHT, SCALE_BEAM_RADIUS, SCALE_RING_INNER, SCALE_RING_OUTER, SCALE_LABEL_HEIGHT } from './person-ref';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
@@ -83,11 +85,23 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
 
   const scene = new THREE.Scene();
   const perf = createPerf({ label: 'Editor', backend: 'webgl2', renderer, scene, onDemand: true });
-  scene.background = new THREE.Color(0xcfe3f2);
-  scene.fog = new THREE.Fog(0xcfe3f2, 60, 220);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a78, 1.5));
-  const sun = new THREE.DirectionalLight(0xfff2d8, 2.2); sun.position.set(-20, 40, 25); scene.add(sun);
+  // CC-133: with the sky-light switch on, a real sky, sun, fog and soft shadows replace the flat light (src/render/sky-light.ts); with it off, the old look is exactly as it was
+  const q = pageQuery(), skyOn = !host.icon && skyLightOn(q);
+  let sky: SkyLight | null = null;
+  if (!skyOn) {
+    scene.background = new THREE.Color(0xcfe3f2);
+    scene.fog = new THREE.Fog(0xcfe3f2, 60, 220);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a78, 1.5));
+    const sun = new THREE.DirectionalLight(0xfff2d8, 2.2); sun.position.set(-20, 40, 25); scene.add(sun);
+  }
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 600);
+  if (skyOn) {
+    const where = (() => { try { const j = JSON.parse(sessionStorage.getItem('cc.map.sun') ?? 'null') as { lat: number; lon: number } | null; return j && Number.isFinite(j.lat) ? j : null; } catch { return null; } })();
+    const lat = where?.lat ?? (Number.isFinite(Number(q.get('sunlat'))) && q.get('sunlat') ? Number(q.get('sunlat')) : 48.85);
+    let saved: string | null = null; try { saved = localStorage.getItem('cc.sunat'); } catch { /* private window */ }
+    sky = installSkyLight(THREE, scene, { lat, lon: where?.lon, preset: q.get('sunat') ?? saved, shadows: shadowsOn(q), renderer, far: camera.far });
+    wrap.appendChild(timeOfDayPicker(sky, () => redraw(), 'right:10px;top:10px'));
+  }
   camera.position.set(3, 9, 17);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(9, 0.5, 0); controls.maxPolarAngle = Math.PI / 2 - 0.03; controls.minDistance = 0.6; controls.maxDistance = 400; controls.update();
@@ -164,7 +178,7 @@ export function createView3d(wrap: HTMLElement, host: Host): View3d {
   controls.addEventListener('change', redraw);
   const publishCamera = () => { const t = controls.target; document.documentElement.dataset.cam = JSON.stringify({ d: +camera.position.distanceTo(t).toFixed(3), t: [+t.x.toFixed(3), +t.y.toFixed(3), +t.z.toFixed(3)], p: [+camera.position.x.toFixed(3), +camera.position.y.toFixed(3), +camera.position.z.toFixed(3)] }); };
   controls.addEventListener('change', publishCamera); publishCamera();
-  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; perf.frame(); perf.renderStart(); renderer.render(scene, camera); perf.renderEnd(); };
+  const loop = () => { requestAnimationFrame(loop); if (!on || !dirty) return; dirty = false; perf.frame(); perf.renderStart(); if (sky) { sky.mark(scene); sky.follow(camera.position); if (sky.shadows) sky.fitShadow(controls.target, Math.max(15, Math.min(160, camera.position.distanceTo(controls.target) * 0.9))); } renderer.render(scene, camera); perf.renderEnd(); };
   requestAnimationFrame(loop);
 
   const pieceMaterials = new Map<string, THREE.MeshStandardMaterial>();
