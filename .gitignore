@@ -36,3 +36,10 @@ data/eval/**
 
 # Generated local code graph; rebuild separately in each worktree.
 graphify-out/
+
+# Owner, 2026-11-04: social post text and videos are never tracked (they live in ../conquercourse-assets/social/).
+docs/social-posts.md
+docs/promo/
+scripts/film-d/out/
+**/post.md
+**/poster.jpg

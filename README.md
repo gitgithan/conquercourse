@@ -490,7 +490,7 @@ flowchart LR
 ```
 
 ## 🎞️ About the promo video
-- The file is `docs/promo/conquercourse-promo.mp4`, the latest cut (2026-11-03) with the chase-shot lag fixed.
+- The file is outside git, in `../conquercourse-assets/social/promo/` (videos and post text are never tracked), the latest cut (2026-11-03) with the chase-shot lag fixed.
 - It is 1920 by 1080 at 30 frames per second, 85 seconds, about 9 MB.
 - It shows the four experiences in one run: a real place becomes a course, the editor, the record chase, the Dojo and the Labs.
 - Every shot is recorded from the real game; the chase shot uses the stepped clock so it has no repeated frames.
