@@ -9,6 +9,8 @@ import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { TICKS_PER_SECOND } from "../sim/units";
 import { GATE_LIMITS, type SignalClip } from "../lab/signal-lab";
+import { mountSignalPanel } from "../labs/signal/panel";
+import { mountIkPanel } from "../labs/ik/panel";
 import {
   LAB_CLIPS, RULE_WORDS, applyGameSmoothing, buildClip, checkShape, clipFrameAtTick, clipSeconds, clockOffPercent, dropLastName, frameTime, liftToFloor,
   onlyBoneLengths, REAL_MANIFEST_URL, retargetScale, ticksFor, verdict, whyFailed, withFps, type LabClip, type Verdict,
@@ -73,11 +75,13 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
 
     <div class="card" id="s3"><h2>Step 3. Smoothing: only what the game applies</h2>
       <p class="small" style="margin:0 0 6px">Light 1-2-3-2-1 smoothing, then one length per bone. The trade-off is in <a href="?mode=lab-signal&labs=1&welcome=0">Lab 8, Signal processing</a>.</p>
-      <div id="mo-s3"></div></div>
+      <div id="mo-s3"></div>
+      <details id="mo-w8" style="margin-top:10px"><summary><b>Try the smoothing yourself, and the gate table</b> (the panel of Lab 8, same code)</summary><div id="mo-w8-body" style="margin-top:8px"></div></details></div>
 
     <div class="card" id="s4"><h2>Step 4. The plausibility gate</h2>
       <p class="small" style="margin:0 0 6px">Nothing plays before it passes. Hard rules block a clip; soft rules only report.</p>
       <div id="mo-s4"></div>
+      <p class="small" style="margin:6px 0 0"><button id="mo-open-w8" type="button" class="link" style="background:none;border:0;color:#0f6b5c;font:600 13px system-ui;cursor:pointer;padding:0;text-decoration:underline">Open the gate table of Lab 8</button> (rule by rule, on a clean, a wobbly and a smoothed clip).</p>
       <h2 style="margin-top:12px">The gate on every clip</h2><div id="mo-all"></div>
       <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div>
       <h2 style="margin-top:12px">The pose finder's own output</h2><div id="mo-real"></div></div>
@@ -86,7 +90,8 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
       <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
         <p class="small" style="margin:0 0 6px">Legs are scaled to match, bones turned to the joints. A failed clip never plays.</p>
         <div id="mo-view"><div id="mo-held"></div></div>
-        <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
+        <div id="mo-s5" class="small" style="margin-top:6px"></div>
+        <details id="mo-w3" style="margin-top:10px"><summary><b>Try the reach yourself</b> (the panel of Lab 3, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div>
       <div class="card" id="s6"><h2>Step 6. The one clock</h2>
         <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer.</p>
         <label class="small">Simulator tick: <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
@@ -94,6 +99,11 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
         <h2 style="margin-top:12px">Which move uses which clip</h2><div id="mo-table"></div></div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
+  // the shared panels of Lab 8 and Lab 3 mount the first time their box is opened (no second 3D view is made: step 5 plays the Rookie)
+  const lazy = (id: string, mount: (host: HTMLElement) => unknown) => { const d = wrap.querySelector<HTMLDetailsElement>("#" + id)!; let done = false; d.addEventListener("toggle", () => { if (d.open && !done) { done = true; mount(d.querySelector<HTMLElement>("div")!); } }); return d; };
+  const w8 = lazy("mo-w8", (h) => void mountSignalPanel(h, { rookie: false, markPage: false }).start());
+  lazy("mo-w3", (h) => void mountIkPanel(h));
+  $("mo-open-w8").addEventListener("click", () => { w8.open = true; w8.scrollIntoView({ block: "start" }); });
   const files: Record<string, SignalClip> = {};
   const built = new Map<string, SignalClip>();
   const verdicts = new Map<string, Verdict>();
@@ -120,7 +130,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     const typed30 = withFps(leap, 30), typed24 = withFps(leap, 24);
     const row = (label: string, k: SignalClip) => { const v = verdict(leapSpec, k); return `<tr><td>${label}</td><td class="n">${fmt(k.fps, 2)}</td><td class="n">${fmt(((k.frames.length - 1) / k.fps), 3)} s</td><td class="${v.pass ? "ok" : "bad"}">${v.pass ? "passes" : "fails: " + v.failed.map((r) => RULE_WORDS[r]).join(", ")}</td></tr>`; };
     $("mo-s1").innerHTML = `<p style="margin:0 0 6px"><b>${n}</b> frames at <b>${fmt(real, 2)}</b> frames a second: frame 10 is at <b>${fmt(frameTime(10, real), 4)} s</b>, the last frame at <b>${fmt(clipSeconds(c), 3)} s</b>.</p>
-      <p class="small" style="margin:0 0 6px">The clock comes from the source. A typed-in rate is a second clock, and the gate finds it out because gravity is a clock too. Same joints, other rates, shown on the shipped leap (a clean clip with a clear jump):</p>
+      <p class="small" style="margin:0 0 6px">A typed-in rate is a second clock; gravity gives it away.</p>
       <table><thead><tr><th>Rate used</th><th class="n">per s</th><th class="n">Length</th><th>Gate</th></tr></thead><tbody>${row("The source's own", leap)}${row("Typed as 30", typed30)}${row("Typed as 24", typed24)}</tbody></table>
       <p class="small" style="margin:6px 0 0">A rate typed as 30 for a 29.97 source is ${fmt(Math.abs(clockOffPercent(29.97, 30)), 2)}% off: harmless. Typed 24 for a 30 source is ${fmt(Math.abs(clockOffPercent(30, 24)), 0)}% off.</p>`;
   }
@@ -164,7 +174,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     const tri = applyGameSmoothing(c), bones = onlyBoneLengths(c);
     $("mo-s3").innerHTML = `<table><thead><tr><th>Clip</th><th class="n">Bone length change (limit 2%)</th><th class="n">Peak acceleration (limit ${GATE_LIMITS.maxAccel})</th><th class="n">Planted-foot slide (limit 3 cm)</th><th>Hard rules</th></tr></thead><tbody>
       ${softRow("As measured", c)}${softRow("One length per bone only", bones)}${softRow("The game's: triangle, then one length per bone", tri)}</tbody></table>
-      <p class="small" style="margin:6px 0 0">These three are soft rules: they are reported, and they do not stop a clip. The shipped CMU clips are not smoothed by this step at all, and the filmed ones were smoothed when they were made, so on a clean clip the change is small. On the clip with the stretching arm, one length per bone is what fixes the first column.</p>`;
+      <p class="small" style="margin:6px 0 0">Soft rules: reported, they never stop a clip.</p>`;
   }
 
   function gateTable(v: Verdict): string {
@@ -177,12 +187,12 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   function fillS4(): void {
     const v = verdicts.get(current.id)!;
     const c = clipOf(current), lifted = liftToFloor(c.frames), after = verdict(current, { ...c, frames: lifted.frames });
-    const repair = v.pass ? "" : `<p class="small" style="margin:6px 0 0">The only repairs allowed before the gate are small ones. Lift to the floor (${lifted.changed} frames raised) gives: ${after.pass ? `<span class="ok">passes now</span>` : `<span class="bad">still fails</span> - ${whyFailed(after)}`}</p>`;
+    const repair = v.pass ? "" : `<p class="small" style="margin:6px 0 0">Small repair only: lift to the floor (${lifted.changed} frames) gives: ${after.pass ? `<span class="ok">passes now</span>` : `<span class="bad">still fails</span> - ${whyFailed(after)}`}</p>`;
     $("mo-s4").innerHTML = `<p style="margin:0 0 6px;font-size:16px">Verdict: ${v.pass ? `<span class="ok">passes</span>` : `<span class="bad">fails</span> - ${whyFailed(v)}`}</p>${gateTable(v)}${repair}`;
     $("mo-all").innerHTML = `<table><thead><tr><th>Clip</th><th>Where it came from</th><th>Verdict</th><th>Why</th></tr></thead><tbody>${LAB_CLIPS.map((s) => {
       const x = verdicts.get(s.id)!;
       return `<tr data-clip="${s.id}"><td><button class="link" data-pick="${s.id}" style="border:0;background:none;padding:0;color:${TEAL};text-decoration:underline">${s.label}</button></td><td>${ORIGIN_WORDS[s.origin]}</td><td class="${x.pass ? "ok" : "bad"}">${x.pass ? "passes" : "fails"}</td><td>${x.pass ? (x.softFailed.length ? "soft only: " + x.softFailed.map((k) => RULE_WORDS[k]).join(", ") : "") : x.failed.map((k) => RULE_WORDS[k]).join(", ")}</td></tr>`;
-    }).join("")}</tbody></table><p class="small" style="margin:6px 0 0">The last four are made from shipped clips by this Lab (a recorded clip changed in one way) so that each rule can be seen failing. They are not recorded failures.</p>`;
+    }).join("")}</tbody></table><p class="small" style="margin:6px 0 0">The last four are shipped clips changed in one way, not recorded failures.</p>`;
     wrap.querySelectorAll<HTMLButtonElement>("[data-pick]").forEach((b) => { b.onclick = () => { sel.value = b.dataset.pick!; change(); }; });
   }
 
@@ -202,9 +212,9 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     const rec = await (await fetch("/assets/lab/motion-recorded.json")).json();
     const col = (r: any, k: string) => { const x = r.hard[k]; return `<td class="n ${x.ok ? "" : "bad"}">${x.value === null ? "-" : fmt(x.value * (UNITS[k]?.[0] ?? 1), 2)} ${x.ok ? "ok" : "FAILED"}</td>`; };
     const keys = Object.keys(rec.raw.hard);
-    $("mo-rec").innerHTML = `<p class="small" style="margin:0 0 6px">The filmed jump roll (${rec.frames} frames) went through the pipeline's own Python gate before it was ever played: the raw measurement, then after the allowed repairs. Both numbers below were printed by that run, not by this page.</p>
+    $("mo-rec").innerHTML = `<p class="small" style="margin:0 0 6px">The filmed jump roll (${rec.frames} frames), measured by the pipeline's own Python gate, raw then repaired.</p>
       <table><thead><tr><th>Rule</th><th class="n">Raw measurement</th><th class="n">After repairs</th></tr></thead><tbody>${keys.map((k) => `<tr><td>${RULE_WORDS[k]}</td>${col(rec.raw, k)}${col(rec.repaired, k)}</tr>`).join("")}</tbody></table>
-      <p class="small" style="margin:6px 0 0">The repair lifted the sunk feet (5.4 cm to 0). It cannot invent a falling arc, so the whole film stays held back, and only a trimmed piece (the crouch clip above) was kept.</p>`;
+      <p class="small" style="margin:6px 0 0">The repair fixes the sunk feet, not the missing falling arc: the film stays held back.</p>`;
   }
 
   // ---------- the Rookie ----------
