@@ -1,5 +1,5 @@
 // Background music, one looping track per screen (CC-132). Original loops made from text prompts only (docs/ASSETS.md).
-// On by default (?music=0 turns it off and the browser remembers; ?music=1 turns it on again). It tries to start at load, plays quietly, pauses while the tab is hidden,
+// Always on for players (the volume button mutes it; ?music=0 silences one page load only and is never saved). It tries to start at load, plays quietly, pauses while the tab is hidden,
 // and M or the speaker button mutes it with the sound effects (the mute is remembered). Automated browsers stay silent unless the address has ?music=1.
 import { isMuted, onMuteChange, setMuted } from './audio';
 import { pageSearch } from '../flags';
@@ -11,12 +11,11 @@ export const FADE_IN_S = 2;
 export const CROSSFADE_S = 1.5;
 
 export function musicOn(search = pageSearch(), automated = typeof navigator !== 'undefined' && navigator.webdriver === true): boolean {
+  // Never saved: a stored "off" from an older visit is wiped, and ?music=0 only silences that one page load (the Parts frames use it). Players mute with the volume button.
+  try { localStorage.removeItem('cc.music'); } catch { /* ok */ }
   const m = /[?&]music(?:=(\w+))?(?:&|$)/.exec(search);
-  try {
-    if (m) { const on = m[1] !== '0'; if (on) localStorage.removeItem('cc.music'); else localStorage.setItem('cc.music', '0'); return on; }
-    if (automated) return false; // tests stay silent
-    return localStorage.getItem('cc.music') !== '0';
-  } catch { return m ? m[1] !== '0' : !automated; }
+  if (m) return m[1] !== '0';
+  return !automated; // tests stay silent
 }
 
 // Which music a mode gets. The Slicer is part of the map mode; the coaster, park and labs borrow the closest mood.

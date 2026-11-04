@@ -4,7 +4,7 @@ import { CROSSFADE_S, FADE_IN_S, MUSIC_VOLUME, SCREENS, crossfadeGains, musicOn,
 
 // CC-132: the loops are numbers-checked, not heard: the seam of each loop must be no bigger than an ordinary step of the wave.
 describe('music', () => {
-  it('is on by default for players, silent in automated browsers, and ?music=0 turns it off', () => {
+  it('is on by default for players, silent in automated browsers, and ?music=0 silences only that page', () => {
     expect(musicOn('', false)).toBe(true);
     expect(musicOn('?course=x', false)).toBe(true);
     expect(musicOn('?music=1', false)).toBe(true);
@@ -45,5 +45,18 @@ describe('music', () => {
   it('keeps the bright loops soft: under 0.1% of the energy above 5 kHz on the Report and the library', () => {
     const m = JSON.parse(readFileSync('public/assets/music/loops.json', 'utf8')) as { screen: string; hf_share_5k: number }[];
     for (const s of ['report', 'library']) expect(m.find((x) => x.screen === s)!.hf_share_5k, s).toBeLessThan(0.001);
+  });
+});
+
+describe('music is never saved as off', () => {
+  it('wipes a stored off and does not write one', () => {
+    const store: Record<string, string> = { 'cc.music': '0' };
+    (globalThis as unknown as { localStorage: unknown }).localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; }, removeItem: (k: string) => { delete store[k]; } };
+    expect(musicOn('', false)).toBe(true);
+    expect(store['cc.music']).toBeUndefined();
+    expect(musicOn('?music=0', false)).toBe(false);
+    expect(store['cc.music']).toBeUndefined();
+    expect(musicOn('', false)).toBe(true);
+    delete (globalThis as unknown as { localStorage?: unknown }).localStorage;
   });
 });
