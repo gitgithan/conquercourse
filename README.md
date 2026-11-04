@@ -137,7 +137,7 @@ https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
 | Use of Meta AI tooling | 25% | Ten Meta models and services, each with one visible job; the models propose and the simulator decides | [Meta tool use](#meta-tool-use), [open weights split](#-open-weights-split) |
 | Technical depth | 20% | A deterministic 120 Hz simulator, an ideal-run proof, a plausibility gate, cross-machine tests, failures written up | [Proof in numbers](#-proof-in-numbers), [Architecture](#-architecture-at-a-glance) |
 | Demo | 25% | An 85 second film from the real game, and a 60 second path you can click yourself | [Promo video](#-promo-video), [60-second judge path](#-60-second-judge-path) |
-| Bonus: Best Agentic Use-Case | bonus | A loop that proposes a course, tests it with the simulator, repairs it and stops when it is proven | [Best Agentic Use-Case](#-best-agentic-use-case) |
+| Bonus: Best Agentic Use-Case | bonus | An agent designs a course from a sentence, proves it clearable with the real simulator, and repairs it until proven: 40 of 44 runs proven, none by deleting obstacles, $0.36 for all 44 | [Best Agentic Use-Case](#-best-agentic-use-case) |
 | Bonus: Most Viral | bonus | A short challenge link and a 15 second clip, with a time that cannot be faked | [Viral challenge](#-the-viral-challenge-a-link-a-ghost-a-clip) |
 | Bonus: Best Build on Meta Open Weights | bonus | SAM 3 open weights run on Modal; Muse Spark Open is the design partner | [Open weights split](#-open-weights-split) |
 | Bonus: Best Creative Build | bonus | Anyone can type a sentence and get a playable character: Muse Image paints it, SAM 3.1 cuts it out, SAM 3D Objects makes the mesh, and one fixed skeleton and one set of physics keep every character fair. Real parks, streets and photos become courses too | [Characters (UGC)](#user-made-characters-and-pieces-ugc), [Meta tool use](#meta-tool-use) |
@@ -625,11 +625,25 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - No closed AI service runs while someone plays; the live calls go to Meta's models (Muse Image, SAM 3.1, SAM 3, SAM 3D Objects) and to Muse Spark Open, which Baseten hosts.
 
 ### How we meet the judging criteria
-- **Impact:** real world in, real world out; physics learned by doing; makers as well as players; no sign-in and no real names; our own captures are blurred, and Mapillary blurs its street photos.
-- **Use of Meta AI tooling:** ten Meta models and services (SAM 3 and 3.1, SAM 3D Objects, SAM 3D Body with MHR, DINOv3, Llama 3, Muse Spark Open, Muse Spark, Muse Image, MusicGen, Mapillary; Muse Wonder is development only and not counted), each doing one visible job; the models propose and the simulator decides.
-- **Technical depth:** a deterministic simulator, an ideal-run proof, a plausibility gate, failures written up in [lessons](docs/lessons.md).
-- **Demo:** the three-minute script is in [docs/demo-script-v2.md](docs/demo-script-v2.md).
-- **Best Creative Build (bonus):** a player's sentence becomes a character through Muse Image, SAM 3.1 and SAM 3D Objects; real photos, parks and streets become courses; one skeleton and one set of physics keep it fair ([characters](#user-made-characters-and-pieces-ugc)).
+- **Impact (30%):**
+  - **Real world in:** a pin on a map, a photo of a bench or a park you know becomes a course.
+  - **Real world out:** the physics a player learns is the physics of the real thing.
+  - **Makers as well as players:** anyone can build, share a course and race a friend's run.
+  - **Safe:** no sign-in, no real names; our own captures are blurred and Mapillary blurs its street photos.
+- **Use of Meta AI tooling (25%):** ten Meta models and services, each with one job you can see (the table above).
+  - **Examples:** SAM 3 cuts objects out of photos, SAM 3D Objects makes them 3D, Muse Image and SAM 3.1 make characters, Muse Spark Open designs and reviews.
+  - **Muse Wonder** helped review code while we built; it is not counted.
+  - **The rule:** the models propose and the simulator decides.
+- **Technical depth (20%):**
+  - **Deterministic:** a 120 Hz simulator that gives the same result on every machine we tested (outcome and tick count).
+  - **Proof:** an ideal-run search proves a course can be beaten.
+  - **Gate:** no motion is shown before it passes a plausibility check.
+  - **Honest failures:** written up in [lessons](docs/lessons.md).
+- **Demo (25%):** the [promo video](#-promo-video), the [60-second judge path](#-60-second-judge-path) and the three-minute script in [docs/demo-script-v2.md](docs/demo-script-v2.md).
+- **Best Agentic Use-Case (bonus):** design, test, repair, stop on proof; 40 of 44 proven from a sentence ([details](#-best-agentic-use-case)).
+- **Most Viral (bonus):** a short challenge link carries only your keys; the friend's browser replays them, so a time cannot be faked ([details](#-the-viral-challenge-a-link-a-ghost-a-clip)).
+- **Best Build on Meta Open Weights (bonus):** SAM 3, SAM 3D Objects, DINOv3, Llama 3 and MusicGen run as open weights ([split](#-open-weights-split)).
+- **Best Creative Build (bonus):** a sentence becomes a playable character (Muse Image, SAM 3.1, SAM 3D Objects); real photos, parks and streets become courses; one skeleton and one set of physics keep it fair ([characters](#user-made-characters-and-pieces-ugc)).
 - Details for every criterion: [docs/hackathon.md](docs/hackathon.md).
 
 ### 🔓 Open weights split
@@ -641,19 +655,24 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - Licences for every file that ships: [docs/ASSETS.md](docs/ASSETS.md); what calls which model: [docs/model-ledger.md](docs/model-ledger.md).
 
 ### 🤖 Best Agentic Use-Case
-- **The loop:** an idea in words goes to Muse Spark Open, which proposes a course layout.
-  - The simulator's ideal-run search tests it and answers in plain words: cleared, or what blocks it.
-  - The model repairs the layout from that answer, and the loop stops when the simulator proves a clear (or after a step cap of 6).
-  - The model never judges; the simulator does: **models propose, the simulator decides.**
-- **Measured from a sentence, with no photo** (44 runs, 22 ideas, 2 runs each; [full report](data/eval/cc-133-agent-text/README.md)):
-  - 40 of 44 runs were proven clearable: 22 at the first test and 18 after one repair; none needed more than 2 steps.
-  - The 4 that were not proven were 2 empty courses (a rule of the tool) and 2 empty model answers.
-  - In all 18 repairs the number of obstacles stayed the same, so no clear was bought by deleting obstacles.
-  - **Cost:** $0.357 for all 44 runs (70 model calls), covered by the hackathon credits.
-- **Earlier run from a park photo:** 40 of 40 proven in at most 3 steps ([results](data/eval/cc-126-course-agent/README.md)).
-- **The honest catch:** some clears came from easing a size the sentence asked for (a "3 metre wall" became 0.68 m), so "proven" means "proven with sizes the simulator accepts".
-- **Not in the editor:** on 2026-10-31 the player entry was removed when scope was cut to photo to object; the loop (`src/slice/course-agent.ts`) and its server route remain in the code, and the measurement above is of that code path, not a button a player can press.
-- **What a player does get:** the design partner (one model call, then the simulator checks) and Fix it (a pure simulator search).
+- **In one line:** an agent that designs a course from a sentence, proves it can be beaten, and fixes it when it cannot, with no human in the loop and no trust in the model's word.
+- **What the agent does, step by step:**
+  - **Designs:** you type an idea ("a wall, a gap, then a bench"); Muse Spark Open lays out real objects with sizes.
+  - **Tests:** the game's own simulator plays the course with an ideal-run search and answers in plain words: cleared, or what blocks it.
+  - **Repairs:** the model reads that answer and changes the layout; the loop repeats up to 6 times.
+  - **Stops only on proof:** the simulator, not the model, says "cleared".
+- **Why this is a strong agent:**
+  - **It checks itself against the real physics:** the same simulator that the player runs on, so a "proven" course is one a runner can actually clear.
+  - **It cannot cheat by deleting obstacles:** in all 18 repairs the obstacle count stayed the same.
+  - **It is cheap:** 44 full runs cost $0.36 in all (about 1 cent a course), paid by the hackathon credits.
+  - **It is measured, not just shown:** the full report is [data/eval/cc-133-agent-text/README.md](data/eval/cc-133-agent-text/README.md).
+- **Results:**
+  - **From a sentence:** 40 of 44 runs proven clearable (22 at the first test, 18 after one repair); none needed more than 2 steps.
+  - **From a park photo:** 40 of 40 proven in at most 3 steps ([results](data/eval/cc-126-course-agent/README.md)).
+  - **The 4 misses:** 2 empty courses and 2 empty model answers; none was a wrong "proven".
+- **What a player can try today:** in the World Editor, **Ask AI for ideas** (one model proposal, then the simulator checks) and **Fix it** (the simulator searches for changes that make the course clearable).
+- **What is not a button:** the full design-test-repair loop (`src/slice/course-agent.ts` and its server route) is in the code and measured above; its player button was removed on 2026-10-31 when scope was cut to photo to object.
+- **The catch, in plain words:** some repairs made an object easier to fit (a "3 metre wall" became 0.68 m), so "proven" means "proven with sizes the simulator accepts".
 - Pipeline diagram: [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md), section 4c.
 
 ### 🥋 The Dojo and the Labs
@@ -727,7 +746,7 @@ Diagrams are in [docs/meta-ai-pipelines.md](docs/meta-ai-pipelines.md); the full
 - A single photo gives a guess of size, so size comes from a typed or typical height, never from the model.
 - Community photo-to-object needs the server jobs switched on; if they are off, watch the promo or follow [the click-by-click guide](docs/community-flow-guide.md).
 - Muse Spark Open is a language model: it can give different answers for the same photo, so a failed answer stops the step and a person reviews.
-- The agent loop is not in the editor (see [Best Agentic Use-Case](#-best-agentic-use-case)); the editor's design partner makes one proposal and the simulator checks it.
+- The full design-test-repair agent loop has no player button (see [Best Agentic Use-Case](#-best-agentic-use-case)); the editor's design partner makes one proposal and the simulator checks it.
 - Exact bit-for-bit equality across machines is not claimed; outcome and tick count are.
 - The MusicGen music is a demo (weights are CC BY-NC); we swap it before any sale ([copyright audit](docs/copyright-audit.md)).
 - Desktop keyboard at 1280 px only; there is no phone support.
