@@ -28,8 +28,9 @@ const CSS = `
   .ed .overflow button:hover{background:var(--soft)}.ed .overflow kbd,.ed #palette kbd{font:12px ui-monospace,monospace;color:var(--muted);background:#eef1ec;border-radius:5px;padding:1px 6px}
   .ed .moves,.ed .helper{position:absolute;right:10px;bottom:10px;left:auto;top:auto;width:min(400px,calc(100% - 20px));z-index:20}
   .ed .moves{max-height:calc(100% - 20px);padding:0;gap:0;overflow:auto}
-  :root[data-dock=both] .ed .moves{top:10px;bottom:auto;max-height:calc(50% - 15px)}
-  :root[data-dock=both] .ed .helper{height:calc(50% - 15px)}
+  :root[data-dock=both] .ed .moves{left:10px;right:auto;top:10px;bottom:10px;max-height:none}
+  .ed .helper{top:var(--partner-top,auto);height:auto;max-height:none}
+  :root[data-dock=both] .ed .helper{height:auto}
   .ed .moves>.row:first-child{position:sticky;top:0;z-index:1;background:var(--card);padding:9px 12px;border-bottom:1px solid var(--line);justify-content:space-between;flex-wrap:nowrap}
   .ed .moves .mv{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:2px 10px;align-items:start;padding:9px 12px;border-bottom:1px solid #eef1ec}
   .ed .moves .mvicon{grid-row:1/span 2;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;background:#eef1ec;color:var(--muted)}
@@ -138,6 +139,19 @@ export function organizeEditor(root: HTMLElement): void {
     if (document.documentElement.dataset.dock === 'both') return; // a preview opened from the Moves list keeps the list beside it
     if (!opened.classList.contains('closed') && !other.classList.contains('closed')) { other.classList.add('closed'); otherBtn?.setAttribute('aria-pressed', 'false'); }
   };
+  // the Design partner takes the whole right column below the Simulator card, so it never covers the verdict
+  if (helper) {
+    const place = () => {
+      const aside = helper.parentElement, lane = aside && [...aside.children].find((c) => c !== helper && /^Simulator/.test(c.textContent ?? ''));
+      const card = lane && ([...lane.children].find((c) => /^Simulator/.test(c.textContent ?? '')) as HTMLElement | undefined);
+      if (!aside || !card) return;
+      const top = card.getBoundingClientRect().bottom - aside.getBoundingClientRect().top + 8;
+      helper.style.setProperty('--partner-top', `${Math.max(10, Math.round(top))}px`);
+    };
+    new MutationObserver(place).observe(helper, { attributes: true, attributeFilter: ['class'] });
+    addEventListener('resize', place);
+    document.addEventListener('click', () => requestAnimationFrame(place), true);
+  }
   if (helper && moves) {
     new MutationObserver(() => sync(helper, moves, movesBtn)).observe(helper, { attributes: true, attributeFilter: ['class'] });
     new MutationObserver(() => sync(moves, helper, partnerBtn)).observe(moves, { attributes: true, attributeFilter: ['class'] });
