@@ -296,7 +296,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     for (let i = LAB_CLIPS.length - 1; i >= 0; i--) if (!files[LAB_CLIPS[i].url]) LAB_CLIPS.splice(i, 1);
     sel.innerHTML = LAB_CLIPS.map((c) => `<option value="${c.id}">${c.label} (${ORIGIN_WORDS[c.origin]})</option>`).join("");
     for (const s of LAB_CLIPS) { const c = buildClip(s, files); built.set(s.id, c); verdicts.set(s.id, verdict(s, c)); }
-    sel.value = "roll-whole"; // opens on the real failure so the gate's work is the first thing seen
+    sel.value = "leap"; // opens on a recorded clip that passes the gate
     labDefaultNote(wrap, "live", $("mo-h1"));
     change();
     await fillRecorded();
