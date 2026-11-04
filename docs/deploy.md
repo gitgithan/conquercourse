@@ -81,3 +81,16 @@
 - **Before deploy (the product owner runs this once):** `npx wrangler pages secret put BASETEN_API_KEY` and paste the hackathon key when asked; without it the function answers 503 and the editor hides the helper.
 - **Locally:** `npm run dev` serves `/api/designer` by reading `BASETEN_API_KEY` from `~/.config/ninja/baseten.env` on the server side only (skipped silently if the file is absent).
 - **Cost (all live Muse Spark Open features, paid from the Baseten credit; the full table is in [docs/model-ledger.md](model-ledger.md)):** about $1.25 per million input and $4.25 per million output tokens; one answer is about 1,000 to 1,500 tokens (it reasons first), so well under 1 cent; a light per-address limit guards the rest (numbers in the private notes).
+
+## Running the Cloudflare site on localhost
+- Why: `npm run dev` (Vite) only serves the page and five small stand-ins (designer, course agent, design partner, places, street photos); it does not run `functions/api/`.
+- So photo to 3D, the cut-out finder, the character maker, sharing, Community, the leaderboard, the feature switches and the daily limits fail with "not found" or "not switched on" on plain localhost.
+- To copy the Cloudflare site:
+  - Build: `npm run build`.
+  - Settings: put the names from [environments.md](environments.md) in a file called `.dev.vars` in the repo folder (one `NAME=value` per line; git must never track it).
+  - Database: `npx wrangler d1 migrations apply conquercourse-feedback --local` makes a local copy of the tables.
+  - Run: `npx wrangler pages dev dist --d1 DB=conquercourse-feedback`, then open the address it prints.
+  - Turnstile: leave `TURNSTILE_SECRET` out and the check is skipped.
+- Modal endpoints (photo to 3D, cut-out, characters) are real services with a shared token, so they only work if you hold the values; without them those steps say they are switched off, which is correct.
+- Not yet checked end to end on a fresh machine: treat the steps as the way it is built, and use the preview site when in doubt.
+

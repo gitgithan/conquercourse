@@ -48,3 +48,4 @@ scripts/film-d/out/
 docs/evidence/**/*.mp4
 data/eval/**/*.mp4
 data/eval/cc-133-determinism-real/dist/
+.dev.vars
