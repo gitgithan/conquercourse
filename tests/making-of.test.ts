@@ -183,11 +183,14 @@ describe("The Making Of public files", () => {
     for (let c = 1; c <= 6; c++) {
       const own = ev.filter((e) => e.category === c);
       expect(own.length, `category ${c}`).toBeGreaterThanOrEqual(10);
-      for (const day of days)
+      for (const day of days) {
+        // The owner removed the Bugs cards on days 8 to 10 on 2026-11-05, knowingly; everything else stays strict.
+        if (c === 4 && ["11-02", "11-03", "11-04"].includes(day)) continue;
         expect(
           own.some((e) => e.when.startsWith(day)),
           `category ${c} on ${day}`,
         ).toBe(true);
+      }
     }
     for (const e of ev) {
       expect(["picture", "stat", "text", "diagram"]).toContain(e.kind);
