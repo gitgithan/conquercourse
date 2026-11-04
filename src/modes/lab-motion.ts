@@ -16,7 +16,7 @@ import {
   onlyBoneLengths, REAL_MANIFEST_URL, retargetScale, ticksFor, verdict, whyFailed, withFps, type LabClip, type Verdict,
 } from "../labs/motion/motion-core";
 
-// Lab 13: Video to motion. Pipeline stage 2 of 3 (video -> pose -> gate -> clip on the character). Every number comes from the game's own gate and clip reader.
+// Video to motion. Pipeline stage 2 of 3 (video -> pose -> gate -> clip on the character). Every number comes from the game's own gate and clip reader.
 const INK = "#17201d", TEAL = "#0f6b5c", GREY = "#a7b0ab", BAD = "#b91c1c", AMBER = "#b45309";
 const UNITS: Record<string, [number, string]> = { knees_bend_forward: [1, "deg"], legs_not_twisted: [1, "deg"], knees_within_range: [1, "deg"], flight_is_ballistic: [1, "m/s2"], held_clips_are_held: [1, "s"], feet_dont_sink: [100, "cm"], no_teleport: [1, "m/s"], bones_keep_length: [100, "%"], feet_dont_slide: [100, "cm"], no_jitter: [1, "m/s2"] };
 const LIMITS: Record<string, string> = { knees_bend_forward: "under 120", legs_not_twisted: "at most 60", knees_within_range: "at most 165", flight_is_ballistic: "9.81 within 15%", held_clips_are_held: "at most 1", feet_dont_sink: "at most 3", no_teleport: "at most 12", bones_keep_length: "at most 2", feet_dont_slide: "at most 3", no_jitter: `at most ${GATE_LIMITS.maxAccel}` };
@@ -29,7 +29,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-motion");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 13: Video to motion</h1><p>Labs are switched off.</p><p><a href="?mode=lab-motion&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Video to motion</h1><p>Labs are switched off.</p><p><a href="?mode=lab-motion&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -56,7 +56,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a href="/?welcome=0">Back to the game</a>
-    <h1 id="mo-h1">Lab 13: Video to motion</h1>
+    <h1 id="mo-h1">Video to motion</h1>
     <p class="small" style="margin:2px 0">Video, pose, smoothing, gate, clip. The links above show the Labs each step uses.</p>
     <p class="small" style="margin:2px 0">Follow one filmed move and watch the gate stop a bad clip. Every clip is recorded; nothing runs on a GPU here.</p></div>
 
@@ -75,14 +75,14 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     </div>
 
     <div class="card" id="s3"><h2>Step 3. Smoothing: only what the game applies</h2>
-      <p class="small" style="margin:0 0 6px">Light 1-2-3-2-1 smoothing, then one length per bone. The trade-off is in <a href="?mode=lab-signal&labs=1&welcome=0">Lab 8, Signal processing</a>.</p>
+      <p class="small" style="margin:0 0 6px">Light 1-2-3-2-1 smoothing, then one length per bone. The trade-off is in <a href="?mode=lab-signal&labs=1&welcome=0">Signal processing</a>.</p>
       <div id="mo-s3"></div>
-      <details id="mo-w8" style="margin-top:10px"><summary><b>Try the smoothing yourself, and the gate table</b> (the panel of Lab 8, same code)</summary><div id="mo-w8-body" style="margin-top:8px"></div></details></div>
+      <details id="mo-w8" style="margin-top:10px"><summary><b>Try the smoothing yourself, and the gate table</b> (the panel of the Signal processing Lab, same code)</summary><div id="mo-w8-body" style="margin-top:8px"></div></details></div>
 
     <div class="card" id="s4"><h2>Step 4. The plausibility gate</h2>
       <p class="small" style="margin:0 0 6px">Nothing plays before it passes. Hard rules block a clip; soft rules only report.</p>
       <div id="mo-s4"></div>
-      <p class="small" style="margin:6px 0 0"><button id="mo-open-w8" type="button" class="link" style="background:none;border:0;color:#0f6b5c;font:600 13px system-ui;cursor:pointer;padding:0;text-decoration:underline">Open the gate table of Lab 8</button> (rule by rule, on a clean, a wobbly and a smoothed clip).</p>
+      <p class="small" style="margin:6px 0 0"><button id="mo-open-w8" type="button" class="link" style="background:none;border:0;color:#0f6b5c;font:600 13px system-ui;cursor:pointer;padding:0;text-decoration:underline">Open the gate table of Signal processing</button> (rule by rule, on a clean, a wobbly and a smoothed clip).</p>
       <h2 style="margin-top:12px">The gate on every clip</h2><div id="mo-all"></div>
       <h2 style="margin-top:12px">The recorded run of the real pipeline</h2><div id="mo-rec"></div>
       <h2 style="margin-top:12px">The pose finder's own output</h2><div id="mo-real"></div></div>
@@ -93,7 +93,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
         <div class="two s5grid">
           <div><div id="mo-view"><div id="mo-held"></div></div>
             <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
-          <details id="mo-w3" open><summary><b>Try the reach yourself</b> (the panel of Lab 3, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div></div>
+          <details id="mo-w3" open><summary><b>Try the reach yourself</b> (the panel of the Posing a character Lab, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div></div>
       <div class="card" id="s6"><h2>Step 6. The one clock</h2>
         <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer.</p>
         <div class="two s6grid">
@@ -102,7 +102,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
           <div><h2 style="margin:0 0 4px">Which move uses which clip</h2><div id="mo-table"></div></div></div></div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
-  // the shared panels of Lab 8 and Lab 3 mount the first time their box is opened (no second 3D view is made: step 5 plays the Rookie)
+  // the shared panels of Signal processing and Posing a character mount the first time their box is opened (no second 3D view is made: step 5 plays the Rookie)
   const lazy = (id: string, mount: (host: HTMLElement) => unknown) => { const d = wrap.querySelector<HTMLDetailsElement>("#" + id)!; let done = false; const go = () => { if (d.open && !done) { done = true; mount(d.querySelector<HTMLElement>("div")!); } }; d.addEventListener("toggle", go); go(); return d; };
   const w8 = lazy("mo-w8", (h) => void mountSignalPanel(h, { rookie: false, markPage: false }).start());
   lazy("mo-w3", (h) => void mountIkPanel(h));

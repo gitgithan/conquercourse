@@ -1,8 +1,8 @@
-# Lab 21: What the model cannot do
+# What the model cannot do
 
 *Know the limits, stage 2 of 3: Check (see [the series map](pipelines.md)).*
 *Before it: the Labs that teach the checks: [Evaluating a detector](detector.md) (precision and recall) and [Computer vision](vision.md) (the mask threshold).*
-*After it: [System design](system-design.md) (Lab 17, the finale) builds the whole product out of these checks.*
+*After it: [System design](system-design.md) (System design, the finale) builds the whole product out of these checks.*
 *The full table of model weaknesses, with numbers, is in [model limits](../model-limits.md); the lessons behind it are in [lessons](../lessons.md).*
 
 ## When you open it
@@ -78,4 +78,4 @@
 2. Run the motion gate the same way with its own ratings.
 3. Show the cost in cents beside the call counts.
 4. Add a card for the next model failure we find.
-5. Let the design challenge use the blocks of Lab 17, System design.
+5. Let the design challenge use the blocks of System design.

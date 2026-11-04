@@ -5,7 +5,7 @@ import { itemLength } from "../../slice/course-agent";
 import { itemAt } from "../../slice/course-agent-tools";
 import { CLEARED, evalJob, meter, searchGen, workSeconds } from "../../sim/ideal";
 
-// Lab 9, Generate and test (CC-118 family). A helper PROPOSES a course; the simulator DECIDES. This file holds the pure parts:
+// Generate and test (CC-118 family). A helper PROPOSES a course; the simulator DECIDES. This file holds the pure parts:
 // the rules the player sets, the random proposer, one test through the real ideal-run search, a repair by easing, and the tally.
 // The page makes no model call: the "Muse" proposals are recorded replies from an earlier offline run (public/assets/lab/gentest-proposals.json).
 export interface Rules {

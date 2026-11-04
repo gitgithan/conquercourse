@@ -1,5 +1,5 @@
 import { mountLabsNav, labHref } from "../ui/labs-nav";
-import { labName, labNumberOf } from "../ui/labs-series";
+import { labName } from "../ui/labs-series";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import {
@@ -24,7 +24,7 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
   mountLabsNav(host, "lab-wait");
-  const title = `Lab ${labNumberOf("lab-wait")}: Hide the wait`;
+  const title = labName("lab-wait");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">${title}</h1><p>Labs are switched off.</p><p><a href="?mode=lab-wait&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
@@ -104,8 +104,8 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
-  ($("lw-l-search") as HTMLAnchorElement).href = labHref("lab-search"); $("lw-l-search").textContent = `Lab ${labNumberOf("lab-search")}: ${labName("lab-search")}`;
-  ($("lw-l-gen") as HTMLAnchorElement).href = labHref("lab-gentest"); $("lw-l-gen").textContent = `Lab ${labNumberOf("lab-gentest")}: ${labName("lab-gentest")}`;
+  ($("lw-l-search") as HTMLAnchorElement).href = labHref("lab-search"); $("lw-l-search").textContent = labName("lab-search");
+  ($("lw-l-gen") as HTMLAnchorElement).href = labHref("lab-gentest"); $("lw-l-gen").textContent = labName("lab-gentest");
 
   let courses: Search[] = [], recs: RecCourse[] = [], cur = 0;
   let sc: SearchCfg = { ...DEFAULT_SEARCH, workers: 4 };

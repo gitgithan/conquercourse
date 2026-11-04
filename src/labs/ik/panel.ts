@@ -4,8 +4,8 @@ import { loadRookie } from "../../render/rookie";
 import { DEFAULT_CHOICES, ELBOW_MAX, GAME_POLE, MATCH, SHOULDER_MAX, SHOULDER_MIN, breakingPoint, deg, makeBody, maxReach, minReach, poseFor, residualMap, type Body, type Choices, type Pose } from "./ik-core";
 import { NECK_LIMIT, SHOULDER_LIMIT } from "../../motion/neck";
 
-// The Lab 3 panel (solver choice, joint limits, neck rule, the bar you drag, the picture, the facts, the comparison, the maths).
-// One module, mounted by Lab 3 (src/modes/lab-ik.ts) and by Lab 13 (src/modes/lab-motion.ts, Retarget step), so there is one copy of every widget.
+// The Posing a character panel (solver choice, joint limits, neck rule, the bar you drag, the picture, the facts, the comparison, the maths).
+// One module, mounted by Posing a character (src/modes/lab-ik.ts) and by Video to motion (src/modes/lab-motion.ts, Retarget step), so there is one copy of every widget.
 const INK = "#17201d", TEAL = "#0f6b5c", GHOST = "#9aa5a0", BAD = "#b91c1c", AMBER = "#b45309";
 const W = 900, H = 560, PPM = 280, X0 = -1.3, Y0 = -0.12; // canvas pixels; pixels per metre; the world's left edge and floor line (m)
 const sx = (x: number) => (x - X0) * PPM, sy = (y: number) => H - (y - Y0) * PPM;

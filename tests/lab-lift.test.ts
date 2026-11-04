@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import { readGlbMesh } from "../src/slice/glb";
 import { ALL_STEPS, FACE_CAP, RECORDED_COST, RECORDED_LIFTS, STEP_NAMES, TYPICAL_HEIGHT, bake, barLength, bounds, faceCount, recipeFor, sizeWarning, typicalHeight, unbake, withExtraYaw, type Steps } from "../src/labs/lift/lift-core";
 
-// Lab 14 (cut-out, lift and bake): the bake rules pinned on a recorded GLB, and the recorded numbers pinned to the files they came from.
+// cut-out, lift and bake: the bake rules pinned on a recorded GLB, and the recorded numbers pinned to the files they came from.
 const index = JSON.parse(readFileSync("public/assets/objects/index.json", "utf8")).objects as { name: string; label: string; height_m: number; extents_m: { x: number; y: number; z: number }; glb: string; faces: number }[];
 const load = (name: string) => { const o = index.find((x) => x.name === name)!; const b = readFileSync(`public/assets/objects/${o.glb}`); return { o, mesh: readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer) }; };
 const off = (k: keyof Steps): Steps => ({ ...ALL_STEPS, [k]: false });
 
-describe("Lab 14: the recorded baked object", () => {
+describe("Cut-out, lift and bake: the recorded baked object", () => {
   it("is stood on the ground, centred, within the face cap, and as tall as its record says", () => {
     const { o, mesh } = load("bench-concrete"), b = bounds(mesh);
     expect(b.min[1]).toBeCloseTo(0, 2);
@@ -19,7 +19,7 @@ describe("Lab 14: the recorded baked object", () => {
   });
 });
 
-describe("Lab 14: baking an unbaked recorded object gives the record back", () => {
+describe("Cut-out, lift and bake: baking an unbaked recorded object gives the record back", () => {
   for (const name of ["bench-concrete", "railing-iron", "rail-skate-01", "box-skate-03"]) {
     it(`${name}: size and stance come back`, () => {
       const { o, mesh } = load(name), { recipe } = recipeFor(name);
@@ -43,7 +43,7 @@ describe("Lab 14: baking an unbaked recorded object gives the record back", () =
   });
 });
 
-describe("Lab 14: each bake step, switched off, breaks the object the way the doc says", () => {
+describe("Cut-out, lift and bake: each bake step, switched off, breaks the object the way the doc says", () => {
   const { o, mesh } = load("bench-concrete");
   const raw = unbake(mesh, recipeFor("bench-concrete").recipe);
   const run = (steps: Steps) => bake(raw, { label: "bench", typedHeight: o.height_m, steps });
@@ -75,7 +75,7 @@ describe("Lab 14: each bake step, switched off, breaks the object the way the do
   it("names every step the pipeline doc lists", () => { expect(STEP_NAMES.map((s) => s.key).sort()).toEqual(Object.keys(ALL_STEPS).sort()); });
 });
 
-describe("Lab 14: typical heights and the thin-box lesson", () => {
+describe("Cut-out, lift and bake: typical heights and the thin-box lesson", () => {
   it("typical heights equal the table in docs/pipelines.md", () => {
     const doc = readFileSync("docs/pipelines.md", "utf8");
     expect(doc).toContain("bench 0.8 m with its back, wall and low wall 0.9, rail and handrail 1.0, ledge and platform 0.5, steps 0.7");
@@ -96,7 +96,7 @@ describe("Lab 14: typical heights and the thin-box lesson", () => {
   });
 });
 
-describe("Lab 14: recorded cost and time match the files they came from", () => {
+describe("Cut-out, lift and bake: recorded cost and time match the files they came from", () => {
   it("monkey bars run", () => {
     const rec = JSON.parse(readFileSync("docs/evidence/cc-133-lifts/monkey-bars-lift.json", "utf8")), c = RECORDED_COST.monkeyBars;
     expect([rec.mask_load_seconds, rec.lift_load_seconds, rec.mask_seconds, rec.lift_seconds, rec.wall_seconds, rec.usd_estimate]).toEqual([c.mask_load_seconds, c.lift_load_seconds, c.mask_seconds, c.lift_seconds, c.wall_seconds, c.usd_estimate]);
@@ -116,7 +116,7 @@ describe("Lab 14: recorded cost and time match the files they came from", () => 
   });
 });
 
-describe("Lab 14: turning the raw lift (the turn slider)", () => {
+describe("Cut-out, lift and bake: turning the raw lift (the turn slider)", () => {
   const TURNS = [0, 10, 25, 45, 60, 100, 133, 175];
   for (const name of ["bench-concrete", "railing-iron"]) {
     it(`${name}: with "face the side camera" on, any turn bakes to the recorded length, depth and height`, () => {
@@ -143,7 +143,7 @@ describe("Lab 14: turning the raw lift (the turn slider)", () => {
 // CC-133: the turn slider acts on REAL raw lifts (decimated, kept in public/assets/lab/lift/raw)
 import { readFileSync as readRaw } from 'node:fs';
 import { parseRawPack, rawFromPack, type RawPackMeta } from '../src/labs/lift/lift-core';
-describe('Lab 14: real raw lifts', () => {
+describe('Cut-out, lift and bake: real raw lifts', () => {
   const index = JSON.parse(readRaw('public/assets/lab/lift/raw/index.json', 'utf8')).objects as RawPackMeta[];
   const load = (m: RawPackMeta) => { const b = readRaw(`public/assets/lab/lift/raw/${m.file}`); return parseRawPack(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer).mesh; };
   it('keeps each packed file small and lists a licence and a credit', () => {
@@ -172,7 +172,7 @@ describe('Lab 14: real raw lifts', () => {
 import { camSpace, clampPitch, clampZoom, dragTurn, normTurn, parseRawGlb, projectPoint, realToMeta, toDisplay, type Cam, type RealLift } from '../src/labs/lift/lift-core';
 const realIdx = JSON.parse(readRaw('public/assets/lab/lift/real/index.json', 'utf8')).objects as RealLift[];
 const loadReal = (o: RealLift) => { const b = readRaw(`public/assets/${o.rawMesh.replace(/^assets\//, '')}`); return parseRawGlb(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer); };
-describe('Lab 14: the 19 real lifts', () => {
+describe('Cut-out, lift and bake: the 19 real lifts', () => {
   it('lists all 19 library objects, each with a mask, a baked file and a credit', () => {
     expect(realIdx.length).toBe(19);
     for (const o of realIdx) { expect(readRaw(`public/${o.maskPicture}`).length, o.name).toBeGreaterThan(100); expect(o.credit.length, o.name).toBeGreaterThan(5); expect(index.some((x) => x.name === o.name), o.name).toBe(true); }
@@ -193,7 +193,7 @@ describe('Lab 14: the 19 real lifts', () => {
     });
   }
 });
-describe('Lab 14: the 3D view (pure projection)', () => {
+describe('Cut-out, lift and bake: the 3D view (pure projection)', () => {
   const cam: Cam = { az: 30, pitch: 25, dist: 5, focal: 300, target: [0.2, 0.5, -0.1] };
   const pts: [number, number, number][] = [[0, 0, 0], [1, 0, 0], [0, 2, 0], [0.3, 0.4, 1.5]];
   const d = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);

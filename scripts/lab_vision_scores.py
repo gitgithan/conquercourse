@@ -1,4 +1,4 @@
-"""Lab 4 (Computer vision): per-photo detector scores for the labelled street-photo set.
+"""Computer vision: per-photo detector scores for the labelled street-photo set.
 
 usage: lab_vision_scores.py PICKED_JSON OUT_DIR (the output of lab_vision_pick.py) [--n 160]   (repo root, venv with torch and torchvision)
 Photos: the picks of lab_vision_pick.py (COCO val2017, CC BY 2.0 or no known copyright restrictions, street scenes, no crowd label).

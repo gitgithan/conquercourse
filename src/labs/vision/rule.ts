@@ -1,4 +1,4 @@
-// Lab 4 (Computer vision): the keep-or-drop rule for a street photo, and the sweep over its thresholds.
+// Computer vision: the keep-or-drop rule for a street photo, and the sweep over its thresholds.
 // This is the same rule as scripts/photos_mask.py (a photo is usable when little of it is masked and no person is huge),
 // with the person detector's raw finds as input so the thresholds can move. scripts/lab_vision_rule.py is the same rule in Python;
 // tests/lab-vision.test.ts checks that both give the same counts on the shipped table.

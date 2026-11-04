@@ -1,5 +1,5 @@
-// Lab 13 (Video to motion): the pure parts. The clips are recorded files; the gate, the smoothing and the clip reader are the game's own
-// (src/lab/signal-lab.ts holds the TypeScript port of pipelines/ccpipe/gate.py that Lab 8 already checks against the Python gate).
+// Video to motion: the pure parts. The clips are recorded files; the gate, the smoothing and the clip reader are the game's own
+// (src/lab/signal-lab.ts holds the TypeScript port of pipelines/ccpipe/gate.py that Signal processing already checks against the Python gate).
 import { parseClip, sampleClip, type Clip } from "../../motion/clip";
 import { fixedSkeleton, filterFrames, gameSmoothing, runGate, failures, type Frames, type GateReport, type SignalClip } from "../../lab/signal-lab";
 import { TICKS_PER_SECOND } from "../../sim/units";
@@ -76,7 +76,7 @@ export function checkShape(raw: unknown): Shape {
 export const dropLastName = (c: SignalClip): unknown => ({ ...c, names: c.names.slice(0, -1), parents: c.parents.slice(0, -1) });
 export const dropLastNameOnly = (c: SignalClip): unknown => ({ ...c, names: c.names.slice(0, -1) });
 
-// ---------- step 3: smoothing (Lab 8 teaches the price; here only what the game applies) ----------
+// ---------- step 3: smoothing (Signal processing teaches the price; here only what the game applies) ----------
 export function applyGameSmoothing(c: SignalClip): SignalClip { return { ...c, frames: gameSmoothing(c) }; }
 export const onlyBoneLengths = (c: SignalClip): SignalClip => ({ ...c, frames: fixedSkeleton(c.frames, c.parents) });
 export { filterFrames };

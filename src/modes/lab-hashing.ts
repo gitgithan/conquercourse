@@ -8,7 +8,7 @@ import { courseHash, encodeLog, recordPlan } from "../sim/replay";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 11: Verification and hashing. The player chooses which part of a run is hashed and which hash function does it, tampers with one tick of the recorded keys,
+// Verification and hashing. The player chooses which part of a run is hashed and which hash function does it, tampers with one tick of the recorded keys,
 // replays them with the real simulator and reads whether the hash saw it. Nothing here talks or grades: it shows numbers and a picture. Behind the labs switch (?labs=1).
 const COURSE_URL = "/assets/demo/lache.course.json";
 const INK = "#17201d", TEAL = "#0f6b5c", GHOST = "#9aa5a0", DECK = "#cbd5cd", WATER = "#b7d3ee", BAD = "#b91c1c";
@@ -21,7 +21,7 @@ export function startLabHashing(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-hashing");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 11: Verification and hashing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-hashing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Verification and hashing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-hashing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -53,7 +53,7 @@ export function startLabHashing(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="lh-h1">Lab 11: Verification and hashing</h1>
+    <h1 id="lh-h1">Verification and hashing</h1>
     <p class="small" style="margin:4px 0 0">The goal: a run is a list of key presses, and the game plays them again to check them. You choose which part of a run gets a hash and which hash function does it. Then you change one tick of the keys and see whether the hash notices.</p></div>
     <div class="grid">
       <div class="card">

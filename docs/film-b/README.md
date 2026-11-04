@@ -18,7 +18,7 @@ The film files live outside git (`../conquercourse-assets/films/b/`, with `SHA25
 - 21.6 s: Courses, the camera swings from side view into first person.
 - 24.6 s: obstacle burst: coaster, vault, drone, wall, launch, hang, rope, trampoline.
 - 40.8 s: Dojo, the Gap jump lesson.
-- 42.6 s: Lab 3, dragging the bar and watching the arm follow.
+- 42.6 s: Posing a character, dragging the bar and watching the arm follow.
 - 45.6 s: group photo, the Rookie and eight characters facing the camera.
 - 50.4 s: logo card dissolves in on a quiet bar of the music; it holds to 57.6 s.
 - The music is the existing score, cut in at 19.33 s of the track; nothing was generated, so the cost is zero.

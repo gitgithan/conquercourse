@@ -1,4 +1,4 @@
-// Lab 8 (Signal processing): the filters, the noise stand-in and the plausibility gate, in TypeScript.
+// Signal processing: the filters, the noise stand-in and the plausibility gate, in TypeScript.
 // The gate is a port of pipelines/ccpipe/gate.py and motion.py (same rules, same limits); tests/lab-signal.test.ts checks it
 // against numbers the Python gate printed (tests/fixtures/lab-signal-reference.json, made by scripts/lab_signal_reference.py).
 // Joints are metres, y up, run along +z, left on +x (the clip format). Frames are [frame][joint][x, y, z].

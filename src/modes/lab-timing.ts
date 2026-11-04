@@ -4,7 +4,7 @@ import { DEFAULT_TIMING, binEdges, clampTiming, cdf, pInside, predictedRate, pre
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 7: Statistics of timing. The player sets how shaky the button presses are, and reads how often a course clears over N runs of the real simulator.
+// Statistics of timing. The player sets how shaky the button presses are, and reads how often a course clears over N runs of the real simulator.
 // It shows facts about a course and a simulated presser, never a mark for a person. Equations come last. Behind the labs switch (?labs=1).
 const COURSES: [string, string, string][] = [
   ["/assets/lab/search-trap.course.json", "Trap chain (3 jumps)", "Three gaps in a row; the farthest first jump strands the second."],
@@ -31,7 +31,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-timing");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 7: Statistics of timing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-timing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Statistics of timing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-timing&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -59,7 +59,7 @@ export function startLabTiming(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="lt-h1">Lab 7: Statistics of timing</h1>
+    <h1 id="lt-h1">Statistics of timing</h1>
     <p class="small" style="margin:4px 0 0">The goal: find how wide the press window must be for a shaky presser to clear a course half the time, and nine times in ten. A simulated presser is a little early or late on every jump. The real simulator plays the course again and again, and you read the facts. This is about the course and a simulated presser, never about you.</p></div>
     <div class="grid">
       <div class="card" id="lt-controls">

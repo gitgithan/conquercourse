@@ -1,4 +1,4 @@
-"""Reference numbers for Lab 8 (Signal processing): the Python plausibility gate and an independent numpy filter,
+"""Reference numbers for Signal processing: the Python plausibility gate and an independent numpy filter,
 run on the same cases as the TypeScript port (src/lab/signal-lab.ts). Writes tests/fixtures/lab-signal-reference.json.
 
 Usage: python3 scripts/lab_signal_reference.py

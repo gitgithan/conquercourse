@@ -1,4 +1,4 @@
-// Lab 12 (Reinforcement learning) in the browser: off without the labs switch; with it, the default points teach a clear run;
+// Reinforcement learning in the browser: off without the labs switch; with it, the default points teach a clear run;
 // the "pays for staying alive" points are farmed and the run does not finish; the maths come after a run. Screenshots go to test-results/lab-rl/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

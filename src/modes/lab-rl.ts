@@ -4,7 +4,7 @@ import { BIN_METRES, DEFAULT_RL, GAMMA, REWARD_PRESETS, clampRl, pathOfPlan, pol
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 12: Reinforcement learning. A game character learns the trap course by trial and error on the real simulator.
+// Reinforcement learning. A game character learns the trap course by trial and error on the real simulator.
 // The player writes the points (the reward), the learning rate and the exploration, then reads the curve, the learned run and the facts.
 // Nothing here talks or grades: it shows numbers and pictures. The maths comes last, after a run. Behind the labs switch (?labs=1).
 const COURSE_URL = "/assets/lab/search-trap.course.json";
@@ -28,7 +28,7 @@ export function startLabRl(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-rl");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 12: Reinforcement learning</h1><p>Labs are switched off.</p><p><a href="?mode=lab-rl&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Reinforcement learning</h1><p>Labs are switched off.</p><p><a href="?mode=lab-rl&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -57,7 +57,7 @@ export function startLabRl(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="rl-h1">Lab 12: Reinforcement learning</h1>
+    <h1 id="rl-h1">Reinforcement learning</h1>
     <p class="small" style="margin:4px 0 0">The goal: a game character learns to clear a course by trial and error. You write the points it earns. It tries the course again and again, keeps a table of which move paid off at each place, and slowly gets better. It plays the game's real simulator. Its only moves are the real inputs: run, jump and wait.</p></div>
     <div class="grid">
       <div class="card" id="rl-controls">

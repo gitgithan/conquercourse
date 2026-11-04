@@ -1,5 +1,5 @@
 import { summaryHtml } from './labs-summary';
-import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, seeAlsoOf, labNumberOf, usedIn, usesOf } from './labs-series';
+import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, seeAlsoOf, usedIn, usesOf } from './labs-series';
 
 // CC-133: how the Labs hand over to each other. Pipeline Labs show "from" at the top, "uses: Lab N" chips for the Foundation Labs they rely on, and "next" at the end.
 // Foundation Labs show "used in" chips for the pipeline stages that rely on them. Plain links: the browser closes the old Lab by itself.
@@ -15,7 +15,7 @@ const STYLE = `
   .lab-summary b{color:#0f6b5c}
   .lab-flow-chip:focus-visible,.lab-flow-next a:focus-visible{outline:2px solid #ffd27a;outline-offset:1px}`;
 const href = (mode: string): string => `?mode=${mode}&labs=1&welcome=0`; // the same link the Labs bar uses
-const lab = (mode: string): string => `Lab ${labNumberOf(mode)}: ${labName(mode)}`;
+const lab = (mode: string): string => labName(mode); // by name only: Labs carry no numbers
 const chip = (mode: string, text: string, id?: string): string => `<a class="lab-flow-chip" ${id ? `id="${id}" ` : ''}data-lab="${mode}" href="${href(mode)}">${text}</a>`;
 
 const seeAlso = (mode: string): string => {

@@ -1,4 +1,4 @@
-# Lab 9: Generate and test
+# Generate and test
 
 ## When you open it
 - Precomputed: our setting (the recorded ideas, two repairs, 25 proposals, 2 s budget each) tested ahead of time with the same code (`scripts/labs-default-precompute.ts`, about two minutes); a test re-runs the first proposals and compares.

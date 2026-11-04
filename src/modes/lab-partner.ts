@@ -1,5 +1,4 @@
 import { mountLabsNav } from "../ui/labs-nav";
-import { labNumberOf } from "../ui/labs-series";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import type { Layout } from "../slice/layout-draft";
@@ -9,7 +8,7 @@ import {
   type Answer, type Gate, type Kind,
 } from "../labs/partner/partner-core";
 
-// Lab 17: Design partner loop (propose, check, fix). A recorded answer of the design partner (Muse Spark Open) is read by the game's reader, checked by the game's own
+// Design partner loop (propose, check, fix). A recorded answer of the design partner (Muse Spark Open) is read by the game's reader, checked by the game's own
 // simulator tool (testLayout, in a worker) and repaired with the change the simulator proved. No model is called and nothing here talks to the player or grades technique:
 // the loop is about the COURSE. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GREY = "#9aa5a0", RED = "#b91c1c", WATER = "#7fb3d5", DECK = "#6b7a72";
@@ -30,7 +29,7 @@ export function startLabPartner(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-partner");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab ${labNumberOf("lab-partner")}: Design partner loop</h1><p>Labs are switched off.</p><p><a href="?mode=lab-partner&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Design partner loop</h1><p>Labs are switched off.</p><p><a href="?mode=lab-partner&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -62,7 +61,7 @@ export function startLabPartner(host: HTMLElement): { backend: "canvas2d" } {
   const kindButtons = KINDS.map((k) => `<button data-kind="${k.kind}" aria-pressed="false" title="${k.about}">${k.label}</button>`).join("");
   wrap.innerHTML = `
     <div><a href="/?welcome=0">Back to the game</a>
-    <h1>Lab ${labNumberOf("lab-partner")}: Design partner loop</h1>
+    <h1>Design partner loop</h1>
     <p class="small" style="margin:2px 0 0"><b>Idea to course.</b> The partner proposes. The simulator judges. A course that cannot be proved is never shown.</p>
 </div>
     <div class="card"><div class="gates" id="lp-gates"></div></div>

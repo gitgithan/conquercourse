@@ -58,10 +58,10 @@ export function lineBetween(a: Rect, b: Rect, iconY = 32): { x1: number; y1: num
 export function panelEdges(src: MapSource = DEFAULT_SOURCE): MapEdge[] {
   const out = mapEdges(src), have = new Set(src.labs.map((l) => l.mode)), last = src.tiers[src.tiers.length - 1]?.id;
   if (src !== DEFAULT_SOURCE || last !== 'finale') return out;
-  const num = (m: string): number => src.labs.findIndex((l) => l.mode === m) + 1;
+  const num = (m: string): string => src.labs.find((l) => l.mode === m)?.name ?? m; // the Lab's name (Labs carry no numbers)
   for (const g of src.groups.filter((x) => x.tier === last)) for (const m of g.modes) for (const u of FINALE_USES) {
     if (!have.has(u) || u === m) continue;
-    out.push({ id: `uses:${u}>${m}`, from: u, to: m, kind: 'uses', reason: `Lab ${num(m)} sums up Lab ${num(u)}` });
+    out.push({ id: `uses:${u}>${m}`, from: u, to: m, kind: 'uses', reason: `${num(m)} sums up ${num(u)}` });
   }
   return out;
 }

@@ -1,4 +1,4 @@
-// Lab 17 (design partner loop) in the browser at 1280 px: off without the labs switch; with it the opening state is filled; stages scrub, a recorded answer of each kind loads, an edit is re-checked by the real simulator, Fix it clears, and a challenge says pass.
+// design partner loop in the browser at 1280 px: off without the labs switch; with it the opening state is filled; stages scrub, a recorded answer of each kind loads, an edit is re-checked by the real simulator, Fix it clears, and a challenge says pass.
 // Screenshots go to test-results/lab-partner/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

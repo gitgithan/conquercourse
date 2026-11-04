@@ -241,15 +241,15 @@
     {
       "id": 10,
       "key": "lab",
-      "title": "Lab 3: Posing a character",
+      "title": "Posing a character: Posing a character",
       "bars": 2,
       "overlay": [
         "Mastery in the Labs",
         "University level"
       ],
-      "beat": "Open Lab 3. Move a hand toward a bar and watch the arm bend; move a few limbs. A small tag says the Labs are university level.",
+      "beat": "Open Posing a character. Move a hand toward a bar and watch the arm bend; move a few limbs. A small tag says the Labs are university level.",
       "camera": "Fixed full-page frame.",
-      "source": "Lab 3 (real); equations are allowed in the Labs.",
+      "source": "Posing a character (real); equations are allowed in the Labs.",
       "status": "Real",
       "music": "Same sparse piano with a slow low pad.",
       "checks": [

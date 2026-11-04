@@ -1,4 +1,4 @@
-// Lab 11: Verification and hashing. The pure part: three hash functions, three things a run can be hashed as,
+// Verification and hashing. The pure part: three hash functions, three things a run can be hashed as,
 // a tamper that edits one tick of the recorded keys, and the real replay judge (src/sim/replay.ts) to see what each choice catches.
 // Nothing here draws anything and nothing here talks to a server.
 import type { CourseData } from '../../course/course';

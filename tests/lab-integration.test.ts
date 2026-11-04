@@ -3,8 +3,8 @@ import { DEFAULT_CART, cartStep, makeRails } from "../src/sim/cart";
 import { DT } from "../src/sim/units";
 import { BOWL_PTS, BOWL_START, bowlRails, clampCfg, divergence, firstApart, makeStepper, measuredOrder, runBowl, runLab } from "../src/labs/integration/engine";
 
-// Lab 6: the player picks the stepping rule and the step size; the equations and rails are the game's. These are laws about the algorithms.
-describe("Lab 6: numerical integration", () => {
+// the player picks the stepping rule and the step size; the equations and rails are the game's. These are laws about the algorithms.
+describe("Numerical integration", () => {
   it("RK4 at 1/120 s is the game's cart step, bit for bit", () => {
     const rails = makeRails([[0, 9], [7, 5], [14, 1], [22, 0.6], [34, 3.6], [46, 0.6], [56, 0.2]]);
     const mine = makeStepper(rails, "rk4", DT, DEFAULT_CART, false);

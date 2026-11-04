@@ -1,4 +1,4 @@
-// Browser smoke for Lab 11 (hashing): opens ?mode=lab-hashing&labs=1 at 1280 px, runs the avalanche, opens the maths, saves a screenshot.
+// Browser smoke for hashing: opens ?mode=lab-hashing&labs=1 at 1280 px, runs the avalanche, opens the maths, saves a screenshot.
 // Usage: node scripts/smoke-lab-hashing.mjs [baseUrl] [outPng]
 import { chromium } from "playwright";
 

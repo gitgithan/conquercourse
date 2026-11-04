@@ -1,4 +1,4 @@
-# Lab 8: Signal processing
+# Signal processing
 
 *Behind `?labs=1`. Open `?mode=lab-signal&labs=1`.*
 *Serves the university Labs (`docs/university-labs.md`, subject 8).*

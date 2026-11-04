@@ -1,4 +1,4 @@
-# Lab 7: Statistics of timing
+# Statistics of timing
 
 *A workbench on the press window, the number the game uses as difficulty.*
 

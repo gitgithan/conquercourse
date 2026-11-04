@@ -1,7 +1,7 @@
 import { parseLayout, type Item, type Layout } from "../../slice/layout-draft";
 import { reportWords, itemLength, AGENT_SYSTEM, type AgentReport } from "../../slice/course-agent";
 
-// Lab 17, the design partner loop. The partner PROPOSES; the simulator JUDGES. This file holds the pure parts around the game's own code:
+// the design partner loop. The partner PROPOSES; the simulator JUDGES. This file holds the pure parts around the game's own code:
 // reading a recorded reply (the game's parseLayout), the piece rule, what to call a result, the Fix it step that applies the easing the simulator proved,
 // and the checks the challenges use. The simulator itself (testLayout in src/slice/course-agent-tools.ts) is run by the page's worker and by the tests.
 export type Kind = "good" | "tooHard" | "unprovable" | "malformed" | "rule";

@@ -1,6 +1,6 @@
 {
   "id": "cc-133-lab13-pose",
-  "purpose": "Lab 13 shows the pose finder's raw output; this packs the stored result of the real Modal run (no new GPU run)",
+  "purpose": "Video to motion shows the pose finder's raw output; this packs the stored result of the real Modal run (no new GPU run)",
   "gpu_run": {
     "new_gpu_spend_usd": 0,
     "reason": "the raw pose finder output of the 2026-10-30 Modal runs was still on disk (SAM 3 privacy blur, MoGe focal length, SAM 3D Body, MHR to SOMA, 150 + 120 frames); a rerun would give the same numbers",

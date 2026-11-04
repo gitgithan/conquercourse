@@ -65,10 +65,10 @@
 - Every Lab opens with our setting already run and every output filled, so a demo needs no click on Run.
 - A small label says so: "Showing our setting, already run", or "Precomputed with the same code (seed N)".
 - Fast runs happen live on open, with the same code in the same worker:
-  - Labs 1, 2, 6 and 11 run on open.
-  - Labs 3, 4, 5, 8 and 10 were already filled at load.
+  - Search, Optimization, Numerical integration and Verification and hashing run on open.
+  - Posing a character, Computer vision, Camera and perspective, Signal processing and Evaluating a detector were already filled at load.
 - Slow runs are precomputed once with the same code and a fixed seed, and shipped as a small file:
-  - Lab 7 (`timing-default.json`), Lab 9 (`gentest-default.json`) and Lab 12 (`rl-default.json`) in `public/assets/lab/`.
+  - Statistics of timing (`timing-default.json`), Generate and test (`gentest-default.json`) and Reinforcement learning (`rl-default.json`) in `public/assets/lab/`.
   - `scripts/labs-default-precompute.ts` makes them; `tests/lab-populated.test.ts` re-runs the code and fails if a file drifts.
 - `scripts/labs-default-smoke.mjs` opens all 12 with no click at 1280 px and fails on a page error, a placeholder or an empty output; its first-paint times and shots are in `docs/evidence/cc-118-labs-default/`.
 - The controls sit at our setting; Run stays for trying your own.
@@ -90,7 +90,7 @@
 
 ## Reading the status of a Lab
 - All twelve Labs are on `main` with their code, tests and a doc with the four sections.
-- Labs 7, 8 and 9 were deleted from `main` once by a stale-base ship and restored by PR 420.
+- Statistics of timing, Signal processing and Generate and test were deleted from `main` once by a stale-base ship and restored by PR 420.
   - `tests/no-conflict-markers.test.ts` and the delete guard in `scripts/ship.sh` exist so that cannot happen quietly again.
 - Every Lab has a card in the world picker, shown only with the labs switch on.
 - Where a claim in a doc has no test behind it, the doc says so in its Limits section.

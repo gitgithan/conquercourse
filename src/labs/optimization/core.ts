@@ -2,7 +2,7 @@ import type { CourseData } from "../../course/course";
 import { playPlan, type Plan } from "../../sim/ideal";
 import { TICKS_PER_SECOND } from "../../sim/units";
 
-// Lab 2, Optimization. The game's drone and rope plans each have two settings that decide the finishing time.
+// Optimization. The game's drone and rope plans each have two settings that decide the finishing time.
 // This module turns that into a surface: for every pair of settings, play the REAL simulator and read the time.
 // Nothing here has a clock or a random source that is not seeded, so the same choices give the same numbers.
 export interface Axis { key: string; label: string; unit: string; min: number; step: number; count: number }

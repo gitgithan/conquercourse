@@ -8,12 +8,12 @@ import {
   type Frames, type GateReport, type LabChoice, type Result, type SignalClip,
 } from "../../lab/signal-lab";
 
-// The Lab 8 panel (smoothing choices, the joint before and after, the filter's gain, the Rookie, the gate table, what the game does, the maths).
-// One module, mounted by Lab 8 (src/modes/lab-signal.ts) and by Lab 13 (src/modes/lab-motion.ts, Smoothing and Gate steps), so there is one copy of every widget.
-// Lab 8: Signal processing. The player smooths a captured clip that has a little measurement noise added (the truth is known),
+// The Signal processing panel (smoothing choices, the joint before and after, the filter's gain, the Rookie, the gate table, what the game does, the maths).
+// One module, mounted by Signal processing (src/modes/lab-signal.ts) and by Video to motion (src/modes/lab-motion.ts, Smoothing and Gate steps), so there is one copy of every widget.
+// Signal processing. The player smooths a captured clip that has a little measurement noise added (the truth is known),
 // and reads jitter against lag, and foot sliding, on the real gate numbers. Nothing here talks or grades: it shows numbers and pictures.
 // The Rookie plays the result only if it passes the plausibility gate. Behind the labs switch (?labs=1).
-// Lab 8: Signal processing. The player smooths a captured clip that has a little measurement noise added (the truth is known),
+// Signal processing. The player smooths a captured clip that has a little measurement noise added (the truth is known),
 // and reads jitter against lag, and foot sliding, on the real gate numbers. Nothing here talks or grades: it shows numbers and pictures.
 // The Rookie plays the result only if it passes the plausibility gate. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", GREY = "#a7b0ab", DARK = "#33403a", BAD = "#b91c1c", AMBER = "#b45309";
@@ -35,7 +35,7 @@ const JOINTS: { id: string; label: string; joint: string; axis: 0 | 1 | 2; foot:
 ];
 
 export interface SignalPanelOptions { rookie: boolean; markPage: boolean }
-/** Build the panel inside `host`. `start()` loads the first clip and runs it; with rookie off the 3D view is replaced by a text line (Lab 13 plays its own Rookie in step 5). */
+/** Build the panel inside `host`. `start()` loads the first clip and runs it; with rookie off the 3D view is replaced by a text line (Video to motion plays its own Rookie in step 5). */
 export function mountSignalPanel(host: HTMLElement, opts: SignalPanelOptions): { start: (beforeFirstRun?: () => void) => Promise<void>; root: HTMLElement } {
   if (!document.getElementById("sg-panel-style")) { const st = document.createElement("style"); st.id = "sg-panel-style"; st.textContent = `
 .sg-panel h2{font-size:15px;margin:0 0 6px}
@@ -92,7 +92,7 @@ export function mountSignalPanel(host: HTMLElement, opts: SignalPanelOptions): {
         <div class="card"><h2>The maths</h2><button class="link" id="sg-eq-btn">Show the equations behind your setting</button><div class="eq" id="sg-eq-body" hidden></div></div>
       </div>
     </div>`;
-  if (!opts.rookie) { const p = document.createElement("p"); p.id = "sg-held"; p.className = "small"; p.style.cssText = "margin:0;font-weight:600"; p.textContent = "Lab 13 plays the result on the Rookie in step 5."; panel.querySelector("#sg-view")!.replaceWith(p); }
+  if (!opts.rookie) { const p = document.createElement("p"); p.id = "sg-held"; p.className = "small"; p.style.cssText = "margin:0;font-weight:600"; p.textContent = "Video to motion plays the result on the Rookie in step 5."; panel.querySelector("#sg-view")!.replaceWith(p); }
   const $ = <T extends HTMLElement>(id: string): T => panel.querySelector("#" + id) as T;
   const choice: LabChoice = { ...DEFAULT_CHOICE };
   const clips = new Map<string, SignalClip>();

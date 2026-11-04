@@ -1,4 +1,4 @@
-// Lab 3 (posing a character) in the browser at 1280 px: off without the labs switch; with it the bar can be dragged, the elbow flips behind the back,
+// posing a character in the browser at 1280 px: off without the labs switch; with it the bar can be dragged, the elbow flips behind the back,
 // the pose breaks past the reach, the maths box is closed until opened. Screenshots go to test-results/lab-ik/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

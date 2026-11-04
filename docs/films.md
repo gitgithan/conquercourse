@@ -33,7 +33,7 @@
 - 21.6 to 24.6 s: Courses, the camera turns from side view into first person.
 - 24.6 to 40.8 s: obstacle burst (coaster, vault, drone, wall, launch, hang, rope, trampoline).
 - 40.8 to 42.6 s: Dojo, the Gap jump lesson.
-- 42.6 to 45.6 s: Lab 3, dragging the bar.
+- 42.6 to 45.6 s: Posing a character, dragging the bar.
 - 45.6 to 50.4 s: group photo.
 - 50.4 to 57.6 s: logo and "Train slow. Run fast."
 - Details and smoothness numbers: [film B](film-b/README.md).

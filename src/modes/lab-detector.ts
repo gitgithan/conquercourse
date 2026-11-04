@@ -3,7 +3,7 @@ import { DEFAULT_DETECTOR, bestF1, byPrompt, evaluate, hardness, sweep, type Det
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 10: Evaluating a detector (CC-49 data). The player picks the words to ask for and where the claim line sits, and reads hits, misses and made-up parts on hand-labelled objects.
+// Evaluating a detector (CC-49 data). The player picks the words to ask for and where the claim line sits, and reads hits, misses and made-up parts on hand-labelled objects.
 // The detector's answers are recorded: no model runs on the page. Nothing talks or grades: it shows counts and a curve. The maths comes last, after a look at the numbers.
 const DATA_URL = "/assets/lab/detector-partllm.json";
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#b45309", BAD = "#b91c1c", GRID = "#d5ddd6";
@@ -26,7 +26,7 @@ export function startLabDetector(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-detector");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 10: Evaluating a detector</h1><p>Labs are switched off.</p><p><a href="?mode=lab-detector&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Evaluating a detector</h1><p>Labs are switched off.</p><p><a href="?mode=lab-detector&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -53,7 +53,7 @@ export function startLabDetector(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 10: Evaluating a detector</h1>
+    <h1>Evaluating a detector</h1>
     <p class="small" style="margin:4px 0 0">The goal: a helper program looked at six park objects and was asked to point at the part a hand could hold. Is it good enough to place holds for us? You choose the words it is asked for and how much painted surface counts as a claim, then read what it found, missed and made up. The helper ran once, before you came; its answers are recorded.</p></div>
     <div class="grid">
       <div class="card">

@@ -1,7 +1,7 @@
 import type { CourseData } from "../../course/course";
 import { edges, meter, playPlan, type Plan } from "../../sim/ideal";
 
-// Lab 7, Statistics of timing (CC-118 family). A simulated presser is a little late or early on every jump press.
+// Statistics of timing (CC-118 family). A simulated presser is a little late or early on every jump press.
 // The REAL simulator plays the run with each press moved by that jitter, over and over, with a seeded random source, and we count the clears.
 // This is a fact about a course and a simulated presser. It is never a mark for a person.
 export type Dist = "uniform" | "normal" | "heavy";

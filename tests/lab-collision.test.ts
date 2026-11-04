@@ -7,7 +7,7 @@ import { barProfile, fitRow, regulariseRungs, roleCollider } from "../src/slice/
 import { COLLIDERS, OBJECTS, TOP_TOLERANCE, bounds, boxMesh, colliderFor, decimate, relift, roll, trial } from "../src/labs/collision/skin-collider";
 import { BREAKS, DEFAULT_BREAK, FIRST_RUNG_X, KNOWN_HEIGHT, breakPeaks, compareBreak, courseFor, gapTable, playKeys, runStages, type Break } from "../src/labs/collision/collision-core";
 
-// Lab 15 (collision from a 3D lift): the steps, the fit, the break-it controls. Every number is the game's own role-collider.ts on the real Saienji CC0 monkey-bars lift.
+// collision from a 3D lift: the steps, the fit, the break-it controls. Every number is the game's own role-collider.ts on the real Saienji CC0 monkey-bars lift.
 const buf = readFileSync("public/assets/objects/monkey-bars-saienji-cc0.glb");
 const mesh = readGlbMesh(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer);
 const demoCourse = JSON.parse(readFileSync("public/assets/demo/bars-lift.course.json", "utf8"));
@@ -15,7 +15,7 @@ const demoRun = JSON.parse(readFileSync("public/assets/demo/bars-lift.run.json",
 const st = runStages(mesh);
 const B = (o: Partial<Break>): Break => ({ ...DEFAULT_BREAK, ...o });
 
-describe("Lab 15: collision from a 3D lift", () => {
+describe("Collision from a 3D lift", () => {
   it("the step-by-step run gives what roleCollider gives: 9 rungs, about 0.575 m apart, at 2.08 m", () => {
     const whole = roleCollider(mesh, "bar", { knownHeight: KNOWN_HEIGHT });
     expect(st.run).toEqual(whole.bars!.run);

@@ -1,4 +1,4 @@
-"""Lab 14: make the cut-out pictures from recorded inputs (no model run): photo on the left, the recorded mask's cut-out on the right.
+"""Cut-out, lift and bake: make the cut-out pictures from recorded inputs (no model run): photo on the left, the recorded mask's cut-out on the right.
 Run: python3 scripts/lab-lift-pictures.py   (needs Pillow)"""
 from PIL import Image
 import shutil

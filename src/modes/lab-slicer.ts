@@ -8,7 +8,7 @@ import {
   type Analysis, type Challenge, type IndexEntry, type Knobs, type Limits, type PlaceData, type Tried,
 } from "../labs/slicer/slicer-lab-core";
 
-// Lab 18: World Slicer: map to lane. A pin on a recorded OpenStreetMap area becomes a lane the simulator proves. Every picture is the game's own Slicer code run on recorded data
+// World Slicer: map to lane. A pin on a recorded OpenStreetMap area becomes a lane the simulator proves. Every picture is the game's own Slicer code run on recorded data
 // (public/assets/places/*.json); nothing is fetched from the internet and no street photo is shown. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GREY = "#9aa5a0", RED = "#b91c1c", BLUE = "#5b7fa6";
 const MW = 760, MH = 520, SW = 800, SH = 250;
@@ -28,7 +28,7 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-slicer");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 18: World Slicer</h1><p>Labs are switched off.</p><p><a href="?mode=lab-slicer&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">World Slicer</h1><p>Labs are switched off.</p><p><a href="?mode=lab-slicer&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -67,7 +67,7 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 18: World Slicer: map to lane</h1>
+    <h1>World Slicer: map to lane</h1>
     <p class="small" style="margin:2px 0 0">Drop a pin on a real map. Slice the buildings at one height. A lane appears, and the simulator tries it. Drag, tick, and watch what changes. The long story is in <code>docs/labs/slicer.md</code>.</p></div>
     <div class="card"><h2>Pick a place <span class="small" id="sl-place-n"></span></h2>
       <p class="small" id="sl-legend" style="margin:0 0 6px"></p>
@@ -108,7 +108,7 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
         <p id="sl-look" style="margin:4px 0 0"></p></div>
       <div class="card"><h2>Photos at the lane</h2>
         <p class="small" style="margin:0">Street photos are not shown here. In the game they come live from Mapillary, under its terms, and are never stored. People are blurred and faces and plates masked before any model sees a photo.</p>
-        <p class="small"><a href="?mode=lab-lift&labs=1&welcome=0" style="color:${TEAL}">Lab 14</a> follows a photo into the game; <a href="?mode=lab-vision&labs=1&welcome=0" style="color:${TEAL}">Lab 4</a> shows how people are found and hidden.</p></div>
+        <p class="small"><a href="?mode=lab-lift&labs=1&welcome=0" style="color:${TEAL}">Cut-out, lift and bake</a> follows a photo into the game; <a href="?mode=lab-vision&labs=1&welcome=0" style="color:${TEAL}">Computer vision</a> shows how people are found and hidden.</p></div>
     </div>
     <div class="card"><h2>Four design challenges</h2><div class="chals" id="sl-chals"></div></div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;

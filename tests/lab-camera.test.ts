@@ -5,14 +5,14 @@ import {
   nearFarRatio, poseA, rayThroughPixel, toPx, vanishingPoint, segmentPx, PARENT,
 } from "../src/labs/camera/camera-lab";
 
-// Lab 5 (camera and perspective): the pinhole camera laws, checked on the same three.js camera the game uses.
+// camera and perspective: the pinhole camera laws, checked on the same three.js camera the game uses.
 const front = (o = {}) => makeCamera({ ...DEFAULT_CAM, ...o, angle: 0 });
 const side = (o = {}) => makeCamera({ ...DEFAULT_CAM, ...o, angle: 90 });
 
 // joint i hangs below joint k in the body tree
 const isBelow = (i: number, k: number): boolean => { for (let p = PARENT[i]; p >= 0; p = PARENT[p]) if (p === k) return true; return false; };
 
-describe("Lab 5: camera and perspective", () => {
+describe("Camera and perspective", () => {
   it("field of view gives the focal length: a point 1 m off-axis at depth d lands f/d pixels from the middle", () => {
     for (const fov of [20, 40, 75]) {
       const cam = makeCamera({ fov, height: 0.9, angle: 0, keepSize: true, dist: 6 });

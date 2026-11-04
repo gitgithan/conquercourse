@@ -1,7 +1,7 @@
 import type { Mesh } from "../../slice/slice";
 import { projectPoint, bounds, type Cam } from "./lift-core";
 
-// Lab 14: the 3D picture of a lifted object. Painter's algorithm on a canvas, perspective camera, flat shading, vertex colours.
+// the 3D picture of a lifted object. Painter's algorithm on a canvas, perspective camera, flat shading, vertex colours.
 // Draws a ground grid (y = 0) and an arrow for the side camera's looking direction, so "facing the side camera" is something you can see.
 const rgbCache = new WeakMap<string[], Uint8Array>();
 function rgbOf(tri: string[]): Uint8Array {

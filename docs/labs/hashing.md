@@ -1,4 +1,4 @@
-# Lab 11: Verification and hashing
+# Verification and hashing
 
 *A run is its key presses, and the game plays them again to check them.*
 

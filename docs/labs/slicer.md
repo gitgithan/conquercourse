@@ -1,4 +1,4 @@
-# Lab 18: World Slicer: map to lane
+# World Slicer: map to lane
 
 *Map to lane, the pipeline from a pin on a real map to a lane the simulator proves (see [the series map](pipelines.md)).*
 *Before it: the recorded map of a ready place; after it: the World Editor and the Course (the lane is handed over as a course).*
@@ -57,7 +57,7 @@
 - **Which real game code runs:** the list above; the verdict of the opening state is tested to equal `replayDefault`.
 - **Which data is precomputed:** none; the recorded places and `slicer-defaults.json` are shipped game files, fetched on open.
 - **Photos and people:** the Lab shows no street photo.
-  - In the game, photos come live from Mapillary under its terms and are never stored; people are blurred and faces and plates masked before any model sees a photo (see Lab 14 and Lab 4).
+  - In the game, photos come live from Mapillary under its terms and are never stored; people are blurred and faces and plates masked before any model sees a photo (see Cut-out, lift and bake and Computer vision).
 
 ## How we prove the lesson is right
 - `tests/lab-slicer.test.ts` pins:

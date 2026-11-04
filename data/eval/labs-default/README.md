@@ -13,5 +13,5 @@
 - `docs/evidence/cc-118-labs-default/`: one shot per Lab and `timings.json` (first populated paint, headless Chromium on a remote machine, dev server, 1280 px).
 
 ## How we keep the files honest
-- `tests/lab-populated.test.ts` re-runs the timing and RL code and compares with the shipped files; for Lab 9 it re-runs the first proposals.
+- `tests/lab-populated.test.ts` re-runs the timing and RL code and compares with the shipped files; for Generate and test it re-runs the first proposals.
 - Regenerate with `npx tsx scripts/labs-default-precompute.ts all` after any change to the Lab code.

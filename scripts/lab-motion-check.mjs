@@ -1,4 +1,4 @@
-// Lab 13 (Video to motion) in the browser: off without the labs switch; with it, opens already run on a failing clip, a passing clip plays, a broken one is held back.
+// Video to motion in the browser: off without the labs switch; with it, opens already run on a failing clip, a passing clip plays, a broken one is held back.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -33,12 +33,12 @@ try {
   check('sunk feet held back', (await page.textContent('#mo-held')).includes('Feet stay above the floor'));
   await page.click('#mo-open-w8');
   await page.waitForSelector('#mo-w8-body #sg-gate tr', { timeout: 30000 });
-  check('Lab 8 panel woven into the gate step (slider and gate table)', (await page.locator('#mo-w8-body #sg-s').count()) === 1 && (await page.locator('#mo-w8-body #sg-gate tr').count()) > 5);
+  check('Signal processing panel woven into the gate step (slider and gate table)', (await page.locator('#mo-w8-body #sg-s').count()) === 1 && (await page.locator('#mo-w8-body #sg-gate tr').count()) > 5);
   await page.fill('#mo-w8-body #sg-s', '4'); await page.dispatchEvent('#mo-w8-body #sg-s', 'input');
   check('smoothing slider reruns the panel', (await page.textContent('#mo-w8-body #sg-s-v')).length > 0);
   // the reach panel is open beside the step 5 view from the start
   await page.waitForSelector('#mo-w3-body #ik-solver button', { timeout: 30000 });
-  check('Lab 3 panel woven into the retarget step (solver buttons)', (await page.locator('#mo-w3-body #ik-solver button').count()) >= 2);
+  check('Posing a character panel woven into the retarget step (solver buttons)', (await page.locator('#mo-w3-body #ik-solver button').count()) >= 2);
   await page.screenshot({ path: 'test-results/lab-motion/lab-motion-woven.png', fullPage: true });
   await page.selectOption('#mo-clip', 'roll-whole');
   await page.waitForTimeout(500);

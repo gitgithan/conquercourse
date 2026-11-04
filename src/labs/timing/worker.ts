@@ -1,7 +1,7 @@
 import type { CourseData } from "../../course/course";
 import { prepare, runTiming, sweepSigma, type TimingConfig } from "./core";
 
-// Runs a Lab 7 job off the page's thread: measure the windows once per course, then the Monte Carlo, then a sweep over jitter for the curve.
+// Runs a Statistics of timing job off the page's thread: measure the windows once per course, then the Monte Carlo, then a sweep over jitter for the curve.
 const ctx = self as unknown as { onmessage: ((e: { data: { id: number; course: CourseData; courseKey: string; cfg: TimingConfig; sweep: number[] } }) => void) | null; postMessage(m: unknown): void };
 let cached: { key: string; prep: ReturnType<typeof prepare> } | null = null;
 ctx.onmessage = (e) => {

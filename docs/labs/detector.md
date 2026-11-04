@@ -1,4 +1,4 @@
-# Lab 10: Evaluating a detector
+# Evaluating a detector
 
 ## When you open it
 - Live: it opens on the recorded detector data with the scores and the "what the game does" card already shown.

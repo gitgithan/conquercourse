@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { FILTERS, noiseGain, addNoise, applyForTest, cutoffHz, expAlpha, filterSeries, gameSmoothing, kernel, lagFrames, mulberry32, runGate, runSignalLab, DEFAULT_CHOICE, type FilterKind, type Frames, type SignalClip } from "../src/lab/signal-lab";
 import { loadClipJson } from "./helpers/clips";
 
-// Lab 8 (Signal processing): the filter laws, then the TypeScript gate against the numbers the Python gate printed.
+// Signal processing: the filter laws, then the TypeScript gate against the numbers the Python gate printed.
 const load = (n: string) => loadClipJson<SignalClip>(n);
 const clips: Record<string, SignalClip> = { run: load("run"), leap: load("leap"), vault: load("vault") };
 const KINDS: FilterKind[] = ["average", "triangle", "savgol", "exponential"];

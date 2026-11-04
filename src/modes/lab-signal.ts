@@ -3,7 +3,7 @@ import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { mountSignalPanel } from "../labs/signal/panel";
 
-// Lab 8: Signal processing. The panel (all the widgets) lives in src/labs/signal/panel.ts so Lab 13 mounts the same one.
+// Signal processing. The panel (all the widgets) lives in src/labs/signal/panel.ts so Video to motion mounts the same one.
 
 const INK = "#17201d", TEAL = "#0f6b5c";
 export function startLabSignal(host: HTMLElement): { backend: "canvas2d" } {
@@ -13,7 +13,7 @@ export function startLabSignal(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-signal");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 8: Signal processing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-signal&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Signal processing</h1><p>Labs are switched off.</p><p><a href="?mode=lab-signal&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -27,7 +27,7 @@ export function startLabSignal(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="sg-h1">Lab 8: Signal processing</h1>
+    <h1 id="sg-h1">Signal processing</h1>
     <p class="small" style="margin:4px 0 0">The goal: a captured move wobbles a little in every frame. Smooth it enough to calm the wobble, but not so much that the move comes out late or flattened. The game's plausibility gate decides if the result may be shown. Here the wobble is made on purpose (seeded noise added to a clean shipped clip), so the true move is known and every number below is a fact about the filter.</p></div>
   `;
   const panel = mountSignalPanel(wrap, { rookie: true, markPage: true });

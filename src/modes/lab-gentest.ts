@@ -5,7 +5,7 @@ import { itemLength } from "../slice/course-agent";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 9: Generate and test. A helper proposes courses; the player sets what it may propose; the real simulator throws out the ones that cannot be cleared.
+// Generate and test. A helper proposes courses; the player sets what it may propose; the real simulator throws out the ones that cannot be cleared.
 // The page makes no model call: the "Muse" proposals are recorded replies (public/assets/lab/gentest-proposals.json) and a built-in random proposer.
 // It shows facts and pictures only. Behind the labs switch (?labs=1).
 const URL_POOL = "/assets/lab/gentest-proposals.json";
@@ -26,7 +26,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-gentest");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 9: Generate and test</h1><p>Labs are switched off.</p><p><a href="?mode=lab-gentest&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Generate and test</h1><p>Labs are switched off.</p><p><a href="?mode=lab-gentest&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -59,7 +59,7 @@ export function startLabGentest(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="gt-h1">Lab 9: Generate and test</h1>
+    <h1 id="gt-h1">Generate and test</h1>
     <p class="small" style="margin:4px 0 0">The goal: let a helper propose courses, and count how many the simulator throws out. You decide what the helper may propose. The simulator decides what is allowed to stay.</p></div>
     <div class="grid">
       <div class="card" id="gt-controls">

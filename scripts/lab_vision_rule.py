@@ -1,4 +1,4 @@
-"""Lab 4 (Computer vision): the same keep-or-drop rule as src/labs/vision/rule.ts, in Python.
+"""Computer vision: the same keep-or-drop rule as src/labs/vision/rule.ts, in Python.
 usage: lab_vision_rule.py TABLE.txt SCORECUT,MINSIZE,MAXMASKED [...]   -> one JSON line per setting with the kept and missed counts.
 tests/lab-vision.test.ts runs it and the TypeScript rule on the same table and demands equal counts.
 The table is the one the page loads (public/assets/lab/vision/scores.txt).

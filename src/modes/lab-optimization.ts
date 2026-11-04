@@ -6,7 +6,7 @@ import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { DEFAULTS, FAIL_BASE, PROBLEMS, findPeaks, peakOf, tableScore, valueAt, type Method, type Peak, type Problem, type Settings, type Table, type Trace } from "../labs/optimization/core";
 
-// Lab 2: Optimization (CC-118). The player picks which two settings to tune and how to search, the REAL simulator scores each try (in a worker), and the page shows the whole map of finishing time.
+// Optimization (CC-118). The player picks which two settings to tune and how to search, the REAL simulator scores each try (in a worker), and the page shows the whole map of finishing time.
 // Nothing here talks or grades: it shows numbers and a picture. The maths is in a box that starts closed. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c";
 const METHODS: [Method, string, string][] = [
@@ -34,7 +34,7 @@ export function startLabOptimization(host: HTMLElement): { backend: "canvas2d" }
   host.append(root);
   mountLabsNav(host, "lab-optimization");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 2: Optimization</h1><p>Labs are switched off.</p><p><a href="?mode=lab-optimization&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Optimization</h1><p>Labs are switched off.</p><p><a href="?mode=lab-optimization&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -61,7 +61,7 @@ export function startLabOptimization(host: HTMLElement): { backend: "canvas2d" }
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="lo-h1">Lab 2: Optimization</h1>
+    <h1 id="lo-h1">Optimization</h1>
     <p class="small" style="margin:4px 0 0">The goal: find the settings that finish the course fastest, without trying every one. Pick which settings to tune and how to search. Each try is a real run of the game's simulator.</p></div>
     <div class="grid">
       <div class="card">

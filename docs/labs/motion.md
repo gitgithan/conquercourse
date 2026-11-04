@@ -1,8 +1,8 @@
-# Lab 13: Video to motion
+# Video to motion
 
 *Video to motion, stages 1 to 4 of 5: Video, Pose, Smooth and Gate, then a clip on the character (see [the series map](pipelines.md)).*
-*Before it: the photo-to-course Labs ([Lab 5, Camera](camera.md), [Lab 3, Posing a character](ik.md)).*
-*After it: running, recording and sharing a run ([Lab 11, Hashing](hashing.md)).*
+*Before it: the photo-to-course Labs ([Camera](camera.md), [Posing a character](ik.md)).*
+*After it: running, recording and sharing a run ([Hashing](hashing.md)).*
 *Behind `?labs=1`. Open `?mode=lab-motion&labs=1`. Serves the university Labs (`docs/university-labs.md`).*
 *Evidence: [the Lab at 1280 px](../evidence/cc-133-pipeline-labs/lab-motion.png).*
 
@@ -22,7 +22,7 @@
 2. **Joint positions per frame.** 30 named joints in metres; the names and every frame must have the same length (the off-by-one lesson).
    - The Lab shows the game's own reader refusing a clip that lost one name, with its message.
 3. **Smoothing.** Only what the game applies (the 1-2-3-2-1 triangle, then one length per bone), measured by the gate's soft rules.
-   - The price of smoothing (lag, flat peaks, jitter against lag) is Lab 8 ([signal.md](signal.md)); it is not repeated.
+   - The price of smoothing (lag, flat peaks, jitter against lag) is Signal processing ([signal.md](signal.md)); it is not repeated.
 4. **The plausibility gate.** Hard rules block, soft rules are reported.
    - It shows ten clips: five recorded passes, two recorded failures, four clips we broke on purpose, and the recorded Python-gate run of the filmed roll.
 5. **Retarget and play.** The clip and the Rookie share the 30 names; the clip is scaled so its legs match the Rookie's, and the Rookie's bones are turned to the joints.
@@ -45,10 +45,10 @@
 | stretching arm | the shipped vault, left hand up to 25% away (made by us) | passes; soft rule reported |
 
 ## Overlaps with other Labs
-- Lab 8 (Signal processing): step 3 only shows the game's smoothing and its soft numbers; the filters, noise and trade-off are Lab 8's.
-  - The gate code is Lab 8's TypeScript port (`src/lab/signal-lab.ts`).
-- Lab 3 (Inverse kinematics): the Rookie is posed by the game's bone solver; this Lab does not teach reaching.
-- Lab 5 (Camera): why a single photo gives no depth is Lab 5's; here the pose is already measured.
+- Signal processing: step 3 only shows the game's smoothing and its soft numbers; the filters, noise and trade-off are Signal processing's.
+  - The gate code is Signal processing's TypeScript port (`src/lab/signal-lab.ts`).
+- Inverse kinematics: the Rookie is posed by the game's bone solver; this Lab does not teach reaching.
+- Camera and perspective: why a single photo gives no depth is Camera and perspective's; here the pose is already measured.
 
 ## How it was designed
 - **The one question:** at which step can a filmed move go wrong, and what stops it before the character moves?
@@ -73,7 +73,7 @@
   - the pose at a tick depends on the tick only (tick / 120 s);
   - the retarget scale gives the character's leg length and keeps proportions;
   - every shipped clip named in `MOTION_TABLE` passes the gate.
-- What would make the claim false: a shipped clip failing the gate, or the TypeScript gate drifting from the Python one (Lab 8's reference test also guards that).
+- What would make the claim false: a shipped clip failing the gate, or the TypeScript gate drifting from the Python one (Signal processing's reference test also guards that).
 
 ## Limits
 - The broken clips are made by us from shipped clips; only two failures are recorded ones.
@@ -95,9 +95,9 @@
 - Pose: the file keeps a list of names and, for each frame, one position per name.
   - The two lists must be the same length, always.
 - Smooth: the game smooths with a light 1-2-3-2-1 triangle, then gives every bone one length.
-  - How much to smooth, and what it costs in lag and flat peaks, is taught in Lab 8 and is not repeated in Lab 13.
+  - How much to smooth, and what it costs in lag and flat peaks, is taught in Signal processing and is not repeated in Video to motion.
 - Gate: no motion is shown before it passes.
-  - The code is a TypeScript port of the Python gate, checked against it in Lab 8.
+  - The code is a TypeScript port of the Python gate, checked against it in Signal processing.
 - Clip: the clip and the Rookie share the same 30 joint names.
   - The clip's person has other leg lengths, so every position is scaled so the legs match, and the Rookie's bones are turned to point where the joints are.
 - Tick: the pose shown is read from the simulator's tick count, never from a timer.
@@ -110,5 +110,5 @@
 - Recorded run: the filmed jump roll went through the pipeline's own Python gate before it was ever played; both numbers were printed by that run, not by the page.
   - The repair lifted the sunk feet (5.4 cm to 0).
     - It cannot invent a falling arc, so the whole film stays held back, and only a trimmed piece (the crouch clip) was kept.
-- Woven panels: Step 3 and Step 4 open Lab 8's panel (smoothing sliders, jitter and lag, gate table) and Step 5 opens Lab 3's panel (bone solver); both are the same modules the old Labs use (`src/labs/signal/panel.ts`, `src/labs/ik/panel.ts`).
-  - The panel brings its own clips (Lab 8's and Lab 3's lists), not the clip picked at the top of Lab 13.
+- Woven panels: Step 3 and Step 4 open Signal processing's panel (smoothing sliders, jitter and lag, gate table) and Step 5 opens Posing a character's panel (bone solver); both are the same modules the old Labs use (`src/labs/signal/panel.ts`, `src/labs/ik/panel.ts`).
+  - The panel brings its own clips (Signal processing's and Posing a character's lists), not the clip picked at the top of Video to motion.

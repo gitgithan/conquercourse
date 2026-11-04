@@ -1,4 +1,4 @@
-"""CC-133: turn the real lift outputs (raw.npz per photo) into the Lab 14 data set.
+"""CC-133: turn the real lift outputs (raw.npz per photo) into the Cut-out, lift and bake data set.
 
 Reads  data/eval/cc-133-real-lifts/{a,b}/<photo>/ (raw.npz, mask.png, entry.json, mesh.json) made by pipelines/photo_to_object.py.
 Writes public/assets/lab/lift/real/<name>.glb (raw lift, z up, lift units, about 300 KB or less), <name>-mask.png, <name>.json and index.json.
@@ -68,7 +68,7 @@ def main():
         json.dump(entry, open(os.path.join(OUT, name + ".json"), "w"), indent=2)
         entries.append(entry)
         print(name, stats["rawHeight"], stats["rawFaces"], "->", stats["previewFaces"], stats["previewBytes"])
-    json.dump({"schemaVersion": 1, "note": "Real raw lifts for Lab 14. Every one of the 19 library objects was made from a photo through the lift; none is a plain download.",
+    json.dump({"schemaVersion": 1, "note": "Real raw lifts for Cut-out, lift and bake. Every one of the 19 library objects was made from a photo through the lift; none is a plain download.",
                "objects": entries}, open(os.path.join(OUT, "index.json"), "w"), indent=2)
 
 

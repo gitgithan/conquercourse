@@ -1,4 +1,4 @@
-// Lab 17 (spike the riskiest call first) in the browser at 1280 px: off without the labs switch; with it every output is filled on open; the board, the plans and the challenge answer to clicks and to a drag.
+// spike the riskiest call first in the browser at 1280 px: off without the labs switch; with it every output is filled on open; the board, the plans and the challenge answer to clicks and to a drag.
 // Screenshots go to test-results/lab-spike/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

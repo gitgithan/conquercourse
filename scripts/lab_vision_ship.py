@@ -1,4 +1,4 @@
-"""Lab 4 (Computer vision): turn the offline scores into the files the page ships.
+"""Computer vision: turn the offline scores into the files the page ships.
 usage: lab_vision_ship.py OUT_DIR DEST_DIR [--skip ID,ID] [--thumbs N]
 Reads OUT_DIR/scores.json, meta.json, thumbs/ (from lab_vision_scores.py); writes
   DEST_DIR/scores.txt   one photo per line: id|union_mask_share_at_0.3|score,box,mask;...|size,find;...
@@ -15,7 +15,7 @@ nthumb = int(sys.argv[sys.argv.index("--thumbs") + 1]) if "--thumbs" in sys.argv
 sc = json.load(open(f"{out}/scores.json"))
 meta = {m["id"]: m for m in json.load(open(f"{out}/meta.json"))}
 os.makedirs(f"{dest}/t", exist_ok=True)
-lines = ["# Lab 4 scores. id|union mask share (score >= 0.3)|find: score,box share,mask share ; ...|person: size share,matched find (-1 none) ; ...", f"# {sc['detector']}"]
+lines = ["# Computer vision scores. id|union mask share (score >= 0.3)|find: score,box share,mask share ; ...|person: size share,matched find (-1 none) ; ...", f"# {sc['detector']}"]
 f4 = lambda x: f"{x:.4f}".rstrip("0").rstrip(".") if x else "0"
 for p in sc["photos"]:
     finds = ";".join(f"{s:.3f},{f4(b)},{f4(m)}" for s, b, m in p["det"])

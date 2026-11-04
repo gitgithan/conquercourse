@@ -1,6 +1,6 @@
-# Lab 5: Camera and perspective
+# Camera and perspective
 
-*University Lab 5 (see `docs/university-labs.md`).*
+*University Camera and perspective (see `docs/university-labs.md`).*
 *Open it at `?mode=lab-camera&labs=1`; without the labs switch it shows "Labs are switched off".*
 
 ## When you open it

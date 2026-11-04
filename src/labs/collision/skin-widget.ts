@@ -2,7 +2,7 @@ import { readGlbMesh } from "../../slice/glb";
 import type { Mesh } from "../../slice/slice";
 import { COLLIDERS, OBJECTS, SNAP, TOP_TOLERANCE, bounds, colliderFor, trial, type ColliderKind, type Played, type Trial } from "./skin-collider";
 
-// Lab 15, "Skin versus collider" card. A real lifted object is drawn with its collider on top; one ball is rolled over the lift and over the same photo lifted again.
+// "Skin versus collider" card. A real lifted object is drawn with its collider on top; one ball is rolled over the lift and over the same photo lifted again.
 // Every number comes from skin-collider.ts (the same code the tests run). Nothing here talks or grades.
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GREY = "#9aa5a0", RED = "#b91c1c", BLUE = "#5b7fa6";
 const W = 1100, H = 300;

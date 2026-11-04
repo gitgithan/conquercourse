@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { BINS, CARDS, FINDER_ITEMS, GAME_LIMIT, GATE_ROWS, STAGES, allBest, cheapestSafe, confusion, finderCut, flagged, isSafe, judge, ourSorting, ratioOf, scoreSort, sweep, totalCalls } from "../src/labs/limits/limits-core";
-import { LAB_GROUPS, LAB_LIST, flowOf, groupOf, labNumberOf } from "../src/ui/labs-series";
+import { LAB_GROUPS, LAB_LIST, flowOf, groupOf } from "../src/ui/labs-series";
 
 // Lab "What the model cannot do": the sorting, the gate's precision and recall, the finder cut, the safe-design check. Every number comes from tracked data/eval files.
 describe("lab-limits: the real data", () => {
@@ -89,6 +89,6 @@ describe("lab-limits: the series", () => {
     expect(groupOf("lab-limits")?.tier).toBe("pipelines");
     expect(LAB_GROUPS.filter((g) => g.modes.includes("lab-limits"))).toHaveLength(1);
     expect(flowOf("lab-limits")?.from).toBeNull();
-    expect(labNumberOf("lab-limits")).toBeGreaterThan(15);
+    expect(LAB_LIST.findIndex((l) => l.mode === "lab-limits")).toBeGreaterThan(14); // list order only; nothing shows a number
   });
 });

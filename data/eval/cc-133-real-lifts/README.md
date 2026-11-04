@@ -1,13 +1,13 @@
-# CC-133: real raw lifts for Lab 14 (Cut-out, lift and bake)
+# CC-133: real raw lifts for Cut-out, lift and bake
 
-*Serves the Lab 14 student: they see a simulation of real data, not a finished object turned back into a fake lift.*
+*Serves the Cut-out, lift and bake student: they see a simulation of real data, not a finished object turned back into a fake lift.*
 
 ## So what
 - All 19 library objects were made from a photo through the lift (mask, lift, bake).
   - None is a plain download.
 - The old Lab faked the raw lift for 17 of them because the real raw lifts were never kept (only the baked result was).
 - We ran the real pipeline once more for all 19 (same photo, box, label, typed height, padding, seed 42) and kept the raw meshes and masks.
-- Next step: switch Lab 14 to `public/assets/lab/lift/real/index.json`.
+- Next step: switch Cut-out, lift and bake to `public/assets/lab/lift/real/index.json`.
 
 ## The split (honest)
 - Photo-made through the lift: all 19 (rail-skate-01, box-skate-03, bench-concrete, railing-iron, rail-skate-02, stairs-park-07, bollard-iron, hydrant-red, barrel-oak, picnic-table, pullup-green, planter-concrete, pipe-concrete, bench-curved, railing-red, pullup-black, log-driftwood, stump-spruce, gabion-wall).

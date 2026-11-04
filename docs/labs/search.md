@@ -1,6 +1,6 @@
-# Lab 1: Search
+# Search
 
-*University Lab 1 (see `docs/university-labs.md`).*
+*University Search (see `docs/university-labs.md`).*
 *Open it at `?mode=lab-search&labs=1`; without the labs switch it shows "Labs are switched off".*
 
 ## When you open it
@@ -29,7 +29,7 @@
 - **The course:** `public/assets/lab/search-trap.course.json`, four platforms, three gaps, finish at 29.4 m.
   - It was written by hand after a random search of small chains, so that the farthest first jump strands the second.
   - Its stored plan (presses at 6.72, 13.12 and 18.38 m) is the game's own ideal-run search result.
-  - Lab 12 reuses this course and this stored line.
+  - Reinforcement learning reuses this course and this stored line.
 - **Which real game code runs:** `playPlan` and `edges` from `src/sim/ideal.ts`, which drive `src/sim/world.ts` (the same simulator the game plays).
   - The search itself (`src/lab/search-lab.ts`) is new Lab code, because the game's search is a generator tied to its own batching; the Lab's search is not the game's search.
   - A node is the list of presses so far; to judge it, the real simulator plays the run and we read where the runner lands after the last press.
@@ -79,6 +79,6 @@
 1. Add tests for the heuristic sliders: one mix where beam 2 clears, and one where A* spends more runs than with distance only.
 2. Show the game's own search on the same course next to the player's, with its measured run count, so the card is data and not a sentence.
 3. Add a second, non-trap course where greedy wins, so the lesson is "it depends" and not "greedy is bad".
-4. Let the player also tune the release time, which turns the search into a bigger space (a bridge to Lab 2).
+4. Let the player also tune the release time, which turns the search into a bigger space (a bridge to Optimization).
 5. Plot runs used against methods for several budgets in one picture.
 6. Put the test that the card's sentence is true into the suite (run the game's search on the trap).

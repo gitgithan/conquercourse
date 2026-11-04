@@ -11,7 +11,7 @@ import {
   frameTime, liftToFloor, onlyBoneLengths, poseAtTick, retargetScale, tickSeconds, ticksFor, verdict, whyFailed, withFps,
 } from "../src/labs/motion/motion-core";
 
-// Lab 13 (Video to motion): the gate verdicts on recorded good clips, recorded bad clips and clips we broke on purpose.
+// Video to motion: the gate verdicts on recorded good clips, recorded bad clips and clips we broke on purpose.
 const files: Record<string, SignalClip> = {};
 for (const u of new Set(LAB_CLIPS.map((c) => c.url))) files[u] = JSON.parse(readFileSync("public" + u, "utf8"));
 const clipById = (id: string) => LAB_CLIPS.find((c) => c.id === id)!;
@@ -148,7 +148,7 @@ describe("registration", () => {
   it("the Lab is in the nav, the loaders, the picker and has a doc with the four sections", () => {
     expect(readFileSync("src/ui/labs-series.ts", "utf8")).toContain("lab-motion");
     expect(readFileSync("src/main-loaders.ts", "utf8")).toContain("lab-motion");
-    expect(readFileSync("src/ui/world-picker.ts", "utf8")).toContain("Lab 13: Video to motion");
+    expect(readFileSync("src/ui/world-picker.ts", "utf8")).toContain("'lab-motion', 'Video to motion'");
     const doc = readFileSync("docs/labs/motion.md", "utf8");
     for (const h of ["How it was designed", "How we prove the lesson is right", "Limits", "How to make the lesson better"]) expect(doc).toContain(`## ${h}`);
   });

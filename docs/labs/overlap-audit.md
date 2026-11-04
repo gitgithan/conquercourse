@@ -1,88 +1,88 @@
 # Labs overlap audit
 
 *Written for the product owner, who decides; nothing was deleted or changed in any Lab because of this page.*
-*Method: read the "question", "what runs", "how it was designed" and "limits" parts of Labs 1 to 12, grepped the docs for repeated topics, and compared them with `docs/lessons*.md`, `docs/hash-design.md`, `docs/pipelines.md` and `docs/motion-pipeline.md`.*
+*Method: read the "question", "what runs", "how it was designed" and "limits" parts of the twelve first Labs, grepped the docs for repeated topics, and compared them with `docs/lessons*.md`, `docs/hash-design.md`, `docs/pipelines.md` and `docs/motion-pipeline.md`.*
 *"Better copy" means the copy with a test behind it and the clearer words.*
 *The new Labs (collision, lift, motion) are covered in the last section, as far as they had landed when this was written.*
 
 ## So what
 - The twelve Labs overlap less than feared: most repeats are shared setting (one course, one seed, one worker), not repeated teaching.
 - Four real overlaps matter:
-  - Replay and determinism are taught in both Lab 6 and Lab 11.
-  - Precision and recall are taught in both Lab 4 and Lab 10.
-  - Search, optimization and learning (Labs 1, 2, 12, and in part 9) all score a candidate by the same `playPlan` run.
+  - Replay and determinism are taught in both Numerical integration and Verification and hashing.
+  - Precision and recall are taught in both Computer vision and Evaluating a detector.
+  - Search, optimization and learning (Search, Optimization, Reinforcement learning, and in part Generate and test) all score a candidate by the same `playPlan` run.
   - The "do not hash what you measured" rule and the cross-hardware hash story live in docs, not in the Labs that teach hashing.
 - The one gap that matters for the series: no Lab teaches Bake, and none opens a real share link.
 
 ## The overlaps
 
-### 1. Replay and determinism: Lab 6 and Lab 11 (and `lessons-cross-hardware-testing.md`)
-- Lab 6 (integration) asks "does a replay at your step match the game's recording?".
-- Lab 11 (hashing) asks "which part of a replay do you hash?".
+### 1. Replay and determinism: Numerical integration and Verification and hashing (and `lessons-cross-hardware-testing.md`)
+- Numerical integration asks "does a replay at your step match the game's recording?".
+- Verification and hashing asks "which part of a replay do you hash?".
 - Both lean on one fact: the same keys and the same step rule give the same run, bit for bit.
-- Lab 11 states the fact in its maths box ("why replay is a check"); Lab 6 shows it by changing the step.
+- Verification and hashing states the fact in its maths box ("why replay is a check"); Numerical integration shows it by changing the step.
 - The cross-hardware lesson (Node 22 and 24 gave different hashes on six courses, fixed by one maths function) is the best proof of that fact and appears in neither Lab.
-- **Better copy:** Lab 6 for why steps drift; Lab 11 for why a deterministic step makes replay a check.
-- **Recommendation:** keep both; make Lab 11 link to Lab 6 for "why the step is exact", and add the Node 22 against 24 story to Lab 11's "What we found" as the real-life case.
+- **Better copy:** Numerical integration for why steps drift; Verification and hashing for why a deterministic step makes replay a check.
+- **Recommendation:** keep both; make Verification and hashing link to Numerical integration for "why the step is exact", and add the Node 22 against 24 story to Verification and hashing's "What we found" as the real-life case.
 
-### 2. Precision and recall: Lab 4 and Lab 10
-- Lab 4 shows recall, precision and a free-response ROC point for a mask threshold.
-- Lab 10 builds precision, recall and F1 from a 2 by 2 table of found, missed and made up.
+### 2. Precision and recall: Computer vision and Evaluating a detector
+- Computer vision shows recall, precision and a free-response ROC point for a mask threshold.
+- Evaluating a detector builds precision, recall and F1 from a 2 by 2 table of found, missed and made up.
 - Same words, two different data sets (street photos with people; six park objects).
-- **Better copy:** Lab 10, which earns the definitions from counts.
-- **Recommendation:** keep both; in Lab 4 replace the definitions in the maths box with "see Lab 10 for what recall and precision mean". Lab 4 keeps the trade-off curve, which is its own lesson.
+- **Better copy:** Evaluating a detector, which earns the definitions from counts.
+- **Recommendation:** keep both; in Computer vision replace the definitions in the maths box with "see Evaluating a detector for what recall and precision mean". Computer vision keeps the trade-off curve, which is its own lesson.
 
-### 3. Scoring a candidate with `playPlan`: Labs 1, 2, 7, 9, 12
-- Lab 1 scores a node, Lab 2 a settings cell, Lab 7 a jittered press, Lab 9 a proposed course, Lab 12 a learned run; all play the real simulator.
-- Lab 1 and Lab 12 share the same trap course and stored line (`search-trap.course.json`); Lab 12 says so.
-- Lab 1 (search methods) and Lab 12 (learn by trial and error) both answer "how many tries to find a clear run?", with different tools.
-- Lab 2 and Lab 1 both count simulator runs as the cost.
-- **Better copy:** Lab 1 for "how many runs"; Lab 2 for the map with peaks; Lab 12 for reward writing.
+### 3. Scoring a candidate with `playPlan`: Search, Optimization, Statistics of timing, Generate and test, Reinforcement learning
+- Search scores a node, Optimization a settings cell, Statistics of timing a jittered press, Generate and test a proposed course, Reinforcement learning a learned run; all play the real simulator.
+- Search and Reinforcement learning share the same trap course and stored line (`search-trap.course.json`); Reinforcement learning says so.
+- Search (search methods) and Reinforcement learning (learn by trial and error) both answer "how many tries to find a clear run?", with different tools.
+- Optimization and Search both count simulator runs as the cost.
+- **Better copy:** Search for "how many runs"; Optimization for the map with peaks; Reinforcement learning for reward writing.
 - **Recommendation:** keep all; this is a family.
-  - The README could say "Labs 1, 2 and 12 are three answers to one question: how to find a good run".
+  - The README could say "Search, Optimization and Reinforcement learning are three answers to one question: how to find a good run".
 
-### 4. Seeded randomness and "same choices, same numbers": Labs 1, 2, 7, 8, 9, 11, 12
+### 4. Seeded randomness and "same choices, same numbers": Search, Optimization, Statistics of timing, Signal processing, Generate and test, Verification and hashing, Reinforcement learning
 - Seven docs state that the seed is fixed and a test runs the Lab twice.
 - It is a shared rule, repeated as a proof bullet in each doc.
 - **Recommendation:** leave the tests; shorten the doc bullets to one line linking to `docs/university-labs.md`.
   - Low value either way.
 
-### 5. Press timing: Lab 7 and Lab 2
-- Lab 2's "game's pick" card says the game centres the release in its window; Lab 7 measures the window itself.
-- Not a duplicate: Lab 2 uses windows, Lab 7 teaches them.
-- **Recommendation:** keep; add "see Lab 7 for what a window is" in Lab 2.
+### 5. Press timing: Statistics of timing and Optimization
+- Optimization's "game's pick" card says the game centres the release in its window; Statistics of timing measures the window itself.
+- Not a duplicate: Optimization uses windows, Statistics of timing teaches them.
+- **Recommendation:** keep; add "see Statistics of timing for what a window is" in Optimization.
 
-### 6. Smoothing and the plausibility gate: Lab 8 and `docs/motion-pipeline.md`, `docs/pipelines.md` section 4
-- Lab 8 holds a TypeScript port of the Python gate, checked on 33 cases against the Python gate (the strongest check in any Lab).
+### 6. Smoothing and the plausibility gate: Signal processing and `docs/motion-pipeline.md`, `docs/pipelines.md` section 4
+- Signal processing holds a TypeScript port of the Python gate, checked on 33 cases against the Python gate (the strongest check in any Lab).
 - The pipeline docs describe the same gate in words and rules.
-- **Better copy:** Lab 8 for the working version; the pipeline docs for the full rule list.
-- **Recommendation:** keep both; Lab 8 should link the rule list instead of restating it.
+- **Better copy:** Signal processing for the working version; the pipeline docs for the full rule list.
+- **Recommendation:** keep both; Signal processing should link the rule list instead of restating it.
 
-### 7. Hash design: Lab 11 and `docs/hash-design.md`
+### 7. Hash design: Verification and hashing and `docs/hash-design.md`
 - `hash-design.md` says "hash only what changes play; leave-in beats leave-out" and tells the CC-224 accident.
-- Lab 11's "what the game hashes" card names the course hash and the golden files but not that rule.
+- Verification and hashing's "what the game hashes" card names the course hash and the golden files but not that rule.
 - **Better copy:** `hash-design.md` (a real incident, a rule, tests).
-- **Recommendation:** add a "What we learned the hard way" link from Lab 11 to `hash-design.md`; do not copy the text.
+- **Recommendation:** add a "What we learned the hard way" link from Verification and hashing to `hash-design.md`; do not copy the text.
 
-### 8. One photo cannot give depth: Lab 5 and the lift story in `lessons-obstacle-creation.md`
-- Lab 5 proves with hand-made bodies that one front photo cannot fix depth.
+### 8. One photo cannot give depth: Camera and perspective and the lift story in `lessons-obstacle-creation.md`
+- Camera and perspective proves with hand-made bodies that one front photo cannot fix depth.
 - The obstacle lessons say a lift keeps only part of thin or long objects and that size comes from a typed height.
 - Same cause (depth is a guess), told once in maths and once in outcomes.
 - **Recommendation:** keep; the new lift Lab should link both.
   - See the last section.
 
-### 9. People in photos: Lab 4 and the Mapillary carve-out in `CLAUDE.md`
-- Lab 4's thresholds (score cut 0.3, 25 percent biggest box) restate rules from `scripts/photos_mask.py` and `scripts/photos_people.py`.
+### 9. People in photos: Computer vision and the Mapillary carve-out in `CLAUDE.md`
+- Computer vision's thresholds (score cut 0.3, 25 percent biggest box) restate rules from `scripts/photos_mask.py` and `scripts/photos_people.py`.
 - The doc says the numbers are shown "on the page, with live numbers", so a change in the script can leave the doc stale.
-- **Recommendation:** keep; a test that reads the constants from the script would end the risk (Lab 4's known limit already says its 125 against 131 count).
+- **Recommendation:** keep; a test that reads the constants from the script would end the risk (Computer vision's known limit already says its 125 against 131 count).
 
-### 10. Posing, IK and neck rule: Lab 3 and `docs/character-pipeline.md`
-- Lab 3 runs `ik2` and `settleNeck`; the character pipeline describes the same steps.
+### 10. Posing, IK and neck rule: Posing a character and `docs/character-pipeline.md`
+- Posing a character runs `ik2` and `settleNeck`; the character pipeline describes the same steps.
 - **Recommendation:** keep; link only.
 
 ### 11. Both "Cut-out" Labs are not about cutting out
-- The series map puts Labs 4 and 10 at "Cut-out" because they are the nearest.
-- Lab 4 hides people; Lab 10 scores a recorded detector for holds.
+- The series map puts Computer vision and Evaluating a detector at "Cut-out" because they are the nearest.
+- Computer vision hides people; Evaluating a detector scores a recorded detector for holds.
 - This is a gap, not a duplicate: no Lab cuts an object out of a photo (the lift Lab may start there).
 
 ## Smaller repeats
@@ -94,24 +94,23 @@
 
 ## The new Labs (read from the authors' working folders before they landed; re-check after merge)
 
-### 12. Three Labs each say "Lab 13"
-- The collision, lift and motion docs were each written as "Lab 13"; numbers come from the place in `src/ui/labs-series.ts`, so only one can be 13.
-- Motion landed first and is Lab 13; lift is Lab 14; collision is Lab 15.
-- The authors fixed their titles to 13, 14, 15 as they merged.
+### 12. Three Labs once claimed the same number (settled: Labs are known by name only)
+- The collision, lift and motion docs were each written with the same Lab number; since the numbers were removed, each Lab is named by its own title.
+- Motion landed first and is Video to motion; lift is Cut-out, lift and bake; collision is Collision from a 3D lift.
 
 ### 13. Different words for "which stage": 4 of 8, 2 and 3 of 8, 2 of 3
 - The three docs first said "stage 4 of 8", "stages 2 and 3 of 8" and "stage 2 of 3"; the top lines now use the series map's stages.
 - The series map in `pipelines.md` has three pipelines with 6, 5 and 5 stages.
 - Fixed in the same change as this audit; kept so the next Lab uses the same wording.
 
-### 14. Gate and smoothing: new motion Lab and Lab 8
-- The motion Lab shows the same gate (it reuses Lab 8's TypeScript port) on ten clips, and the game's smoothing; Lab 8 shows the same gate on noisy clips.
-- The motion Lab says plainly that the cost of smoothing is Lab 8's and links it, which is the right way.
-- **Better copy:** Lab 8 for the filters and the Python cross-check; the motion Lab for the story of one filmed move.
+### 14. Gate and smoothing: new motion Lab and Signal processing
+- The motion Lab shows the same gate (it reuses Signal processing's TypeScript port) on ten clips, and the game's smoothing; Signal processing shows the same gate on noisy clips.
+- The motion Lab says plainly that the cost of smoothing is Signal processing's and links it, which is the right way.
+- **Better copy:** Signal processing for the filters and the Python cross-check; the motion Lab for the story of one filmed move.
 - **Recommendation:** keep both; the gate rule list should live in one place (`pipelines.md` section 4) and both Labs link to it.
 
-### 15. Posing the Rookie: the motion Lab (step 5) and Lab 3
-- The motion Lab retargets a clip onto the Rookie; Lab 3 solves reach with the same bones.
+### 15. Posing the Rookie: the motion Lab (step 5) and Posing a character
+- The motion Lab retargets a clip onto the Rookie; Posing a character solves reach with the same bones.
 - The motion Lab says it does not teach reaching.
   - No repeat.
 
@@ -121,8 +120,8 @@
 - **Better copy:** the Lab (it is runnable and tested).
 - **Recommendation:** keep; shorten the pipeline doc step to a link once the Lab is the reference.
 
-### 17. Why depth is a guess: the lift Lab and Lab 5
-- The lift Lab links Lab 5 for "one photo gives no depth" and does not repeat it.
+### 17. Why depth is a guess: the lift Lab and Camera and perspective
+- The lift Lab links Camera and perspective for "one photo gives no depth" and does not repeat it.
   - No repeat.
 
 ### 18. Collision: the collision Lab and `docs/collision-from-3d.md`
@@ -131,13 +130,13 @@
 - **Better copy:** the Lab for numbers; the doc for the reason each step exists.
 - **Recommendation:** keep both and make the doc's step list say "run it in Lab N".
 
-### 19. Replay in the collision Lab and Lab 11
+### 19. Replay in the collision Lab and Verification and hashing
 - The collision Lab's last step plays recorded keys through `verifyLog` on the new course.
-- Lab 11 teaches `verifyLog`.
-- **Recommendation:** the collision Lab links Lab 11 for what the judge does.
+- Verification and hashing teaches `verifyLog`.
+- **Recommendation:** the collision Lab links Verification and hashing for what the judge does.
 
 ### 20. Detector in the lift Lab
-- The lift Lab says "after the object exists, is the part found right?" and links Lab 10.
+- The lift Lab says "after the object exists, is the part found right?" and links Evaluating a detector.
   - No repeat.
 
 ## Cross-links added (CC-133)

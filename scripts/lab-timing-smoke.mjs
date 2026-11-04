@@ -1,4 +1,4 @@
-// Opens Lab 7 (?mode=lab-timing&labs=1) at 1280 px, plays a course, checks the facts and saves a screenshot.
+// Opens Statistics of timing (?mode=lab-timing&labs=1) at 1280 px, plays a course, checks the facts and saves a screenshot.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';

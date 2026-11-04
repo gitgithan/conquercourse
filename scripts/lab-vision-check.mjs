@@ -1,4 +1,4 @@
-// Browser smoke for Lab 4 (computer vision): opens ?mode=lab-vision&labs=1 at 1280 px, moves the score cut, marks two settings, shows the game's setting and the maths, saves a screenshot.
+// Browser smoke for computer vision: opens ?mode=lab-vision&labs=1 at 1280 px, moves the score cut, marks two settings, shows the game's setting and the maths, saves a screenshot.
 // usage: node scripts/lab-vision-check.mjs [baseUrl] [out.png]
 import { chromium } from 'playwright';
 const base = process.argv[2] ?? 'http://localhost:5173';

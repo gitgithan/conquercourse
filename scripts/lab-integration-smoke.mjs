@@ -1,4 +1,4 @@
-// Lab 6 browser smoke at 1280 px: opens ?mode=lab-integration&labs=1, runs the game's setting and then a coarse Euler, and saves pictures.
+// Numerical integration browser smoke at 1280 px: opens ?mode=lab-integration&labs=1, runs the game's setting and then a coarse Euler, and saves pictures.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';

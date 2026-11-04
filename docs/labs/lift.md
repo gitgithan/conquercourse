@@ -1,7 +1,7 @@
-# Lab 14: Cut-out, lift and bake (photo to game object)
+# Cut-out, lift and bake (photo to game object)
 
-*Pipeline stages 3 and 4 of 6 (Lift to 3D, then Bake) in the photo-to-course-object path; stage 2, the cut-out, is shown here as a recorded result and taught in Lab 4 and Lab 10.*
-*Before: [Lab 4, Computer vision](vision.md) (which photos are safe) and [Lab 5, Camera and perspective](camera.md) (why one photo gives no depth).*
+*Pipeline stages 3 and 4 of 6 (Lift to 3D, then Bake) in the photo-to-course-object path; stage 2, the cut-out, is shown here as a recorded result and taught in Computer vision and Evaluating a detector.*
+*Before: [Computer vision](vision.md) (which photos are safe) and [Camera and perspective](camera.md) (why one photo gives no depth).*
 *After: [collision fitted from the 3D](../collision-from-3d.md), then placing the object on a course and proving it with the simulator.*
 *The recipe it teaches is step 7 of [pipelines](../pipelines.md); the lessons behind it are in [lessons-obstacle-creation](../lessons-obstacle-creation.md).*
 
@@ -47,7 +47,7 @@
 - **The choice:** to build a teaching bake on the baked objects we already have rather than ship a raw lift (the files are far over the 300 KB limit, and a new model run is not allowed for this Lab).
 - **The real code:** the page reads the real `.glb` files with the game's `readGlbMesh` and draws them with the same triangles the game uses; the bake rules are the pipeline's, rewritten in TypeScript.
 - **Order of the screen:** choices, three pictures (the raw lift, the baked side view, the baked top view), the facts and what breaks, the recorded cut-out, the thin-bar lesson, the recorded cost, the maths on request, then what we chose.
-- **Overlaps, linked and not repeated:** Lab 4 (which photos are safe; the mask thresholds), Lab 5 (one photo gives no depth, which is why the size comes from a typed or typical height), Lab 10 (whether a detector points at the right part, after the object exists).
+- **Overlaps, linked and not repeated:** Computer vision (which photos are safe; the mask thresholds), Camera and perspective (one photo gives no depth, which is why the size comes from a typed or typical height), Evaluating a detector (whether a detector points at the right part, after the object exists).
 
 ## How we prove the lesson is right
 - `tests/lab-lift.test.ts` (23 tests):
@@ -79,4 +79,4 @@
 5. Link to the collision Lab when it lands.
 
 ## Evidence
-- ![Lab 14 at 1280 px](../evidence/cc-133-pipeline-labs/lab-lift.png)
+- ![Cut-out, lift and bake at 1280 px](../evidence/cc-133-pipeline-labs/lab-lift.png)

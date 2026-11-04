@@ -5,7 +5,7 @@ import { laneFacts, looksCrossable } from "../src/slice/why";
 import { replayDefault, type DefaultsFile } from "../src/slice/slicer-default";
 import { CHALLENGES, GAME_LIMITS, JUMP_GAP_M, MIN_LANE_M, LEVELS, analyse, countLevels, isReady, levelsOf, type IndexEntry, inputOf, judge, looksOk, openKnobs, placeOf, reachOf, ruleRows, startKnobs, tryLane, type Challenge, type Knobs } from "../src/labs/slicer/slicer-lab-core";
 
-// Lab 18 (map to lane): the Lab's claims, pinned to the game's own Slicer code and the recorded OpenStreetMap places. No network, no photos.
+// map to lane: the Lab's claims, pinned to the game's own Slicer code and the recorded OpenStreetMap places. No network, no photos.
 const defaults = JSON.parse(readFileSync("public/assets/places/slicer-defaults.json", "utf8")) as DefaultsFile;
 const raw = (slug: string) => JSON.parse(readFileSync(`public/assets/places/${slug}.json`, "utf8"));
 const place = (slug: string) => placeOf(raw(slug));
@@ -16,7 +16,7 @@ const chal = (id: string): Challenge => CHALLENGES.find((c) => c.id === id)!;
 const knobs = (slug: string, o: Partial<Knobs> = {}): Knobs => ({ ...openKnobs(place(slug), dflt(slug)), ...o });
 setRoofStart(true);
 
-describe("Lab 18: the recorded places", () => {
+describe("World Slicer: the recorded places", () => {
   it("are in the picker's list, are recorded OpenStreetMap buildings, and have a stored proved default", () => {
     expect(SLUGS.length).toBeGreaterThan(0);
     expect(new Set(SLUGS).size).toBe(SLUGS.length);
@@ -59,7 +59,7 @@ describe("Lab 18: the recorded places", () => {
   });
 });
 
-describe("Lab 18: our setting is the game's proved line", () => {
+describe("World Slicer: our setting is the game's proved line", () => {
   for (const s of ["eixample-barcelona", "alfama-lisbon", "zocalo-mexico-city", "lakeside-garden-skatepark"]) {
     it(`${s}: the page's verdict equals the game's replay of the stored default`, () => {
       const a = analyse(place(s), knobs(s)), r = replayDefault(dflt(s), inputOf(place(s)));
@@ -75,7 +75,7 @@ describe("Lab 18: our setting is the game's proved line", () => {
   });
 });
 
-describe("Lab 18: the buildings that are left out", () => {
+describe("World Slicer: the buildings that are left out", () => {
   it("a smaller circle drops buildings and the numbers add up", () => {
     const p = place("alfama-lisbon"), big = analyse(p, knobs("alfama-lisbon"), { prove: false }), small = analyse(p, knobs("alfama-lisbon", { radiusM: 40 }), { prove: false });
     expect(small.counts.outside).toBeGreaterThan(big.counts.outside);
@@ -95,7 +95,7 @@ describe("Lab 18: the buildings that are left out", () => {
   });
 });
 
-describe("Lab 18: the rules table", () => {
+describe("World Slicer: the rules table", () => {
   it("shows laneFacts against the game's limits, and its quick look is looksCrossable", () => {
     for (const s of ["eixample-barcelona", "montmartre-paris"]) {
       const a = analyse(place(s), knobs(s), { prove: false });
@@ -119,7 +119,7 @@ describe("Lab 18: the rules table", () => {
   });
 });
 
-describe("Lab 18: the four design challenges each start failing and each has a way to pass", () => {
+describe("World Slicer: the four design challenges each start failing and each has a way to pass", () => {
   const start = (c: Challenge) => startKnobs(c, place(c.slug), dflt(c.slug));
   it("each starts at a state that fails", () => {
     for (const c of CHALLENGES) {
@@ -162,7 +162,7 @@ describe("Lab 18: the four design challenges each start failing and each has a w
   });
 });
 
-describe("Lab 18: the simulator tries the lane", () => {
+describe("World Slicer: the simulator tries the lane", () => {
   it("a proved lane has a recorded run that ends at the finish, and an unproved one does not clear", () => {
     const a = analyse(place("lakeside-garden-skatepark"), knobs("lakeside-garden-skatepark")), t = tryLane(a)!;
     expect(t.cleared).toBe(true);
@@ -173,7 +173,7 @@ describe("Lab 18: the simulator tries the lane", () => {
   });
 });
 
-describe("Lab 18: the doc and the page", () => {
+describe("World Slicer: the doc and the page", () => {
   const doc = readFileSync("docs/labs/slicer.md", "utf8");
   it("has the four required sections", () => {
     for (const h of ["How it was designed", "How we prove the lesson is right", "Limits", "How to make the lesson better"]) expect(doc).toContain(`## ${h}`);

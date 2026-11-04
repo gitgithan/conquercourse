@@ -1,4 +1,4 @@
-// Lab 17: Spike the riskiest call first. Pure logic, no page: the risk board, the plan timeline, the budget check and the two real stories.
+// Spike the riskiest call first. Pure logic, no page: the risk board, the plan timeline, the budget check and the two real stories.
 // A "risk" is something that can stop a new move or obstacle. Each one has a piece of work to build on top of it ("build") and a cheap test that finds out early ("spike").
 // The numbers for the chances and the build hours are our own guesses written before the work (they are sliders in the page); the costs, minutes and counts in the stories are read from data/eval.
 
@@ -38,7 +38,7 @@ export const BARS: Scenario = {
     { id: 'gate', name: 'The photo passes the checks', why: 'People rule, safety check and privacy blur run before any model sees it.', p: 10, build: 1, test: 0.2, usd: 0, fb: 0.5, deps: [], needs: [] },
     { id: 'find', name: 'The finder outlines the bars', why: 'On the bar photos it outlined the whole frame on 4 of 8 and missed the loops on one.', p: 50, build: 1, test: 0.2, usd: 0.01, fb: 1, deps: ['gate'], needs: ['gate'] },
     { id: 'lift', name: 'The 3D lift is usable', why: '7 of 8 bar photos gave a usable frame; 1 failed where posts hide the bars.', p: 25, build: 2, test: 0.3, usd: 0.04, fb: 1, deps: ['find'], needs: ['find'] },
-    { id: 'fit', name: 'The collider is one clean row', why: 'Lab 15: a missed rung is absorbed, but fused rungs can still fool the fit.', p: 20, build: 4, test: 0.5, usd: 0, fb: 2, deps: ['lift'], needs: ['lift'] },
+    { id: 'fit', name: 'The collider is one clean row', why: 'Collision from a 3D lift: a missed rung is absorbed, but fused rungs can still fool the fit.', p: 20, build: 4, test: 0.5, usd: 0, fb: 2, deps: ['lift'], needs: ['lift'] },
     { id: 'reach', name: 'The move works on the row', why: 'The reach rule has to carry the runner from rung to rung.', p: 15, build: 6, test: 1, usd: 0, fb: 3, deps: ['fit'], needs: ['fit'] },
     { id: 'body', name: 'A body hangs from the rungs', why: 'Captured motion: 0 of 22 hang stretches pass hand over hand; Kimodo 0 of 8.', p: 85, build: 8, test: 0.3, usd: 0.1, fb: 3, deps: [], needs: [] },
   ],
