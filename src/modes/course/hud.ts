@@ -54,7 +54,7 @@ export function createHud(deps: HudDeps) {
   const panel = document.createElement('div');
   panel.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(760px,94vw);max-height:88vh;overflow:auto;z-index:40;box-sizing:border-box;background:#fff;border:1px solid #cfd6d0;border-radius:12px;padding:16px;font:15px/1.4 system-ui,sans-serif;color:#17201d;display:none;gap:10px;box-shadow:0 8px 30px #0003';
   const hint = document.createElement('div');
-  hint.style.cssText = `position:fixed;left:50%;bottom:${params.get('gauges') === 'old' ? 124 : 190}px;transform:translateX(-50%);font:600 20px system-ui,sans-serif;pointer-events:none;${hudOn(params) ? panelCss('8px 16px') : 'color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px'}`;
+  hint.style.cssText = `order:0;max-width:100%;box-sizing:border-box;text-align:center;font:600 20px system-ui,sans-serif;pointer-events:none;${hudOn(params) ? panelCss('8px 16px') : 'color:#10141c;background:#fffc;border-radius:10px;padding:8px 16px'}`;
   const dojoBtn = document.createElement('button');
   dojoBtn.id = 'dojobtn'; dojoBtn.textContent = 'Dojo (L)';
   dojoBtn.style.cssText = 'position:fixed;right:16px;top:12px;font:600 15px system-ui,sans-serif;border:1px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer';

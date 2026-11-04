@@ -2,6 +2,8 @@
 // A new toast is added below the others, older ones sit above (pushed up as the stack grows), and each leaves by moving up and fading out.
 // The queue logic is pure (time is passed in, so a test or the stepped clock decides when); the DOM view is small and only draws it.
 
+import { toastBand } from './toast-band';
+
 export interface ToastItem { id: number; text: string; until: number; leaving: boolean }
 export const MAX_TOASTS = 4;
 
@@ -32,7 +34,7 @@ export class ToastQueue {
   get live(): ToastItem[] { return this.items.filter((t) => !t.leaving); }
 }
 
-const CSS = `#toasts{position:fixed;left:50%;bottom:46%;transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:min(540px,92vw)}
+const CSS = `#toasts{order:1;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;width:100%}
 #toasts .toast{font:700 18px/1.25 system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;text-align:center;box-shadow:0 2px 10px #0002;max-width:100%;box-sizing:border-box;transition:transform .45s ease-in,opacity .45s ease-in,margin .45s ease-in;opacity:1;transform:translateY(0)}
 #toasts .toast.in{animation:toastin .25s ease-out}
 #toasts .toast.leaving{transform:translateY(-34px);opacity:0}
@@ -41,7 +43,7 @@ const CSS = `#toasts{position:fixed;left:50%;bottom:46%;transform:translateX(-50
 export interface ToastView { show(text: string, duration: number, now: number): void; update(now: number): void; remaining(now: number): number; clear(): void; el: HTMLElement; queue: ToastQueue }
 
 /** The stack on the page. Duration and `now` share one unit (the Course uses simulation ticks, so a paused game keeps its toasts). */
-export function mountToasts(parent: HTMLElement = document.body): ToastView {
+export function mountToasts(parent: HTMLElement = toastBand()): ToastView {
   const queue = new ToastQueue();
   const style = document.createElement('style'); style.textContent = CSS; document.head.append(style);
   const el = document.createElement('div'); el.id = 'toasts'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite');
