@@ -2,10 +2,10 @@ import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { laneToCourse } from "../slice/slice";
-import type { DefaultsFile } from "../slice/slicer-default";
+import type { DefaultsFile, SlicerDefault } from "../slice/slicer-default";
 import {
-  CHALLENGES, DEFAULTS_URL, GAME_LIMITS, OSM_CREDIT, PLACE_URL, SLUGS, analyse, judge, looksOk, openKnobs, placeOf, reachOf, ruleRows, startKnobs, tryLane,
-  type Analysis, type Challenge, type Knobs, type Limits, type PlaceData, type Tried,
+  CHALLENGES, DEFAULTS_URL, GAME_LIMITS, INDEX_URL, LEVELS, OSM_CREDIT, PLACE_URL, analyse, countLevels, levelsOf, judge, looksOk, openKnobs, placeOf, reachOf, ruleRows, startKnobs,
+  type Analysis, type Challenge, type IndexEntry, type Knobs, type Limits, type PlaceData, type Tried,
 } from "../labs/slicer/slicer-lab-core";
 
 // Lab 18: World Slicer: map to lane. A pin on a recorded OpenStreetMap area becomes a lane the simulator proves. Every picture is the game's own Slicer code run on recorded data
@@ -53,6 +53,14 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
     #lab-slicer .chal{border:1px solid #d5ddd6;border-radius:8px;padding:10px;display:grid;gap:6px;align-content:start}
     #lab-slicer .chal.on{border-color:${TEAL};background:#f1f8f5}
     #lab-slicer .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+    #lab-slicer .pl{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;max-height:210px;overflow:auto;padding:2px}
+    #lab-slicer .pl button{display:grid;gap:3px;text-align:left;padding:6px 8px}
+    #lab-slicer .pl button[aria-pressed=true]{border-color:${TEAL};background:#e6f2ee}
+    #lab-slicer .pl .nm{font-weight:700}#lab-slicer .pl .ct{font-weight:400;color:#52605a;font-size:12px}
+    #lab-slicer .bdg{display:inline-block;font:700 11px system-ui;padding:1px 6px;border-radius:9px;margin-right:4px;white-space:nowrap}
+    #lab-slicer .bdg.ready{background:#d7efe3;color:#0b5a3e}#lab-slicer .bdg.nolane{background:#fbe3c8;color:#8a4a06}
+    #lab-slicer .bdg.nophotos{background:#e4e7ea;color:#3d4650}#lab-slicer .bdg.small{background:#dfe8f6;color:#2a4a7c}
+    #lab-slicer progress{width:100%;height:10px}
     #lab-slicer [hidden]{display:none !important}
   `;
   root.append(style);
@@ -61,12 +69,16 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
     <div><a class="back" href="/?welcome=0">Back to the game</a>
     <h1>Lab 18: World Slicer: map to lane</h1>
     <p class="small" style="margin:2px 0 0">Drop a pin on a real map. Slice the buildings at one height. A lane appears, and the simulator tries it. Drag, tick, and watch what changes. The long story is in <code>docs/labs/slicer.md</code>.</p></div>
+    <div class="card"><h2>Pick a place <span class="small" id="sl-place-n"></span></h2>
+      <p class="small" id="sl-legend" style="margin:0 0 6px"></p>
+      <div class="pl" id="sl-places" role="group" aria-label="Recorded places"></div>
+      <p class="small" style="margin:6px 0 0">A place's buildings are fetched only when you pick it.</p></div>
     <div class="grid">
       <div style="display:grid;gap:14px">
         <div class="card"><h2>Steps</h2><div class="steps" id="sl-steps"></div>
           <p class="small" id="sl-does" style="margin:8px 0 0"></p></div>
         <div class="card"><h2>Turn these</h2>
-          <label>Place<select id="sl-place"></select></label>
+          <p class="small" style="margin:0">Place: <b id="sl-place-name"></b>. Pick another in the list above the map.</p>
           <label>Circle radius: <b id="sl-r-v"></b><input id="sl-r" type="range" min="20" max="160" step="5"></label>
           <p class="small" style="margin:0">Drag the red pin on the map to move the circle.</p>
           <label class="tick"><input id="sl-real" type="checkbox"> Count only buildings with a height tag</label>
@@ -82,7 +94,8 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
         <div class="card"><h2>Side view of the lane, and the run</h2>
           <canvas id="sl-side" width="${SW}" height="${SH}"></canvas>
           <label>Step of the run: <b id="sl-tick-v"></b><input id="sl-tick" type="range" min="0" max="1" step="1"></label>
-          <p id="sl-verdict" style="margin:4px 0 0;font-weight:700"></p></div>
+          <p id="sl-verdict" style="margin:4px 0 0;font-weight:700"></p>
+          <progress id="sl-prog" hidden></progress><p class="small" id="sl-prog-t" style="margin:2px 0 0"></p></div>
       </div>
     </div>
     <div class="grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
@@ -186,7 +199,7 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
     $("sl-lg-v").textContent = `${f1(limits.gap)} m`; $("sl-lc-v").textContent = `${f1(limits.climb)} m`; $("sl-lf-v").textContent = `${f1(limits.fall)} m`;
     $("sl-look").innerHTML = `Quick look: <b class="${looksOk(a.facts, limits) ? "good" : "bad"}">${looksOk(a.facts, limits) ? "looks crossable" : "does not look crossable"}</b>. ${a.why.lines.length && !a.proved ? a.why.lines.join(" ") : ""}`;
     $("sl-does").textContent = STEPS[step - 1].does;
-        $("sl-verdict").innerHTML = busy ? "Asking the simulator..." : a.proved
+        $("sl-verdict").innerHTML = busy ? (recorded ? recordedLine() : "Asking the simulator...") : a.proved
       ? `<span class="good">Simulator: clears.</span> ${f1(a.lengthM)} m lane${tried?.clearS ? `, an ideal run takes ${tried.clearS} s` : ""}. The quick look says ${a.quick ? "yes" : "no"}: the simulator has the last word.`
       : `<span class="bad">Simulator: no run clears this lane.</span> ${a.lengthM < 8 ? "The lane is too short." : a.why.lines[0] ?? ""}`;
     const tt = $<HTMLInputElement>("sl-tick"); tt.max = String(Math.max(1, (tried?.xs.length ?? 1) - 1)); tt.value = String(Math.min(tick, Number(tt.max))); $("sl-tick-v").textContent = tried ? `${tt.value} of ${tt.max}` : "no run";
@@ -195,20 +208,35 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
   const redraw = () => { drawText(); drawMap(); drawSide(); };
 
   // ---- compute: a quick pass while dragging, the simulator after a pause ----
-  let busy = false;
+  let busy = false, recorded = false, worker: Worker | null = null, askId = 0, t0 = 0, progTimer = 0, index: IndexEntry[] = [];
+  const dOf = (): SlicerDefault | undefined => defaults?.places.find((x) => x.slug === place.slug);
+  /** True while the knobs are still the stored, proved setting: the recorded run is then shown at once, labelled, while the live search runs. */
+  const sameAsStored = (): boolean => { const d = dOf(); return !!d && JSON.stringify(openKnobs(place, d)) === JSON.stringify(k); };
+  const recordedLine = (): string => { const d = dOf()!; return `<span class="good">Recorded run: ${d.clear ? "clears" : "does not clear"}.</span> ${f1(d.lengthM)} m lane${d.clearS ? `, an ideal run takes ${d.clearS} s` : ""}. Proved ahead of time; the live search is running now.`; };
+  function stopProgress() { window.clearInterval(progTimer); $("sl-prog").hidden = true; $("sl-prog-t").textContent = ""; }
   function recompute(now: boolean) {
     window.clearTimeout(timer);
     token++;
-    a = analyse(place, k, { prove: false }); tried = null; tick = 0; busy = true;
+    a = analyse(place, k, { prove: false }); tried = null; tick = 0; busy = true; recorded = sameAsStored();
     redraw();
-    timer = window.setTimeout(() => {
-      timer = window.setTimeout(() => {
-        a = analyse(place, k);
-        tried = a.proved || a.lengthM >= 8 ? tryLane(a) : null;
-        if (tried) tick = tried.xs.length - 1;
-        busy = false; redraw(); labPopulated("lab-slicer");
-      }, 30);
-    }, now ? 0 : 450);
+    timer = window.setTimeout(ask, now ? 0 : 450);
+  }
+  /** The simulator's search runs in a worker, so a big place never freezes the page; a bar shows how long it has run. */
+  function ask() {
+    if (worker) { worker.terminate(); worker = null; } // a newer setting replaces a search still running
+    const id = ++askId; t0 = performance.now();
+    const w = (worker = new Worker(new URL("../labs/slicer/worker.ts", import.meta.url), { type: "module" }));
+    w.onmessage = (e: MessageEvent) => {
+      if (e.data.id !== askId) return;
+      stopProgress(); a = e.data.a as Analysis; tried = e.data.tried as Tried | null;
+      if (tried) tick = tried.xs.length - 1;
+      busy = false; recorded = false; redraw(); labPopulated("lab-slicer");
+    };
+    w.onerror = (e) => { stopProgress(); busy = false; $("sl-verdict").innerHTML = `<span class="bad">The search stopped: ${e.message}</span>`; };
+    $("sl-prog").hidden = false;
+    window.clearInterval(progTimer);
+    progTimer = window.setInterval(() => { $("sl-prog-t").textContent = `The simulator is searching: ${((performance.now() - t0) / 1000).toFixed(1)} s. Big places take longer.`; }, 200);
+    w.postMessage({ id, place, knobs: k });
   }
 
   // ---- challenges ----
@@ -228,28 +256,38 @@ export function startLabSlicer(host: HTMLElement): { backend: "canvas2d" } {
 
   // ---- events ----
   async function load(slug: string) {
+    const entry = index.find((p) => p.slug === slug);
+    $("sl-place-name").textContent = `${entry?.name ?? slug} (loading its buildings...)`;
     if (!places.has(slug)) places.set(slug, placeOf(await (await fetch(PLACE_URL(slug))).json()));
     place = places.get(slug)!;
-    const d = defaults!.places.find((x) => x.slug === slug)!;
+    const d = defaults!.places.find((x) => x.slug === slug);
+    if (!d) { $("sl-place-name").textContent = `${place.name} (no stored lane to start from)`; return; }
     k = chal && chal.slug === slug ? startKnobs(chal, place, d) : openKnobs(place, d);
     span = Math.max(80, reachOf(place) + 20);
     ($("sl-r") as HTMLInputElement).max = String(reachOf(place));
-    ($("sl-place") as HTMLSelectElement).value = slug;
+    $("sl-place-name").textContent = place.name;
+    wrap.querySelectorAll<HTMLButtonElement>("#sl-places button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.slug === slug)));
     recompute(true);
   }
   const reset = () => { chal = null; paintChals(); void load(place.slug); };
   (async () => {
     defaults = await (await fetch(DEFAULTS_URL)).json();
-    for (const s of SLUGS) { const d = defaults!.places.find((x) => x.slug === s); void d; }
-    const names: Record<string, string> = { "alfama-lisbon": "Alfama, Lisbon (hills)", "montmartre-paris": "Montmartre, Paris", "eixample-barcelona": "Eixample, Barcelona (grid)", "zocalo-mexico-city": "Zocalo, Mexico City (few buildings)", "lakeside-garden-skatepark": "Lakeside skatepark (one building)" };
-    $("sl-place").innerHTML = SLUGS.map((s) => `<option value="${s}">${names[s]}</option>`).join("");
+    index = (await (await fetch(INDEX_URL)).json()) as IndexEntry[];
+    const c = countLevels(index), main = (p: IndexEntry) => LEVELS.findIndex((l) => l.id === levelsOf(p)[0]);
+    $("sl-place-n").textContent = `${index.length} recorded places`;
+    $("sl-legend").innerHTML = LEVELS.map((l) => `<span class="bdg ${l.id}" title="${l.tip}">${l.label}: ${c[l.id]}</span>`).join("");
+    $("sl-places").innerHTML = [...index].sort((x, y) => main(x) - main(y)).map((p) => {
+      const cut = p.name.lastIndexOf(","), nm = cut > 0 ? p.name.slice(0, cut) : p.name, city = cut > 0 ? p.name.slice(cut + 1).trim() : p.country ?? "";
+      const bd = levelsOf(p).map((l) => { const L = LEVELS.find((x) => x.id === l)!; return `<span class="bdg ${l}" title="${L.tip}">${L.label}</span>`; }).join("");
+      return `<button type="button" data-slug="${p.slug}" aria-pressed="false"><span class="nm">${nm}</span><span class="ct">${[city, p.country && p.country !== city ? p.country : ""].filter(Boolean).join(", ")}${p.buildings ? `, ${p.buildings} buildings` : ""}${p.bytes ? `, ${Math.round(p.bytes / 1000)} KB` : ""}</span><span>${bd}</span></button>`;
+    }).join("");
     $("sl-steps").innerHTML = STEPS.map((s) => `<button data-step="${s.id}" aria-pressed="false">${s.id}. ${s.name}</button>`).join("");
     paintChals();
-    await load("eixample-barcelona");
+    await load(index.some((p) => p.slug === "eixample-barcelona") ? "eixample-barcelona" : index[0].slug);
   })().catch((e) => { wrap.insertAdjacentHTML("afterbegin", `<p class="bad">Could not load the recorded places: ${String(e)}</p>`); });
 
   $("sl-steps").addEventListener("click", (e) => { const b = (e.target as HTMLElement).closest("button"); if (b) { step = Number(b.dataset.step); redraw(); } });
-  $("sl-place").addEventListener("change", () => { chal = null; paintChals(); void load(($("sl-place") as HTMLSelectElement).value); });
+  $("sl-places").addEventListener("click", (e) => { const b = (e.target as HTMLElement).closest("button"); if (b?.dataset.slug) { chal = null; paintChals(); void load(b.dataset.slug); } });
   $("sl-r").addEventListener("input", () => { k = { ...k, radiusM: Number(($("sl-r") as HTMLInputElement).value) }; recompute(false); });
   $("sl-k").addEventListener("input", () => { k = { ...k, shrink: Number(($("sl-k") as HTMLInputElement).value) }; recompute(false); });
   $("sl-cut").addEventListener("input", () => { k = { ...k, cutM: Number(($("sl-cut") as HTMLInputElement).value) }; recompute(false); });

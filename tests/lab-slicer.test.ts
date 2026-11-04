@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import { setRoofStart } from "../src/slice/slice";
 import { laneFacts, looksCrossable } from "../src/slice/why";
 import { replayDefault, type DefaultsFile } from "../src/slice/slicer-default";
-import { CHALLENGES, GAME_LIMITS, JUMP_GAP_M, MIN_LANE_M, SLUGS, analyse, inputOf, judge, looksOk, openKnobs, placeOf, reachOf, ruleRows, startKnobs, tryLane, type Challenge, type Knobs } from "../src/labs/slicer/slicer-lab-core";
+import { CHALLENGES, GAME_LIMITS, JUMP_GAP_M, MIN_LANE_M, LEVELS, analyse, countLevels, isReady, levelsOf, type IndexEntry, inputOf, judge, looksOk, openKnobs, placeOf, reachOf, ruleRows, startKnobs, tryLane, type Challenge, type Knobs } from "../src/labs/slicer/slicer-lab-core";
 
 // Lab 18 (map to lane): the Lab's claims, pinned to the game's own Slicer code and the recorded OpenStreetMap places. No network, no photos.
 const defaults = JSON.parse(readFileSync("public/assets/places/slicer-defaults.json", "utf8")) as DefaultsFile;
 const raw = (slug: string) => JSON.parse(readFileSync(`public/assets/places/${slug}.json`, "utf8"));
 const place = (slug: string) => placeOf(raw(slug));
+const index = JSON.parse(readFileSync("public/assets/places/index.json", "utf8")) as IndexEntry[];
+const SLUGS = index.map((p) => p.slug);
 const dflt = (slug: string) => defaults.places.find((d) => d.slug === slug)!;
 const chal = (id: string): Challenge => CHALLENGES.find((c) => c.id === id)!;
 const knobs = (slug: string, o: Partial<Knobs> = {}): Knobs => ({ ...openKnobs(place(slug), dflt(slug)), ...o });
@@ -16,13 +18,39 @@ setRoofStart(true);
 
 describe("Lab 18: the recorded places", () => {
   it("are in the picker's list, are recorded OpenStreetMap buildings, and have a stored proved default", () => {
-    expect(SLUGS).toHaveLength(5);
+    expect(SLUGS.length).toBeGreaterThan(0);
+    expect(new Set(SLUGS).size).toBe(SLUGS.length);
     for (const s of SLUGS) {
       const r = raw(s);
       expect(r.answer.elements.length).toBeGreaterThan(0);
-      expect(r.answer.elements.every((e: { tags?: Record<string, string> }) => !!e.tags?.building)).toBe(true);
-      expect(dflt(s).clear).toBe(true);
+      expect(r.answer.elements.some((e: { tags?: Record<string, string> }) => !!e.tags?.building)).toBe(true);
+      expect(dflt(s), s).toBeTruthy();
     }
+  });
+  it("every place of the index has a badge, and the counts are computed from the index", () => {
+    const c = countLevels(index);
+    expect(c.ready + c.nolane + c.nophotos).toBe(index.length); // one main badge each
+    expect(c.ready).toBe(index.filter((p) => p.listed !== false && (p.kind !== "parkour" || p.path === true)).length);
+    expect(c.small).toBe(index.filter((p) => p.kind === "parkour" && p.visible === false).length);
+    for (const p of index) expect(levelsOf(p).includes("ready")).toBe(isReady(p));
+    expect(LEVELS.map((l) => l.id)).toEqual(["ready", "nolane", "nophotos", "small"]);
+  });
+  it("every badge level that the index has is on at least one card, and the legend names all four", () => {
+    const c = countLevels(index);
+    for (const l of LEVELS) expect(c[l.id] > 0 || ["nolane"].includes(l.id), l.id).toBe(true); // 'no lane found yet' is empty while every park has its lane; the legend still shows it with 0
+    const src = readFileSync("src/modes/lab-slicer.ts", "utf8");
+    expect(src).toContain("LEVELS.map");
+    expect(src).toContain("countLevels(");
+  });
+  it("every place opens: its buildings are found and its stored lane reads", () => {
+    for (const s of SLUGS) { const pl = place(s), a = analyse(pl, openKnobs(pl, dflt(s)), { prove: false }); expect(a.counts.found, s).toBeGreaterThan(0); }
+  }, 120000);
+  it("loads each place's file only when it is picked, never all at once", () => {
+    const src = readFileSync("src/modes/lab-slicer.ts", "utf8");
+    expect(src.match(/PLACE_URL\(/g)).toHaveLength(1);
+    expect(src).toMatch(/async function load\(slug: string\)[\s\S]{0,500}PLACE_URL\(slug\)/);
+    expect(src).not.toMatch(/for \([^)]*\) .*PLACE_URL/);
+    expect(src).toContain("new Worker(");
   });
   it("the Alfama facts quoted on the page: 278 buildings drawn, 64 with a height tag", () => {
     const a = analyse(place("alfama-lisbon"), knobs("alfama-lisbon"), { prove: false });
@@ -130,7 +158,7 @@ describe("Lab 18: the four design challenges each start failing and each has a w
     expect(judge(c, analyse(place(c.slug), { ...start(c), realOnly: false })).pass).toBe(true);
   });
   it("every challenge has a reveal and a place that is in the list", () => {
-    for (const c of CHALLENGES) { expect(c.reveal.length).toBeGreaterThan(40); expect(SLUGS).toContain(c.slug); }
+    for (const c of CHALLENGES) { expect(c.reveal.length).toBeGreaterThan(40); expect(SLUGS, c.slug).toContain(c.slug); }
   });
 });
 

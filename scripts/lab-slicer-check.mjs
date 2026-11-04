@@ -32,9 +32,25 @@ try {
   check('OSM credit', all.includes('OpenStreetMap'));
   check('nav bar names the Lab', (await page.textContent('#labs-nav')).includes('World Slicer'));
   check('rules table filled', (await page.$$('#sl-rules tr')).length >= 3);
+  const nPlaces = (await page.$$('#sl-places button')).length, index = await (await fetch(`${base}/assets/places/index.json`)).json();
+  check('picker lists every place of the index', nPlaces > 0 && nPlaces === index.length, `${nPlaces} vs ${index.length}`);
+  check('legend counts four levels', (await page.$$('#sl-legend .bdg')).length === 4);
+  const done = () => page.waitForFunction(() => document.getElementById('sl-prog')?.hidden === true && /Simulator: /.test(document.getElementById('sl-verdict')?.textContent ?? ''), null, { timeout: 150000 });
   await page.screenshot({ path: 'test-results/lab-slicer/open.png', fullPage: true });
+  // a big place: lazy-loaded on pick, the stored run is shown labelled, then the worker answers
+  const fetched = [];
+  page.on('request', (r) => { if (/\/assets\/places\/[a-z-]+\.json$/.test(r.url())) fetched.push(r.url()); });
+  const big = [...index].sort((x, y) => y.bytes - x.bytes)[0].slug;
+  await page.click(`#sl-places button[data-slug="${big}"]`);
+  await page.waitForFunction((b) => document.querySelector(`#sl-places button[data-slug="${b}"]`)?.getAttribute('aria-pressed') === 'true', big, { timeout: 60000 });
+  check('only the picked place was fetched', fetched.length === 1 && fetched[0].endsWith(`/${big}.json`), fetched.join(' '));
+  const early = await page.textContent('#sl-verdict');
+  check('a big place shows the recorded run or a wait line first', /Recorded run|Asking|Simulator:/.test(early), early);
+  await done();
+  await page.screenshot({ path: 'test-results/lab-slicer/big-place.png', fullPage: true });
   await page.click('#sl-chals button[data-start="cut-high"]');
-  await page.waitForFunction(verdictReady, null, { timeout: 60000 });
+  await page.waitForFunction(() => !/Simulator: /.test(document.getElementById('sl-verdict')?.textContent ?? ''), null, { timeout: 60000 });
+  await done();
   await page.click('#sl-chals button[data-check="cut-high"]');
   const res = await page.textContent('#sl-res-cut-high');
   check('challenge check answers', res.trim().length > 0, res);

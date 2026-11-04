@@ -35,7 +35,7 @@
 ### Map to lane
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
-| 18 | Map to lane | [World Slicer: map to lane](slicer.md) | How does a pin on a real map become a lane the simulator can prove? | `?mode=lab-slicer&labs=1` | `tests/lab-slicer.test.ts` (23) | Buildings only (no trees or fences), five of 47 places, and the what-if limits change only the quick look |
+| 18 | Map to lane | [World Slicer: map to lane](slicer.md) | How does a pin on a real map become a lane the simulator can prove? | `?mode=lab-slicer&labs=1` | `tests/lab-slicer.test.ts` (23) | Buildings only (no trees or fences), and the what-if limits change only the quick look |
 
 ### Know the limits
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
