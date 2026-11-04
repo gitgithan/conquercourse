@@ -1,4 +1,4 @@
-// The optional nickname (CC-134): up to twelve printable characters (letters of both cases, digits, symbols; no spaces), shown on the leaderboard and in a challenge link. Never a real name.
+// The optional nickname (CC-134): up to sixteen printable characters (letters of both cases, digits, symbols; no spaces), shown on the leaderboard and in a challenge link. Never a real name.
 import { cleanNick } from '../sim/replay';
 
 // Three-letter words we do not put on a stranger's screen. Digits that look like letters are read as letters first.
@@ -10,7 +10,7 @@ const INSIDE = ['fuck', 'shit', 'cunt', 'nigg', 'fagg', 'nazi', 'rape', 'porn', 
 const SYMBOL_LETTER: Record<string, string> = { '@': 'a', '$': 's', '!': 'i', '|': 'i', '+': 't' };
 const LOOKS_LIKE: Record<string, string> = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b', '2': 'z' };
 
-/** The nickname as it will travel: printable ASCII without spaces, twelve at most. It is only ever bound as a parameter or drawn with textContent. */
+/** The nickname as it will travel: printable ASCII without spaces, sixteen at most. It is only ever bound as a parameter or drawn with textContent. */
 export const tidyNick = cleanNick;
 
 /** True when the nickname is empty (the default) and not on the blocked lists: a short word as a whole, or a strong word anywhere inside (digits that look like letters are read as letters). */

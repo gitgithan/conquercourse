@@ -184,8 +184,8 @@ export function courseHash(course: CourseData): string {
   for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return (h >>> 0).toString(36);
 }
-export const NICK_MAX = 12;
-/** A name: printable ASCII with no spaces (letters of both cases, digits, symbols), twelve at most, in the case the player chose. Never a real name. */
+export const NICK_MAX = 16;
+/** A name: printable ASCII with no spaces (letters of both cases, digits, symbols), sixteen at most, in the case the player chose. Never a real name. */
 export const cleanNick = (s: string): string => s.replace(/[^\x21-\x7e]/g, '').slice(0, NICK_MAX);
 /** A name between dots in a link: everything but letters, digits, _ and - travels as %XX, so a dot or a quote never breaks the link. */
 export const nickToWire = (nick: string): string => cleanNick(nick).replace(/[^A-Za-z0-9_-]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
