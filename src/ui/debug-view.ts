@@ -13,7 +13,7 @@ import { DEFAULT_LANDING, safeDrop } from '../sim/landing';
 import { GRAVITY } from '../sim/units';
 import { DEFAULT_HANG, gripLoad } from '../sim/holds';
 import { MODE_INFO } from '../course/modes';
-import { canReach, pivotOf, rungX, DEFAULT_BARS } from '../sim/bars';
+import { nextHand, canReach, pivotOf, rungX, DEFAULT_BARS } from '../sim/bars';
 import { createDebugPanel, type Row } from './debug-panel';
 
 // The debug view (like a fighting game's hitbox mode): draws what the simulator really uses, and says what a jump right now would do.
@@ -119,7 +119,7 @@ export function createDebugView(scene: THREE.Scene, course: CourseData, parent: 
       const bh = w.mode === 'bars' && w.bars && course.bars?.[w.bars.run] ? w.bars : null;
       reachLine.visible = bh !== null && L.ground;
       if (bh) {
-        const row = course.bars![bh.run], hand: 1 | 2 = bh.last === 1 ? 2 : 1, c = canReach(row, bh, hand), pv0 = pivotOf(row, bh);
+        const row = course.bars![bh.run], hand: 1 | 2 = nextHand(row, bh) ?? 1, c = canReach(row, bh, hand), pv0 = pivotOf(row, bh);
         const far = pv0.x + 2 * DEFAULT_BARS.arm * Math.max(0, Math.sin(bh.theta));
         reachLine.geometry.dispose(); reachLine.geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(pv0.x, row.y - 0.2, Z), new THREE.Vector3(far, row.y - 0.2, Z)]);
         reachMat.color.setHex(c.ok ? 0x38d26b : 0xff5a4a);

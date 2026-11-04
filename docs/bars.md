@@ -24,14 +24,16 @@
 
 ## The rules (all in metres, seconds, 120 Hz)
 - Both hands start on the same rung when the grab happens.
-- The hands must alternate: the hand that reached last cannot reach again until the other has (wrong order is a stall).
-- One pair of reaches moves the body one rung on.
-- A hand reaches the next rung only when the swing is going forward (angle above 0 and speed forward, never backward).
-- The shoulder is one arm length (0.7 m) down the body from the point between the hands.
+- The hands alternate: the hand that reached last cannot reach again until the other has (wrong order is a stall).
+- The hands leapfrog: a reaching hand goes to the rung after the front hand, so the back hand overtakes it and each reach moves the body half a gap on.
+- Last rung: a hand never goes past the end; once one hand is on the last rung the other may reach in any order, and when both are there nothing is left to reach (let go of E to fly off).
+- No timer or phase slows the keys: Q and T can alternate as fast as the player can press; only the swing decides whether a reach lands, so a big swing first lets the player go faster.
+- A hand reaches only while the body is swung forward of the pivot (angle above 0), whichever way it is moving.
+- The shoulder is one arm length (0.8 m) down the body from the point between the hands.
 - The straight arm reaches a circle of that radius about the shoulder, and the rung is at the height of the hands.
-- That gives the reach: the rung must be between 0 and 2 x 0.7 x sin(angle) ahead of the point between the hands.
+- That gives the reach: the rung must be between 0 and 2 x 0.8 x sin(angle) ahead of the point between the hands.
 - So the gap a pair can cross is decided by how far the body swings, not by a timer.
-- The most a rung may be ahead is 1.0 m in the editor (a 0.3 m rung needs about 12 degrees and a 1.0 m rung needs about 46 degrees at the first reach; the second reach of a pair is half as far).
+- The most a rung may be ahead is 1.0 m in the editor (a 0.3 m rung needs about 12 degrees and a 1.0 m rung needs about 46 degrees at the first reach; the hands are one rung apart, so the pivot between them moves half a gap per reach).
 - Rung spacing: 0.3 m to 1.0 m; default 0.6 m.
 - Each reach costs swing: the swing speed keeps 0.93 of itself (the hand catch absorbs some).
 - Swing damping: the same drag as a bar (0.04 per second).

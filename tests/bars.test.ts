@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
-import { DEFAULT_BARS, barsFeet, barsStep, canReach, rungX, swingEnergy, tryGrabBars, type BarRun, type BarsHang } from '../src/sim/bars';
+import { DEFAULT_BARS, barsFeet, barsStep, canReach, nextHand as nextHandOf, rungX, swingEnergy, tryGrabBars, type BarRun, type BarsHang } from '../src/sim/bars';
 import { inputOfMask, maskOf } from '../src/sim/replay';
 import { NO_INPUT, type RunnerInput } from '../src/sim/runner';
 import { newWorld, stepWorld, type WorldState } from '../src/sim/world';
@@ -47,12 +47,12 @@ describe('monkey bars: laws', () => {
     expect(canReach(near, start({ theta, omega: 1 }), 1).ok).toBe(true);
     expect(canReach(far, start({ theta, omega: 1 }), 1)).toEqual({ ok: false, why: 'swing' });
   });
-  it('the hand reaches only on a forward swing', () => {
-    expect(canReach(row, start({ theta: 0.9, omega: -1 }), 1).ok).toBe(false);
+  it('the hand reaches only with the body swung forward, whichever way it is moving (a quick alternation is never held back by the phase)', () => {
+    expect(canReach(row, start({ theta: 0.9, omega: -1 }), 1).ok).toBe(true);
     expect(canReach(row, start({ theta: -0.9, omega: 1 }), 1).ok).toBe(false);
     expect(canReach(row, start({ theta: 0, omega: 0 }), 1).ok).toBe(false);
   });
-  it('the hands alternate, and a pair moves one rung on', () => {
+  it('the hands alternate and leapfrog: the back hand overtakes the front one', () => {
     let s = start({ theta: 0.9, omega: 1 });
     s = barsStep(s, row, true, false, 0).s; // left
     expect([s.l, s.r]).toEqual([1, 0]);
@@ -60,8 +60,22 @@ describe('monkey bars: laws', () => {
     s = barsStep(s, row, true, false, 0).s; // left again: wrong order
     expect([s.l, s.r]).toEqual([1, 0]);
     s = barsStep(s, row, false, false, 0).s;
-    s = barsStep(s, row, false, true, 0).s; // right
-    expect([s.l, s.r]).toEqual([1, 1]);
+    s = barsStep(s, row, false, true, 0).s; // right overtakes the left: rung 2
+    expect([s.l, s.r]).toEqual([1, 2]);
+  });
+  it('the last rung: the hand still behind closes on it, then both hands are there and nothing is left to reach', () => {
+    const last = row.n - 1;
+    let s = start({ theta: 0.9, omega: 1, l: last - 1, r: last - 2, last: 2 });
+    expect(nextHandOf(row, s)).toBe(1);
+    s = barsStep(s, row, true, false, 0).s;
+    expect([s.l, s.r]).toEqual([last, last - 2]); // the left overtakes onto the last rung
+    s = { ...s, pl: false, pr: false, theta: 0.9, omega: 1 };
+    expect(nextHandOf(row, s)).toBe(2); // the right is still behind, the left is at the end: the right goes
+    s = barsStep(s, row, false, true, 0).s;
+    expect([s.l, s.r]).toEqual([last, last]); // never beyond the end
+    expect(nextHandOf(row, s)).toBeNull();
+    expect(canReach(row, s, 1)).toEqual({ ok: false, why: 'end' });
+    expect(canReach(row, s, 2)).toEqual({ ok: false, why: 'end' });
   });
   it('holding a reach key does not reach twice (a fresh press is needed)', () => {
     let s = start({ theta: 0.9, omega: 1 });

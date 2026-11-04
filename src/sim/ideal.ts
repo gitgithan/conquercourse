@@ -9,7 +9,7 @@ import { VAULT_MAX_RISE } from './vault';
 import { groundAt, heightAt } from './terrain';
 import { AIM_MAX, AIM_RATE, isAimable, type RecoilParams } from './recoil';
 import { bandParams, reachableStretch, slackX, stretchAt } from './band';
-import { DEFAULT_BARS, canReach, swingEnergy } from './bars';
+import { DEFAULT_BARS, canReach, nextHand, swingEnergy } from './bars';
 
 // The ideal run: where to press Space at each obstacle, found by trying the simulator, and how wide the
 // window of good presses is. It is the difficulty of each obstacle as a number.
@@ -138,7 +138,7 @@ function barsInput(plan: Plan, w: WorldState, state: PlanState, course: CourseDa
   const done = b.l >= run.n - 1 && b.r >= run.n - 1;
   if (done && state.barsDoneAt == null) state.barsDoneAt = w.runner.tick;
   if (done && w.runner.tick - state.barsDoneAt! >= (plan.barsRelease ?? 0)) { state.barsOff = true; return { ...NO_INPUT, run: true, squat: true }; } // let go
-  const hand = b.last === 1 ? 2 : 1;
+  const hand = nextHand(run, b) ?? 1;
   const ok = !done && canReach(run, b, hand).ok;
   state.barsOk = ok ? (state.barsOk ?? 0) + 1 : 0;
   const wait = plan.barsWait?.[b.reaches] ?? 0;

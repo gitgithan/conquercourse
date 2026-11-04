@@ -16,7 +16,7 @@ describe('the monkey bars demo course', () => {
     expect(v.cleared).toBe(true);
     expect(v.ticks).toBe(run.ticks);
   });
-  it('the run goes along every rung: five reaches of each hand, one grab, one release', () => {
+  it('the run goes along every rung: one reach per rung, one grab, one release', () => {
     let w = newWorld(course);
     const count: Record<string, number> = {};
     const hands: Record<number, number> = {};
@@ -26,7 +26,8 @@ describe('the monkey bars demo course', () => {
     }
     expect(count['bars-grab']).toBe(1);
     expect(count['bars-release']).toBe(1);
-    expect(hands).toEqual({ 1: 5, 2: 5 });
+    const n = course.bars![0].n; // leapfrog: one reach per rung, the hands taking turns
+    expect(hands).toEqual({ 1: Math.ceil(n / 2), 2: Math.floor(n / 2) });
   });
   it('cannot be cleared without the bars: the same keys, with the bars removed, fall in the water', () => {
     const v = verifyLog({ ...course, bars: undefined }, run.log);

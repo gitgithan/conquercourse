@@ -2,8 +2,8 @@
   "note": "keys that clear swing-to-bars.course.json, one [bitmask, ticks] pair per run of equal keys (src/sim/replay.ts); the ideal-run search plan, played once",
   "jumpX": 2,
   "swingTicks": 48,
-  "releaseAfter": 234,
-  "ticks": 1372,
+  "releaseAfter": 328,
+  "ticks": 1452,
   "windows": [
     {
       "obstacle": "edge at 5 m (take-off)",
@@ -21,24 +21,24 @@
     },
     {
       "obstacle": "bars: hang before the first reach",
-      "best": 120,
-      "lo": 96,
-      "hi": 350,
-      "widthMs": 2133.3333333333335
+      "best": 118,
+      "lo": 94,
+      "hi": 346,
+      "widthMs": 2116.6666666666665
     },
     {
       "obstacle": "bars: release after the last reach",
-      "best": 234,
-      "lo": 208,
-      "hi": 262,
-      "widthMs": 466.6666666666667
+      "best": 328,
+      "lo": 302,
+      "hi": 354,
+      "widthMs": 450
     },
     {
       "obstacle": "bars: narrowest reach",
-      "best": 2,
+      "best": 1,
       "lo": 0,
-      "hi": 5,
-      "widthMs": 50
+      "hi": 3,
+      "widthMs": 33.333333333333336
     }
   ],
   "log": [
@@ -68,11 +68,23 @@
     ],
     [
       97,
-      48
+      26
     ],
     [
       96,
-      99
+      92
+    ],
+    [
+      8288,
+      1
+    ],
+    [
+      98,
+      2
+    ],
+    [
+      96,
+      43
     ],
     [
       98,
@@ -80,15 +92,7 @@
     ],
     [
       96,
-      50
-    ],
-    [
-      98,
-      1
-    ],
-    [
-      96,
-      123
+      154
     ],
     [
       97,
@@ -96,75 +100,7 @@
     ],
     [
       96,
-      27
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      97,
-      4
-    ],
-    [
-      16480,
-      1
-    ],
-    [
-      97,
-      2
-    ],
-    [
-      96,
-      2
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      97,
-      2
-    ],
-    [
-      96,
-      2
-    ],
-    [
-      16480,
-      1
-    ],
-    [
-      97,
-      1
-    ],
-    [
-      96,
-      3
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      96,
-      4
-    ],
-    [
-      16480,
-      1
-    ],
-    [
-      96,
-      4
-    ],
-    [
-      8288,
-      1
-    ],
-    [
-      96,
-      4
+      31
     ],
     [
       16480,
@@ -191,16 +127,32 @@
       1
     ],
     [
+      96,
+      4
+    ],
+    [
+      8288,
+      1
+    ],
+    [
+      96,
+      4
+    ],
+    [
+      16480,
+      1
+    ],
+    [
       97,
-      97
+      197
     ],
     [
       98,
-      137
+      131
     ],
     [
       9,
-      482
+      492
     ]
   ]
 }
