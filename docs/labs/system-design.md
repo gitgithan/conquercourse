@@ -1,8 +1,8 @@
-# Lab 17: System design, build the whole game
+# System design, build the whole game
 
 *The finale: put every earlier Lab to work on one design (see [the series map](pipelines.md)).*
-*From: [Lab 15, Collision from a 3D lift](collision.md).*
-*Uses: Labs 1, 5, 8, 11, 13, 14 and 15.*
+*From: [Collision from a 3D lift](collision.md).*
+*Uses: Computer vision, Camera and perspective, Evaluating a detector, Cut-out, lift and bake, Hide the wait, Numerical integration and Collision from a 3D lift.*
 *Behind `?labs=1`. Open `?mode=lab-systemdesign&labs=1`. Serves the university Labs (`docs/university-labs.md`).*
 *Evidence: [the Lab at 1280 px](../evidence/cc-133-pipeline-labs/lab-systemdesign.png).*
 

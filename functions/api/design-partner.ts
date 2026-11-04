@@ -1,4 +1,4 @@
-// /api/design-partner: Lab 18's one-shot design critique by Muse Spark Open on Baseten. Not a chat: one layout in, one short comment out.
+// /api/design-partner: The System design Lab's one-shot design critique by Muse Spark Open on Baseten. Not a chat: one layout in, one short comment out.
 //   POST {scenario, blocks: [ids], note?} -> {reply}
 // Only known block ids (one per slot of the block board, or the older list) and a 120-character note reach the model. The key lives only in the BASETEN_API_KEY secret. Reasoning text is never read.
 import { cleanLayout, cleanReply, layoutPrompt, PARTNER_SYSTEM } from '../../src/labs/systemdesign/partner-core';

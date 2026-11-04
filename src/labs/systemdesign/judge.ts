@@ -1,4 +1,4 @@
-// Lab 18: the judge. A rule engine built from OUR lessons (docs/lessons.md), deterministic, no model. Like the simulator, it is the truth for facts.
+// System design Lab: the judge. A rule engine built from OUR lessons (docs/lessons.md), deterministic, no model. Like the simulator, it is the truth for facts.
 import { BLOCKS, blockById, type Block } from "./blocks";
 
 export type Level = "result" | "message" | "broken";

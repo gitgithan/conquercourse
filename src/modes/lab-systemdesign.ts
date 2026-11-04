@@ -6,7 +6,7 @@ import { BRIEFS, METERS, SLOTS, STARTER, blocksOf, briefById, ladderOf, otherGoo
 import { MAX_NOTE } from "../labs/systemdesign/partner-core";
 import { askDesignPartner, type PartnerAnswer } from "../labs/systemdesign/partner-client";
 
-// Lab 18 (finale): System design as a block board. Nine slots of our real pipeline, three blocks for each.
+// System design (finale Lab): System design as a block board. Nine slots of our real pipeline, three blocks for each.
 // Drop blocks in, press Run, and a pure scoring function (src/labs/systemdesign/pipeline.ts) shows what the design does.
 // A misfit is found, not told: a meter turns red, and a three-step hint ladder opens on the card that caused it.
 // The partner pop-up (one opinion, never a chat) still comes from the live Design partner ask. Behind the labs switch (?labs=1).

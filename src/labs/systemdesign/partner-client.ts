@@ -1,4 +1,4 @@
-// Lab 18: the page side of the design partner. One ask, one answer. If the live call fails, is slow or is rate-limited, a stored example is shown and labelled.
+// System design Lab: the page side of the design partner. One ask, one answer. If the live call fails, is slow or is rate-limited, a stored example is shown and labelled.
 import { nearestRecorded } from "./partner-core";
 import { recordedForDesign, type BriefId, type Design } from "./pipeline";
 
