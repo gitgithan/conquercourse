@@ -138,12 +138,12 @@
   - Boarding and flying the drone.
   - The pole vault.
   - Launching from the trebuchet.
-- Overlay: not set.
+- Overlay: none (owner, 2026-11-05: no overlays after Scene 4 until Scene 9).
 - **Music lane:** not decided.
 
 ## Scene 6: Learn the Basics (about 10 s)
 
-- Overlay: not set.
+- Overlay: none (owner, 2026-11-05: no overlays after Scene 4 until Scene 9).
 - Start on the Dojo Gap Jump screen:
   - 2 s on the default tab, The real obstacle.
   - Click The idea, 2 s.
@@ -155,7 +155,7 @@
 
 ## Scene 7: Go for Mastery (time depends on the number of Pipelines cards)
 
-- Overlay: not set.
+- Overlay: none (owner, 2026-11-05: no overlays after Scene 4 until Scene 9).
 - Start from the mindmap of the Labs.
 - Mouse over each Pipelines card for 1 s, so the edges are seen updating.
 - After the last second, click Know the limits; the yellow click circle must be visible.
@@ -167,7 +167,7 @@
 
 ## Scene 8: Create your own Character (as long as it needs; the generation wait is trimmed)
 
-- Overlay: not set.
+- Overlay: none (owner, 2026-11-05: no overlays after Scene 4 until Scene 9).
 - Start from the Training course and click Characters at the top right.
 - Type "ninja warrior" character by character, click Make it.
 - After the generation (trimmed), click Play as.
