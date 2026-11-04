@@ -22,7 +22,8 @@ Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), ind
 
 ## 🎬 Promo video
 
-https://github.com/user-attachments/assets/891a2fe2-3eff-49f7-8459-aeff440a24d9
+https://github.com/user-attachments/assets/d07552d5-29f2-4a3b-9324-14a4c0cd610b
+
 
 ## 📸 Screens
 
