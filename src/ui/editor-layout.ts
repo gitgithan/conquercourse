@@ -28,7 +28,6 @@ const CSS = `
   .ed .overflow button:hover{background:var(--soft)}.ed .overflow kbd,.ed #palette kbd{font:12px ui-monospace,monospace;color:var(--muted);background:#eef1ec;border-radius:5px;padding:1px 6px}
   .ed .moves,.ed .helper{position:absolute;right:10px;bottom:10px;left:auto;top:auto;width:min(400px,calc(100% - 20px));z-index:20}
   .ed .moves{max-height:calc(100% - 20px);padding:0;gap:0;overflow:auto}
-  :root[data-dock=both] .ed .moves{left:10px;right:auto;top:10px;bottom:10px;max-height:none}
   .ed .helper{top:var(--partner-top,auto);height:auto;max-height:none}
   :root[data-dock=both] .ed .helper{height:auto}
   .ed .moves>.row:first-child{position:sticky;top:0;z-index:1;background:var(--card);padding:9px 12px;border-bottom:1px solid var(--line);justify-content:space-between;flex-wrap:nowrap}
