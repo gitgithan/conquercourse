@@ -939,3 +939,9 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | --- | --- | --- | --- | --- | --- |
 | `docs/evidence/slicer-slice-full-width.jpg` | Full-width Slice action above Feedback, with Shibuya's passing start | 2026-11-04 | `scripts/map-check.mjs`, real simulator and stepped-clock desktop capture at 1280 px | None | Our UI; OpenStreetMap data (ODbL), OpenFreeMap and OpenMapTiles; attribution visible |
 | `docs/evidence/slicer-passing-start.jpg` | Selected passing height and the retained Send to the World Editor action | 2026-11-04 | Same real browser check; no model calls | None | Our UI; same map credits, visible on screen |
+
+## Improve menu progression (ours, 2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `docs/evidence/editor-improve-order.jpg` | Improve ordered as AI ideas, easier timing, then shortcuts, with AI recommended for a blocked course | 2026-11-04 | Our editor at 1280 px, real simulator and stepped-clock Chromium capture | None | Ours; evidence only, no model call |
