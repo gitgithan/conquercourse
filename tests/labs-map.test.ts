@@ -3,7 +3,7 @@ import { DEFAULT_SOURCE, edgePath, focusState, layoutLabsMap, mapEdges, neighbou
 import { LAB_LIST, flowOf, usedIn, usesOf } from '../src/ui/labs-series';
 
 // CC-133: the dependency tree of the Labs. The layout is a pure function of the series data, so these tests need no page.
-const map = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20 });
+const map = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 });
 
 // a made-up 25-Lab series with a finale tier: the layout must not care about names, numbers or tiers
 const fake = (n: number): MapSource => {
@@ -73,10 +73,10 @@ describe('labs map layout', () => {
     expect(focusState(map, 'not-a-lab').dimNode('lab-search')).toBe(false);
   });
   it('is the same on every call and picks up a new Lab by itself', () => {
-    expect(layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20 })).toEqual(map);
+    expect(layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 })).toEqual(map);
     const src = fake(25), big = layoutLabsMap(src);
     expect(big.nodes).toHaveLength(25);
     expect(mapEdges(src).length).toBeGreaterThanOrEqual(30);
   });
-  it('keeps the labels short enough for 1280 px: the drawing is no wider than the page column', () => { expect(map.width).toBeLessThanOrEqual(1232); });
+  it('keeps the labels short enough for 1280 px: the drawing is no wider than the page column', () => { expect(map.width).toBeLessThanOrEqual(1100); });
 });
