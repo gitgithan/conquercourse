@@ -1,0 +1,23 @@
+{
+  "experiment": "cc-133-agent-text",
+  "issue": "CC-133",
+  "model": "meta-models/muse-spark-open-1026",
+  "stepCap": 6,
+  "startedFrom": "one sentence idea, no photo",
+  "path": "functions/api/course-agent.ts + src/slice/course-agent.ts loop + src/slice/course-agent-tools.ts simulator (not wired to the editor button)",
+  "toolsRunOn": "a Vultr VM over ssh",
+  "modelCallsFrom": "the laptop",
+  "price": {
+    "in": 1.25,
+    "out": 4.25
+  },
+  "ideas": 22,
+  "runsPerIdea": 2,
+  "tokens": {
+    "in": 37845,
+    "out": 72970,
+    "calls": 70
+  },
+  "totalDollars": 0.3574,
+  "date": "2026-11-04"
+}

@@ -151,7 +151,7 @@ flowchart LR
 - **Dropped scope:** the scope is photo to object only.
   - The Course Agent started from one park photo; that input and its editor button are removed.
   - The loop (`src/slice/course-agent.ts`) and the text-only function `/api/course-agent` remain in the code, with no player entry.
-  - The text-only (idea in) version has not been measured.
+  - The text-only (idea in) version was measured on 2026-11-04 (CC-133): 40 of 44 runs proven in at most 2 steps, $0.36; see [data/eval/cc-133-agent-text/README.md](../data/eval/cc-133-agent-text/README.md).
 - **What the loop did:** the model proposed a layout; the simulator told it whether it cleared, where the best attempt stopped and which single change would clear it; the model repaired, up to 6 steps.
 - **Measured results (photo in, historic):** [data/eval/cc-126-course-agent/README.md](../data/eval/cc-126-course-agent/README.md).
 

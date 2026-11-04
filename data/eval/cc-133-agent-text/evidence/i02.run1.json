@@ -1,0 +1,138 @@
+{
+  "id": "i02.run1",
+  "idea": "an easy first course with a bench and a wall",
+  "ideaKind": "normal",
+  "status": "cleared",
+  "proven": true,
+  "steps": 2,
+  "clearedAtStep": 2,
+  "repairs": 1,
+  "clearedAtFirstTest": false,
+  "modelCalls": 2,
+  "tokensIn": 1115,
+  "tokensOut": 1567,
+  "dollars": 0.0081,
+  "seconds": 69.5,
+  "obstaclesAsked": "all kept",
+  "missing": [],
+  "finalObstacles": 2,
+  "clearedByDeleting": false,
+  "problems": [],
+  "steps_": [
+    {
+      "n": 1,
+      "kind": "proposed",
+      "say": "Easy first course with a bench then a low wall.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 0.3,
+            "height": 1
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": false,
+        "seconds": null,
+        "jumps": 1,
+        "stoppedAtItem": 3,
+        "reachedMetres": 8.94,
+        "laneMetres": 15,
+        "probes": [
+          {
+            "item": 3,
+            "text": "item 4 (block) 1 m high lowered to 0.56 m",
+            "clears": true,
+            "seconds": 4.55
+          }
+        ]
+      },
+      "words": "Not cleared: the best attempt stopped at item 4, block 0.3 m long, 1 m high (8.9 m in). The simulator proved these single changes would clear it: item 4 (block) 1 m high lowered to 0.56 m."
+    },
+    {
+      "n": 2,
+      "kind": "repaired",
+      "say": "Lowered the low wall to the proven height.",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 0.3,
+            "height": 0.56
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "report": {
+        "cleared": true,
+        "seconds": 4.55,
+        "jumps": 2,
+        "stoppedAtItem": null,
+        "reachedMetres": 14.9,
+        "laneMetres": 15,
+        "probes": []
+      },
+      "words": "Cleared in 4.6 s on the best line, with 2 jumps."
+    }
+  ],
+  "finalLayout": {
+    "items": [
+      {
+        "kind": "ground",
+        "length": 5
+      },
+      {
+        "kind": "block",
+        "length": 0.5,
+        "height": 0.45
+      },
+      {
+        "kind": "ground",
+        "length": 4
+      },
+      {
+        "kind": "block",
+        "length": 0.3,
+        "height": 0.56
+      },
+      {
+        "kind": "ground",
+        "length": 5
+      }
+    ]
+  }
+}
