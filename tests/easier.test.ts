@@ -37,7 +37,9 @@ describe('Make it easier', () => {
     expect(r.proposal!.known).toBe(true);
     expect(r.proposal!.items).toHaveLength(1);
     expect(r.proposal!.items[0].words).toMatch(/^Move “Block 1” 1 m further along\.$/);
-    expect(r.proposal!.steps[0]).toMatch(/narrowest press window grows from 314 ms to 405 ms/);
+    expect(r.proposal!.steps[0]).toMatch(/Before: Jump take-off at .* — 314 ms/);
+    expect(r.proposal!.steps[1]).toMatch(/After: Jump take-off at .* — 405 ms/);
+    expect(r.proposal!.steps[2]).toContain('91 ms more room');
     const it = r.proposal!.items[0];
     expect(it.kind === 'piece' && it.to.x - it.from.x).toBeCloseTo(1, 5);
   }, 120000);
@@ -62,7 +64,7 @@ it('targets the limiting obstacle and resolves bar coordinates', () => {
 });
 it('keeps cost order when a later candidate finishes first and retains the winning proof', async () => {
   const ps = mk(['box:8:0.5:2', 0, 0], ['box:8:0.5:2', 13, 0]);
-  const window = (n: number) => [{ obstacle: 'edge at 17 m', best: 16, lo: 15, hi: 17, widthMs: n }];
+  const window = (n: number) => [{ obstacle: 'edge at 6 m', best: 5, lo: 4, hi: 6, widthMs: n }, { obstacle: 'edge at 17 m', best: 16, lo: 15, hi: 17, widthMs: n }];
   const plan = { jumpXs: [16], releaseAfter: 0, bouncePress: 0 };
   let calls = 0;
   const proofs = [0, 1, 2].map((i) => ({ cleared: true, plan: { ...plan, bouncePress: i }, windows: window(i ? 140 : 100) }));
@@ -72,4 +74,6 @@ it('keeps cost order when a later candidate finishes first and retains the winni
   } }, 10000, undefined, { concurrency: 2 });
   expect(done).toEqual([0, 2, 1]);
   expect(r.proof).toBe(proofs[1]); expect(r.tried).toBe(2);
+  expect(r.proposal!.steps[0]).toContain('at 17 m');
+  expect(r.proposal!.steps[1]).toContain('at 17 m');
 });

@@ -307,3 +307,11 @@
 - Put activity above the lane controls so progress is visible without scrolling.
 - A fixed diagram explains where calculation is happening without pretending to show individual simulator trials.
 - Share task descriptions between the main simulator and AI Preview so they explain the same worker messages consistently.
+
+### Name both timing bottlenecks, and show the accepted move (2026-11-04)
+
+- A larger minimum window does not prove that the same press remains the bottleneck.
+- Show the measured movement and position on both sides of the comparison, followed by the exact object edit.
+- Keep the comparison after Apply so the reason for the change is still readable.
+- Animate only the drawing after the final course commits; do not create intermediate simulation inputs or extra undo steps.
+- For social clips, widen the highlight area on the original UI and label both outlines; a larger region is not a zoomed duplicate view.

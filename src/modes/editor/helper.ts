@@ -41,6 +41,7 @@ export interface HelperEnv {
   root: HTMLElement; top: HTMLElement; aside: HTMLElement;
   chosen: () => number[]; draw: () => void; drawProfile: () => void; changed: () => void;
   handoff: EditHandoff | null;
+  animateApply: (items: Ghosts['items']) => void;
   tools: Tools;
   previewSearch: EditorSearch;
 }
@@ -249,11 +250,12 @@ export function createHelper(env: HelperEnv) {
     engine.dataset.kind = pr.source === 'partner' ? 'ai' : 'simulator';
     el('strong', reply, { text: pr.title });
     el('div', reply, { className: 'muted', text: 'The outlines show where things would go (grey: now, teal: after). Nothing changes until you press Apply.' });
-    if (pr.source === 'easier') for (const st of pr.steps) el('div', reply, { className: 'ok', text: st });
+    const timing = el('div', reply, { id: 'easiertiming', hidden: pr.source !== 'easier' || pr.items.some((i) => !i.on) });
+    if (pr.source === 'easier') for (const st of pr.steps) el('div', timing, { text: st });
     for (const it of pr.items) {
       const row = el('label', reply, { className: 'pvrow' });
       const cb = el('input', row, { type: 'checkbox', checked: it.on });
-      cb.onchange = () => { it.on = cb.checked; updatePreview(); };
+      cb.onchange = () => { it.on = cb.checked; timing.hidden = pr.source !== 'easier' || pr.items.some((i) => !i.on); updatePreview(); };
       el('span', row, { text: it.words });
     }
     el('div', reply, { id: 'previewverdict', className: 'muted' });
@@ -303,6 +305,8 @@ export function createHelper(env: HelperEnv) {
     if (!ed.proposal || !ed.preview || !previewProof) return;
     const current = courseFor(ed.preview.pieces, ed.preview.lane, ed.preview.machine);
     if (JSON.stringify(searchInput(current)) !== JSON.stringify(searchInput(previewProof.course))) { updatePreview(); return; }
+    const movement = ghostData()?.items ?? [];
+    const timing = ed.proposal.source === 'easier' && ed.proposal.items.every((i) => i.on) ? [...ed.proposal.steps] : [];
     const r = ed.preview, words = ed.proposal.items.filter((i) => i.on).flatMap((item) => {
       if (item.kind !== 'piece') return [item.words];
       const piece = ed.pieces.find((q) => q.id === item.id);
@@ -314,6 +318,7 @@ export function createHelper(env: HelperEnv) {
     ed.proposal = null; ed.preview = null; ed.previewProfile = null; ed.previewBars = []; ed.proofRun++;
     previewProof = null;
     changed(); // one undo step; the editor reuses the exact preview result and plan
+    env.animateApply(movement);
     const appliedProof = previewSearch.proofFor(courseNow());
     reply.className = 'reply'; reply.replaceChildren();
     el('strong', reply, { text: 'Applied.' });
@@ -321,6 +326,7 @@ export function createHelper(env: HelperEnv) {
       className: appliedProof?.cleared ? 'ok' : 'muted',
       text: appliedProof ? (appliedProof.cleared ? "The simulator's verified run is ready." : 'The simulator has not found a clear run.') : 'The simulator is checking the changed layout.',
     });
+    if (timing.length) { const detail = el('div', reply, { id: 'appliedtiming' }); for (const text of timing) el('div', detail, { text }); }
     const appliedChanges = el('ul', reply, { id: 'appliedchanges' });
     appliedChanges.style.cssText = 'margin:2px 0;padding-left:20px;display:grid;gap:6px';
     for (const text of words) el('li', appliedChanges, { text });

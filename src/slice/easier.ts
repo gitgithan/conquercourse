@@ -1,6 +1,7 @@
 import type { CourseData } from '../course/course';
 import { searchIdealRun, type Window, type Plan, type Route } from '../sim/ideal';
 import { isHold, type P } from './holds-world';
+import { timingComparison } from './easier-timing';
 import { searchInput } from './preset-plans';
 import { diffProposal, type Proposal } from './preview';
 
@@ -106,6 +107,8 @@ export async function makeItEasier(pieces: P[], lane: Lane, focusX: number, deps
   }
   check();
   if (!best) return { proposal: null, before, after: before, tried, target: target.label, note: `No small change widens the narrowest press (${Math.round(before)} ms). Move things by hand in the editor.` };
-  const steps = [`The narrowest press window grows from ${Math.round(before)} ms to ${Math.round(best.after)} ms.`];
+  const beforeWindow = (base.timingWindows ?? base.windows ?? []).find((w) => w.widthMs === before && narrowest([w], startEdge) > 0)!;
+  const afterWindow = (best.proof.timingWindows ?? best.proof.windows ?? []).find((w) => w.widthMs === best!.after && narrowest([w], startEdge) > 0)!;
+  const steps = timingComparison(beforeWindow, afterWindow);
   return { proposal: diffProposal('easier', 'Make it easier', pieces, lane, best.ps, lane, steps, true), proof: best.proof, course: best.course, target: target.label, before, after: best.after, tried, note: '' };
 }
