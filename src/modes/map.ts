@@ -203,7 +203,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const known = nameFor(lat, lon, readyIdx, hint, cc); if (known) { showName(known, lat, lon); return; }
     showName(pinLabel(lat, lon), lat, lon); // until the map's address arrives
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=17&addressdetails=1&lat=${lat}&lon=${lon}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=en&zoom=17&addressdetails=1&lat=${lat}&lon=${lon}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000) });
       if (!r.ok || my !== nameToken) return;
       const j = (await r.json()) as { name?: string; address?: Address };
       const best = shortFromAddress(j.address ?? {}, j.name && j.name.length ? j.name : undefined); if (best && my === nameToken) showName(best, lat, lon);
@@ -236,7 +236,7 @@ export function startMap(host: HTMLElement): { backend: 'webgl2' } {
     const text = $<HTMLInputElement>('search').value.trim(); if (!text) return;
     const go = $<HTMLButtonElement>('searchgo'); go.disabled = true; tell('Searching...');
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=5&q=${encodeURIComponent(text)}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(15000) });
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&accept-language=en&addressdetails=1&limit=5&q=${encodeURIComponent(text)}`, { referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(15000) });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const j = (await r.json()) as { display_name: string; lat: string; lon: string; address?: { country_code?: string } }[];
       showHits(j.map((x) => ({ name: x.display_name.split(',').slice(0, 3).join(',').trim(), lat: Number(x.lat), lon: Number(x.lon), cc: x.address?.country_code })), true);
