@@ -234,10 +234,10 @@ flowchart TB
 |---|---|---|
 | Who judges a run | A fixed 120 Hz TypeScript simulator, never a model | The same keys give the same result, so a time is a fact, a ghost can replay it and the server can prove a clear |
 | Photo to 3D piece | SAM 3 cuts the object, then SAM 3D Objects lifts it | A cut-out gives the lifter one clean object and drops the background; SAM 3D Objects is Meta's photo-to-3D model |
-| Privacy | People blurred and faces and plates pixelated (SAM 3 masks, edited on the CPU) before any other model sees the photo | A recognisable face never leaves the first step; street photos use Mapillary's own blur |
+| Privacy | People blurred and faces and plates pixelated (SAM 3 masks, edited on the CPU) before the cut-out and 3D models see the photo | The safety check reads a small copy first, so a face is seen only by that check, and nothing is made if it says no; street photos use Mapillary's own blur |
 | Safety check first | Muse Spark Open reads each upload and answers ok, review or block; if it cannot answer, nothing is made | Cheap, fast, and it runs before any GPU is paid for |
 | Mask step vs lift step | Two Modal containers: the mask step on a small L4 GPU that scales down after 60 s, the lift step on a big GPU (L40S or A100) | The two models need different libraries (the lifter pins an older torch), so they cannot share one image; the small GPU is the one players wake most |
-| Cold start | We wake both containers early (the Make tab opens, then Segment Objects is pressed) | The player spends seconds choosing an object anyway, so the wait is hidden, not removed |
+| Cold start | We wake the mask container when the Make tab opens and the lift container when Segment Objects is pressed | The player spends seconds choosing an object anyway, so the wait is hidden, not removed |
 | Mesh file | The GLB is baked on the CPU from the lifter's mesh and colours | The lifter returns raw mesh and splat colours; baking needs no GPU, so the big GPU is released sooner |
 | Characters | A player's sentence goes to Muse Image, then SAM 3.1 (Meta Model API), then SAM 3D Objects | The API needs no GPU of ours and is paid by Meta credit; one fixed skeleton and one set of physics rules fit every creation |
 | Motion | SAM 3D Body with MHR measures filmed moves at build time; Kimodo and CMU capture make the rest | Motion is a build-time file, so the game needs no body model while you play; every clip passes a plausibility check before it is shown |
@@ -269,12 +269,12 @@ flowchart TB
 | Meta AI | Muse Spark Open (Baseten), Muse Image, SAM 3, SAM 3.1, SAM 3D Objects, SAM 3D Body, DINOv3, Meta-Llama-3-8B-Instruct (inside Kimodo), MusicGen, Mapillary |
 | Other open models | Kimodo (NVIDIA), MoGe 2, TRELLIS.2, torchvision detectors |
 | GPU jobs | Modal (Python), for build-time pipelines and the live photo-to-3D and character jobs |
-| Tests | Vitest (about 2,400 tests), Playwright browser checks, golden traces of the simulator |
+| Tests | Vitest (about 2,700 tests), Playwright browser checks, golden traces of the simulator |
 | Tooling | Node, Python, ffmpeg, Linear, GitHub pull requests |
 
 ## 🚀 Set it up
 - You do not need an API key to run the game itself.
-- For a quick look, `git clone --depth 1 https://github.com/gitgithan/conquercourse.git` downloads about 115 MB; a plain `git clone` also brings the whole history (about 440 MB), which shows how the work grew day by day.
+- For a quick look, `git clone --depth 1 https://github.com/gitgithan/conquercourse.git` downloads about 150 MB; a plain `git clone` also brings the whole history (about 530 MB), which shows how the work grew day by day.
 - Install the packages with `npm ci`.
 - Start the local site with `npm run dev`, then open http://localhost:5173.
 - For the Meta Model API tools, copy [.env.example](.env.example) to `.env` and put your key in `META_API_KEY`.
@@ -296,14 +296,14 @@ flowchart TB
 ## 🕹️ The four experiences
 
 ### How they fit together
-- Community turns your photos into wallpapers and 3D objects.
+- Community turns your photos into 3D objects.
 - World Slicer turns a real place into a lane.
 - World Editor mixes both into a course you can prove, tune and save.
 - Courses is where you and everyone else run, race ghosts and share.
 
 ```mermaid
 flowchart LR
-  COM["Community<br/>photo to object or wallpaper"] --> ED["World Editor<br/>build and prove a course"]
+  COM["Community<br/>photo to 3D object"] --> ED["World Editor<br/>build and prove a course"]
   SLI["World Slicer<br/>cut a lane out of a real place"] --> ED
   SLI --> CRS["Courses<br/>run, race, share"]
   ED --> CRS
@@ -317,11 +317,11 @@ flowchart LR
 |---|---|---|---|---|
 | **What it is** | Where the game is played | A real place cut into a lane | Build a course from pieces | Your photos become pieces |
 | **You can** | Run, race a ghost, read your report, share a link or clip | Pick or pin a place, see street photos, choose buildings | Place 19 real objects and shapes, give roles, press Fix it | Pick a photo, pick a thing in it, make a 3D piece |
-| **You get** | A time the simulator replays, a link, a clip | A checked lane from a real place | A saved, proved course | A piece in your tray, or a wallpaper |
+| **You get** | A time the simulator replays, a link, a clip | A checked lane from a real place | A saved, proved course | A piece in your tray, ready to share |
 | **Why it is unique** | A time cannot be faked; race a stranger's ghost | Your own street becomes a course | The simulator says in plain words what to change | A thing you walk past becomes something to jump over |
 
 - Details for each: [Courses](docs/obstacles.md), [World Slicer](docs/street-photos.md), [World Editor](docs/features.md), [Community](docs/community-flow-guide.md).
-- Community status: suggested outlines and the 3D lift need their server jobs switched on; the full path ran for real on the preview site ([click by click](docs/community-flow-guide.md)).
+- Community status: suggested outlines and the 3D lift need their server jobs switched on; the full path ran for real on the preview site on 2026-10-31, and the outline step changed after that ([click by click](docs/community-flow-guide.md)).
 
 ## 🌳 Folder tree
 - The top level, and one level inside each folder.
@@ -356,7 +356,7 @@ conquercourse/
 │   ├── ccpipe/ charmaker/ objbake/ partllm/   the tools
 │   └── posekimodo/ spectacle/ video_to_motion/ tests/
 ├── scripts/      checks, film recorders, ship script
-│   ├── film-b/ film-c/ film-d/   film shots by round
+│   ├── film-b/ film-c/ film-d/ promo-v2/   film shots by round
 │   └── lib/        shared helpers
 ├── tests/        Vitest tests (physics laws first)
 │   ├── fixtures/   saved inputs
@@ -365,7 +365,6 @@ conquercourse/
 ├── docs/         the spec, lessons, assets and one page per feature
 │   ├── spec/       SPEC.md, the source of truth
 │   ├── labs/       one page per Lab
-│   ├── promo/      the promo video (the file the README player was uploaded from)
 │   └── codegraph/ evidence/ feedback/ film-a/ film-b/ research/
 ├── data/         experiment trail
 │   ├── eval/       README and run.json per experiment (raw output stays out of git)
@@ -376,7 +375,9 @@ conquercourse/
 ├── server/       local proxy for the model tools
 ├── index.html    the page; vite.config.ts builds it
 ├── wrangler.toml Cloudflare settings (live and preview)
-└── CLAUDE.md     rules for agents
+├── README_MEDIA/ screenshots the README shows
+├── AGENTS.md CLAUDE.md   rules for agents
+└── package.json  scripts and packages (npm ci, npm run dev)
 ```
 
 ## ✨ Experiences that are not possible in real life
