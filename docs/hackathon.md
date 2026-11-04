@@ -72,13 +72,26 @@ Blue-box diagrams for every pipeline are in [docs/meta-ai-pipelines.md](meta-ai-
 - **Most Viral:** every cleared run can be shared as a challenge link or a 15 second vertical clip (CC-126).
   - The link carries only the keys of the run; the simulator plays them, so the time cannot be faked.
   - The clip is made in the browser on a stepped clock; the plan is in [docs/viral-plan.md](viral-plan.md).
-- **Best Build on Meta Open Weights:** Muse Spark Open runs the design partner (see the table above).
+- **Best Build on Meta Open Weights:** SAM 3 open weights run on Modal for player photos, and Muse Spark Open (Meta's open model, hosted by Baseten) runs the design partner (see the table above and the README's open weights split).
 
-### Best Agentic Use-Case: not claimed now
-- **What happened:** the Course Agent (propose, test with the simulator, repair, stop when proven) was proved 40 of 40 times in at most 3 steps, but every run started from a park photo ([results](../data/eval/cc-126-course-agent/README.md)).
-- **Why it is not claimed:** on 2026-10-31 the scope was cut to photo to object only, so the photo input and the editor button were removed.
-  - The text-only (idea in) loop still exists in the code and has not been measured, so nothing is claimed for it.
+### Best Agentic Use-Case: claimed, from a sentence
+- **The loop:** Muse Spark Open proposes a layout from an idea in words, the simulator's ideal-run search tests it, the model repairs it from the plain-words answer, and the loop stops when the simulator proves a clear (step cap 6).
+  - The model proposes; the simulator decides.
+- **Measured (2026-11-04, no photo):** 40 of 44 runs proven (22 at the first test, 18 after one repair), never more than 2 steps ([report](../data/eval/cc-133-agent-text/README.md)).
+  - Cost: $0.357 for 44 runs and 70 model calls, covered by the hackathon credits.
+  - No clear came from deleting obstacles (18 of 18 repairs kept the obstacle count).
+  - Honest catch: some clears eased a size the sentence asked for (a 3 m wall became 0.68 m), so "proven" means proven with sizes the simulator accepts.
+  - The 4 failures: 2 empty courses (a rule of the tool) and 2 empty model answers.
+- **Earlier, from a park photo:** 40 of 40 proven in at most 3 steps ([results](../data/eval/cc-126-course-agent/README.md)).
+- **Where it lives:** `src/slice/course-agent.ts` and `/api/course-agent`.
+  - On 2026-10-31 the scope was cut to photo to object only, so the photo input and the editor button were removed; the loop has no player entry today.
+  - We claim the loop as measured code, not a button; the editor's design partner and Fix it are the player-facing parts (one model call then the simulator, and a pure simulator search).
 - **History:** [docs/meta-ai-pipelines.md](meta-ai-pipelines.md), section 4c.
+
+## Scorecard and proof numbers
+- The judging scorecard, the proof numbers (about 2,700 tests, 7,525 cross-hardware runs), the honest limits and the open-weights split are in the root [README](../README.md).
+- Cross-hardware method: [lessons-cross-hardware-testing.md](lessons-cross-hardware-testing.md).
+- Viral challenge: [challenge.md](challenge.md).
 
 ## What is new, and what is not
 - The repository starts on 2026-10-27; no code from the earlier practice project is used.
