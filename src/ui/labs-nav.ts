@@ -59,11 +59,13 @@ export function mountLabsNav(host: HTMLElement, mode: string, labsEnabled: boole
   labsBtn.id = 'labs-open'; labsBtn.type = 'button'; labsBtn.textContent = 'Labs'; labsBtn.title = 'All the Labs on one page'; labsBtn.setAttribute('aria-expanded', 'false'); labsBtn.setAttribute('aria-controls', 'labs-panel');
   labsBtn.onclick = () => panel.toggle();
   const sp = document.createElement('span'); sp.className = 'sp';
-  nav.append(now, labsBtn, sp, prevA, nextA, courses);
+  const sound = soundButton(); // the Dojo's Sound button lives in the bar, so it never covers a Lab's controls
+  sound.style.cssText = 'position:static;font:inherit;padding:2px 8px;opacity:1;cursor:pointer;color:#fff;background:transparent;border:1px solid #4a5650;border-radius:5px';
+  nav.append(now, labsBtn, sp, sound, prevA, nextA, courses);
   host.appendChild(nav);
   if (/[?&]panel=1(?:&|$)/.test(location.search)) panel.open(); // the old ?mode=labs-map link lands here
   (window as unknown as { __labsPanel?: unknown }).__labsPanel = panel;
-  startAudio(); host.appendChild(soundButton()); // the Dojo loop already plays on Lab pages (src/ui/music.ts); this gives it the Dojo's Sound button and M key
+  startAudio(); // the Dojo loop already plays on Lab pages (src/ui/music.ts); this gives it the Dojo's Sound button and M key
   const root = document.getElementById(mode); // the Lab fills the screen; start it under the bar (one shared variable, measured, so a taller bar pushes every Lab down)
   if (root) root.style.top = 'var(--labs-nav-h)';
   const fit = () => document.documentElement.style.setProperty('--labs-nav-h', `${nav.offsetHeight}px`);
