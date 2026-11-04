@@ -1,4 +1,4 @@
-import { LAB_LIST, flowOf, labName, labNumberOf, usedIn, usesOf } from './labs-series';
+import { FINALE_USES, LAB_LIST, flowOf, groupOf, labName, labNumberOf, usedIn, usesOf } from './labs-series';
 
 // CC-133: how the Labs hand over to each other. Pipeline Labs show "from" at the top, "uses: Lab N" chips for the Foundation Labs they rely on, and "next" at the end.
 // Foundation Labs show "used in" chips for the pipeline stages that rely on them. Plain links: the browser closes the old Lab by itself.
@@ -17,6 +17,12 @@ const chip = (mode: string, text: string, id?: string): string => `<a class="lab
 /** The two pieces for a Lab (pure: no page needed). `end` is empty for a Foundation Lab. */
 export function flowPieces(mode: string): { top: string; end: string } | null {
   if (!LAB_LIST.some((l) => l.mode === mode)) return null;
+  if (groupOf(mode)?.tier === 'finale') { // the last Lab: from the Lab before it, uses chips for the Labs it sums up, and a button back to the Courses screen
+    const i = LAB_LIST.findIndex((l) => l.mode === mode), prev = LAB_LIST[i - 1]?.mode;
+    const uses = FINALE_USES.filter((m) => LAB_LIST.some((l) => l.mode === m)).map((m) => chip(m, lab(m))).join('');
+    const from = prev ? chip(prev, `from: ${lab(prev)}`, 'lab-flow-from') : '';
+    return { top: `<div class="lab-flow-row" id="lab-flow-top">${from}<span class="lab-flow-label">uses:</span>${uses}</div>`, end: `<div class="lab-flow-next" id="lab-flow-next-box"><span style="color:#52605a;font-size:13px">The last Lab. You built the game; now go and play it.</span><a id="lab-flow-next" data-courses="1" href="/?welcome=0">Back to the game</a></div>` };
+  }
   const f = flowOf(mode);
   if (!f) { // a Foundation Lab: where the pipelines use it
     const used = usedIn(mode);
@@ -40,4 +46,5 @@ export function mountLabFlow(root: HTMLElement, mode: string): void {
   if (!document.getElementById('lab-flow-style')) { const s = document.createElement('style'); s.id = 'lab-flow-style'; s.textContent = STYLE; document.head.appendChild(s); }
   wrap.insertAdjacentHTML('afterbegin', p.top);
   if (p.end) wrap.insertAdjacentHTML('beforeend', p.end);
+  wrap.querySelector<HTMLAnchorElement>('a[data-courses]')?.addEventListener('click', (e) => { const c = document.getElementById('labs-courses'); if (c) { e.preventDefault(); c.click(); } }); // opens the Courses screen
 }

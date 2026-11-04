@@ -897,3 +897,10 @@ Photo dots on the Slicer map (CC-133): no new files; the dots and cones are draw
 | `public/assets/lab/lift/real/<name>-mask.png` (19 files) | The SAM 3 cut-out mask of the photo | 2026-11-04 | SAM 3 on Modal | included above | Same licence as the photo; a black and white mask |
 | `public/assets/lab/lift/real/<name>.json` (19 files) and `index.json` | Real measurements and the manifest | 2026-11-04 | Computed from the real raw lift and the Modal timings | None | Ours |
 | `data/eval/cc-133-real-lifts/evidence-masks.png` | Contact sheet of the 19 masks | 2026-11-04 | Pillow | None | Ours; masks only, no photo pixels |
+
+## System design Lab 17 (ours, 2026-11-04, CC-133)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `public/assets/thumbs/lab-systemdesign.webp` | the Lab 17 card picture in the Courses gallery (640x360) | 2026-11-04 | Cropped from our own screenshot of our own page `?mode=lab-systemdesign&labs=1` at 1280 px | None | Ours; no third-party material |
+| `docs/evidence/cc-133-pipeline-labs/lab-systemdesign.png` | screenshot of Lab 17 (system design) at 1280 px, with the reveal against the real design (evidence only; the game does not use it) | 2026-11-04 | `scripts/lab-systemdesign-check.mjs`, headless browser | None | Ours; no third-party material |
