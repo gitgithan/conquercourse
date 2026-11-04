@@ -7,7 +7,7 @@ import { fixBand } from '../../../slice/fixband';
 import { fixDrone } from '../../../slice/fixdrone';
 import { inRange, knob, type PieceTool, type ToolCtx } from './types';
 
-// The devices on the start deck. Each has a toolbar button, a few number boxes and a place in Fix it.
+// The devices on the start deck. Each has a toolbar button, a few number boxes and a place in the fix search.
 // The numbers live in the piece's source text (`device:kind:a:b:length`), so the boxes are set from the pieces whenever the world changes.
 
 // a trebuchet at the start: the rider is thrown to the lane; the counterweight is the knob (the proof says whether it reaches)
@@ -94,7 +94,7 @@ export const bandTool = (c: ToolCtx): PieceTool => {
       label.style.display = 'none';
       input.onchange = () => { const v = Number(input.value); if (inRange(v, 20, 300)) { ed.bandK = v; changed(); } };
     },
-    // the band: the only thing Fix it can change is its stiffness; it says so and waits for Apply
+    // the band: the only thing the fix search can change is its stiffness; it says so and waits for Apply
     fix({ reply, changed: done }) {
       if (!ed.bandK) return false;
       const bf = fixBand(lane.laneCourse(lane.currentProfile()));

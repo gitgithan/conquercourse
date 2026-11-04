@@ -40,10 +40,10 @@ export interface EditorState {
   // what the start deck carries (read from the pieces by syncDeviceState, set by the knobs)
   bandK: number | null; // an elastic band (its stiffness in N/m)
   trebuchetKg: number | null; // a trebuchet (the counterweight in kg), or a plain deck
-  trebuchetExtra: { short?: number; pin?: number }; // the arm's short end (m) and the pin angle (degrees), when Fix it or advice changed them
+  trebuchetExtra: { short?: number; pin?: number }; // the arm's short end (m) and the pin angle (degrees), when the fix search or advice changed them
   recoilCfg: RecoilCfg | null; // a launcher pad (CC-66)
   droneCfg: DroneCfg | null; // a drone pad (CC-87)
-  // preview before apply (Fix it, the partner's changes and advice all become a Proposal)
+  // preview before apply (the fix search, the partner's changes and advice all become a Proposal)
   proposal: Proposal | null;
   preview: Preview | null;
   previewProfile: ReturnType<typeof sliceProfile> | null;

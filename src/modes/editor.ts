@@ -300,7 +300,7 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   // CC-177: Fit frames every piece (key F): a short smooth move in the 3D view, an instant zoom in the flat plan
   const fitBtn = el('button', top, { text: 'Fit', id: 'fitview', title: 'Bring the camera to your pieces so they all fit on the picture (key F)' });
   fitBtn.onclick = () => fitAll();
-  // CC-243: predesigned courses: one that clears and one that is broken, to try Fix it on
+  // CC-243: predesigned courses: one that clears and one that is broken, to try Make it easier and the design partner on
   const presetPick = el('select', top, { id: 'presetpick', title: 'Open a ready-made course in place of the one on the screen' });
   el('option', presetPick, { text: 'Ready-made courses…', value: '' });
   for (const pr of PRESETS) el('option', presetPick, { text: pr.label, value: pr.id, title: pr.note });
