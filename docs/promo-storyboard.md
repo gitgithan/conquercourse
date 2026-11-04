@@ -165,12 +165,22 @@
 - The Labs may show equations (owner, 2026-10-29).
 - **Music lane:** not decided.
 
-## Scene 8: Close (time not set)
+## Scene 8: Create your own Character (as long as it needs; the generation wait is trimmed)
 
-- Zoom out of the globe and darken
-- The splash screen again, with the website link added
-- The slogan: "Train slow. Run fast."
-- Camera: not set.
+- Overlay: not set.
+- Start from the Training course and click Characters at the top right.
+- Type "ninja warrior" character by character, click Make it.
+- After the generation (trimmed), click Play as.
+- Rotate the camera from the side view to the front view, full body.
+- Add 10 other characters running onto a platform from behind.
+- Then all are raised up from the game and land on a platform, spread out with the ninja warrior in the middle.
+- Final jump shot: left and right alternating; take ideas from `promo-v2.mp4`, do not copy it.
+- **Music lane:** not decided.
+
+## Scene 9: Close
+
+- Overlay: "Play now: https://conquercourse.pages.dev".
+- Close with the logo and the slogan, "Train slow. Run fast."
 - **Music lane:** not decided.
 
 ## Decisions so far
