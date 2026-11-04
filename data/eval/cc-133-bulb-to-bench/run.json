@@ -1,0 +1,403 @@
+{
+  "experiment": "cc-133-bulb-to-bench",
+  "date": "2026-11-04",
+  "course": "public/assets/demo/fork-bench-bulb.course.json",
+  "inputs": {
+    "bulbPlanHangTicks": [
+      56,
+      43,
+      43,
+      43,
+      49,
+      269,
+      0,
+      0
+    ],
+    "climbXs": [
+      9.6
+    ],
+    "benches": [
+      {
+        "x0": 12.5,
+        "x1": 14.9,
+        "top": 0.45
+      },
+      {
+        "x0": 17.1,
+        "x1": 19.5,
+        "top": 0.45
+      },
+      {
+        "x0": 21.7,
+        "x1": 24.1,
+        "top": 0.45
+      }
+    ],
+    "barXs": [
+      10.4,
+      12.4,
+      14.4,
+      16.4,
+      18.4,
+      20.4,
+      22.4,
+      24.4
+    ],
+    "barY": 4.3,
+    "dropHeightM": 3.8499999999999996
+  },
+  "sweep": {
+    "n": "1..8",
+    "releaseTick": "0..320 on bar N, earlier bars at the proved bulb-lane hang times",
+    "rowsWithALanding": 1926,
+    "rowsOnABench": 818
+  },
+  "combos": [
+    {
+      "n": 1,
+      "bench": 1,
+      "t": 51,
+      "landX": 12.52,
+      "landType": "land",
+      "impact": 6.167147448685043,
+      "peakDecel": 31.694756378185364,
+      "landOutcome": "splash",
+      "jumpXs": [
+        13.6,
+        17.9
+      ],
+      "outcome": "cleared",
+      "ticks": 1194,
+      "maxX": 40.05,
+      "releaseMomentsThatLandHere": 49,
+      "tRange": [
+        51,
+        305
+      ]
+    },
+    {
+      "n": 1,
+      "bench": 2,
+      "t": 282,
+      "landX": 17.23,
+      "landType": "land",
+      "impact": 6.413525779545174,
+      "peakDecel": 34.27776077074211,
+      "landOutcome": "splash",
+      "jumpXs": [
+        19.2
+      ],
+      "outcome": "cleared",
+      "ticks": 1211,
+      "maxX": 40.01,
+      "releaseMomentsThatLandHere": 14,
+      "tRange": [
+        282,
+        295
+      ]
+    },
+    {
+      "n": 2,
+      "bench": 1,
+      "t": 0,
+      "landX": 12.86,
+      "landType": "land",
+      "impact": 5.859607495387384,
+      "peakDecel": 28.61250000000001,
+      "landOutcome": "splash",
+      "jumpXs": [
+        13.9,
+        18,
+        24
+      ],
+      "outcome": "cleared",
+      "ticks": 1267,
+      "maxX": 40.02,
+      "releaseMomentsThatLandHere": 124,
+      "tRange": [
+        0,
+        293
+      ]
+    },
+    {
+      "n": 2,
+      "bench": 2,
+      "t": 260,
+      "landX": 17.45,
+      "landType": "land",
+      "impact": 5.883363051386323,
+      "peakDecel": 28.844967328681488,
+      "landOutcome": "splash",
+      "jumpXs": [
+        19.3
+      ],
+      "outcome": "cleared",
+      "ticks": 1229,
+      "maxX": 40.01,
+      "releaseMomentsThatLandHere": 12,
+      "tRange": [
+        260,
+        282
+      ]
+    },
+    {
+      "n": 3,
+      "bench": 1,
+      "t": 145,
+      "landX": 12.98,
+      "landType": "land",
+      "impact": 8.576894278299264,
+      "peakDecel": 30.651298108801104,
+      "landOutcome": "splash",
+      "jumpXs": [
+        14,
+        18,
+        23.9
+      ],
+      "outcome": "cleared",
+      "ticks": 1563,
+      "maxX": 40.02,
+      "releaseMomentsThatLandHere": 80,
+      "tRange": [
+        0,
+        298
+      ]
+    },
+    {
+      "n": 3,
+      "bench": 2,
+      "t": 258,
+      "landX": 19.06,
+      "landType": "land",
+      "impact": 5.860084832221585,
+      "peakDecel": 28.617161867361233,
+      "landOutcome": "splash",
+      "jumpXs": [
+        19.1
+      ],
+      "outcome": "cleared",
+      "ticks": 1271,
+      "maxX": 40,
+      "releaseMomentsThatLandHere": 13,
+      "tRange": [
+        252,
+        286
+      ]
+    },
+    {
+      "n": 3,
+      "bench": 3,
+      "t": 266,
+      "landX": 21.82,
+      "landType": "land",
+      "impact": 6.794552001634352,
+      "peakDecel": 38.471614085761146,
+      "landOutcome": "cleared",
+      "jumpXs": [],
+      "outcome": "cleared",
+      "ticks": 1266,
+      "maxX": 40.03,
+      "releaseMomentsThatLandHere": 10,
+      "tRange": [
+        266,
+        275
+      ]
+    },
+    {
+      "n": 4,
+      "bench": 1,
+      "t": 193,
+      "landX": 13.17,
+      "landType": "land",
+      "impact": 8.75833601466766,
+      "peakDecel": 31.961854060760253,
+      "landOutcome": "splash",
+      "jumpXs": [
+        13.9,
+        18,
+        24
+      ],
+      "outcome": "cleared",
+      "ticks": 1655,
+      "maxX": 40.02,
+      "releaseMomentsThatLandHere": 93,
+      "tRange": [
+        147,
+        315
+      ]
+    },
+    {
+      "n": 4,
+      "bench": 2,
+      "t": 5,
+      "landX": 17.09,
+      "landType": "land",
+      "impact": 5.860649485413087,
+      "peakDecel": 28.622676992393902,
+      "landOutcome": "splash",
+      "jumpXs": [
+        18.4,
+        24
+      ],
+      "outcome": "cleared",
+      "ticks": 1279,
+      "maxX": 40.05,
+      "releaseMomentsThatLandHere": 114,
+      "tRange": [
+        5,
+        290
+      ]
+    },
+    {
+      "n": 4,
+      "bench": 3,
+      "t": 260,
+      "landX": 21.85,
+      "landType": "land",
+      "impact": 5.940435213406646,
+      "peakDecel": 29.407308770568054,
+      "landOutcome": "cleared",
+      "jumpXs": [],
+      "outcome": "cleared",
+      "ticks": 1280,
+      "maxX": 40.07,
+      "releaseMomentsThatLandHere": 15,
+      "tRange": [
+        260,
+        280
+      ]
+    },
+    {
+      "n": 5,
+      "bench": 1,
+      "t": 320,
+      "landX": 14.43,
+      "landType": "land",
+      "impact": 8.805005279424913,
+      "peakDecel": 32.303382487791914,
+      "landOutcome": "splash",
+      "jumpXs": [
+        14.6,
+        18.2,
+        24
+      ],
+      "outcome": "cleared",
+      "ticks": 1892,
+      "maxX": 40.01,
+      "releaseMomentsThatLandHere": 13,
+      "tRange": [
+        308,
+        320
+      ]
+    },
+    {
+      "n": 5,
+      "bench": 2,
+      "t": 0,
+      "landX": 18.88,
+      "landType": "land",
+      "impact": 5.859607495387384,
+      "peakDecel": 28.61250000000001,
+      "landOutcome": "splash",
+      "jumpXs": [
+        19.4,
+        23.9
+      ],
+      "outcome": "cleared",
+      "ticks": 1337,
+      "maxX": 40.01,
+      "releaseMomentsThatLandHere": 91,
+      "tRange": [
+        0,
+        296
+      ]
+    },
+    {
+      "n": 5,
+      "bench": 3,
+      "t": 254,
+      "landX": 21.69,
+      "landType": "land",
+      "impact": 6.087083434203252,
+      "peakDecel": 30.877153945793044,
+      "landOutcome": "cleared",
+      "jumpXs": [],
+      "outcome": "cleared",
+      "ticks": 1317,
+      "maxX": 40.03,
+      "releaseMomentsThatLandHere": 12,
+      "tRange": [
+        254,
+        284
+      ]
+    },
+    {
+      "n": 6,
+      "bench": 2,
+      "t": 136,
+      "landX": 19.47,
+      "landType": "land",
+      "impact": 8.482456346396736,
+      "peakDecel": 29.980027361885945,
+      "landOutcome": "splash",
+      "jumpXs": [],
+      "outcome": "splash",
+      "ticks": 1251,
+      "maxX": 22.5,
+      "releaseMomentsThatLandHere": 92,
+      "tRange": [
+        136,
+        306
+      ]
+    },
+    {
+      "n": 6,
+      "bench": 3,
+      "t": 19,
+      "landX": 21.71,
+      "landType": "land",
+      "impact": 5.893337149370865,
+      "peakDecel": 28.942852296795596,
+      "landOutcome": "splash",
+      "jumpXs": [
+        24
+      ],
+      "outcome": "cleared",
+      "ticks": 1301,
+      "maxX": 40.07,
+      "releaseMomentsThatLandHere": 86,
+      "tRange": [
+        19,
+        289
+      ]
+    }
+  ],
+  "mixedRoute": {
+    "n": 1,
+    "bench": 1,
+    "t": 51,
+    "landX": 12.52,
+    "landType": "land",
+    "impact": 6.167147448685043,
+    "peakDecel": 31.694756378185364,
+    "landOutcome": "splash",
+    "jumpXs": [
+      13.6,
+      17.9
+    ],
+    "outcome": "cleared",
+    "ticks": 1194,
+    "maxX": 40.05,
+    "releaseMomentsThatLandHere": 49,
+    "tRange": [
+      51,
+      305
+    ],
+    "replayCleared": true,
+    "replayTicks": 1194,
+    "laneRead": "bench",
+    "lowestFeetY": 0,
+    "keyRuns": 9,
+    "challengeFile": "out/mixed-route.keys.json"
+  }
+}
