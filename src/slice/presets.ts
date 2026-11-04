@@ -11,7 +11,8 @@ const at = (file: string, x: number, o: Partial<PresetPiece> = {}): PresetPiece 
 // the fork course's photo objects live with the demo course, so the editor reaches them by a path out of its object folder
 const fork = (file: string, x: number, y: number): PresetPiece => ({ src: `obj:../demo/fork-objects/${file}.glb`, x, z: 0, y, yaw: 0, scale: 1, decor: true, stay: true });
 // the fork course's ground, the same decks and bench tops as the saved course (the photo objects above are only what you see)
-const forkDecks = [raw('box:20.3:0.5:1.8', 0.15, -0.5), raw('box:20:0.5:1.8', 36, -0.5)];
+// a shorter start deck (13.5 m, was 20): the runner picks up enough speed on it; 12 m is too short for the simulator (owner, 2026-11-05)
+const forkDecks = [raw('box:13.8:0.5:1.8', 3.40, -0.5), raw('box:20:0.5:1.8', 36, -0.5)];
 // the bulb lane: a climbing pole and the bar row it hands over to (the same numbers as the saved fork course)
 const forkBars = Array.from({ length: 8 }, (_, i) => raw('hold:bar', 10.4 + 2 * i, 4.26));
 const forkBenches = [13.7, 18.3, 22.9].map((x) => raw('box:2.4:0.45:1.8', x, 0));
