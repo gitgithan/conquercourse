@@ -22,11 +22,11 @@ const CSS = `
 #welcome{position:fixed;inset:0;overflow:hidden;font:16px/1.4 system-ui,sans-serif;color:#17201d;background:linear-gradient(#7fb4e6,#cfe6f7 55%,#8fc46c 55%,#6aa84f)}
 #welcome-scene{position:absolute;inset:0}
 #welcome-scene canvas{display:block;width:100%;height:100%}
-#welcome-ui{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding-top:26px;height:100%;box-sizing:border-box;pointer-events:none}
+#welcome-ui{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding-top:18px;height:100%;box-sizing:border-box;pointer-events:none}
 #welcome-ui>*{pointer-events:auto}
-#welcome-logo{width:360px;height:auto;border-radius:18px;box-shadow:0 8px 28px #10182055}
+#welcome-logo{width:320px;height:auto;border-radius:18px;box-shadow:0 8px 28px #10182055}
 #welcome-tag{margin:8px 0 14px;font:800 30px system-ui,sans-serif;color:#fff;text-shadow:0 2px 0 #14181f,0 4px 14px #14181f99;letter-spacing:.5px}
-#welcome-grid{display:grid;grid-template-columns:repeat(2,420px);gap:18px 20px}
+#welcome-grid{display:grid;grid-template-columns:repeat(2,420px);gap:16px 20px}
 .wtile.wide{grid-column:1 / -1;height:84px}
 .wtile.wide img{width:150px;height:78px;border-radius:15px 0 0 15px}
 .wtile.wide .wtext{padding:8px 14px;gap:2px}
@@ -40,7 +40,7 @@ const CSS = `
 .wtext span{font:15px/1.35 system-ui,sans-serif;color:#3b4943}
 .wpop{position:absolute;left:10px;right:10px;top:calc(100% - 4px);margin:0;padding:10px 14px 10px 30px;list-style:disc;background:#fff6d8;border:3px solid #17201d;border-radius:14px;font:600 14px/1.45 system-ui,sans-serif;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .15s ease,transform .15s ease,visibility .15s}
 .wtile:hover .wpop,.wtile:focus-visible .wpop{opacity:1;visibility:visible;transform:none}
-#welcome-hint{margin-top:auto;margin-bottom:18px;padding:8px 22px;border-radius:999px;background:#14181fd9;color:#fff;font:700 18px system-ui,sans-serif;animation:wpulse 1.8s ease-in-out infinite}
+#welcome-hint{margin-top:auto;margin-bottom:14px;padding:8px 22px;border-radius:999px;background:#14181fd9;color:#fff;font:700 18px system-ui,sans-serif;animation:wpulse 1.8s ease-in-out infinite}
 #welcome-crew{position:absolute;z-index:2;top:18px;right:20px;font:800 16px system-ui,sans-serif;color:#17201d;background:#fffdf7;border:3px solid #17201d;border-radius:999px;padding:7px 18px;box-shadow:0 4px 0 #17201d;cursor:pointer}
 #welcome-crew:hover,#welcome-crew:focus-visible{transform:translateY(-2px)}
 @keyframes wpulse{50%{transform:scale(1.05)}}
