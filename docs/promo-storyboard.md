@@ -58,13 +58,28 @@
 - Street photos are Mapillary's, shown live under their terms (no copies).
 - **Music lane:** not decided.
 
-## Scene 2: Create your obstacles (time not set)
+## Scene 2: Create your obstacles (5 s, filmed 2026-11-05)
 
-- Find your image
-- Confirm the segmentations
-- Lift to 3D
-- Camera: not set.
-- Overlay: not set.
+| Part | Length | What the viewer sees | Overlay | Chip (top left) |
+|---|---|---|---|---|
+| 2a | 1 s | Community, Make your own: the photo of the benches, the pole and the light bulbs is chosen and appears | "Upload your image" | none |
+| 2b | 1 s | Segment Objects: SAM 3 outlines the things on the photo; a few are pointed at and picked | "Select of your regions or let SAM 3 decide" | SAM 3 (Meta) |
+| 2c | 3 s | The lifted objects (bench, pole, light bulbs, bench) stand in a row, each on its own turntable, and each turns exactly one full round | "Lift to 3D" | SAM 3D Objects (Meta) |
+
+- Layout rule for every clip with a chip (owner, 2026-11-05):
+  - The overlay text goes at the bottom of the frame (centred, 96 px up from the bottom edge).
+  - The blue Meta chip goes at the top left (28 px in, 24 px down).
+  - They sit in different halves of the picture, so they can never overlap.
+  - The layout is stored in the manifest (`layout`), used by the build step (`scripts/promo-v2-scene2-build.mjs`) and proved by `python3 scripts/promo-v2/layout-check.py`.
+- Photo: demo photo 1 (Jonn Leffmann, Wikimedia Commons, CC BY 3.0), the blurred copy; it holds both the benches and the light bulbs.
+- 2a and 2b are the real app (Community, Make your own).
+  - Only the answer of the finder is stood in: the prepared SAM 3 result of this photo (the seven benches and poles it found), plus the prepared bulb-string cut-out.
+  - Every run is therefore the same, and no paid job runs.
+- 2c is the lift stage (`scripts/promo-v2/lift-stage.html?row=1`), driven by the clock, with the real lifted `.glb` files.
+- Clips are recorded in real time on the stepped clock and retimed afterwards by the game clock; 2a and 2b are sped up.
+- Clip script: `scripts/promo-v2/scene2-community.mjs` (2a, 2b) and `scripts/promo-v2/lift.mjs` with `ROW=1` (2c); the click marker is `scripts/promo-v2/marker.mjs`.
+- Files (not in git): `../conquercourse-assets/promo-v2b/<clip>/` with the raw frames, `marks.json`, `clip.mp4`, `thumb.jpg`; the list is `manifest.json` there.
+- Stills: `docs/evidence/cc-133-promo-scene2/`.
 - **Music lane:** not decided.
 
 ## Scene 3: Build your course (time not set)
