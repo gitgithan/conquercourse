@@ -73,7 +73,7 @@ if (want('tile3')) {
   });
 }
 if (want('tile4')) {
-  await plain('tile4', '?mode=parts&backend=webgl2', Number(process.env.Z4 ?? 0.5), async (p) => {
+  await plain('tile4', '?mode=parts&backend=webgl2', Number(process.env.Z4 ?? 0.6), async (p) => {
     await p.waitForSelector('#pg-tab-course', { timeout: 120000 });
     await p.click('#pg-tab-course');
     await p.waitForTimeout(3000);
