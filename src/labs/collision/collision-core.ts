@@ -96,7 +96,7 @@ const std = (a: number[]) => { if (a.length < 2) return 0; const m = a.reduce((x
 const worst = (places: number[], truth: number[]) => truth.length ? Math.max(...truth.map((t) => Math.min(...places.map((p) => Math.abs(p - t))))) : 0;
 const rowPlaces = (first: number, gap: number, n: number) => Array.from({ length: n }, (_, i) => first + i * gap);
 // The unbroken row is the truth; a broken lift is judged by how far each true rung is from the nearest rung the collider holds.
-export function compareBreak(st: Stages, b: Break): Compare {
+export function compareBreak(st: Pick<Stages, 'profile' | 'measure'>, b: Break): Compare {
   const base = fitRow(st.profile.peakU, st.profile.a1 - st.profile.a0), truth = rowPlaces(base.first, base.gap, base.n);
   const peaks = breakPeaks(st.profile.peakU, b), fit = fitRow(peaks, st.profile.a1 - st.profile.a0);
   const gaps = peaks.slice(1).map((v, i) => r3(v - peaks[i]));

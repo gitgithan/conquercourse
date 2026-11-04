@@ -8,9 +8,12 @@ import type { InputLog } from "../sim/replay";
 import { trackFromPlan } from "../sim/replay";
 import { searchIdealRun } from "../sim/ideal";
 import {
-  BREAKS, DEFAULT_BREAK, DEFAULT_VOXEL, DEMO_COURSE_URL, DEMO_RUN_URL, GAP_MAX, GAP_MIN, GLB_URL, compareBreak, courseFor, gapTable, playKeys, runStages,
-  type Break, type BreakKind, type Compare, type Played, type Side, type Stages,
+  BREAKS, DEFAULT_BREAK, DEFAULT_VOXEL, DEMO_COURSE_URL, DEMO_RUN_URL, GAP_MAX, GAP_MIN, GLB_URL, compareBreak, courseFor, gapTable, playKeys,
+  type Break, type BreakKind, type Compare, type Played, type Side,
 } from "../labs/collision/collision-core";
+import { unpackView, type StagesView } from "../labs/collision/stages-view";
+
+export const CACHE_URL = "/assets/demo/collision-stages.default.json"; // the stages for the default voxel size, recorded by scripts/make-collision-cache.ts
 
 // Collision from a 3D lift (pipeline stage 4 of 8). The player scrubs through the steps the game takes to turn a lifted photo object into a collider, each drawn side-on
 // with its outputs; then breaks the lift and sees the fitted row stay regular. Every number is computed in the page by src/slice/role-collider.ts (the game's own code) on the
@@ -62,6 +65,10 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     #lab-collision button.link{background:none;border:0;color:${TEAL};font:600 14px system-ui;cursor:pointer;padding:0;text-decoration:underline}
     #lab-collision a.back{color:${TEAL};font-weight:600}
     #lab-collision .sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+    #lab-collision .loadbar{display:grid;gap:4px;max-width:420px}#lab-collision .loadbar b{font-size:14px}
+    #lab-collision .loadbar .track{height:10px;border-radius:5px;background:#dde5df;overflow:hidden;position:relative}
+    #lab-collision .loadbar .track i{position:absolute;top:0;bottom:0;width:35%;border-radius:5px;background:${TEAL};animation:lcol-slide 1.1s ease-in-out infinite alternate}
+    @keyframes lcol-slide{from{left:0}to{left:65%}}
     #lab-collision [hidden]{display:none !important}
     #lab-collision .good{color:${TEAL};font-weight:700}#lab-collision .bad{color:${RED};font-weight:700}
   `;
@@ -72,6 +79,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     <h1>Collision from a 3D lift</h1>
     <p class="small" style="margin:2px 0 0"><b>Pipeline stage 4 of 8: Collision from 3D.</b> Before it: baking the lift to a game object. After it: placing the object on a course and proving it with the simulator (the last step here does that for the bars). The same story is in the doc <code>docs/labs/collision.md</code>.</p>
     <p class="small" style="margin:6px 0 0">The goal: see how a noisy 3D lift of a real set of monkey bars becomes four clean numbers the physics can trust. The lift is only the <b>skin</b>. The collider is a <b>fitted row</b>: one spacing, never a copy of the mesh. Scrub through the steps, then break the lift and watch the row.</p></div>
+    <div class="loadbar" id="lcol-load" role="progressbar" aria-label="Lifting the bars"><b>Lifting the bars...</b><div class="track"><i></i></div></div>
     <div class="grid">
       <div style="display:grid;gap:14px">
         <div class="card"><h2>Steps</h2><div class="steps" id="lcol-steps"></div>
@@ -125,13 +133,13 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
   void note;
 
   let mesh: Mesh | null = null, log: InputLog = [], baseline: Played | null = null;
-  let voxel = DEFAULT_VOXEL, step = 6, st: Stages | null = null;
+  let voxel = DEFAULT_VOXEL, step = 6, st: StagesView | null = null;
   let brk: Break = { ...DEFAULT_BREAK };
   let cmp: Compare | null = null, played: Played | null = null, searched: Played | null = null;
   const f = (v: number, d = 3) => v.toFixed(d);
 
   // ---- drawing ----
-  const frame = (s: Stages) => {
+  const frame = (s: StagesView) => {
     const p = s.profile, x0 = p.a0 - 0.3, x1 = p.a1 + 0.3, y0 = p.bottom - 0.15, y1 = p.top + 0.25, sc = Math.min((W - 24) / (x1 - x0), (H - 24) / (y1 - y0));
     return { sc, px: (x: number) => 12 + (x - x0) * sc, py: (y: number) => H - 12 - (y - y0) * sc };
   };
@@ -147,16 +155,17 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
   const label = (g: CanvasRenderingContext2D, t: string, x: number, y: number, c = INK, align: CanvasTextAlign = "left") => { g.fillStyle = c; g.font = "600 13px system-ui"; g.textAlign = align; g.fillText(t, x, y); };
   const dot = (g: CanvasRenderingContext2D, x: number, y: number, r: number, c: string, fill = true) => { g.beginPath(); g.arc(x, y, r, 0, 7); if (fill) { g.fillStyle = c; g.fill(); } else { g.strokeStyle = c; g.lineWidth = 2; g.stroke(); } };
 
-  function drawSide(s: Stages) {
+  function drawSide(s: StagesView) {
     const g = $<HTMLCanvasElement>("lcol-side").getContext("2d")!, fr = frame(s), p = s.profile;
     g.clearRect(0, 0, W, H);
     const bandY = p.top - p.band, inBand = (_x: number, _y: number, yc: number) => yc >= bandY;
     const leg: string[] = [];
     if (step === 1) {
       g.fillStyle = BLUE;
-      const pos = s.scaled.positions, ax = p.axis === "x" ? 0 : 2;
-      for (let i = 0; i < pos.length; i += 3) g.fillRect(fr.px(pos[i + ax]) - 1, fr.py(pos[i + 1]) - 1, 2, 2);
-      leg.push(`<span class="sw" style="background:${BLUE}"></span>${(pos.length / 3).toLocaleString()} mesh points, seen from the side, scaled to 2.2 m tall`);
+      const pos = mesh?.positions ?? [], k = s.scale, ax = p.axis === "x" ? 0 : 2; // the points are scaled here, so the cache holds none
+      for (let i = 0; i < pos.length; i += 3) g.fillRect(fr.px(pos[i + ax] * k) - 1, fr.py(pos[i + 1] * k) - 1, 2, 2);
+      if (!mesh) { g.fillStyle = GREY; g.font = "600 14px system-ui"; g.textAlign = "center"; g.fillText("The mesh points are still arriving...", W / 2, H / 2); }
+      leg.push(`<span class="sw" style="background:${BLUE}"></span>${s.points.toLocaleString()} mesh points, seen from the side, scaled to 2.2 m tall`);
     } else if (step === 2) { cells(g, fr, s.side.raw, BLUE); leg.push(`<span class="sw" style="background:${BLUE}"></span>cells the surface touches (${s.counts.raw.toLocaleString()})`); }
     else if (step === 3) { cells(g, fr, s.side.closed, TEAL); cells(g, fr, s.side.raw, "#0b4f44"); const rawSet = s.side.raw; cells(g, fr, { ...s.side.closed, cells: s.side.closed.cells.map((v, i) => (v && !rawSet.cells[i] ? 1 : 0)) as Uint8Array }, ORANGE); leg.push(`<span class="sw" style="background:#0b4f44"></span>cells from step 2 <span class="sw" style="background:${ORANGE};margin-left:10px"></span>cells closing filled (${s.counts.filled}; a cell counts once per side-on column, so a few hide behind others)`); }
     else if (step === 4) { cells(g, fr, s.side.kept, TEAL); cells(g, fr, { ...s.side.closed, cells: s.side.closed.cells.map((v, i) => (v && !s.side.kept.cells[i] ? 1 : 0)) as Uint8Array }, RED); leg.push(`<span class="sw" style="background:${TEAL}"></span>the biggest piece (${s.counts.kept.toLocaleString()} cells) <span class="sw" style="background:${RED};margin-left:10px"></span>dropped (${s.counts.dropped} cells in ${Math.max(0, s.counts.pieces - 1)} other pieces)`); }
@@ -193,7 +202,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     $("lcol-legend").innerHTML = leg.join(" ");
   }
 
-  function drawChart(s: Stages) {
+  function drawChart(s: StagesView) {
     const c = $<HTMLCanvasElement>("lcol-chart"), g = c.getContext("2d")!, p = s.profile;
     g.clearRect(0, 0, W, CH);
     const pad = 28, base = CH - 26;
@@ -224,7 +233,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     }
   }
 
-  function drawCmp(s: Stages) {
+  function drawCmp(s: StagesView) {
     const g = $<HTMLCanvasElement>("lcol-cmp").getContext("2d")!, p = s.profile;
     g.clearRect(0, 0, W, CH);
     if (!cmp) return;
@@ -253,10 +262,10 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
   }
 
   // ---- the page ----
-  function table(s: Stages) {
+  function table(s: StagesView) {
     const m = s.measure, c = s.counts, p = s.profile, r = cmp!.run;
     const rows: string[] = [
-      `${(s.scaled.positions.length / 3).toLocaleString()} points, scaled by ${f(s.scale, 4)} to 2.2 m tall`,
+      `${s.points.toLocaleString()} points, scaled by ${f(s.scale, 4)} to 2.2 m tall`,
       `${c.raw.toLocaleString()} cells of ${Math.round(s.voxel * 100)} cm`,
       `${c.filled} cells filled, ${c.closed.toLocaleString()} cells`,
       `${c.pieces} piece${c.pieces === 1 ? "" : "s"}, ${c.dropped} cells dropped, ${c.kept.toLocaleString()} kept`,
@@ -270,10 +279,10 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     $("lcol-all").querySelectorAll("tr").forEach((tr) => tr.addEventListener("click", () => { step = Number((tr as HTMLElement).dataset.step); show(); }));
   }
 
-  function facts(s: Stages) {
+  function facts(s: StagesView) {
     const m = s.measure, r = cmp!.run, fit = cmp!.fit, c = s.counts;
     const d: [string, string][] = [];
-    if (step === 1) d.push(["Triangles", String(Math.round((s.scaled.indices?.length ?? 0) / 3)).replace(/\B(?=(\d{3})+$)/g, ",")], ["Scale used", f(s.scale, 4)]);
+    if (step === 1) d.push(["Triangles", String(s.triangles).replace(/\B(?=(\d{3})+$)/g, ",")], ["Scale used", f(s.scale, 4)]);
     if (step === 2 || step === 3 || step === 4) d.push(["Cells voxelised", c.raw.toLocaleString()], ["Cells after closing", c.closed.toLocaleString()], ["Pieces", String(c.pieces)], ["Cells dropped", String(c.dropped)], ["Cells kept", c.kept.toLocaleString()]);
     if (step === 5 || step === 6) d.push(["Axis (the way the row runs)", s.profile.axis], ["Span", `${f(m.span, 2)} m`], ["Slices", String(s.profile.cols)], ["Peaks / kept", `${s.profile.cand.length} / ${s.profile.kept.length}`]);
     if (step === 7) d.push(["Unit gap (median of rounded gaps)", `${f(fit.fitGap)} m`], ["Places on the row", String((fit.n - 1) * fit.stride + 1)], [`Smaller than ${GAP_MIN} m?`, fit.stride > 1 ? `yes: every ${fit.stride}th rung is used` : "no"], [`Bigger than ${GAP_MAX} m?`, fit.gap > GAP_MAX ? "yes, held at the limit" : "no"]);
@@ -314,9 +323,19 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     drawSide(st); drawChart(st); facts(st); table(st); drawCmp(st); verdict(); simSays(); drawSim();
   }
 
+  // The stages for the default voxel size come from the recorded cache; any other size runs in a worker (the page never freezes) and the bar shows meanwhile.
+  let worker: Worker | null = null, jobId = 0;
+  const busy = (on: boolean) => { $("lcol-load").hidden = !on; };
+  function compute(v: number, done: (view: StagesView) => void) {
+    busy(true); const id = ++jobId;
+    const inline = async () => { const [{ readGlbMesh: read }, { runView }] = await Promise.all([import("../slice/glb"), import("../labs/collision/stages-view")]); const m = mesh ?? read(await (await fetch(GLB_URL)).arrayBuffer()); done(runView(m, v)); };
+    try { worker ??= new Worker(new URL("../labs/collision/worker.ts", import.meta.url), { type: "module" }); } catch { void inline(); return; }
+    worker.onmessage = (e: MessageEvent<{ id: number; view?: StagesView; error?: string }>) => { if (e.data.id !== id) return; if (e.data.view) done(e.data.view); else void inline(); };
+    worker.onerror = () => { void inline(); };
+    worker.postMessage({ id, voxel: v });
+  }
   function recompute() {
-    if (!mesh) return;
-    if (!st || st.voxel !== voxel) st = runStages(mesh, { voxel });
+    if (!st || st.voxel !== voxel) { compute(voxel, (view) => { st = view; busy(false); recompute(); }); return; }
     const maxIdx = Math.max(0, st.profile.peakU.length - 3);
     const idx = $<HTMLInputElement>("lcol-idx"); idx.max = String(maxIdx); brk.index = Math.min(brk.index, maxIdx); idx.value = String(brk.index);
     cmp = compareBreak(st, brk);
@@ -324,7 +343,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
     $("lcol-vox-v").textContent = `${Math.round(voxel * 100)} cm`; $("lcol-idx-v").textContent = `${brk.index + 1}`; $("lcol-sig-v").textContent = `${Math.round(brk.sigma * 100)} cm`; $("lcol-seed-v").textContent = String(brk.seed);
     $("lcol-idx-row").hidden = !(["missed", "split", "fused"] as BreakKind[]).includes(brk.kind); $("lcol-sig-row").hidden = brk.kind !== "noise"; $("lcol-seed-row").hidden = brk.kind !== "noise";
     $("lcol-brk-says").textContent = BREAKS.find((b) => b.kind === brk.kind)!.says;
-    show();
+    show(); busy(false);
   }
 
   $("lcol-brk").innerHTML = BREAKS.map((b) => `<option value="${b.kind}">${b.name}</option>`).join("");
@@ -358,9 +377,11 @@ Rung i sits at first + i * gap. If gap < ${GAP_MIN} m use every ceil(${GAP_MIN} 
 
   void (async () => {
     try {
-      const [buf, course, run] = await Promise.all([fetch(GLB_URL).then((r) => r.arrayBuffer()), fetch(DEMO_COURSE_URL).then((r) => r.json()), fetch(DEMO_RUN_URL).then((r) => r.json())]);
-      mesh = readGlbMesh(buf); log = run.log as InputLog; baseline = playKeys(course, log);
-      recompute();
+      const [course, run, cached] = await Promise.all([fetch(DEMO_COURSE_URL).then((r) => r.json()), fetch(DEMO_RUN_URL).then((r) => r.json()), fetch(CACHE_URL).then((r) => (r.ok ? r.json() : null)).catch(() => null)]);
+      log = run.log as InputLog; baseline = playKeys(course, log);
+      if (cached) st = unpackView(cached);
+      recompute(); // from the cache this paints at once; without it the worker runs and the bar shows
+      void fetch(GLB_URL).then((r) => r.arrayBuffer()).then((buf) => { mesh = readGlbMesh(buf); if (step === 1 && st) show(); }); // only step 1 draws the points
       mountSkinCollider(wrap, () => labPopulated("lab-collision"));
     } catch (e) {
       $("lcol-title").textContent = "The lift could not be loaded"; $("lcol-does").textContent = String(e);
