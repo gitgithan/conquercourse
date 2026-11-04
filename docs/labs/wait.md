@@ -4,9 +4,42 @@
 *Before it: Search (how the simulator looks for a clear run) and Generate and test (the proposals it throws out).*
 *Used in: the photo pipeline (the lift and the "prove it" step) and the idea pipeline (the Check step).*
 
+## Reuse or rebuild: the course-switching experiment
+
+- The default experiment is **Switching courses**, with a complete preview already visible.
+- **Search and model startup** opens the original experiment with its existing controls, recordings and live worker measurement.
+- Three choices update the preview immediately: keep the renderer, keep models and motion, and clean up this course.
+- The diagram shows outgoing and incoming courses with stable resource IDs, making reuse visible as identity rather than a smaller number alone.
+- Teal means reused, gold means new, grey means closed and red means left alive; words and IDs carry the same meaning without relying on colour.
+- **Switch course** commits the model transition and animates its stages; replay, pause and the scrubber let the learner inspect what blocks the first frame.
+- The resource chart records completed switches, so repeated switches expose old scenes, controls and workers accumulating when cleanup is off.
+- Turning cleanup on prevents future leftovers; **Reset** clears the earlier ones and starts a fresh comparison without changing the choices.
+- **Rebuild everything** and **Our setting** are comparison presets, not answers that hide the controls.
+- The model uses illustrative work/resource units, not measured milliseconds or memory in MB.
+- The initial course is already loaded, so this experiment teaches subsequent switches rather than cold startup.
+- Recorded real VM results (17–22 s before, 1–11 s after) are labelled separately and retain the slow return from Montmartre.
+- The teaching scene assumes a search is active; the real game only creates search workers when needed.
+- No real worker is leaked and the browser is never deliberately frozen to illustrate the broken choice.
+- Implementation: `src/labs/wait/reuse.ts` owns deterministic resource accounting and `reuse-view.ts` owns the view and animation.
+- The Lab remains in Foundations → Search and learn → Hide the wait, with a link to the System design finale.
+- `?waitreuse=0` restores the original experiment as the only choice.
+
+```mermaid
+flowchart LR
+  A["Change reuse or cleanup choices"] --> B["Preview resource identities and work immediately"]
+  B --> C["Switch course"]
+  C --> D["Keep renderer and assets if selected"]
+  C --> E["Close replaced resources or retain leftovers"]
+  D --> F["Fresh course scene, controls and worker"]
+  E --> F
+  F --> G["Animate work and record resource history"]
+  G --> A
+```
+
 ## When you open it
-- Live: it opens on "Our setting" (four workers, the page keeps drawing, the Modal machines woken when the Make tab opens) on the swing-to-bars course.
-- Every output is filled: the two lanes, the meters, the challenges and the frame strip.
+- The course-switching experiment opens on **Our setting**, with reuse and cleanup enabled.
+- In **Search and model startup**, Our setting uses four workers and early model warm-up on the recorded trap-chain course.
+- Every experiment opens with filled outputs; the original experiment retains its two lanes, meters, challenges and frame strip.
 - A small label says "Showing our setting, already run"; change a knob to try your own.
 - Open it at `?mode=lab-wait&labs=1`.
 
@@ -48,7 +81,8 @@
 ## How we prove the lesson is right
 - `tests/lab-wait.test.ts` pins laws first: work is conserved, no frame is over budget unless one job is, N workers never beat N times, early exit never adds work, the lanes partition the wait, and a warm-up never makes it longer.
 - The recording matches the game: `node --import tsx scripts/lab-wait-record.ts --check` finds drift, and the recorded plan is the game's own.
-- `scripts/lab-wait-check.mjs` opens the page at 1280 px and checks the lanes, the meters, the challenges and the presets.
+- `scripts/lab-wait-check.mjs` opens the page at 1280 px and checks both experiments, instant choices, repeated switches, replay, cleanup, the old lanes, meters and presets.
+- `tests/lab-wait-reuse.test.ts` checks conservation and ownership across every policy, flat memory under cleanup, persistent earlier leftovers and immutable input states.
 
 ## Limits
 - The worker pool and the cache are a model, not the pool code itself; the real pool measured 5 to 14 times, the model gives the same range only for the courses recorded.
@@ -60,3 +94,13 @@
 - Record more courses, and a search with a real worker pool trace.
 - Add a live Modal ping with its cost stated first.
 - Let the lanes replay a real logged Make-tab session.
+
+
+## Design principles
+
+- Put a large visual beside a small set of meaningful choices.
+- Update the picture on input, without a separate Run step for cheap calculations.
+- Show the causal chain and stable identities, not just a score.
+- Open already populated, and offer reset, comparison presets and an inspectable replay.
+- Label teaching models, recorded measurements and live execution distinctly.
+- Explain the real game connection after the experiment, with optional details and equations.

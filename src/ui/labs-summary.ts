@@ -90,8 +90,8 @@ export const LAB_SUMMARY: Record<string, LabSummary> = {
     learn: 'A model will fail some ways; you plan for it with a check, not with hope.',
   },
   'lab-wait': {
-    do: ['Pick a course and a warm-up, and time the real search.', 'Switch the wait tricks on and off and take the challenges.'],
-    learn: 'Slow work feels short when it shows progress, never an empty screen.',
+    do: ['Keep or rebuild resources, switch courses and inspect the work.', 'Compare cleanup, then explore search and model startup.'],
+    learn: 'Reuse removes repeated work; cleanup stops old courses piling up; progress makes remaining work visible.',
   },
 };
 

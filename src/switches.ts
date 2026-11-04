@@ -4,6 +4,7 @@
 export interface Switch { name: string; default: string; doc: string; quiet: boolean }
 
 export const SWITCHES: readonly Switch[] = [
+  { name: 'waitreuse', default: 'on', doc: "0 hides the course-switching experiment in Hide the wait", quiet: false },
   { name: 'analytics', default: 'on', doc: "0 turns the page counters off", quiet: false },
   { name: 'auto', default: 'off', doc: "1 presses the open button by itself when the Slicer lane clears", quiet: false },
   { name: 'autoplay', default: 'off', doc: "1 plays a shared friend's keys on their own (for checks)", quiet: false },
