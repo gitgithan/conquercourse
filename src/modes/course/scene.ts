@@ -61,7 +61,7 @@ export function buildCourseScene(scene: THREE.Scene, course: CourseData, params:
     scene.add(bar, halo);
   }
   // standing poles to climb (course.climbPoles, CC-133, the fork's bulb lane): a pole from the ground up to the top hand hold, with a bright cap so it can be found
-  const poleSkinned = !!course.scene?.some((it) => it.id.startsWith('pole')) && params.get('collider') !== '1'; // a course with its own drawn pole (a scene item, like the bench-and-bulb demo) needs no second one
+  const poleSkinned = !!course.scene?.some((it) => it.id?.startsWith('pole')) && params.get('collider') !== '1'; // a course with its own drawn pole (a scene item, like the bench-and-bulb demo) needs no second one
   for (const p of poleSkinned ? [] : course.climbPoles ?? []) {
     const base = groundAt(course.terrain, p.x);
     const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, p.top, 14), new THREE.MeshStandardMaterial({ color: 0x3b4650, emissive: 0x10161c, metalness: 0.4, roughness: 0.5 }));
