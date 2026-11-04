@@ -20,6 +20,10 @@
 - Earth-only physics; game framing, never robotics framing (inverse kinematics is shown as posing a character).
 
 ## Lab format
+- **Visual first:** put the cause and effect in the main picture, with two or three meaningful controls beside it.
+- **Immediate:** cheap changes redraw their effect on input; a separate Run action is reserved for real work that needs it.
+- **Inspectable:** make animations replayable or scrubbable, with a reset and comparison choices.
+- **Honest evidence:** label teaching models, recorded data and live measurements separately.
 - **Goal:** one question, such as "find a clear run in under 2000 steps".
 - **Choices:** two or three controls (a method, a weight, a threshold).
 - **Run:** the real code, in the browser or a worker, not a mock-up.

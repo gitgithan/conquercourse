@@ -1,3 +1,5 @@
+import { pageQuery } from '../flags';
+import { mountReuseExperiment } from '../labs/wait/reuse-view';
 import { mountLabsNav, labHref } from "../ui/labs-nav";
 import { labName } from "../ui/labs-series";
 import { labsOn } from "../ui/labs";
@@ -63,8 +65,10 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
     <h1>${title}</h1>
-    <p class="small" style="margin:6px 0 0">Slow work cannot be made zero. It can be made smooth, shorter, and never empty. Turn the knobs and watch two lanes: what the computer does, and what the person sees.</p></div>
-    <div class="grid">
+    <p class="small" style="margin:6px 0 0">Choose what to keep, switch courses and watch where the work goes. Explore search and model startup in the other experiment.</p></div>
+    <nav id="lw-experiments" aria-label="Experiment" style="display:flex;gap:8px"><button class="preset" id="lw-show-reuse" aria-pressed="true">Switching courses</button><button class="preset" id="lw-show-search" aria-pressed="false">Search and model startup</button></nav>
+    <div id="lw-reuse-host"></div>
+    <div class="grid" id="lw-original" hidden>
       <div style="display:grid;gap:14px">
         <div class="card"><h2>Start from</h2><div id="lw-presets"></div></div>
         <div class="card"><h2>The simulator search (real jobs)</h2>
@@ -104,6 +108,16 @@ export function startLabWait(host: HTMLElement): { backend: "canvas2d" } {
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
+  const reuseEnabled = pageQuery().get('waitreuse') !== '0';
+  const reuse = reuseEnabled ? mountReuseExperiment($('lw-reuse-host')) : null;
+  function showExperiment(which: 'reuse' | 'search') {
+    reuse?.pause();
+    $('lw-reuse-host').hidden = which !== 'reuse'; $('lw-original').hidden = which !== 'search';
+    $('lw-show-reuse').setAttribute('aria-pressed', String(which === 'reuse')); $('lw-show-search').setAttribute('aria-pressed', String(which === 'search'));
+  }
+  $('lw-show-reuse').onclick = () => showExperiment('reuse'); $('lw-show-search').onclick = () => showExperiment('search');
+  if (!reuseEnabled) { $('lw-show-reuse').hidden = true; showExperiment('search'); }
+
   ($("lw-l-search") as HTMLAnchorElement).href = labHref("lab-search"); $("lw-l-search").textContent = labName("lab-search");
   ($("lw-l-gen") as HTMLAnchorElement).href = labHref("lab-gentest"); $("lw-l-gen").textContent = labName("lab-gentest");
 
