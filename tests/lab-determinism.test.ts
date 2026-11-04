@@ -124,3 +124,24 @@ describe("Lab 19: same run, any machine", () => {
     for (const L of LEVELS) for (const m of L.machines) expect(runMachine(plank, keys, m, true).outcome).toBe("cleared");
   });
 });
+
+// The real machines: data/eval/cc-133-determinism-real replays the game's golden traces on real engines at build time; the Lab shows the recorded file.
+describe("real machines recorded for the Lab", () => {
+  const real = JSON.parse(readFileSync("public/assets/lab/determinism-real.json", "utf8"));
+  it("the harness reproduces tests/golden/sim-trace.json in this Node (so a difference elsewhere is the machine, not the harness)", async () => {
+    const { runAll } = await import("../data/eval/cc-133-determinism-real/engine");
+    const out = runAll(["plank.course.json", "lache.course.json"].map((name) => ({ name, course: load(name) })));
+    for (const [k, v] of Object.entries(out)) expect(v.trace, k).toBe(golden[k]);
+    expect(Object.keys(out)).toEqual(["plan plank.course.json", "mash1 plank.course.json", "plan lache.course.json", "mash1 lache.course.json"]);
+  });
+  it("lists at least Node, Chromium, Firefox and WebKit, with frame counts that never change between machines", () => {
+    const ids = real.machines.map((m: { id: string }) => m.id);
+    for (const id of ["node24", "node22", "chromium", "firefox", "webkit"]) expect(ids).toContain(id);
+    const ref = real.machines.find((m: { id: string }) => m.id === real.reference);
+    expect(ref.same).toBe(ref.runs);
+    for (const m of real.machines) { expect(m.same + m.differing.length).toBe(m.runs); for (const d of m.differing) expect(d.firstFrame).toBeLessThan(d.frames); }
+  });
+  it("a machine that differs in its hashes also differs in some Math function (never an invented difference)", () => {
+    for (const m of real.machines) if (m.differing.length) expect(m.mathDiffers.length, m.id).toBeGreaterThan(0);
+  });
+});

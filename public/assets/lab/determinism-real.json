@@ -1,0 +1,376 @@
+{
+  "recorded": "2026-11-04",
+  "note": "Recorded at build time by data/eval/cc-133-determinism-real; not run in your browser.",
+  "reference": "node24",
+  "courses": [
+    "plan training.course.json",
+    "mash1 training.course.json",
+    "plan lache.course.json",
+    "mash1 lache.course.json",
+    "plan drop.course.json",
+    "mash1 drop.course.json",
+    "plan plank.course.json",
+    "mash1 plank.course.json",
+    "plan plank-two.course.json",
+    "mash1 plank-two.course.json",
+    "plan park-run.course.json",
+    "mash1 park-run.course.json",
+    "plan climb.course.json",
+    "mash1 climb.course.json",
+    "plan launch.course.json",
+    "mash1 launch.course.json",
+    "plan launch-bar.course.json",
+    "mash1 launch-bar.course.json",
+    "plan band.course.json",
+    "mash1 band.course.json",
+    "plan launch-bar-hard.course.json",
+    "mash1 launch-bar-hard.course.json",
+    "plan lache-wide.course.json",
+    "mash1 lache-wide.course.json",
+    "plan recoil.course.json",
+    "mash1 recoil.course.json",
+    "plan cannon.course.json",
+    "mash1 cannon.course.json",
+    "plan cannonballs.course.json",
+    "mash1 cannonballs.course.json",
+    "plan drone.course.json",
+    "mash1 drone.course.json",
+    "plan lane-1.course.json",
+    "mash1 lane-1.course.json",
+    "plan lane-2.course.json",
+    "mash1 lane-2.course.json",
+    "plan park-rail-run.course.json",
+    "mash1 park-rail-run.course.json",
+    "plan bench-and-stairs.course.json",
+    "mash1 bench-and-stairs.course.json",
+    "plan skate-box-and-rail.course.json",
+    "mash1 skate-box-and-rail.course.json",
+    "plan bars-lift.course.json",
+    "mash1 bars-lift.course.json",
+    "plan fork-bench-bulb.course.json",
+    "mash1 fork-bench-bulb.course.json",
+    "plan eixample-barcelona.course.json",
+    "mash1 eixample-barcelona.course.json",
+    "plan montmartre-paris.course.json",
+    "mash1 montmartre-paris.course.json",
+    "plan circular-quay-sydney.course.json",
+    "mash1 circular-quay-sydney.course.json",
+    "plan san-francisco-lombard.course.json",
+    "mash1 san-francisco-lombard.course.json"
+  ],
+  "machines": [
+    {
+      "id": "laptop-node24",
+      "engine": "node v24.20.0 (V8 13.6.233 build 17-node.53)",
+      "arch": "x64",
+      "cpu": null,
+      "where": "Laptop (WSL2 on x86-64)",
+      "runs": 54,
+      "same": 54,
+      "mathDiffers": [],
+      "differing": []
+    },
+    {
+      "id": "node24",
+      "engine": "node v24.20.0 (V8 13.6.233 build 17-node.53)",
+      "arch": "x64",
+      "cpu": "unknown",
+      "where": "Modal CPU container",
+      "runs": 54,
+      "same": 54,
+      "mathDiffers": [],
+      "differing": []
+    },
+    {
+      "id": "node22",
+      "engine": "node v22.23.0 (V8 12.4.254 build 21-node.56)",
+      "arch": "x64",
+      "cpu": "unknown",
+      "where": "Modal CPU container",
+      "runs": 54,
+      "same": 54,
+      "mathDiffers": [
+        "pow"
+      ],
+      "differing": []
+    },
+    {
+      "id": "chromium",
+      "engine": "chromium 156.0.8078 build 4",
+      "arch": "x64",
+      "cpu": "unknown",
+      "where": "Modal CPU container",
+      "runs": 54,
+      "same": 40,
+      "mathDiffers": [
+        "sin",
+        "cos",
+        "tan",
+        "exp",
+        "log",
+        "atan",
+        "atan2",
+        "asin",
+        "acos",
+        "tanh",
+        "cbrt"
+      ],
+      "differing": [
+        {
+          "run": "plan training.course.json",
+          "firstFrame": 1037,
+          "frames": 4082
+        },
+        {
+          "run": "plan lache.course.json",
+          "firstFrame": 690,
+          "frames": 1123
+        },
+        {
+          "run": "plan launch.course.json",
+          "firstFrame": 16,
+          "frames": 470
+        },
+        {
+          "run": "mash1 launch.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar.course.json",
+          "firstFrame": 16,
+          "frames": 806
+        },
+        {
+          "run": "mash1 launch-bar.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar-hard.course.json",
+          "firstFrame": 16,
+          "frames": 676
+        },
+        {
+          "run": "mash1 launch-bar-hard.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan lache-wide.course.json",
+          "firstFrame": 690,
+          "frames": 1746
+        },
+        {
+          "run": "plan cannonballs.course.json",
+          "firstFrame": 1085,
+          "frames": 2402
+        },
+        {
+          "run": "plan drone.course.json",
+          "firstFrame": 144,
+          "frames": 1045
+        },
+        {
+          "run": "mash1 drone.course.json",
+          "firstFrame": 328,
+          "frames": 884
+        },
+        {
+          "run": "plan bars-lift.course.json",
+          "firstFrame": 260,
+          "frames": 915
+        },
+        {
+          "run": "mash1 bars-lift.course.json",
+          "firstFrame": 463,
+          "frames": 1574
+        }
+      ]
+    },
+    {
+      "id": "firefox",
+      "engine": "firefox 157.0",
+      "arch": "x64",
+      "cpu": "unknown",
+      "where": "Modal CPU container",
+      "runs": 54,
+      "same": 40,
+      "mathDiffers": [
+        "sin",
+        "cos",
+        "log",
+        "asin",
+        "acos",
+        "hypot"
+      ],
+      "differing": [
+        {
+          "run": "plan training.course.json",
+          "firstFrame": 1037,
+          "frames": 4082
+        },
+        {
+          "run": "plan lache.course.json",
+          "firstFrame": 739,
+          "frames": 1123
+        },
+        {
+          "run": "plan launch.course.json",
+          "firstFrame": 14,
+          "frames": 470
+        },
+        {
+          "run": "mash1 launch.course.json",
+          "firstFrame": 13,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar.course.json",
+          "firstFrame": 14,
+          "frames": 806
+        },
+        {
+          "run": "mash1 launch-bar.course.json",
+          "firstFrame": 13,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar-hard.course.json",
+          "firstFrame": 14,
+          "frames": 676
+        },
+        {
+          "run": "mash1 launch-bar-hard.course.json",
+          "firstFrame": 13,
+          "frames": 280
+        },
+        {
+          "run": "plan lache-wide.course.json",
+          "firstFrame": 739,
+          "frames": 1746
+        },
+        {
+          "run": "plan cannonballs.course.json",
+          "firstFrame": 1085,
+          "frames": 2402
+        },
+        {
+          "run": "plan drone.course.json",
+          "firstFrame": 838,
+          "frames": 1045
+        },
+        {
+          "run": "mash1 drone.course.json",
+          "firstFrame": 368,
+          "frames": 884
+        },
+        {
+          "run": "plan bars-lift.course.json",
+          "firstFrame": 480,
+          "frames": 915
+        },
+        {
+          "run": "mash1 bars-lift.course.json",
+          "firstFrame": 507,
+          "frames": 1574
+        }
+      ]
+    },
+    {
+      "id": "webkit",
+      "engine": "webkit 27.2",
+      "arch": "x64",
+      "cpu": "unknown",
+      "where": "Modal CPU container",
+      "runs": 54,
+      "same": 40,
+      "mathDiffers": [
+        "sin",
+        "cos",
+        "tan",
+        "exp",
+        "log",
+        "atan",
+        "atan2",
+        "asin",
+        "acos",
+        "hypot",
+        "tanh",
+        "cbrt"
+      ],
+      "differing": [
+        {
+          "run": "plan training.course.json",
+          "firstFrame": 1037,
+          "frames": 4082
+        },
+        {
+          "run": "plan lache.course.json",
+          "firstFrame": 690,
+          "frames": 1123
+        },
+        {
+          "run": "plan launch.course.json",
+          "firstFrame": 16,
+          "frames": 470
+        },
+        {
+          "run": "mash1 launch.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar.course.json",
+          "firstFrame": 16,
+          "frames": 806
+        },
+        {
+          "run": "mash1 launch-bar.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan launch-bar-hard.course.json",
+          "firstFrame": 16,
+          "frames": 676
+        },
+        {
+          "run": "mash1 launch-bar-hard.course.json",
+          "firstFrame": 15,
+          "frames": 280
+        },
+        {
+          "run": "plan lache-wide.course.json",
+          "firstFrame": 690,
+          "frames": 1746
+        },
+        {
+          "run": "plan cannonballs.course.json",
+          "firstFrame": 1085,
+          "frames": 2402
+        },
+        {
+          "run": "plan drone.course.json",
+          "firstFrame": 144,
+          "frames": 1045
+        },
+        {
+          "run": "mash1 drone.course.json",
+          "firstFrame": 328,
+          "frames": 884
+        },
+        {
+          "run": "plan bars-lift.course.json",
+          "firstFrame": 260,
+          "frames": 915
+        },
+        {
+          "run": "mash1 bars-lift.course.json",
+          "firstFrame": 463,
+          "frames": 1574
+        }
+      ]
+    }
+  ]
+}

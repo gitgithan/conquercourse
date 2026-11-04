@@ -65,7 +65,10 @@
   - A strip of one colour per frame hash, because equal hashes then look equal and the first different one is a visible jump.
   - A red or green third strip, with red cells taller than green ones, so the first mismatch does not rely on colour alone.
   - A log-scale meter of how far apart the real numbers are, so the player sees a difference of 1e-13 that never changes the outcome next to hashes that all differ.
-  - Machines are simulated habits because we cannot run on a real GPU or Safari here; each habit is one that real machines have (see the lesson).
+  - Machines are simulated habits (code that mimics a fused multiply-add, another sum order, a late clock); each habit is one that real machines have (see the lesson).
+- Real machines are added next to them: the game's own golden-trace test (`tests/sim-trace.test.ts` logic) was run at build time on Node 24, Node 22, Chromium, Firefox and WebKit on Modal CPU containers (x86-64), and the Lab shows the recorded result.
+  - The harness is `data/eval/cc-133-determinism-real/` (README, `run.json`, scripts); the Lab reads `public/assets/lab/determinism-real.json`.
+  - The challenge always runs on the Plank bridge, so every level has an answer (the Lab tries every pin set to prove it); the swing difference has its own card, "A real difference we found".
 - **Which real game code runs:** the simulator, `playPlan`, the stored traces; the machines only nudge its output.
 - **Which data is precomputed:** none.
 - **Order of the screen and why:** the three habits first, then two machines with pins, then the challenge, then the stored traces, then the maths.
@@ -90,7 +93,11 @@
 - A late clock of 0.4 % does not change the plank run's result but changes every frame hash from the first key it misreads; on Drop the late machine does not finish.
 
 ## Limits
-- The machines are models of habits, not real hardware: no real GPU, Firefox or Safari was run (the lesson lists what was run: Node 22, Node 24, local `workerd`).
+- The simulated machines are models of habits, not real hardware.
+- The real machines are recorded, not live: Node 24, Node 22, Chromium 156, Firefox 157 and WebKit 27.2 on Modal x86-64 containers, plus the laptop Node 24.
+  - No ARM machine and no real GPU was available (Modal has no ARM CPUs; no Apple machine was reachable), so ARM is untested.
+  - WebKit here is Playwright's Linux build of JavaScriptCore, not Safari on a Mac.
+  - The container hides the CPU model, so the CPU column says only x86-64.
 - The browser itself is a real machine: the "this browser" column of stored traces is its own result, and a mismatch there is a real finding.
   - Found on 2026-11-04 in Chromium 1248 (software GL) on the Vultr VM: the plank and drop traces are the same as Node's, the swing (lache) trace has the same 1123 frames and a different hash, so a sin or cos is rounded another way in that engine.
   - The page says so in words under the table when it happens.
