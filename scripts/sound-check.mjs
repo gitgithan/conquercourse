@@ -18,9 +18,9 @@ try {
   }
   const sounds = (await page.evaluate(() => document.documentElement.dataset.sounds ?? '')).split(',').filter(Boolean);
   const count = {}; for (const s of sounds) count[s] = (count[s] ?? 0) + 1;
-  const button = await page.textContent('#soundbutton');
+  const button = await page.getAttribute('#soundbutton', 'aria-label');
   await page.keyboard.press('KeyM');
-  const afterM = await page.textContent('#soundbutton');
+  const afterM = await page.getAttribute('#soundbutton', 'aria-label');
   console.log({ outcome: await page.evaluate(() => document.documentElement.dataset.outcome), count, button, afterM, errors });
   await browser.close();
 } finally { server.kill(); }
