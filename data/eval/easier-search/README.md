@@ -13,6 +13,8 @@
 - Eight fixed, small edits move the leading edge of the last platform closer, from 0.05 m to 0.40 m.
 - All methods evaluate exactly these same eight courses in the same logical order, regardless of when workers finish.
 - This is a candidate-throughput comparison, not a time-to-first-improvement benchmark of the whole editor feature.
+- The benchmark keeps candidate workers busy from a shared queue; the editor waits for each two-candidate wave before choosing in cost order.
+- The reported batch times therefore do not include the editor’s wave idle time or early-stopping behavior.
 - Three repeats rotate method order to reduce warm-up/order bias.
 - Worker creation and first search are included; compilation is performed once per process.
 - A single bundled worker controls for differences between the TypeScript development runtime and bundled code.
@@ -49,7 +51,8 @@
 - The common prefix stops before the earliest threshold can change any input.
 - The prototype clones the complete world, controller state, event history and loop bookkeeping.
 - Full final worlds, events, maximum distance and jump counts matched ordinary replay exactly on all cases and repeats.
-- On bars the shared prefix is short and cloning overhead outweighed the saved simulation ticks in the median sample.
+- On bars the shared prefix is short and the prefix method was slower in the median sample.
+- State-copy overhead is a likely explanation, but copying was not profiled separately and background load can also affect these small timings.
 - Saving simulated work is useful evidence, but is not sufficient evidence of lower wall time.
 - This prototype is not wired into the production evaluator.
 - Reusing prefixes across edited geometry still needs dependency/invalidation rules and tests for every affected obstacle/device family.
