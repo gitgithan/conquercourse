@@ -36,7 +36,7 @@ try {
   check('Lab 8 panel woven into the gate step (slider and gate table)', (await page.locator('#mo-w8-body #sg-s').count()) === 1 && (await page.locator('#mo-w8-body #sg-gate tr').count()) > 5);
   await page.fill('#mo-w8-body #sg-s', '4'); await page.dispatchEvent('#mo-w8-body #sg-s', 'input');
   check('smoothing slider reruns the panel', (await page.textContent('#mo-w8-body #sg-s-v')).length > 0);
-  await page.click('#mo-w3 summary');
+  // the reach panel is open beside the step 5 view from the start
   await page.waitForSelector('#mo-w3-body #ik-solver button', { timeout: 30000 });
   check('Lab 3 panel woven into the retarget step (solver buttons)', (await page.locator('#mo-w3-body #ik-solver button').count()) >= 2);
   await page.screenshot({ path: 'test-results/lab-motion/lab-motion-woven.png', fullPage: true });

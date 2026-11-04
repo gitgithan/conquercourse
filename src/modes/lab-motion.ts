@@ -49,7 +49,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     #lab-motion .eq{font:13px/1.5 ui-monospace,Menlo,monospace;background:#f1f4f1;border-radius:8px;padding:8px 10px;white-space:pre-wrap}
     #lab-motion a{color:${TEAL};font-weight:600}
     #lab-motion .pill{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700}
-    #lab-motion #mo-view{width:100%;height:460px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
+    #lab-motion #mo-view{width:100%;height:340px;border-radius:6px;overflow:hidden;position:relative;background:#9fc5e8}
     #lab-motion #mo-held{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:16px;background:rgba(245,247,244,.94);font-weight:700;color:${BAD}}
     #lab-motion input[type=range]{width:100%}`;
   root.append(style);
@@ -90,18 +90,20 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     <div class="stack">
       <div class="card" id="s5"><h2>Step 5. Retarget to the standard skeleton, then play on the character</h2>
         <p class="small" style="margin:0 0 6px">Legs are scaled to match, bones turned to the joints. A failed clip never plays.</p>
-        <div id="mo-view"><div id="mo-held"></div></div>
-        <div id="mo-s5" class="small" style="margin-top:6px"></div>
-        <details id="mo-w3" style="margin-top:10px"><summary><b>Try the reach yourself</b> (the panel of Lab 3, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div>
+        <div class="two s5grid">
+          <div><div id="mo-view"><div id="mo-held"></div></div>
+            <div id="mo-s5" class="small" style="margin-top:6px"></div></div>
+          <details id="mo-w3" open><summary><b>Try the reach yourself</b> (the panel of Lab 3, same code)</summary><div id="mo-w3-body" style="margin-top:8px"></div></details></div></div>
       <div class="card" id="s6"><h2>Step 6. The one clock</h2>
         <p class="small" style="margin:0 0 6px">The pose comes from the tick count (${TICKS_PER_SECOND} a second), never a timer.</p>
-        <label class="small">Simulator tick: <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
-        <div id="mo-s6" style="margin-top:6px"></div>
-        <h2 style="margin-top:12px">Which move uses which clip</h2><div id="mo-table"></div></div>
+        <div class="two s6grid">
+          <div><label class="small">Simulator tick: <b id="mo-tick-v"></b><input id="mo-tick" type="range" min="0" max="100" step="1"></label>
+            <div id="mo-s6" style="margin-top:6px"></div></div>
+          <div><h2 style="margin:0 0 4px">Which move uses which clip</h2><div id="mo-table"></div></div></div></div>
     </div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   // the shared panels of Lab 8 and Lab 3 mount the first time their box is opened (no second 3D view is made: step 5 plays the Rookie)
-  const lazy = (id: string, mount: (host: HTMLElement) => unknown) => { const d = wrap.querySelector<HTMLDetailsElement>("#" + id)!; let done = false; d.addEventListener("toggle", () => { if (d.open && !done) { done = true; mount(d.querySelector<HTMLElement>("div")!); } }); return d; };
+  const lazy = (id: string, mount: (host: HTMLElement) => unknown) => { const d = wrap.querySelector<HTMLDetailsElement>("#" + id)!; let done = false; const go = () => { if (d.open && !done) { done = true; mount(d.querySelector<HTMLElement>("div")!); } }; d.addEventListener("toggle", go); go(); return d; };
   const w8 = lazy("mo-w8", (h) => void mountSignalPanel(h, { rookie: false, markPage: false }).start());
   lazy("mo-w3", (h) => void mountIkPanel(h));
   $("mo-open-w8").addEventListener("click", () => { w8.open = true; w8.scrollIntoView({ block: "start" }); });
