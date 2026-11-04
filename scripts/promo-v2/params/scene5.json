@@ -1,0 +1,33 @@
+{
+  "cannon": {
+    "url": "/?course=/assets/demo/cannonballs.course.json&bot=ideal&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+    "cam": "first",
+    "skip": 1.9,
+    "rate": 1
+  },
+  "coaster": {
+    "url": "/?course=/assets/demo/coaster-sharp.course.json&bot=ideal&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+    "cam": "side",
+    "skip": 0,
+    "rate": 1
+  },
+  "drone": {
+    "url": "/?course=/assets/demo/drone.course.json&bot=ideal&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+    "cam": "side",
+    "skip": 0,
+    "rate": 1
+  },
+  "pole": {
+    "url": "/?course=/assets/experiments/pole/pole.course.json&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+    "cam": "side",
+    "skip": 0,
+    "rate": 1,
+    "untilX": 33.5
+  },
+  "trebuchet": {
+    "url": "/?course=/assets/demo/launch.course.json&bot=ideal&welcome=0&nosave=1&backend=webgl2&sunat=noon",
+    "cam": "side",
+    "skip": 0.3,
+    "rate": 1
+  }
+}
