@@ -1,4 +1,5 @@
 import { hudOn, keycapCss, panelCss } from '../../ui/hud-style';
+import { toastBand } from '../../ui/toast-band';
 import type { createHud } from './hud';
 
 // The top-left row and the buttons round the picture are put on the page (the pieces themselves are made in hud.ts).
@@ -23,6 +24,7 @@ export function mountChrome(d: { params: URLSearchParams; hud: ReturnType<typeof
   narrow.textContent = '@media (max-width:700px){#hudrow>div{font-size:14px!important}#pickrunner,#coursebtns,#debugbtn,#idealbtn,#community{display:none!important}#dojobtn{top:52px!important;right:12px!important;font-size:13px!important;padding:5px 10px!important}#ghost-hud{left:12px!important;top:52px!important;transform:none!important}#cam{top:92px!important;right:12px!important}#strip{top:160px!important}#keys{top:225px!important}}';
   document.head.append(narrow);
   const hudBox = hudOn(params) ? hudRow : d.hud.hud;
-  document.body.append(hudBox, d.hud.msg, d.hud.help, d.hud.panel, d.hud.hint, d.hud.gaugeStack.el, d.hud.dojoBtn, d.hud.idealBtn, d.hud.rowBtns, d.pick, d.camButton, dbgBtn);
+  toastBand().append(d.hud.hint); // CC-133: the hint lives in the sky band with the other short messages, never over the runner
+  document.body.append(hudBox, d.hud.msg, d.hud.help, d.hud.panel, d.hud.gaugeStack.el, d.hud.dojoBtn, d.hud.idealBtn, d.hud.rowBtns, d.pick, d.camButton, dbgBtn);
   return { dbgBtn };
 }

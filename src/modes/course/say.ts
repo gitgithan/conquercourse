@@ -1,12 +1,13 @@
 import { mountToasts } from '../../ui/toast-stack';
+import { toastBand } from '../../ui/toast-band';
 import type { CourseState } from './state';
 
 // The short messages on the screen: one stack (new ones below, old ones leave upward), or with ?toasts=old the single centred toast (CC-197).
 export function createSay(params: URLSearchParams, st: CourseState) {
   const toastsOld = params.get('toasts') === 'old';
   const toast = document.createElement('div');
-  toast.style.cssText = 'position:fixed;left:50%;top:44%;transform:translateX(-50%);font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
-  document.body.append(toast);
+  toast.style.cssText = 'order:1;font:700 22px system-ui,sans-serif;color:#10141c;background:#fffffff0;border-radius:10px;padding:6px 14px;pointer-events:none;display:none';
+  toastBand().append(toast);
   const toasts = mountToasts();
   let toastUntil = 0;
   const say = (text: string, ticks: number) => { if (toastsOld) { toast.textContent = text; toast.style.display = 'block'; toastUntil = st.world.runner.tick + ticks; } else toasts.show(text, ticks, st.world.runner.tick); };
