@@ -63,7 +63,7 @@ export function startLabLift(host: HTMLElement): { backend: "canvas2d" } {
       </div>
       <div style="display:grid;gap:14px;min-width:0">
         <div class="pics">
-          <div class="card"><p class="cap">Raw lift, as it arrives (z is up)</p><canvas id="ll-raw" width="340" height="300"></canvas></div>
+          <div class="card"><p class="cap">Raw lift, as it arrives (z is up, seen from a little above)</p><canvas id="ll-raw" width="340" height="300"></canvas></div>
           <div class="card"><p class="cap">After the bake: side camera</p><canvas id="ll-side" width="340" height="300"></canvas></div>
           <div class="card"><p class="cap">After the bake: from above</p><canvas id="ll-top" width="340" height="300"></canvas></div>
         </div>
@@ -151,7 +151,10 @@ bar length = typed height x (length / height of the lift)     (monkey bars: 2.4 
     $("ll-yaw-v").textContent = `${yawExtra} degrees`;
     const r = bake(raw, { label: o.label, typedHeight: typed, steps: state.steps });
     $("ll-h-v").textContent = `${Number(hRange.value).toFixed(2)} m`;
-    draw($<HTMLCanvasElement>("ll-raw"), raw.mesh, 0, 2, 1, false, null, state.steps.colour, false);
+    // seen from a little above (30 degrees) so a turn about the vertical shows up; z stays up on the page
+    const tilt = Math.PI / 6, vp: number[] = [], view: Mesh = { positions: vp, indices: raw.mesh.indices };
+    for (let i = 0; i < raw.mesh.positions.length; i += 3) { const x = raw.mesh.positions[i], y = raw.mesh.positions[i + 1], z = raw.mesh.positions[i + 2]; vp.push(x, z * Math.cos(tilt) + y * Math.sin(tilt), y * Math.cos(tilt) - z * Math.sin(tilt)); }
+    draw($<HTMLCanvasElement>("ll-raw"), view, 0, 1, 2, true, null, state.steps.colour, false);
     const WIN = { cx: 0, cy: 1.4, span: 7 };
     draw($<HTMLCanvasElement>("ll-side"), r.mesh, 0, 1, 2, false, WIN, state.steps.colour, true);
     draw($<HTMLCanvasElement>("ll-top"), r.mesh, 0, 2, 1, false, { cx: 0, cy: 0, span: 7 }, state.steps.colour, false);

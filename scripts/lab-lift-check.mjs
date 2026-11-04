@@ -26,6 +26,13 @@ try {
   await page.waitForFunction(() => document.documentElement.dataset.labDone === '1', null, { timeout: 60000 });
   const facts = () => page.textContent('#ll-facts');
   check('opens already run', (await facts()).includes('0.80 m'), await facts());
+  check('opens on a real raw lift', (await page.textContent('#ll-facts')).includes('the real raw lift') && (await page.textContent('#ll-obj')).includes('p1-bench-left'));
+  await page.fill('#ll-yaw', '50'); await page.dispatchEvent('#ll-yaw', 'input');
+  check('turn slider keeps the baked size (face step on)', (await facts()).includes('0.80 m') && (await facts()).includes('Turned by you50 degrees'), await facts());
+  await page.screenshot({ path: 'test-results/lab-lift/real-raw-turned.png', fullPage: true });
+  await page.fill('#ll-yaw', '0'); await page.dispatchEvent('#ll-yaw', 'input');
+  await page.selectOption('#ll-obj', 'bench-concrete');
+  await page.waitForFunction(() => document.querySelector('#ll-cut img') !== null, null, { timeout: 30000 });
   check('says all steps on', (await page.textContent('#ll-break')).includes('All seven steps are on'));
   check('cut-out picture', (await page.$('#ll-cut img')) !== null);
   check('maths hidden', await page.$eval('#ll-eq-body', (e) => e.hidden));
