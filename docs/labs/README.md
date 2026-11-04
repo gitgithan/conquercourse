@@ -46,6 +46,7 @@
 | 7 | Keys | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
 | 6 | Replay | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
 | 11 | Hash | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
+| 19 | Hash | [Same run, any machine](determinism.md) | Why does the same run differ on another machine, and what is the fewest pins that make every frame agree? | `?mode=lab-determinism&labs=1` | `tests/lab-determinism.test.ts` (17) | The machines are models of habits, not real hardware; the swing trace really differs in one browser engine |
 
 ### Finale
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
