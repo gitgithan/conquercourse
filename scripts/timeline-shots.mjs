@@ -15,7 +15,8 @@ try {
   const browser = await chromium.launch({ args: ['--enable-unsafe-webgpu', '--enable-features=Vulkan', '--use-vulkan=swiftshader', '--use-angle=swiftshader', '--disable-vulkan-surface', '--ignore-gpu-blocklist'] });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   const models = (n) => page.waitForFunction((n) => { const w = window.CCWalk; return w && w.pip && w.juno && w.crew.filter(Boolean).length >= n; }, n, { timeout: 240000 }); // the 3D walkers have loaded
-  const shot = async (name) => { await page.screenshot({ path: `${out}/${name}.png` }); };
+  page.setDefaultTimeout(180000);
+  const shot = async (name) => { await page.screenshot({ path: `${out}/${name}.png`, timeout: 180000 }); };
   await page.goto(url('')); await models(0); await page.waitForTimeout(800);
   await shot('1-start');
   await page.goto(url('?at=0.06')); await models(0); await page.waitForTimeout(500);
