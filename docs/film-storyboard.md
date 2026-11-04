@@ -143,13 +143,13 @@
   - No formula shows before the last earned step
 - Risk and fallback: Slider moves must be scripted, not hand-held, so the clip is repeatable.
 
-### 10. Lab 3: Posing a character (64.8 s, 4.8 s, 2 bars)
+### 10. Posing a character: Posing a character (64.8 s, 4.8 s, 2 bars)
 - Overlay: Mastery in the Labs / University level
-- What happens: Open Lab 3.
+- What happens: Open Posing a character.
   - Move a hand toward a bar and watch the arm bend; move a few limbs.
   - A small tag says the Labs are university level.
 - Camera: Fixed full-page frame.
-- Source: Lab 3 (real); equations are allowed in the Labs.
+- Source: Posing a character (real); equations are allowed in the Labs.
 - Status: Real
 - Music: Same sparse piano with a slow low pad.
 - Visual checkpoints:

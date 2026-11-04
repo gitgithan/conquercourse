@@ -6,7 +6,7 @@ import { ik2 } from "../src/motion/compose";
 import { legLength } from "../src/motion/timeline";
 import { DEFAULT_CHOICES, ELBOW_MAX, MATCH, basePose, breakingPoint, forward, makeBody, maxReach, minReach, neckFacts, poseFor, solveArm, solveDls, solveTwoBone, type Body, type Choices } from "../src/labs/ik/ik-core";
 
-// Lab 3 (posing a character): the arm bend, the elbow flip, the reach limit. The two-bone solver and the neck rule are the game's own functions.
+// posing a character: the arm bend, the elbow flip, the reach limit. The two-bone solver and the neck rule are the game's own functions.
 const clip = (n: string) => parseClip(JSON.parse(readFileSync(`public/assets/motion/${n}.json`, "utf8")));
 // The Rookie's bones from the model file's node tree (no textures needed), world positions in clip order.
 async function body(): Promise<Body> {
@@ -30,7 +30,7 @@ async function body(): Promise<Body> {
 }
 const C = (o: Partial<Choices> = {}): Choices => ({ ...DEFAULT_CHOICES, ...o });
 
-describe("Lab 3: inverse kinematics", () => {
+describe("Posing a character: inverse kinematics", () => {
   it("builds a Rookie that stands on the floor with sensible arm and leg sizes", async () => {
     const b = await body();
     expect(Math.min(...b.stand.map((p) => p.y))).toBeCloseTo(0, 6);

@@ -1,4 +1,4 @@
-# Lab 4: Computer vision
+# Computer vision
 
 ## When you open it
 - Live: it opens on the mask threshold the game uses; the photo table and the kept-versus-missed numbers are already filled.

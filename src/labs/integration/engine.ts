@@ -1,7 +1,7 @@
 import { DEFAULT_CART, makeRails, type CartParams, type Rails } from "../../sim/cart";
 import { GRAVITY } from "../../sim/units";
 
-// Lab 6: Numerical integration. The cart's equations are the game's own (src/sim/cart.ts: same acceleration, same rails);
+// Numerical integration. The cart's equations are the game's own (src/sim/cart.ts: same acceleration, same rails);
 // only the stepping rule and the step size are the player's choice. At the game's setting (RK4, 1/120 s) this code gives the game's numbers bit for bit (tested).
 
 export type Method = "euler" | "semi" | "rk4";

@@ -3,7 +3,7 @@ import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { KNOBS, OURS, judgePhoto, parseTable, summarize, sweep, type Knob, type Photo, type Rule, type Summary } from "../labs/vision/rule";
 
-// Lab 4: Computer vision (CC-lab-vision). The player moves the thresholds of the photo-masking rule on a labelled street-photo set
+// Computer vision (CC-lab-vision). The player moves the thresholds of the photo-masking rule on a labelled street-photo set
 // and reads photos kept against people missed. The rule is the real one (src/labs/vision/rule.ts); the detector's scores were computed offline.
 // Nothing here talks or grades the player: it shows numbers and a picture. Behind the labs switch (?labs=1).
 const BASE = "/assets/lab/vision";
@@ -18,7 +18,7 @@ export function startLabVision(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-vision");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 4: Computer vision</h1><p>Labs are switched off.</p><p><a href="?mode=lab-vision&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Computer vision</h1><p>Labs are switched off.</p><p><a href="?mode=lab-vision&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -50,7 +50,7 @@ export function startLabVision(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="lv-h1">Lab 4: Computer vision</h1>
+    <h1 id="lv-h1">Computer vision</h1>
     <p class="small" style="margin:4px 0 0">The goal: use as many street photos as you can without leaving a person in a photo unmasked. The game finds people with a detector, covers them with a blur, and drops a photo when too much of it is covered. You move the thresholds and watch the trade-off on photos people have already outlined by hand.</p></div>
     <div class="grid">
       <div class="card">

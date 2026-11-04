@@ -10,7 +10,7 @@ describe('lab flow (two tiers)', () => {
     expect(flowOf('lab-motion')).toMatchObject({ from: null, next: null });
     expect(flowOf('lab-ik')).toBeNull(); // a Foundation Lab has no from/next
   });
-  it('uses: video relies on Labs 8 and 3; photo on 4, 5, 10 and 9', () => {
+  it('uses: video relies on Signal processing and Posing a character; photo on Computer vision, Camera and perspective, Evaluating a detector and Generate and test', () => {
     const n = (m: string) => LAB_LIST.findIndex((l) => l.mode === m) + 1;
     expect(usesOf('lab-motion').map(n).sort((a, b) => a - b)).toEqual(expect.arrayContaining([3, 8]));
     const photo = [...usesOf('lab-lift'), ...usesOf('lab-collision')].map(n);
@@ -25,7 +25,7 @@ describe('lab flow (two tiers)', () => {
   it('gives pipeline Labs a from chip, uses chips and a next link; Foundation Labs a used-in row', () => {
     const lift = flowPieces('lab-lift')!;
     expect(lift.top).toContain('id="lab-flow-from"'); expect(lift.top).toContain('uses:'); expect(lift.end).toContain('href="?mode=lab-collision&labs=1&welcome=0"');
-    expect(flowPieces('lab-collision')!.top).toContain('from: Lab 14');
+    expect(flowPieces('lab-collision')!.top).toContain('from: Cut-out, lift and bake');
     expect(flowPieces('lab-motion')!.end).toContain('Back to the game');
     const sig = flowPieces('lab-signal')!; expect(sig.top).toContain('used in:'); expect(sig.top).toContain('Video to motion: Smooth'); expect(sig.end).toBe('');
     expect(flowPieces('lab-nope')).toBeNull();

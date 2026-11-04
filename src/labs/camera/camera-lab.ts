@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-// Lab 5: Camera and perspective (the maths, no screen code).
+// Camera and perspective (the maths, no screen code).
 // It uses the same three.js PerspectiveCamera the game draws with, and the same pixel-to-ray step the editor uses (Raycaster.setFromCamera).
 // World axes are the game's: the runner goes along +x, up is +y, the right side of the body is +z.
 // Camera angle 0 deg stands on +x looking back at the runner's face (the front view); 90 deg stands on +z (the side view).

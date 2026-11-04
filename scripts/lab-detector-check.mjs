@@ -1,4 +1,4 @@
-// Lab 10 (Evaluating a detector) in the browser at 1280 px: off without the labs switch; with it, the recorded numbers show (2 found, 11 made up), sliding the line changes them, the maths come on request, our choice is shown.
+// Evaluating a detector in the browser at 1280 px: off without the labs switch; with it, the recorded numbers show (2 found, 11 made up), sliding the line changes them, the maths come on request, our choice is shown.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdirSync } from 'node:fs';

@@ -1,4 +1,4 @@
-"""Pack the REAL raw lifts (the output of the lift model, before any bake) into small files for Lab 14.
+"""Pack the REAL raw lifts (the output of the lift model, before any bake) into small files for Cut-out, lift and bake.
 
 Input: raw.npz files kept outside the repo (../conquercourse-assets/eval-full/demo-lifts and bar-photos).
 Output: public/assets/lab/lift/raw/<name>.bin and index.json.

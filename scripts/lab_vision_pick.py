@@ -1,4 +1,4 @@
-"""Lab 4 (Computer vision): pick the labelled street-photo set from the COCO val2017 annotations.
+"""Computer vision: pick the labelled street-photo set from the COCO val2017 annotations.
 
 usage: lab_vision_pick.py instances_val2017.json picked.json [--n 160]
 Keeps images whose Flickr licence is CC BY 2.0 (4) or "no known copyright restrictions" (7), with a street object labelled

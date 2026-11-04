@@ -1,4 +1,4 @@
-// Shots 8, 9, 10 (CC-143): Courses page scroll, Dojo gap Try It sliders, Lab 3 hand drag. One script, spec.shot picks the take.
+// Shots 8, 9, 10 (CC-143): Courses page scroll, Dojo gap Try It sliders, Posing a character hand drag. One script, spec.shot picks the take.
 // usage: node shot8910.mjs <playwright> <outdir> <spec.json>; prints JSON {start, end}; shots/*.png are checkpoint stills in <outdir>/../s
 import { readFileSync, mkdirSync } from 'node:fs';
 const [pw, out, specFile] = process.argv.slice(2);

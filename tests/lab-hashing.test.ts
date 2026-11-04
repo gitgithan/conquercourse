@@ -7,7 +7,7 @@ import {
 import { MEASURED_FIELDS, courseHash, recordPlan, verifyLog } from "../src/sim/replay";
 import { loadDemo } from "./helpers/course";
 
-// Lab 11 (hashing): the lab's hash code and the real replay judge. Algorithm laws first, then what each hashed part catches.
+// hashing: the lab's hash code and the real replay judge. Algorithm laws first, then what each hashed part catches.
 const course = loadDemo("lache.course.json");
 const log = recordPlan(course, course.plan!, 120 * 120).recorder.snapshot();
 const orig = playLog(course, log);

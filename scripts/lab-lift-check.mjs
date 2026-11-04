@@ -1,4 +1,4 @@
-// Lab 14 (cut-out, lift and bake) in the browser at 1280 px: off without the labs switch; with it, opens already run, the height slider changes the scale, each step toggle changes the facts.
+// cut-out, lift and bake in the browser at 1280 px: off without the labs switch; with it, opens already run, the height slider changes the scale, each step toggle changes the facts.
 // Screenshots go to test-results/lab-lift/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

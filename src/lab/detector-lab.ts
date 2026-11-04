@@ -1,4 +1,4 @@
-// Lab 10: Evaluating a detector (CC-49 data). Pure functions over the recorded outputs of a part detector on hand-labelled objects.
+// Evaluating a detector (CC-49 data). Pure functions over the recorded outputs of a part detector on hand-labelled objects.
 // Nothing is run at play time: the detector's answers were recorded once, and the Lab only re-counts them under the player's choices.
 
 export type Expected = "present" | "absent" | "unclear";

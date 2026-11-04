@@ -1,4 +1,4 @@
-// Lab 21 (what the model cannot do) in the browser at 1280 px: off without the labs switch; with it every output is filled on open;
+// what the model cannot do in the browser at 1280 px: off without the labs switch; with it every output is filled on open;
 // a card moves to another bin, the gate slider changes precision and recall, the design challenge reaches the cheapest safe design.
 // Screenshots go to test-results/lab-limits/.
 import { chromium } from 'playwright';

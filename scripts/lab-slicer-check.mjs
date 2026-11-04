@@ -1,4 +1,4 @@
-// Lab 18 (World Slicer: map to lane) in the browser at 1280 px: off without the labs switch; with it the map, lane and simulator verdict are filled on open; a challenge starts, is checked, and reveals.
+// World Slicer: map to lane in the browser at 1280 px: off without the labs switch; with it the map, lane and simulator verdict are filled on open; a challenge starts, is checked, and reveals.
 // Screenshots go to test-results/lab-slicer/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

@@ -1,4 +1,4 @@
-# Lab 2: Optimization
+# Optimization
 
 ## When you open it
 - Live: it runs the first search over the stored table on open (a fraction of a second); the table of methods, the picture and "what the game picks" are already filled.

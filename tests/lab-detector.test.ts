@@ -5,7 +5,7 @@ import { DEFAULT_DETECTOR, bestF1, byPrompt, evaluate, hardness, judge, sweep, t
 const data = JSON.parse(readFileSync("public/assets/lab/detector-partllm.json", "utf8")) as DetectorData;
 const recorded = JSON.parse(readFileSync("data/eval/partllm/scores.json", "utf8"));
 
-describe("Lab 10: evaluating a detector", () => {
+describe("Evaluating a detector", () => {
   it("reproduces the recorded PartLLM numbers at the shipped settings: 2 of 9 found, 11 of 13 made up", () => {
     const t = evaluate(data, DEFAULT_DETECTOR).tally;
     expect(t.found).toBe(recorded.summary.present_hits);

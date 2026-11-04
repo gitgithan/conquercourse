@@ -4,7 +4,7 @@ import type { CourseData } from "../src/course/course";
 import { DRONE, FAIL_BASE, PROBLEMS, ROPE, DEFAULTS, encode, findPeaks, peakOf, runMethod, sampleAt, scoreFromCell, tableScore, type Method, type Table } from "../src/labs/optimization/core";
 import { playPlan } from "../src/sim/ideal";
 
-// Lab 2 (CC-118): the map is the real simulator's finishing time; the three searches only ask for cells.
+// CC-118: the map is the real simulator's finishing time; the three searches only ask for cells.
 const load = (p: (typeof PROBLEMS)[number]) => ({
   course: JSON.parse(readFileSync("public" + p.courseUrl, "utf8")) as CourseData,
   table: JSON.parse(readFileSync(`public/assets/lab/opt-${p.id}.table.json`, "utf8")) as Table,
@@ -13,7 +13,7 @@ const R = load(ROPE), D = load(DRONE);
 const fR = tableScore(R.table, R.course.finishX), fD = tableScore(D.table, D.course.finishX);
 const run = (m: Method, f: typeof fR, p: typeof ROPE, t: Table, c: Partial<typeof DEFAULTS> = {}) => runMethod(m, f, t.nx, t.ny, { ...DEFAULTS, start: p.start, ...c });
 
-describe("Lab 2: the reference tables are the live simulator", () => {
+describe("Optimization: the reference tables are the live simulator", () => {
   it("have the size of their axes", () => {
     for (const [p, x] of [[ROPE, R], [DRONE, D]] as const) expect(x.table.cells.length).toBe(p.axes[0].count * p.axes[1].count);
   });
@@ -30,7 +30,7 @@ describe("Lab 2: the reference tables are the live simulator", () => {
   });
 });
 
-describe("Lab 2: the maps have the peaks the lab teaches with", () => {
+describe("Optimization: the maps have the peaks the lab teaches with", () => {
   it("the drone map has exactly two local peaks, the second 0.6 s slower", () => {
     const k = findPeaks(fD, D.table.nx, D.table.ny);
     expect(k.length).toBe(2);
@@ -47,7 +47,7 @@ describe("Lab 2: the maps have the peaks the lab teaches with", () => {
   });
 });
 
-describe("Lab 2: the search methods", () => {
+describe("Optimization: the search methods", () => {
   it("a hill-climb stops at a peak where no neighbour is faster, and sticks in the slower basin", () => {
     const peaks = findPeaks(fD, D.table.nx, D.table.ny);
     const h = run("hill", fD, DRONE, D.table);

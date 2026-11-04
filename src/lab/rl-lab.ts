@@ -4,7 +4,7 @@ import { NO_INPUT, type RunnerInput } from "../sim/runner";
 import { newWorld, stepWorld, type WorldState } from "../sim/world";
 import { DT } from "../sim/units";
 
-// Lab 12, Reinforcement learning (a game character learning a course by trial and error).
+// Reinforcement learning (a game character learning a course by trial and error).
 // The character stands on the REAL deterministic simulator. Every twentieth of a second on the ground it picks one of three real inputs:
 // run, jump, or wait (let go of run). It is not told where the gaps are: it gets points (the reward the player writes) and learns a table
 // of "how good is each input at each place" (tabular Q-learning). Same course, same choices and same seed give the same numbers: the only

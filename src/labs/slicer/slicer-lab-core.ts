@@ -9,7 +9,7 @@ import { customOf, stateAt, tourOf, TICKS_PER_SECOND, type Line, type PlaceInput
 import type { Ground } from '../../world/terrain';
 import type { OverpassAnswer } from '../../world/osm';
 
-// Lab 18 (pipeline "Map to lane"): a pin on a real map becomes a lane the simulator proves can be cleared. Every number comes from the game's own
+// pipeline "Map to lane": a pin on a real map becomes a lane the simulator proves can be cleared. Every number comes from the game's own
 // Slicer code (src/slice/slicer-default.ts, slicer-core.ts, why.ts) on RECORDED OpenStreetMap buildings of the ready places. Pure; no DOM, no network.
 export { JUMP_GAP_M, MIN_GAP_M, CLIMBABLE, LANE_DROP };
 export const MIN_LANE_M = 8; // a lane shorter than this is too short to run along (src/slice/why.ts)

@@ -3,13 +3,13 @@ import { playPlan } from "../src/sim/ideal";
 import { DEFAULT_TIMING, binIndex, cdf, clampTiming, measureWindows, pressSpeeds, playMoved, predictedRate, prepare, rateForWidth, rng, runTiming, sampleJitter, widthFor, wilson, type TimingConfig } from "../src/labs/timing/core";
 import { loadCourseFile } from "./helpers/course";
 
-// Lab 7 (statistics of timing): the simulator is the real one; the random source is seeded.
+// statistics of timing: the simulator is the real one; the random source is seeded.
 const load = loadCourseFile;
 const trap = load("public/assets/lab/search-trap.course.json");
 const lane = load("public/assets/demo/lane-1.course.json");
 const run = (c: Partial<TimingConfig>, course = trap) => runTiming(course, { ...DEFAULT_TIMING, ...c })!;
 
-describe("Lab 7: statistics of timing", () => {
+describe("Statistics of timing", () => {
   it("presses on time clear exactly as the plan does", () => {
     for (const c of [trap, lane]) {
       const sp = pressSpeeds(c, c.plan!);

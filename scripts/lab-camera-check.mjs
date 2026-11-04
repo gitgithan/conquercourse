@@ -1,4 +1,4 @@
-// Lab 5 (camera and perspective) in the browser at 1280 px: off without the labs switch; with it the front pictures match, the second camera tells the bodies apart, the maths come on request.
+// camera and perspective in the browser at 1280 px: off without the labs switch; with it the front pictures match, the second camera tells the bodies apart, the maths come on request.
 // Screenshots go to test-results/lab-camera/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

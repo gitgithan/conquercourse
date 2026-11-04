@@ -6,12 +6,12 @@ import { LABS, labHref, labNeighbours, labNumber, navLayout } from '../src/ui/la
 
 // CC-118: the Labs bar lists all 12 Labs, knows which one is current, and every Lab page mounts it.
 describe('labs bar', () => {
-  it('lists 12 Labs in the picker order with the picker names', () => {
+  it('lists every Lab in the picker order with the picker names', () => {
     expect(LABS.length).toBeGreaterThanOrEqual(12);
     const picker = readFileSync('src/ui/world-picker.ts', 'utf8');
-    LABS.forEach((l, i) => expect(picker).toContain(`['${l.mode}', 'Lab ${i + 1}: ${l.name}'`));
+    LABS.forEach((l) => expect(picker).toContain(`['${l.mode}', '${l.name}'`)); // names only, no numbers
   });
-  it('keeps the first twelve numbers fixed (links in docs and films use them)', () => {
+  it('keeps the first twelve Labs in the same list order (Previous and Next follow it)', () => {
     expect(LABS.slice(0, 12).map((l) => l.mode)).toEqual(['lab-search', 'lab-optimization', 'lab-ik', 'lab-vision', 'lab-camera', 'lab-integration', 'lab-timing', 'lab-signal', 'lab-gentest', 'lab-detector', 'lab-hashing', 'lab-rl']);
   });
   it('puts every Lab in exactly one tier and one sub-header, numbers 1 to 22 fixed', () => {

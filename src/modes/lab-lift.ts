@@ -8,7 +8,7 @@ import {
 } from "../labs/lift/lift-core";
 import { drawOrbit, frameCam } from "../labs/lift/orbit-view";
 
-// Lab 14: Cut-out, lift and bake (pipeline stages 3 and 4 of 6).
+// Cut-out, lift and bake (pipeline stages 3 and 4 of 6).
 // It runs the bake rules from src/labs/lift/lift-core.ts on a recorded, baked game object turned back into a raw-looking lift.
 // Nothing talks or grades: numbers and pictures. No model is run; the cut-outs, lifts and costs are recorded.
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GRID = "#d3dbd5";
@@ -22,7 +22,7 @@ export function startLabLift(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-lift");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 14: Cut-out, lift and bake</h1><p>Labs are switched off.</p><p><a href="?mode=lab-lift&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Cut-out, lift and bake</h1><p>Labs are switched off.</p><p><a href="?mode=lab-lift&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -48,8 +48,8 @@ export function startLabLift(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a href="/?welcome=0">Back to the game</a>
-    <h1>Lab 14: Cut-out, lift and bake</h1>
-    <p class="small" style="margin:2px 0"><b>Pipeline stages 3 and 4 of 6: Lift to 3D, then Bake</b> (photo to course object; stage 2, the cut-out, is shown here as recorded). Before: <a href="?mode=lab-vision&labs=1&welcome=0">Lab 4, Computer vision</a> (the cut-out: which photos are safe) and <a href="?mode=lab-camera&labs=1&welcome=0">Lab 5, Camera and perspective</a> (why one photo gives no depth). After: collision fitted from the 3D, then placing it on a course (collision from 3D (<code>docs/collision-from-3d.md</code>)).</p>
+    <h1>Cut-out, lift and bake</h1>
+    <p class="small" style="margin:2px 0"><b>Pipeline stages 3 and 4 of 6: Lift to 3D, then Bake</b> (photo to course object; stage 2, the cut-out, is shown here as recorded). Before: <a href="?mode=lab-vision&labs=1&welcome=0">Computer vision</a> (the cut-out: which photos are safe) and <a href="?mode=lab-camera&labs=1&welcome=0">Camera and perspective</a> (why one photo gives no depth). After: collision fitted from the 3D, then placing it on a course (collision from 3D (<code>docs/collision-from-3d.md</code>)).</p>
     <p class="small" style="margin:4px 0 0">The goal: see how a photo becomes a game object. A person draws a box, a model cuts the object out, a second model lifts it into 3D, and seven plain bake rules make it upright, facing the side camera, on the ground, small enough and the right size. Pick an object, drag the height, and switch each rule off to see what it was for. The cut-outs, lifts and costs are recorded; the bake rules run live.</p></div>
     <div class="card" id="ll-3d"><h2>Spin it in 3D</h2>
       <p class="small" style="margin:0 0 6px">Drag the left one to turn the raw lift. Drag the right one to walk around the baked object. Wheel or the buttons zoom. Arrow keys work too.</p>

@@ -1,7 +1,7 @@
 import { mountLabsNav, labHref } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
-import { LAB_LIST, labName, labNumberOf } from "../ui/labs-series";
+import { LAB_LIST, labName } from "../ui/labs-series";
 import {
   BINS, CARDS, FINDER_ITEMS, GAME_LIMIT, GATE_ROWS, KIND_NAME, LIMIT_MAX, LIMIT_MIN, STAGES,
   allBest, cardById, confusion, finderCut, flagged, judge, ourSorting, pct, scoreSort, sweep, totalCalls, cheapestSafe,
@@ -21,7 +21,7 @@ export function startLabLimits(host: HTMLElement): { backend: "canvas2d" } {
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
   mountLabsNav(host, "lab-limits");
-  const N = labNumberOf("lab-limits"), TITLE = `Lab ${N}: What the model cannot do`;
+  const TITLE = labName("lab-limits");
   if (!labsOn()) {
     root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">${TITLE}</h1><p>Labs are switched off.</p><p><a href="?mode=lab-limits&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
@@ -72,7 +72,7 @@ export function startLabLimits(host: HTMLElement): { backend: "canvas2d" } {
   root.append(style);
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   const sysMode = LAB_LIST.find((l) => /system/.test(l.mode))?.mode ?? null; // the finale Lab, linked once it exists
-  const lk = (m: string) => `<a class="lk" href="${labHref(m)}">Lab ${labNumberOf(m)}: ${labName(m)}</a>`;
+  const lk = (m: string) => `<a class="lk" href="${labHref(m)}">${labName(m)}</a>`;
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
       <h1>${TITLE}</h1>
@@ -106,7 +106,7 @@ export function startLabLimits(host: HTMLElement): { backend: "canvas2d" } {
       <p style="margin:10px 0 0"><span id="lim-total" style="font-weight:700"></span></p></div>
     <div class="card"><h2>Where this goes</h2>
       <p style="margin:0">Precision and recall are earned in ${lk("lab-detector")}. The mask threshold is in ${lk("lab-vision")}.
-        ${sysMode ? `The whole system built from these checks: ${lk(sysMode)}.` : `The whole system built from these checks is Lab 18: System design.`}</p></div>`;
+        ${sysMode ? `The whole system built from these checks: ${lk(sysMode)}.` : `The whole system built from these checks is System design.`}</p></div>`;
   const $ = <T extends HTMLElement>(id: string): T => wrap.querySelector("#" + id) as T;
   labDefaultNote(wrap, "live", wrap.querySelector("p.small") as HTMLElement | null);
 

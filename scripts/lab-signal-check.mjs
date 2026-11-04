@@ -1,4 +1,4 @@
-// Lab 8 (Signal processing) in the browser: off without the labs switch; with it, a default run passes the gate and the Rookie plays;
+// Signal processing in the browser: off without the labs switch; with it, a default run passes the gate and the Rookie plays;
 // a live one-pole filter at full strength runs late; too much wobble is held back by the gate and nothing is played. Screenshots go to test-results/lab-signal/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

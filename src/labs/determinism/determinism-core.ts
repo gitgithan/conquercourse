@@ -4,7 +4,7 @@ import { NO_INPUT, type RunnerInput } from '../../sim/runner';
 import { newWorld, stepWorld, type WorldState } from '../../sim/world';
 import { fnv1a32, sha256 } from '../hashing/core';
 
-// Lab 19 (Same run, any machine). The pure part: replay one recorded run with the game's own simulator on simulated "machines",
+// Same run, any machine. The pure part: replay one recorded run with the game's own simulator on simulated "machines",
 // and look at it the way the game does: one small fingerprint (hash) per frame. A machine here is a short list of habits that real
 // machines really have (a last-digit rounding habit, a frame clock that drifts, a map that is walked in another order).
 // Nothing here draws anything. The simulator is src/sim/world.ts (unchanged); the machines nudge its output the way the habits would.

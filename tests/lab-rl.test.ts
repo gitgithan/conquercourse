@@ -4,13 +4,13 @@ import type { CourseData } from "../src/course/course";
 import { playPlan } from "../src/sim/ideal";
 import { DEFAULT_RL, REWARD_PRESETS, Env, chunkReward, clampRl, idealReturn, randomBaseline, rng, trainNoExplore, trainRl } from "../src/lab/rl-lab";
 
-// Lab 12 (reinforcement learning): a game character learns the trap course by trial and error on the real simulator.
+// reinforcement learning: a game character learns the trap course by trial and error on the real simulator.
 const course = JSON.parse(readFileSync("public/assets/lab/search-trap.course.json", "utf8")) as CourseData;
 const honest = REWARD_PRESETS.honest.reward;
 const train = (c: Partial<typeof DEFAULT_RL> = {}) => trainRl(course, { ...DEFAULT_RL, ...c }, undefined, { baselines: false });
 const plain = (r: ReturnType<typeof train>): string => JSON.stringify({ ...r, q: 0, policyRun: 0 });
 
-describe("Lab 12: reinforcement learning", () => {
+describe("Reinforcement learning", () => {
   it("pays points by the rules written down", () => {
     expect(chunkReward(honest, 0, 1, false, "running")).toBeCloseTo(1);
     expect(chunkReward(honest, 0, 0, false, "splash")).toBeCloseTo(-10);

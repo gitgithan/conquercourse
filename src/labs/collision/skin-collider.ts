@@ -1,6 +1,6 @@
 import type { Mesh } from '../../slice/slice';
 
-// Lab 15, "Skin versus collider": one ball is rolled over a real lifted object twice, once colliding with the skin (every triangle of the lift) and once with a simple collider.
+// "Skin versus collider": one ball is rolled over a real lifted object twice, once colliding with the skin (every triangle of the lift) and once with a simple collider.
 // Pure and deterministic (a fixed 120 Hz step, no clock, no random except a seeded draw), so the tests and the page run the same code and the same numbers come out.
 export const DT = 1 / 120, G = 9.81, BALL_R = 0.1, TARGET_VX = 1.5, MAX_TICKS = 900;
 export const RELIFT_SIGMA = 0.005, RELIFT_SEED = 11; // m: the same photo lifted again moves every point by about this much

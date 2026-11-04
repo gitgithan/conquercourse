@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG, clampCfg, runLabSearch, pathOf, planFor, type LabConfig
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 
-// Lab 1: Search (CC-118). The player picks how the game looks for a clear run, mixes a heuristic, sets a budget, runs the real simulator and reads facts.
+// Search (CC-118). The player picks how the game looks for a clear run, mixes a heuristic, sets a budget, runs the real simulator and reads facts.
 // Nothing here talks or grades: it shows numbers and a picture. The equations come last, after a run. Behind the labs switch (?labs=1).
 const COURSE_URL = "/assets/lab/search-trap.course.json";
 const INK = "#17201d", TEAL = "#0f6b5c", GHOST = "#9aa5a0", DECK = "#cbd5cd", WATER = "#b7d3ee", BAD = "#b91c1c";
@@ -27,7 +27,7 @@ export function startLabSearch(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-search");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 1: Search</h1><p>Labs are switched off.</p><p><a href="?mode=lab-search&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Search</h1><p>Labs are switched off.</p><p><a href="?mode=lab-search&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -55,7 +55,7 @@ export function startLabSearch(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="ls-h1">Lab 1: Search</h1>
+    <h1 id="ls-h1">Search</h1>
     <p class="small" style="margin:4px 0 0">The goal: find a clear run through three gaps. Each gap needs one jump press. The game tries presses in the real simulator, and you decide how it chooses which to try.</p></div>
     <div class="grid">
       <div class="card" id="ls-controls">

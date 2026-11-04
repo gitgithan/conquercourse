@@ -12,7 +12,7 @@ import {
   type Break, type BreakKind, type Compare, type Played, type Side, type Stages,
 } from "../labs/collision/collision-core";
 
-// Lab 15: Collision from a 3D lift (pipeline stage 4 of 8). The player scrubs through the steps the game takes to turn a lifted photo object into a collider, each drawn side-on
+// Collision from a 3D lift (pipeline stage 4 of 8). The player scrubs through the steps the game takes to turn a lifted photo object into a collider, each drawn side-on
 // with its outputs; then breaks the lift and sees the fitted row stay regular. Every number is computed in the page by src/slice/role-collider.ts (the game's own code) on the
 // real Saienji CC0 monkey-bars lift. Nothing here talks or grades. Equations come last, behind a button (labs may show equations). Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GREY = "#9aa5a0", PALE = "#cdd8d1", RED = "#b91c1c", BLUE = "#5b7fa6";
@@ -36,7 +36,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-collision");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 15: Collision from a 3D lift</h1><p>Labs are switched off.</p><p><a href="?mode=lab-collision&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Collision from a 3D lift</h1><p>Labs are switched off.</p><p><a href="?mode=lab-collision&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -69,7 +69,7 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab 15: Collision from a 3D lift</h1>
+    <h1>Collision from a 3D lift</h1>
     <p class="small" style="margin:2px 0 0"><b>Pipeline stage 4 of 8: Collision from 3D.</b> Before it: baking the lift to a game object. After it: placing the object on a course and proving it with the simulator (the last step here does that for the bars). The same story is in the doc <code>docs/labs/collision.md</code>.</p>
     <p class="small" style="margin:6px 0 0">The goal: see how a noisy 3D lift of a real set of monkey bars becomes four clean numbers the physics can trust. The lift is only the <b>skin</b>. The collider is a <b>fitted row</b>: one spacing, never a copy of the mesh. Scrub through the steps, then break the lift and watch the row.</p></div>
     <div class="grid">

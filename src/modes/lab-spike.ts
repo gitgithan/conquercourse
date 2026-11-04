@@ -1,13 +1,12 @@
 import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
-import { labNumberOf } from "../ui/labs-series";
 import {
   SCENARIOS, STORIES, WALL_TEST_LABELS, WALL_TEST_NEEDS, checkChallenge, cloneScenario, earlyPlan, evaluate, expectedExtra, latePlan, referencePlan, spikeOrder,
   riding, ridingHours, scare, storyTotals, verdict, type Outcome, type Scenario, type Step,
 } from "../labs/spike/spike-core";
 
-// Lab 19: Spike the riskiest call first. The player ranks the risks of a new move or obstacle, sees the same project run with the tests at the end and with the scariest test first,
+// Spike the riskiest call first. The player ranks the risks of a new move or obstacle, sees the same project run with the tests at the end and with the scariest test first,
 // orders a plan to pass a hard budget, and replays two real stories from our own experiments (data/eval/cc-17-wall, data/eval/bar-motion). All numbers are computed in the page
 // by src/labs/spike/spike-core.ts. Nothing here talks or grades a person. Equations come last, behind a button (labs may show equations). Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GREY = "#9aa5a0", RED = "#b91c1c";
@@ -18,14 +17,13 @@ const money = (v: number) => (v === 0 ? "$0" : `$${v.toFixed(v < 0.1 ? 3 : 2)}`)
 const DEFAULT_FAIL: Record<string, string> = { bars: "find", wall: "reach" };
 
 export function startLabSpike(host: HTMLElement): { backend: "canvas2d" } {
-  const num = labNumberOf("lab-spike");
   const root = document.createElement("div");
   root.id = "lab-spike";
   root.style.cssText = `position:fixed;inset:0;overflow:auto;background:#f5f7f4;color:${INK};font:15px/1.4 system-ui,sans-serif`;
   host.append(root);
   mountLabsNav(host, "lab-spike");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab ${num}: Spike the riskiest call first</h1><p>Labs are switched off.</p><p><a href="?mode=lab-spike&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Spike the riskiest call first</h1><p>Labs are switched off.</p><p><a href="?mode=lab-spike&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -71,7 +69,7 @@ export function startLabSpike(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1>Lab ${num}: Spike the riskiest call first</h1>
+    <h1>Spike the riskiest call first</h1>
     <p class="small" style="margin:6px 0 0">The goal: when you add a new move or obstacle, find the thing most likely to break it with the cheapest test, before you build on top of it. The same story is in <code>docs/labs/spike.md</code>.</p></div>
     <div class="card"><h2>Pick a feature</h2>
       <div class="row"><select id="lsp-sc" aria-label="Feature"></select><span class="small" id="lsp-blurb"></span></div></div>

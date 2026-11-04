@@ -1,6 +1,6 @@
 import type { Mesh } from "../../slice/slice";
 
-// Lab 14: Cut-out and lift, then bake (pipeline stages 2 to 3 of the photo-to-object path).
+// Cut-out and lift, then bake (pipeline stages 2 to 3 of the photo-to-object path).
 // The real bake runs on the CPU in pipelines/ccpipe (Python) on a raw lift that came from a GPU, and the raw lifts are too big to ship.
 // So this file writes the bake RULES from docs/pipelines.md step 4 in TypeScript, and the Lab proves them on a recorded, baked game object:
 // "unbake" a recorded GLB into a raw-looking lift (z up, turned, tilted by the camera layout, wrong size, off the ground), then bake it again and check we get the recorded object back.

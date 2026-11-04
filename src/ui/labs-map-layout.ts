@@ -1,4 +1,4 @@
-import { LAB_GROUPS, LAB_LIST, PIPELINE_MAP, TIERS, flowOf, labNumberOf, usedIn, usesOf, type LabEntry, type LabGroup, type PipelineStage } from './labs-series';
+import { LAB_GROUPS, LAB_LIST, PIPELINE_MAP, TIERS, flowOf, usedIn, usesOf, type LabEntry, type LabGroup, type PipelineStage } from './labs-series';
 
 // CC-133: the Labs as a dependency tree. Pure layout: data in (the Labs series), positions out; nothing here touches the page.
 // Columns are the tiers in the order TIERS lists them (Foundations, Pipelines, and any later tier such as a finale); inside a column the order follows the sub-headers, then the barycenter of the neighbours.
@@ -20,19 +20,19 @@ export interface MapOptions { width?: number; nodeW?: number; nodeH?: number; ga
 /** Every connection, from the same data the Lab pages use: "uses" (a Lab relies on another, with the stages that say so) and "flow" (the Lab before, in its pipeline). */
 export function mapEdges(src: MapSource = DEFAULT_SOURCE): MapEdge[] {
   const have = new Set(src.labs.map((l) => l.mode)), out = new Map<string, MapEdge>();
-  const num = (m: string): number => src.labs.findIndex((l) => l.mode === m) + 1;
+  const num = (m: string): string => src.labs.find((l) => l.mode === m)?.name ?? m; // the Lab's name (Labs carry no numbers)
   for (const stages of Object.values(src.pipelineMap)) for (const st of stages) {
     if (!st.lab || !have.has(st.lab)) continue;
     for (const u of st.uses) {
       if (!have.has(u) || u === st.lab) continue;
       const id = `uses:${u}>${st.lab}`, e = out.get(id);
       if (e) e.reason += `, ${st.stage}`;
-      else out.set(id, { id, from: u, to: st.lab, kind: 'uses', reason: `Lab ${num(st.lab)} uses Lab ${num(u)} for: ${st.stage}` });
+      else out.set(id, { id, from: u, to: st.lab, kind: 'uses', reason: `${num(st.lab)} uses ${num(u)} for: ${st.stage}` });
     }
   }
   for (const g of src.groups) {
     if (g.tier === src.tiers[0]?.id) continue; // the first tier (Foundations) is not a chain
-    g.modes.forEach((m, i) => { const p = g.modes[i - 1]; if (p && have.has(p) && have.has(m)) out.set(`flow:${p}>${m}`, { id: `flow:${p}>${m}`, from: p, to: m, kind: 'flow', reason: `${g.title}: what Lab ${num(p)} makes feeds Lab ${num(m)}` }); });
+    g.modes.forEach((m, i) => { const p = g.modes[i - 1]; if (p && have.has(p) && have.has(m)) out.set(`flow:${p}>${m}`, { id: `flow:${p}>${m}`, from: p, to: m, kind: 'flow', reason: `${g.title}: what ${num(p)} makes feeds ${num(m)}` }); });
   }
   return [...out.values()];
 }
@@ -116,4 +116,4 @@ export function edgePath(a: MapNode, b: MapNode): string {
 }
 
 // re-exports so the view and the tests read the neighbour rule from one place
-export { flowOf, labNumberOf, usedIn, usesOf };
+export { flowOf, usedIn, usesOf };

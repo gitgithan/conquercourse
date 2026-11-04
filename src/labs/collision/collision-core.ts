@@ -5,7 +5,7 @@ import { verifyLog } from '../../sim/replay';
 import type { Mesh } from '../../slice/slice';
 import { barProfile, closing, count, fitRow, largestComponent, measureBars, regulariseRungs, voxelise, type BarProfile, type BarsMeasure, type FittedRow, type Grid } from '../../slice/role-collider';
 
-// Lab 13 (pipeline stage 4: collision from a 3D lift). Every number here comes from the game's own src/slice/role-collider.ts, one step at a time,
+// pipeline stage 4: collision from a 3D lift. Every number here comes from the game's own src/slice/role-collider.ts, one step at a time,
 // in the order cleanLift and measureBars run them. Pure and deterministic; no DOM, so the tests and the page run the same code.
 export const GLB_URL = '/assets/objects/monkey-bars-saienji-cc0.glb';
 export const KNOWN_HEIGHT = 2.2; // m, the maker's typed height of the whole frame (scripts/make-bars-lift-demo.ts)

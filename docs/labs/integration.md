@@ -1,4 +1,4 @@
-# Lab 6: Numerical integration
+# Numerical integration
 
 ## When you open it
 - Live: it runs RK4 at the game's 120 steps a second for 300 s on open (about half a second); energy drift, the replay hash check and the chart are already filled.

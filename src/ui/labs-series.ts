@@ -1,5 +1,5 @@
 // CC-133: the Labs as a series. One list of {mode, name, pipeline, stage}: the nav bar, the world picker and the tests all read it.
-// A Lab's number is its place in this list and never changes (links in docs and films use it); a new Lab is one line at the END.
+// Labs are known by NAME only: nothing the player sees shows a number. The list order is internal (Previous/Next); a new Lab is one line at the END.
 export type Pipeline = 'photo' | 'video' | 'idea' | 'methods' | 'map' | 'limits';
 export interface LabEntry { mode: string; name: string; pipeline: Pipeline; stage: string }
 
@@ -13,7 +13,7 @@ export const PIPELINES: readonly { id: Pipeline; title: string; stages: readonly
   { id: 'map', title: 'Map to lane', stages: ['Pin', 'Elements', 'Cut', 'Lane', 'Rules', 'Simulator'] },
 ];
 
-// Numbers 1 to 12 are fixed; 13 (motion), 14 (lift) and 15 (collision) followed in the order they landed; 16 (slicer) is the Map to lane pipeline. A new Lab is one line at the end.
+// The order is the order the Labs landed (Previous/Next follow it); a new Lab is one line at the end.
 export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-search', name: 'Search', pipeline: 'methods', stage: 'Search' },
   { mode: 'lab-optimization', name: 'Optimization', pipeline: 'methods', stage: 'Optimize' },
@@ -39,7 +39,7 @@ export const LAB_LIST: readonly LabEntry[] = [
   { mode: 'lab-wait', name: 'Hide the wait', pipeline: 'methods', stage: 'Wait' },
 ];
 
-/** The Labs of one section, in number order, each with its number. */
+/** The Labs of one section, in list order (n is the place in the list, internal only). */
 export const labsOfPipeline = (id: Pipeline): { n: number; lab: LabEntry }[] =>
   LAB_LIST.flatMap((lab, i) => (lab.pipeline === id ? [{ n: i + 1, lab }] : []));
 
@@ -51,7 +51,7 @@ export const TIERS: readonly { id: Tier; title: string }[] = [
   { id: 'pipelines', title: 'Pipelines' },
   { id: 'finale', title: 'Finale' },
 ];
-/** In the order they are shown (Foundations first; inside a pipeline, the order the data flows). Lab numbers and URLs never change. */
+/** In the order they are shown (Foundations first; inside a pipeline, the order the data flows). Lab URLs never change. */
 export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'search-learn', tier: 'foundations', title: 'Search and learn', modes: ['lab-search', 'lab-optimization', 'lab-rl', 'lab-gentest', 'lab-wait'] },
   { id: 'see-world', tier: 'foundations', title: 'See the world', modes: ['lab-vision', 'lab-camera', 'lab-detector'] },
@@ -66,7 +66,6 @@ export const LAB_GROUPS: readonly LabGroup[] = [
   { id: 'finale', tier: 'finale', title: 'System design', modes: ['lab-systemdesign'] }, // the last Lab: it sums up the three pipelines
 ];
 export const groupOf = (mode: string): LabGroup | undefined => LAB_GROUPS.find((g) => g.modes.includes(mode));
-export const labNumberOf = (mode: string): number => LAB_LIST.findIndex((l) => l.mode === mode) + 1;
 export const labName = (mode: string): string => LAB_LIST.find((l) => l.mode === mode)?.name ?? mode;
 
 /** One pipeline stage: the Foundation Labs it relies on ("uses") and the pipeline Lab that teaches it (null = no Lab yet, an honest gap). */

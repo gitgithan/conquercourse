@@ -8,13 +8,13 @@ import {
 } from "../src/labs/partner/partner-core";
 import { LAB_GROUPS } from "../src/ui/labs-series";
 
-// Lab 17: the design partner loop. Claims are pinned to the game's own reader (parseLayout) and simulator tool (testLayout) and to the recorded answers.
+// the design partner loop. Claims are pinned to the game's own reader (parseLayout) and simulator tool (testLayout) and to the recorded answers.
 const rec = JSON.parse(readFileSync("public/assets/lab/partner-recorded.json", "utf8")) as { answers: Answer[] };
 const def = JSON.parse(readFileSync("public/assets/lab/partner-default.json", "utf8")) as { reports: Record<string, any>; extra: Record<string, any> };
 const get = (id: string) => rec.answers.find((a) => a.id === id)!;
 const layoutOf = (id: string) => readAnswer(get(id)).layout!;
 
-describe("Lab 17: design partner loop", () => {
+describe("Design partner loop", () => {
   it("has every kind of recorded answer, and the file is small", () => {
     for (const k of KINDS) expect(rec.answers.some((a) => a.kind === k.kind), k.kind).toBe(true);
     expect(readFileSync("public/assets/lab/partner-recorded.json").length).toBeLessThan(300_000);

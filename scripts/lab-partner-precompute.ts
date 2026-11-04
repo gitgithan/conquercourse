@@ -1,4 +1,4 @@
-// Lab 17 opens already run: the simulator's report for every recorded answer, made with the game's own tool (testLayout). A test re-runs two and compares.
+// Design partner loop opens already run: the simulator's report for every recorded answer, made with the game's own tool (testLayout). A test re-runs two and compares.
 // Run: npx tsx scripts/lab-partner-precompute.ts   (about two minutes)
 import { readFileSync, writeFileSync } from "node:fs";
 import { testLayout } from "../src/slice/course-agent-tools";
@@ -20,6 +20,6 @@ if (process.argv[1]?.endsWith("lab-partner-precompute.ts")) {
   const extra: Record<string, unknown> = {};
   const rep = (k: string, l: Layout) => { extra[k] = testLayout(l, { probeSeconds: 8 }); };
   rep("eased-wall", EASED_WALL);
-  writeFileSync("public/assets/lab/partner-default.json", JSON.stringify({ about: "Simulator reports (testLayout) for the recorded answers of Lab 17, made offline with scripts/lab-partner-precompute.ts.", reports, extra }, null, 2) + "\n");
+  writeFileSync("public/assets/lab/partner-default.json", JSON.stringify({ about: "Simulator reports (testLayout) for the recorded answers of Design partner loop, made offline with scripts/lab-partner-precompute.ts.", reports, extra }, null, 2) + "\n");
   console.log("wrote", Object.keys(reports).length, "reports");
 }

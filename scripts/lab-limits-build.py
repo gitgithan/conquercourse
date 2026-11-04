@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lab 21 (what the model cannot do): builds the small card pictures and the data file from files already in the repo.
+"""what the model cannot do: builds the small card pictures and the data file from files already in the repo.
 
 Run from the repo root: python3 scripts/lab-limits-build.py
 Reads data/eval (lift checks and ratings of the 14 hard photos, the finder run on the monkey-bars photo, the Kimodo bar-hang samples)

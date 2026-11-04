@@ -4,7 +4,7 @@ import { ik2 } from '../../motion/compose';
 import { settleNeck, NECK_LIMIT, SHOULDER_LIMIT } from '../../motion/neck';
 import { legLength } from '../../motion/timeline';
 
-// Lab 3: posing a character (inverse kinematics). The pure part: the Rookie's stand pose, the game's real two-bone reach (`ik2`) and neck rule
+// posing a character (inverse kinematics). The pure part: the Rookie's stand pose, the game's real two-bone reach (`ik2`) and neck rule
 // (`settleNeck`), an iterative solver for comparison, and the facts the page shows. No page, no model, so the tests can check the numbers directly.
 // The side plane is the page: x forward, y up (metres, feet on y = 0). The game only runs the two-bone solver; the iterative one is here to compare.
 

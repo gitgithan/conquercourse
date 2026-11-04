@@ -108,7 +108,7 @@ Every shot is a capture of the running game on the stepped clock, so it is frame
   - Used for the Earth zoom: one take, about 16 distinct frames a second, accepted by the product owner.
   - A silent warm-up pass first, so tiles are loaded; the warm-up is trimmed off.
 - Scripted controls: sliders set by value, the mouse dragged with `page.mouse`, keys pressed on a timeline.
-  - Used for Dojo gap jump (shot 9) and Lab 3 (shot 10); the product owner called the in-app demos smooth.
+  - Used for Dojo gap jump (shot 9) and Posing a character (shot 10); the product owner called the in-app demos smooth.
 - Frame by frame (old): each frame set from its index and screenshotted.
   - Kept only for shots that cannot run live; it can be split across containers.
   - It failed on the Earth zoom (memory), which is why real-time recording replaced it.

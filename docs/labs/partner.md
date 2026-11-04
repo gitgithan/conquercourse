@@ -1,9 +1,9 @@
-# Lab 16: Design partner loop (propose, check, fix)
+# Design partner loop (propose, check, fix)
 
 *A design partner proposes a course; the simulator checks it and says in plain words what to change; Fix it repairs it.*
 *The loop is about the course, never about the person: no chat tutor, no grading of technique.*
 *Open it at `?mode=lab-partner&labs=1`.*
-*The number is the slot in the list today; if the Lab 16 slicer lands first, this Lab becomes Lab 17.*
+*The number is the slot in the list today; if the Design partner loop slicer lands first, this Lab becomes System design.*
 
 ## What the player does
 - Pick a brief and a recorded answer from the partner: good, too hard, impossible, or malformed.
@@ -17,7 +17,7 @@
 - The loop is the one the game uses: the reader (`parseLayout`), the rules (at most 10 pieces), the simulator (`testLayout`), and only then the show.
   - The Lab calls the game's own code; it copies none of it.
 - Every answer is recorded, so the Lab makes no model call and costs nothing to open.
-  - Real answers: the Muse Spark Open proposals of [Lab 9](gentest.md), and one real model repair trace (`i02`) from the CC-133 text test.
+  - Real answers: the Muse Spark Open proposals of [Generate and test](gentest.md), and one real model repair trace (`i02`) from the CC-133 text test.
   - Written by us, and labelled so: the malformed answers (not JSON, wrong shape, a reply cut off) and the answer with 12 pieces.
 - The simulator's reports for the six readable answers are computed ahead of time (`scripts/lab-partner-precompute.ts`), so the Lab opens already run.
   - A piece you change is sent to the same simulator in a worker, about a third of a second after you stop.
@@ -51,8 +51,8 @@
 - A thinking model can spend its whole answer budget thinking and send a cut-off reply, which the Reader refuses.
 
 ## Overlap with other Labs
-- [Lab 9](gentest.md) shows the same recorded proposals as a tally and eases one piece; this Lab shows one answer through the gates, with the repair.
-- [Lab 1](search.md) explains the search behind the proof; this Lab only uses its result.
+- [Generate and test](gentest.md) shows the same recorded proposals as a tally and eases one piece; this Lab shows one answer through the gates, with the repair.
+- [Search](search.md) explains the search behind the proof; this Lab only uses its result.
 - Nothing was removed; this Lab links to both.
 
 ## Limits

@@ -1,7 +1,7 @@
-# Lab 13: the pose finder's raw output
+# the pose finder's raw output
 
 ## So what
-- Lab 13 now starts from what the pose finder really said, not from cleaned clips.
+- Video to motion now starts from what the pose finder really said, not from cleaned clips.
 - Straight from the model, both rolls fail the gate and the soft rules show why smoothing exists.
   - Bones change length by 45% (crouch) and 24% (standing) over a clip; the limit is 2%.
   - Peak acceleration is 421 and 300 m/s2; the limit is 200.

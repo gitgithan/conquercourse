@@ -1,10 +1,10 @@
-"""Lab 13 (Video to motion): turn the pose finder's raw output into a small recorded pose pack.
+"""Video to motion: turn the pose finder's raw output into a small recorded pose pack.
 
 Usage: python scripts/lab13_pose_pack.py STEM [STEM ...]     (default: roll-lp-crouch roll-lp-stand)
 
 Reads the raw output of the real Modal run (SAM 3D Body keypoints and the MHR to SOMA joints; outside git, in the
 assets work folder), and writes, for each clip, a track that is the pose finder's answer turned to face +z and set on
-the floor, and nothing else: no frame smoothing, no one-length-per-bone step, no repairs. Lab 13 runs those steps itself.
+the floor, and nothing else: no frame smoothing, no one-length-per-bone step, no repairs. Video to motion runs those steps itself.
 Also runs the Python plausibility gate on the track, so the page's TypeScript gate can be checked against it.
 Never calls a GPU. Pictures are not stored, only numbers.
 """

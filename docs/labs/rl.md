@@ -1,4 +1,4 @@
-# Lab 12: Reinforcement learning
+# Reinforcement learning
 
 ## When you open it
 - Precomputed: the honest points, learning rate 0.2, exploring 0.2 and shrinking, 2000 tries, seed 7, trained ahead of time with the same code (`scripts/labs-default-precompute.ts`); a test re-runs it and compares.
@@ -15,7 +15,7 @@
 - It picks a move about every twentieth of a second while its feet are on the ground; after a jump it keeps running until it lands.
 - It sees only where it is: a table with one row for each 0.25 m cell of the course.
 - It learns the table with tabular Q-learning; nothing else is learned.
-- The course is the Lab 1 trap course (`public/assets/lab/search-trap.course.json`): three gaps, and the farthest first jump strands the second.
+- The course is the Search trap course (`public/assets/lab/search-trap.course.json`): three gaps, and the farthest first jump strands the second.
 - The same choices and the same seed give the same curve; the only randomness is a seeded generator, and there is no clock.
 
 ## The controls
@@ -61,7 +61,7 @@
   - A seeded generator and no clock, so a result can be reproduced.
 - **Which real game code runs:** the real simulator `src/sim/world.ts`, and `playPlan` from `src/sim/ideal.ts` for the game's own line.
   - The environment and learner (`src/lab/rl-lab.ts`) are Lab code, run in a worker (`src/lab/rl-lab-worker.ts`).
-- **Which data is precomputed:** only the Lab 1 trap course and its stored plan (`public/assets/lab/search-trap.course.json`).
+- **Which data is precomputed:** only the Search trap course and its stored plan (`public/assets/lab/search-trap.course.json`).
 - **Order of the screen and why compare comes last:** points and learning choices, the learning curve, the facts, the learned run, the baselines (random, no exploring), the points of the game's line, and the choice we made in the game last, so the player has seen what learning cannot promise before reading why we use a search.
 
 ## How we prove the lesson is right
@@ -105,4 +105,4 @@
 4. Put speed (a few cells of it) into the state so run-ups can be learned.
 5. Learn on a second course and print the tries needed with the same seeds.
 6. A ghost mode: train a character per course offline, ship the small table (under 300 KB, with a row in `docs/ASSETS.md`), and race it.
-7. Compare with Lab 1: simulator runs the search needs against the tries the character needs, on the same course.
+7. Compare with Search: simulator runs the search needs against the tries the character needs, on the same course.

@@ -1,4 +1,4 @@
-# Lab 20: Spike the riskiest call first
+# Spike the riskiest call first
 
 *Foundations, "Plan the work": the way we add a new move or obstacle, as a Lab.*
 *It is a method behind all three pipelines, so it has no stage of its own in [the series map](pipelines.md).*
@@ -121,4 +121,4 @@
 2. Add a third feature: a new key and move (the vault), with its replay and key-card risks.
 3. Let the player add their own risk card with its chance and cost.
 4. Show two failures at once and let the second test be skipped after the first fails.
-5. Link the stage Labs by name (Lab 14, Lab 15, Lab 13) next to the card they came from.
+5. Link the stage Labs by name (Cut-out, lift and bake, Collision from a 3D lift, Video to motion) next to the card they came from.

@@ -1,4 +1,4 @@
-# Lab 3: Posing a character (inverse kinematics)
+# Posing a character (inverse kinematics)
 
 ## When you open it
 - Live: it opens on the game's own pose choices for the first preset, already solved; the arm picture, numbers and compare card are filled.

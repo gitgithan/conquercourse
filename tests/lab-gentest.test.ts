@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { DEFAULT_CONFIG, DEFAULT_RULES, buildProposals, clampRules, ease, fits, randomLayout, rng, tally, testProposal, type Proposal } from "../src/labs/gentest/core";
 
-// Lab 9: generate and test. The proposals are recorded; the verdicts come from the real ideal-run search.
+// generate and test. The proposals are recorded; the verdicts come from the real ideal-run search.
 const pool = JSON.parse(readFileSync("public/assets/lab/gentest-proposals.json", "utf8")) as { proposals: { id: string; theme: string; recordedClear: boolean; layout: any }[] };
 const gap = (w: number) => ({ items: [{ kind: "ground", length: 12 }, { kind: "gap", width: w }, { kind: "ground", length: 8 }] }) as any;
 const prop = (id: string, layout: any): Proposal => ({ id, source: "recorded", theme: "t", layout });
 
-describe("Lab 9: generate and test", () => {
+describe("Generate and test", () => {
   it("ships a small pool of 100 recorded proposals", () => {
     expect(pool.proposals.length).toBe(100);
     expect(readFileSync("public/assets/lab/gentest-proposals.json").length).toBeLessThan(300_000);

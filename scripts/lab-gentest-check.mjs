@@ -1,4 +1,4 @@
-// Browser smoke for Lab 9 at 1280 px. Usage: node scripts/lab-gentest-check.mjs [baseUrl]   Screenshots go to test-results/lab-gentest/.
+// Browser smoke for Generate and test at 1280 px. Usage: node scripts/lab-gentest-check.mjs [baseUrl]   Screenshots go to test-results/lab-gentest/.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 const base = process.argv[2] ?? 'http://localhost:5173';

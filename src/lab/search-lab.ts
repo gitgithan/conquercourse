@@ -3,7 +3,7 @@ import { edges, playPlan, meter, type Plan } from "../sim/ideal";
 import { DEFAULT_PARAMS } from "../sim/runner";
 import { DT } from "../sim/units";
 
-// Lab 1, Search (CC-118). The game finds its ideal run by searching: at each take-off edge it tries presses and keeps good ones.
+// Search (CC-118). The game finds its ideal run by searching: at each take-off edge it tries presses and keeps good ones.
 // This module lets the player choose the search. A node is the list of presses made so far (one per edge); to judge it the REAL simulator plays
 // the run and we look at where the runner lands after the last press. Same course and same choices give the same numbers (no clock, no randomness).
 export type Method = "exhaustive" | "greedy" | "beam" | "astar";

@@ -4,11 +4,11 @@ import type { CourseData } from "../src/course/course";
 import { playPlan } from "../src/sim/ideal";
 import { DEFAULT_CONFIG, clampCfg, planFor, runLabSearch } from "../src/lab/search-lab";
 
-// Lab 1 (CC-118): the player chooses the search; the simulator is the real one. The trap course is made so that the farthest first jump strands the second.
+// CC-118: the player chooses the search; the simulator is the real one. The trap course is made so that the farthest first jump strands the second.
 const course = JSON.parse(readFileSync("public/assets/lab/search-trap.course.json", "utf8")) as CourseData;
 const run = (c: Partial<typeof DEFAULT_CONFIG>) => runLabSearch(course, { ...DEFAULT_CONFIG, ...c });
 
-describe("Lab 1: search", () => {
+describe("Search", () => {
   it("has a stored line that clears the trap course", () => {
     expect(course.plan).toBeDefined();
     expect(playPlan(course, course.plan!).world.outcome).toBe("cleared");

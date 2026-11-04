@@ -1,4 +1,4 @@
-// Lab 1 (Search) in the browser: off without the labs switch; with it, greedy is stranded and A* clears; the equations come after a run; the Courses list shows the Lab only with labs on.
+// Search in the browser: off without the labs switch; with it, greedy is stranded and A* clears; the equations come after a run; the Courses list shows the Lab only with labs on.
 // Screenshots go to test-results/lab-search/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';

@@ -5,11 +5,11 @@ import {
   referencePlan, riding, ridingHours, scare, spikeOrder, storyTotals, validatePlan, verdict, type Step,
 } from "../src/labs/spike/spike-core";
 
-// Lab 17: Spike the riskiest call first. Laws first: finding a failure earlier never wastes more, a test with a missing input is "not tested", the order of tests obeys what they need.
+// Spike the riskiest call first. Laws first: finding a failure earlier never wastes more, a test with a missing input is "not tested", the order of tests obeys what they need.
 const J = (p: string) => JSON.parse(readFileSync(p, "utf8"));
 const shuffle = <T,>(a: T[], seed: number): T[] => { const o = [...a]; let s = seed; for (let i = o.length - 1; i > 0; i--) { s = (s * 1664525 + 1013904223) >>> 0; const j = s % (i + 1); [o[i], o[j]] = [o[j], o[i]]; } return o; };
 
-describe("Lab 17: the data is self-consistent", () => {
+describe("Spike the riskiest call first: the data is self-consistent", () => {
   it("every id used in deps and needs exists, and there is no cycle", () => {
     for (const sc of SCENARIOS) {
       const ids = sc.risks.map((r) => r.id);
@@ -23,7 +23,7 @@ describe("Lab 17: the data is self-consistent", () => {
   });
 });
 
-describe("Lab 17: the risk board", () => {
+describe("Spike the riskiest call first: the risk board", () => {
   it("work riding on a risk is itself plus everything built on it", () => {
     expect([...riding(BARS, "find")].sort()).toEqual(["find", "fit", "lift", "reach"]);
     expect(ridingHours(BARS, "find")).toBe(1 + 2 + 4 + 6);
@@ -52,7 +52,7 @@ describe("Lab 17: the risk board", () => {
   });
 });
 
-describe("Lab 17: plans and the laws of finding out", () => {
+describe("Spike the riskiest call first: plans and the laws of finding out", () => {
   it("the late and early plans are complete and valid", () => {
     for (const sc of SCENARIOS) for (const p of [latePlan(sc), earlyPlan(sc), referencePlan(sc)]) { expect(validatePlan(sc, p)).toEqual([]); expect(p).toHaveLength(sc.risks.length * 2); }
   });
@@ -123,7 +123,7 @@ describe("Lab 17: plans and the laws of finding out", () => {
   });
 });
 
-describe("Lab 17: the challenge is a hard check", () => {
+describe("Spike the riskiest call first: the challenge is a hard check", () => {
   it("test-at-the-end fails it, the reference plan passes it, in both scenarios", () => {
     for (const sc of SCENARIOS) {
       expect(checkChallenge(sc, latePlan(sc)).ok).toBe(false);
@@ -153,7 +153,7 @@ describe("Lab 17: the challenge is a hard check", () => {
   });
 });
 
-describe("Lab 17: not tested is not failed", () => {
+describe("Spike the riskiest call first: not tested is not failed", () => {
   it("a test with a missing input has no result", () => {
     expect(verdict([...WALL_TEST_NEEDS], [], 0, 36)).toEqual({ status: "not tested", missing: ["path", "targets", "ik", "gate"] });
     expect(verdict([...WALL_TEST_NEEDS], ["gate", "ik"], 0, 36).missing).toEqual(["path", "targets"]);
@@ -166,7 +166,7 @@ describe("Lab 17: not tested is not failed", () => {
   });
 });
 
-describe("Lab 17: the real stories match the experiment files", () => {
+describe("Spike the riskiest call first: the real stories match the experiment files", () => {
   const wall = J("data/eval/cc-17-wall/run.json"), bars = J("data/eval/bar-motion/run.json");
   const wallStory = STORIES.find((s) => s.id === "wall")!, barsStory = STORIES.find((s) => s.id === "bars")!;
   it("the wall rounds, minutes and spend are run.json's", () => {
@@ -197,7 +197,7 @@ describe("Lab 17: the real stories match the experiment files", () => {
   });
 });
 
-describe("Lab 17: the wall scenario uses its own facts", () => {
+describe("Spike the riskiest call first: the wall scenario uses its own facts", () => {
   it("the doc's numbers: the free check is the scariest, the paid round is cheap", () => {
     const wall = J("data/eval/cc-17-wall/run.json");
     expect(rankByScare(WALL)[0]).toBe("reach");

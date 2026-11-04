@@ -3,7 +3,7 @@ import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
 import { BOWL_START, GAME_STEPS_PER_SECOND, LENGTH_CHOICES, METHOD_INFO, STEP_CHOICES, bowlRails, clampCfg, runLab, type LabConfig, type LabResult, type Method } from "../labs/integration/engine";
 
-// Lab 6: Numerical integration. The player picks the stepping rule and the step size, runs the cart's real equations in a worker, and reads the energy drift and whether a replay still matches.
+// Numerical integration. The player picks the stepping rule and the step size, runs the cart's real equations in a worker, and reads the energy drift and whether a replay still matches.
 // Nothing here talks or grades: it shows numbers and pictures. The equations sit in their own box. Behind the labs switch (?labs=1).
 const INK = "#17201d", TEAL = "#0f6b5c", GHOST = "#8a958f", BAD = "#b91c1c", GRID = "#d9e0da";
 const METHODS: Method[] = ["euler", "semi", "rk4"];
@@ -18,7 +18,7 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
   host.append(root);
   mountLabsNav(host, "lab-integration");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 6: Numerical integration</h1><p>Labs are switched off.</p><p><a href="?mode=lab-integration&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Numerical integration</h1><p>Labs are switched off.</p><p><a href="?mode=lab-integration&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -47,7 +47,7 @@ export function startLabIntegration(host: HTMLElement): { backend: "canvas2d" } 
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="li-h1">Lab 6: Numerical integration</h1>
+    <h1 id="li-h1">Numerical integration</h1>
     <p class="small" style="margin:4px 0 0">The goal: a cart rolls in a smooth bowl with nothing to slow it, so its energy must never change. A computer only moves it in small steps. Pick how it steps and how big the steps are, then see how much energy it gains or loses, and whether a replay of the run still comes out exactly the same.</p></div>
     <div class="grid">
       <div class="card" id="li-controls">

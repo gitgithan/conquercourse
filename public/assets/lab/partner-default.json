@@ -1,5 +1,5 @@
 {
-  "about": "Simulator reports (testLayout) for the recorded answers of Lab 17, made offline with scripts/lab-partner-precompute.ts.",
+  "about": "Simulator reports (testLayout) for the recorded answers of the Design partner loop Lab, made offline with scripts/lab-partner-precompute.ts.",
   "reports": {
     "m000": {
       "cleared": true,

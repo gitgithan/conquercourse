@@ -3,12 +3,12 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { KNOBS, OURS, judgePhoto, parseTable, summarize, sweep, type Photo } from "../src/labs/vision/rule";
 
-// Lab 4 (computer vision): the rule laws first, then the shipped table, then the Python rule agreeing with the TypeScript one.
+// computer vision: the rule laws first, then the shipped table, then the Python rule agreeing with the TypeScript one.
 const photo = (finds: [number, number, number][], truth: [number, number][] = []): Photo => ({
   id: "t", unionMask30: 0, finds: finds.map(([score, box, mask]) => ({ score, box, mask })), truth: truth.map(([size, find]) => ({ size, find })),
 });
 
-describe("Lab 4: the keep-or-drop rule", () => {
+describe("Computer vision: the keep-or-drop rule", () => {
   it("keeps a photo with no find and drops one with too much masked", () => {
     expect(judgePhoto(photo([]), OURS).kept).toBe(true);
     expect(judgePhoto(photo([[0.9, 0.1, 0.2]]), OURS).kept).toBe(false); // 20 percent masked
@@ -42,7 +42,7 @@ describe("Lab 4: the keep-or-drop rule", () => {
   });
 });
 
-describe("Lab 4: the shipped table", () => {
+describe("Computer vision: the shipped table", () => {
   const table = readFileSync("public/assets/lab/vision/scores.txt", "utf8");
   const photos = parseTable(table);
   it("has a labelled set big enough to draw a curve", () => {
@@ -67,7 +67,7 @@ describe("Lab 4: the shipped table", () => {
   });
 });
 
-describe("Lab 4: the Python rule and the TypeScript rule agree", () => {
+describe("Computer vision: the Python rule and the TypeScript rule agree", () => {
   const have = spawnSync("python3", ["--version"]).status === 0;
   it.skipIf(!have)("gives the same kept and missed counts on a grid of settings", () => {
     const photos = parseTable(readFileSync("public/assets/lab/vision/scores.txt", "utf8"));

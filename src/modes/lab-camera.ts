@@ -7,7 +7,7 @@ import {
   maxPixelGap, poseA, rayThroughPixel, segmentPx, toPx, type CamSettings, type Limb,
 } from "../labs/camera/camera-lab";
 
-// Lab 5: Camera and perspective (CC-118 family of Labs). The player sets a lens, a height and a second angle, and sees what one photo can and cannot say.
+// Camera and perspective (CC-118 family of Labs). The player sets a lens, a height and a second angle, and sees what one photo can and cannot say.
 // The pictures are made with the same three.js PerspectiveCamera the game draws with; the click-to-ray step is the editor's (Raycaster.setFromCamera).
 // Nothing here talks or grades: numbers and pictures. The maths come last, behind a button (labs may show equations).
 const INK = "#17201d", TEAL = "#0f6b5c", ORANGE = "#d9741a", GRID = "#d3dbd5", PURPLE = "#6d3fb3";
@@ -21,7 +21,7 @@ export function startLabCamera(host: HTMLElement): { backend: "canvas2d" } {
   host.append(root);
   mountLabsNav(host, "lab-camera");
   if (!labsOn()) {
-    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Lab 5: Camera and perspective</h1><p>Labs are switched off.</p><p><a href="?mode=lab-camera&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
+    root.innerHTML = `<div style="max-width:520px;margin:12vh auto;padding:0 16px"><h1 style="font-size:22px">Camera and perspective</h1><p>Labs are switched off.</p><p><a href="?mode=lab-camera&labs=1" style="color:${TEAL}">Switch labs on</a></p></div>`;
     return { backend: "canvas2d" };
   }
   const style = document.createElement("style");
@@ -49,7 +49,7 @@ export function startLabCamera(host: HTMLElement): { backend: "canvas2d" } {
   const wrap = document.createElement("div"); wrap.className = "wrap"; root.append(wrap);
   wrap.innerHTML = `
     <div><a class="back" href="/?welcome=0">Back to the game</a>
-    <h1 id="lc-h1">Lab 5: Camera and perspective</h1>
+    <h1 id="lc-h1">Camera and perspective</h1>
     <p class="small" style="margin:4px 0 0">The goal: find out why one photo cannot tell you how far away each part of a body is. Body <b style="color:${TEAL}">A</b> is a vault reach. Body <b style="color:${ORANGE}">B</b> is a different pose with the same bone lengths that makes the very same front photo. You choose the lens, the height and the angle of a second camera, and see when the second view gives B away.</p></div>
     <div class="grid">
       <div class="card" id="lc-controls">
