@@ -19,6 +19,8 @@ try {
   await shot('1-start');
   await page.goto(url('?at=0.5')); await page.waitForTimeout(500);
   await page.keyboard.down('w'); await page.waitForTimeout(700); await shot('2-mid'); await page.keyboard.up('w');
+  await page.goto(url('?gate=5')); await page.waitForTimeout(900);
+  await shot('2b-day-gate');
   await page.goto(url('?at=1')); await page.waitForTimeout(1200);
   await shot('3-stage');
   // no-freeze check: hold W from the start and compare a picture every 120 ms
