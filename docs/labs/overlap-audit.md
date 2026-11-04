@@ -92,7 +92,49 @@
 - The README "Reading the status of a Lab" restates the PR 420 story that `tests/no-conflict-markers.test.ts` already covers.
   - It can go to `docs/lessons.md`.
 
-## The new Labs
-- Labs 13 to 15 were not on `main` when this audit was first written; see below.
-- The sections below are filled in as they land.
+## The new Labs (read from the authors' working folders before they landed; re-check after merge)
 
+### 12. Three Labs each say "Lab 13"
+- The collision, lift and motion docs were each written as "Lab 13"; numbers come from the place in `src/ui/labs-series.ts`, so only one can be 13.
+- **Recommendation:** whoever merges last fixes the title lines to the numbers the list gives (13, 14, 15 in merge order); the numbers are ids, so fix the titles and not the list.
+
+### 13. Different words for "which stage": 4 of 8, 2 and 3 of 8, 2 of 3
+- Collision calls itself "stage 4 of 8", lift "stages 2 and 3 of 8", motion "stage 2 of 3".
+- The series map in `pipelines.md` has three pipelines with 6, 5 and 5 stages.
+- **Recommendation:** use the stage names from the series map ("Photo to course object, stage 5: Collision") in all three titles.
+
+### 14. Gate and smoothing: new motion Lab and Lab 8
+- The motion Lab shows the same gate (it reuses Lab 8's TypeScript port) on ten clips, and the game's smoothing; Lab 8 shows the same gate on noisy clips.
+- The motion Lab says plainly that the cost of smoothing is Lab 8's and links it, which is the right way.
+- **Better copy:** Lab 8 for the filters and the Python cross-check; the motion Lab for the story of one filmed move.
+- **Recommendation:** keep both; the gate rule list should live in one place (`pipelines.md` section 4) and both Labs link to it.
+
+### 15. Posing the Rookie: the motion Lab (step 5) and Lab 3
+- The motion Lab retargets a clip onto the Rookie; Lab 3 solves reach with the same bones.
+- The motion Lab says it does not teach reaching.
+  - No repeat.
+
+### 16. Bake and the thin-bar lesson: the lift Lab, `pipelines.md` and `lessons-obstacle-creation.md`
+- The seven bake steps and the typical-height table are written in `pipelines.md` step 4 and again in the lift Lab's code and doc; a test pins the Lab to the table, so a change in one fails the other.
+- The thin-bar lesson (0.25 m gives 5.4 m) is also in the obstacle lessons.
+- **Better copy:** the Lab (it is runnable and tested).
+- **Recommendation:** keep; shorten the pipeline doc step to a link once the Lab is the reference.
+
+### 17. Why depth is a guess: the lift Lab and Lab 5
+- The lift Lab links Lab 5 for "one photo gives no depth" and does not repeat it.
+  - No repeat.
+
+### 18. Collision: the collision Lab and `docs/collision-from-3d.md`
+- The nine steps (voxelise, close, biggest piece, top band, peaks, one spacing, the row, the simulator) appear in both.
+- The Lab runs the real functions and has 27 tests; the doc explains in words.
+- **Better copy:** the Lab for numbers; the doc for the reason each step exists.
+- **Recommendation:** keep both and make the doc's step list say "run it in Lab N".
+
+### 19. Replay in the collision Lab and Lab 11
+- The collision Lab's last step plays recorded keys through `verifyLog` on the new course.
+- Lab 11 teaches `verifyLog`.
+- **Recommendation:** the collision Lab links Lab 11 for what the judge does.
+
+### 20. Detector in the lift Lab
+- The lift Lab says "after the object exists, is the part found right?" and links Lab 10.
+  - No repeat.
