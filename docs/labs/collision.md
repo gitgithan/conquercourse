@@ -1,4 +1,4 @@
-# Lab 13: Collision from a 3D lift
+# Lab 15: Collision from a 3D lift
 
 *Pipeline stage 4 of 8: Collision from 3D.*
 *Before it: baking a lift to a game object.*
@@ -26,18 +26,27 @@
 - Everything runs in the page; no worker, no paid call.
 
 ## The nine steps
-- **1. The lifted skin:** 4,733 points, 17,460 triangle corners, scaled to 2.2 m.
-- **2. Voxelise:** every triangle is split until its edges are shorter than a cell, then the cells it touches are marked.
-- **3. Close holes:** grow by one cell, shrink by one; 41 cells fill at 5 cm.
-- **4. Keep the largest piece:** one piece on this lift, so nothing drops; a lift with floating blobs would show them in red.
-- **5. Top band:** the 0.3 m under the highest cell, so legs and posts do not count.
-- **6. Rung peaks per slice:** 107 slices of 5 cm; the peak line is the median plus 40% of the way to the maximum; 15 rung peaks stay.
-- **7. One spacing:**
+- **1.
+  - The lifted skin:** 4,733 points, 17,460 triangle corners, scaled to 2.2 m.
+- **2.
+  - Voxelise:** every triangle is split until its edges are shorter than a cell, then the cells it touches are marked.
+- **3.
+  - Close holes:** grow by one cell, shrink by one; 41 cells fill at 5 cm.
+- **4.
+  - Keep the largest piece:** one piece on this lift, so nothing drops; a lift with floating blobs would show them in red.
+- **5.
+  - Top band:** the 0.3 m under the highest cell, so legs and posts do not count.
+- **6.
+  - Rung peaks per slice:** 107 slices of 5 cm; the peak line is the median plus 40% of the way to the maximum; 15 rung peaks stay.
+- **7.
+  - One spacing:**
   - Neighbouring gaps are rounded to a whole number of unit gaps: a double gap means a missed rung, a half gap a split rung.
   - One line through the places gives a unit of about 0.287 m.
   - That is under the editor's 0.3 m, so every second rung is used.
-- **8. The BarRun:** `{ x: -2.255, y: 2.08, n: 9, gap: 0.575 }`.
-- **9. In the simulator:** the row goes into a course like the demo course and the recorded ideal-run keys clear it in 914 ticks.
+- **8.
+  - The BarRun:** `{ x: -2.255, y: 2.08, n: 9, gap: 0.575 }`.
+- **9.
+  - In the simulator:** the row goes into a course like the demo course and the recorded ideal-run keys clear it in 914 ticks.
 
 ## Break it
 - **A rung is missed:** one peak is removed; the copied mesh has a double gap, the fitted row is the same 9 rungs.

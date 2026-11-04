@@ -1,4 +1,4 @@
-// Lab 13 (collision from a 3D lift) in the browser at 1280 px: off without the labs switch; with it every output is filled on open, the steps scrub, break-it changes the comparison.
+// Lab 15 (collision from a 3D lift) in the browser at 1280 px: off without the labs switch; with it every output is filled on open, the steps scrub, break-it changes the comparison.
 // Screenshots go to test-results/lab-collision/.
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
