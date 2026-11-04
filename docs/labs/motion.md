@@ -58,7 +58,7 @@
   - The gate verdict is the first thing on the page, because the pipeline's rule is that no motion is shown before it passes.
 - **Which real game code runs:** `parseClip` and `sampleClip` (`src/motion/clip.ts`), the gate (`runGate` in `src/lab/signal-lab.ts`), the smoothing (`gameSmoothing`), `legLength`, `clipToWorld`, `rookie.apply`, `MOTION_TABLE` and `TICKS_PER_SECOND`.
 - **Lab code:** `src/labs/motion/motion-core.ts` (the broken clips, the lift-to-floor repair, the wording of each failure), `src/modes/lab-motion.ts`.
-- **Which data is precomputed:** `public/assets/lab/motion-recorded.json`, the Python gate's raw and repaired numbers for the filmed roll (from `data/eval/motion-from-you/roll-lp/gate.json`); the rest is computed in the page.
+- **Which data is precomputed:** `public/assets/lab/motion-recorded.json`, the Python gate's raw and repaired numbers for the filmed roll (from `data/eval/motion-from-you/roll-lp/gate.json`); `public/assets/lab/motion/real/` (the pose finder's raw tracks of two rolls, recorded on a GPU at build time, never at runtime; trail in `data/eval/cc-133-lab13-pose/`; if it cannot load, the Lab keeps its other clips); the rest is computed in the page.
 - **Order of the screen and why:** the pick, the frames and joints, smoothing, the gate (the long card), then the character and the clock, so the player sees what each step hands to the next.
 
 ## How we prove the lesson is right

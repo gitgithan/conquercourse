@@ -1,0 +1,147 @@
+{
+  "about": "Raw tracks from the pose finder (SAM 3D Body, then MHR to SOMA) run on Modal at build time. Joints in metres, y up, run along +z, left on +x. Not smoothed, not repaired.",
+  "clips": [
+    {
+      "id": "roll-lp-crouch-raw",
+      "label": "Crouch roll, measured by the pose finder (no cleaning)",
+      "file": "roll-lp-crouch-raw.json",
+      "sha256": "8c8afe1f97bcc579f65cb2e48c9babaf4f59f8c24647420ff3b05729652cd732",
+      "bytes": 276558,
+      "frames": 150,
+      "fps": 29.97,
+      "credit": "Learn Parkour : Basic Crouch Roll, London Parkour (CC BY)",
+      "source_window": "203.5 to 208.5 s",
+      "frames_measured": 150,
+      "frames_in_film": 150,
+      "athlete_frames": [
+        0,
+        150
+      ],
+      "focal_px": 1487,
+      "python_gate": {
+        "pass": false,
+        "hard": {
+          "knees_bend_forward": {
+            "ok": true,
+            "value": 46.9716
+          },
+          "legs_not_twisted": {
+            "ok": true,
+            "value": 46.9716
+          },
+          "knees_within_range": {
+            "ok": true,
+            "value": 160.8113
+          },
+          "flight_is_ballistic": {
+            "ok": false,
+            "value": -1.8475
+          },
+          "feet_dont_sink": {
+            "ok": true,
+            "value": 0.0265
+          },
+          "no_teleport": {
+            "ok": true,
+            "value": 2.9975
+          }
+        },
+        "soft": {
+          "bones_keep_length": {
+            "ok": false,
+            "value": 0.4537
+          },
+          "feet_dont_slide": {
+            "ok": false,
+            "value": 0.1157
+          },
+          "no_jitter": {
+            "ok": false,
+            "value": 421.1277
+          }
+        }
+      },
+      "mean_joint_step_m": 0.0344,
+      "floor": {
+        "floor_fit_terms": [
+          "const",
+          "depth",
+          "x"
+        ],
+        "floor_points": 117,
+        "floor_offset_m": -1.1794612761922023
+      },
+      "bridged_frames": []
+    },
+    {
+      "id": "roll-lp-stand-raw",
+      "label": "Standing roll, measured by the pose finder (no cleaning)",
+      "file": "roll-lp-stand-raw.json",
+      "sha256": "42eb8012dea6f5c38ab02653be242a5271c977f6a8052ba32e71a35da4328a30",
+      "bytes": 142809,
+      "frames": 77,
+      "fps": 29.97,
+      "credit": "Learn Parkour : Basic Crouch Roll, London Parkour (CC BY)",
+      "source_window": "39.2 to 43.2 s",
+      "frames_measured": 120,
+      "frames_in_film": 120,
+      "athlete_frames": [
+        43,
+        120
+      ],
+      "focal_px": 1508.8,
+      "python_gate": {
+        "pass": false,
+        "hard": {
+          "knees_bend_forward": {
+            "ok": true,
+            "value": 51.1827
+          },
+          "legs_not_twisted": {
+            "ok": true,
+            "value": 51.1827
+          },
+          "knees_within_range": {
+            "ok": true,
+            "value": 156.4539
+          },
+          "flight_is_ballistic": {
+            "ok": false,
+            "value": -2.3083
+          },
+          "feet_dont_sink": {
+            "ok": true,
+            "value": 0.0209
+          },
+          "no_teleport": {
+            "ok": true,
+            "value": 3.1733
+          }
+        },
+        "soft": {
+          "bones_keep_length": {
+            "ok": false,
+            "value": 0.243
+          },
+          "feet_dont_slide": {
+            "ok": false,
+            "value": 0.1706
+          },
+          "no_jitter": {
+            "ok": false,
+            "value": 300.1908
+          }
+        }
+      },
+      "mean_joint_step_m": 0.0446,
+      "floor": {
+        "floor_fit_terms": [
+          "const"
+        ],
+        "floor_points": 53,
+        "floor_offset_m": -0.7293332802114029
+      },
+      "bridged_frames": []
+    }
+  ]
+}

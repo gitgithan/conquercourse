@@ -4,17 +4,24 @@ import { parseClip, sampleClip, type Clip } from "../../motion/clip";
 import { fixedSkeleton, filterFrames, gameSmoothing, runGate, failures, type Frames, type GateReport, type SignalClip } from "../../lab/signal-lab";
 import { TICKS_PER_SECOND } from "../../sim/units";
 
-export type Origin = "recorded-pass" | "recorded-fail" | "broken-by-us";
+export type Origin = "recorded-pass" | "recorded-fail" | "broken-by-us" | "measured-raw";
 export interface LabClip { id: string; label: string; url: string; origin: Origin; note: string; breakWith?: Break; base?: string }
 export type Break = "sink" | "teleport" | "slow" | "bones";
 
-const M = "/assets/motion/", X = "/assets/experiments/";
+const M = "/assets/motion/", X = "/assets/experiments/", R = "/assets/lab/motion/real/";
+/** The pose finder's own output, as recorded at build time (see R/manifest.json). Not smoothed, not repaired; the Lab does those steps. */
+export const REAL_MANIFEST_URL = `${R}manifest.json`;
+export const REAL_CLIPS: LabClip[] = [
+  { id: "real-crouch", label: "Crouch roll, straight from the pose finder", url: `${R}roll-lp-crouch-raw.json`, origin: "measured-raw", note: "Recorded on a GPU when the Lab was built: one adult, 150 frames, nothing cleaned yet. Smoothing is step 3." },
+  { id: "real-stand", label: "Standing roll, straight from the pose finder", url: `${R}roll-lp-stand-raw.json`, origin: "measured-raw", note: "The same film, another roll, also straight from the pose finder." },
+];
 export const LAB_CLIPS: LabClip[] = [
   { id: "run", label: "Run (motion capture)", url: `${M}run.json`, origin: "recorded-pass", note: "CMU motion capture, shipped." },
   { id: "leap", label: "Leap (motion capture)", url: `${M}leap.json`, origin: "recorded-pass", note: "CMU motion capture, shipped." },
   { id: "vault", label: "Vault (filmed, London Parkour)", url: `${M}vault.json`, origin: "recorded-pass", note: "Measured from a video, repaired, passed the gate, shipped." },
   { id: "roll-crouch", label: "Roll, crouch part (filmed)", url: `${X}mymove/roll-lp-crouch.json`, origin: "recorded-pass", note: "A trimmed piece of a filmed jump roll; it passes the gate." },
   { id: "roll-whole", label: "Roll, the whole film (filmed)", url: `${X}mymove/roll-lp-whole.json`, origin: "recorded-fail", note: "The whole 150-frame measurement of the jump roll. A real failure: the body is in the air but not on a falling arc." },
+  ...REAL_CLIPS,
   { id: "wall-a", label: "Wall run-up, Kimodo sample a", url: `${X}starter-clips/wall_runup_grab_wall_a_s0.json`, origin: "recorded-fail", note: "A generated clip that says a wall holds the body, but the body hangs in the air more than a second with nothing holding it." },
   { id: "sink", label: "Run with feet under the floor (made by us)", url: `${M}run.json`, origin: "broken-by-us", breakWith: "sink", note: "The shipped run, every joint moved 8 cm down." },
   { id: "teleport", label: "Run with a jump in place (made by us)", url: `${M}run.json`, origin: "broken-by-us", breakWith: "teleport", note: "The shipped run, the body moved 1.5 m forward in one frame." },
