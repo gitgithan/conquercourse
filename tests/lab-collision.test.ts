@@ -4,6 +4,7 @@ import { readGlbMesh } from "../src/slice/glb";
 import { GAP_MAX, GAP_MIN } from "../src/sim/bars";
 import { searchIdealRun } from "../src/sim/ideal";
 import { barProfile, fitRow, regulariseRungs, roleCollider } from "../src/slice/role-collider";
+import { COLLIDERS, OBJECTS, TOP_TOLERANCE, bounds, boxMesh, colliderFor, decimate, relift, roll, trial } from "../src/labs/collision/skin-collider";
 import { BREAKS, DEFAULT_BREAK, FIRST_RUNG_X, KNOWN_HEIGHT, breakPeaks, compareBreak, courseFor, gapTable, playKeys, runStages, type Break } from "../src/labs/collision/collision-core";
 
 // Lab 15 (collision from a 3D lift): the steps, the fit, the break-it controls. Every number is the game's own role-collider.ts on the real Saienji CC0 monkey-bars lift.
@@ -155,6 +156,49 @@ describe("Lab 15: collision from a 3D lift", () => {
     });
     it("the ideal-run search clears the fitted row", { timeout: 60000 }, () => {
       expect(searchIdealRun(courseFor(st.run)).cleared).toBe(true);
+    });
+  });
+
+  describe("skin versus collider", () => {
+    const load = (id: string) => { const b = readFileSync(`public/assets/objects/${id}.glb`); return readGlbMesh(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer); };
+    const box = load("box-skate-03");
+    it("a flat box under the ball gives a flat, snag-free run (the law: a smooth floor does not slow the ball or bend its height)", () => {
+      const r = roll(boxMesh([-1, 0, -1], [1, 0.5, 1]), { lo: [-1, 0, -1], hi: [1, 0.5, 1] });
+      expect(r.finished).toBe(true); expect(r.jitter).toBe(0); expect(r.snags).toBe(0);
+      expect(Math.min(...r.ys.slice(60, 100))).toBeCloseTo(0.6, 2); // rests on the top, ball radius 0.1 above 0.5
+    });
+    it("the run is deterministic: the same collider twice gives the same hash", () => {
+      const f = bounds(box); expect(roll(box, f).hash).toBe(roll(box, f).hash);
+      expect(relift(box).positions).toEqual(relift(box).positions);
+    });
+    it("the same photo lifted twice changes the skin's run, but not the 5 cm collider's", () => {
+      const s = trial(box, "skin"), c = trial(box, "box-snapped");
+      expect(s.same).toBe(false); expect(c.same).toBe(true); expect(c.a.hash).toBe(c.b.hash);
+    });
+    it("every object: the 5 cm box keeps the run; the skin never does", () => {
+      for (const o of OBJECTS) { const m = load(o.id); expect(trial(m, "box-snapped").ok, o.id).toBe(true); expect(trial(m, "skin").ok, o.id).toBe(false); }
+    });
+    it("the challenge has exactly one right answer: the loose box has the same run but the wrong top; the tight box moves with the lift", () => {
+      const ok = COLLIDERS.filter((c) => trial(box, c.kind, 600).ok).map((c) => c.kind);
+      expect(ok).toEqual(["box-snapped"]);
+      const big = trial(box, "box-big"); expect(big.same).toBe(true); expect(big.topErr).toBeGreaterThan(TOP_TOLERANCE);
+      expect(trial(box, "box-exact").same).toBe(false);
+    });
+    it("the skin costs triangles x ticks, the box costs 12 x ticks", () => {
+      const s = trial(box, "skin"), c = trial(box, "box-snapped");
+      expect(s.a.checks).toBe(s.a.tris * s.a.ticks); expect(c.a.checks).toBe(12 * c.a.ticks);
+      expect(s.a.checks).toBeGreaterThan(50 * c.a.checks);
+    });
+    it("the detail slider: fewer triangles, never more than asked, and the cost falls with them", () => {
+      const sizes = [100, 300, 1000].map((n) => decimate(box, n).indices!.length / 3);
+      sizes.forEach((v, i) => expect(v).toBeLessThanOrEqual([100, 300, 1000][i])); expect(sizes[0]).toBeLessThan(sizes[2]);
+      expect(trial(box, "decimated", 100).a.tris).toBeLessThan(trial(box, "decimated", 1000).a.tris);
+      expect(decimate(box, 99999)).toBe(box);
+    });
+    it("a thinner skin is cheaper but still not the same run on a second lift", () => { expect(trial(box, "decimated", 300).same).toBe(false); });
+    it("the snapped box's sides are on the 5 cm grid and its top is within 2.5 cm of the skin's top", () => {
+      const b = bounds(colliderFor("box-snapped", box)); for (const v of [...b.lo, ...b.hi]) expect(Math.abs(v / 0.05 - Math.round(v / 0.05))).toBeLessThan(1e-9);
+      expect(Math.abs(b.hi[1] - bounds(box).hi[1])).toBeLessThanOrEqual(0.025 + 1e-9);
     });
   });
 });
