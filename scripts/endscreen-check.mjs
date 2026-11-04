@@ -31,7 +31,7 @@ ok('Download a video', has(/^Download a video of this try$/));
 ok('Copy link', has(/^Copy link to this try$/));
 ok('Train the obstacle', has(/^Train the /));
 ok('one primary button', (await page.locator('#fall-primary button').filter({ hasText: /again \(R\)/ }).count()) === 1);
-await page.screenshot({ path: `${out}/${name}.png` });
+await page.screenshot({ path: `${out}/${name}.png`, timeout: 150000 });
 ok('no page errors', errors.length === 0);
 await browser.close();
 process.exit(bad ? 1 : 0);
