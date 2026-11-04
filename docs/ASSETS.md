@@ -235,6 +235,22 @@
   - Source: Overpass API (six public servers, one named, polite user agent), fetched 2026-10-29, no key
   - Licence: © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright); the screenshots under `data/eval/cc-178-places/skin-shots/` are derived from it and carry the same credit
   - Used by: `src/world/skin.ts`, `place-skin.html` (a dev page behind `?skin=`)
+- **Building looks from OpenStreetMap tags** (no new file, CC-133)
+  - What it is: wall colour, floors, roof colour and roof shape drawn from the tags `building:colour`, `building:material`, `building:levels`, `roof:shape` and `roof:colour` of the place scenery data above; a building with no such tag gets a stable pick from a small colour list (warm south, cool north), and every footprint and height stays as it was
+  - Source and licence: the OpenStreetMap rows above, (c) OpenStreetMap contributors, ODbL 1.0; the credit line stays on the scenery page
+  - Used by: `src/world/building-style.ts`, `src/world/skin.ts`, behind the `bstyle` switch (on at localhost and the preview site, off on production); no street photo of any kind is used
+- **Photo facade of the New York Public Library** (`public/assets/places/facades/nypl-fifth-avenue.jpg`, 191 KB, CC-133)
+  - What it is: the central portico of the Stephen A. Schwarzman Building seen from Fifth Avenue, straightened (4-point perspective crop, resized to 1280 px, JPEG) and drawn on the matching 27.7 m wall of the OpenStreetMap footprint in the Bryant Park scenery
+  - Source: Wikimedia Commons, "N.Y. Public Library - Schwarzman Bldg. - exterior.jpg", https://commons.wikimedia.org/wiki/File:N.Y._Public_Library_-_Schwarzman_Bldg._-_exterior.jpg
+  - Author: Bestbudbrian (photo taken 2014-02-07)
+  - Licence: CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0); no person is in the picture
+  - Changes: perspective-corrected crop of the portico, scaled down, recompressed; made by `scripts/rectify-facade.ts` (corners in `data/eval/cc-133-photo-facade/run.json`)
+  - Credit: shown in the page footer of the scenery page when the facade is on
+  - Used by: `src/world/facade.ts`, `src/world/skin.ts`, `src/world/skin-page.ts` (`place-skin.html`), behind the `facade` switch (on at localhost and the preview site, off on production)
+  - Demo only (CC BY-SA): swap before a sale; the replacement plan is a CC0 or CC BY photo of the same wall, or our own photo, rectified with the same script; it is a file change, not a redesign
+- **Bryant Park scenery data, shipped copy** (`public/assets/places/skin/bryant-park-new-york-osm.json`, 263 KB, CC-133)
+  - What it is: a byte-for-byte copy of the Bryant Park file in the row above, so the preview site can draw the scenery page
+  - Licence: (c) OpenStreetMap contributors, ODbL 1.0
 - **Eleven new Ready places** (`public/assets/places/*.json`, CC-178)
   - What they hold: the Overpass answer, ground heights and the best lane for Piazza San Marco, Plaza Mayor, Place des Vosges, Trafalgar Square, Covent Garden, Washington Square, Union Square, Old Town Square, Piazza Navona, Nyhavn and Boston Common
   - Source: the Overpass and AWS Terrain Tiles sources above, fetched 2026-10-29

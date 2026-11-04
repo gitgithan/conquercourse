@@ -1,0 +1,11 @@
+{
+  "experiment": "cc-133-photo-facade",
+  "photo": "Wikimedia Commons: N.Y. Public Library - Schwarzman Bldg. - exterior.jpg",
+  "licence": "CC BY-SA 3.0",
+  "author": "Bestbudbrian",
+  "wall_width_m": 27.7,
+  "facing_deg": 119,
+  "output": "public/assets/places/facades/nypl-fifth-avenue.jpg",
+  "aspect": 1.4,
+  "script": "scripts/rectify-facade.ts"
+}
