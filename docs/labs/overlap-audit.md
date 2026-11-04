@@ -38,12 +38,14 @@
 - Lab 1 (search methods) and Lab 12 (learn by trial and error) both answer "how many tries to find a clear run?", with different tools.
 - Lab 2 and Lab 1 both count simulator runs as the cost.
 - **Better copy:** Lab 1 for "how many runs"; Lab 2 for the map with peaks; Lab 12 for reward writing.
-- **Recommendation:** keep all; this is a family. The README could say "Labs 1, 2 and 12 are three answers to one question: how to find a good run".
+- **Recommendation:** keep all; this is a family.
+  - The README could say "Labs 1, 2 and 12 are three answers to one question: how to find a good run".
 
 ### 4. Seeded randomness and "same choices, same numbers": Labs 1, 2, 7, 8, 9, 11, 12
 - Seven docs state that the seed is fixed and a test runs the Lab twice.
 - It is a shared rule, repeated as a proof bullet in each doc.
-- **Recommendation:** leave the tests; shorten the doc bullets to one line linking to `docs/university-labs.md`. Low value either way.
+- **Recommendation:** leave the tests; shorten the doc bullets to one line linking to `docs/university-labs.md`.
+  - Low value either way.
 
 ### 5. Press timing: Lab 7 and Lab 2
 - Lab 2's "game's pick" card says the game centres the release in its window; Lab 7 measures the window itself.
@@ -66,7 +68,8 @@
 - Lab 5 proves with hand-made bodies that one front photo cannot fix depth.
 - The obstacle lessons say a lift keeps only part of thin or long objects and that size comes from a typed height.
 - Same cause (depth is a guess), told once in maths and once in outcomes.
-- **Recommendation:** keep; the new lift Lab should link both. See the last section.
+- **Recommendation:** keep; the new lift Lab should link both.
+  - See the last section.
 
 ### 9. People in photos: Lab 4 and the Mapillary carve-out in `CLAUDE.md`
 - Lab 4's thresholds (score cut 0.3, 25 percent biggest box) restate rules from `scripts/photos_mask.py` and `scripts/photos_people.py`.
@@ -83,9 +86,11 @@
 - This is a gap, not a duplicate: no Lab cuts an object out of a photo (the lift Lab may start there).
 
 ## Smaller repeats
-- Each Lab doc has "When you open it" with nearly the same two bullets; the README also states them. Keep the doc line, drop nothing.
+- Each Lab doc has "When you open it" with nearly the same two bullets; the README also states them.
+  - Keep the doc line, drop nothing.
 - Every Lab says "desktop keyboard and mouse at 1280 px only" and "behind the labs switch"; the rule is in `docs/university-labs.md`.
-- The README "Reading the status of a Lab" restates the PR 420 story that `tests/no-conflict-markers.test.ts` already covers. It can go to `docs/lessons.md`.
+- The README "Reading the status of a Lab" restates the PR 420 story that `tests/no-conflict-markers.test.ts` already covers.
+  - It can go to `docs/lessons.md`.
 
 ## The new Labs
 - Labs 13 to 15 were not on `main` when this audit was first written; see below.
