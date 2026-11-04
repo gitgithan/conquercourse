@@ -65,11 +65,11 @@ export function startAudio(): () => void {
 }
 
 let button: HTMLButtonElement | null = null;
-function paintButton() { if (button) { button.textContent = muted ? 'Sound: off (M)' : 'Sound: on (M)'; button.setAttribute('aria-pressed', String(!muted)); } }
+function paintButton() { if (button) { const words = muted ? 'Sound: off (M)' : 'Sound: on (M)'; button.textContent = muted ? '\u{1F507}' : '\u{1F50A}'; button.title = words; button.setAttribute('aria-label', words); button.setAttribute('aria-pressed', String(!muted)); } }
 export function soundButton(): HTMLButtonElement {
   button = document.createElement('button');
   button.id = 'soundbutton';
-  button.style.cssText = 'position:fixed;left:62px;bottom:70px;z-index:5;font:12px system-ui;padding:4px 8px;opacity:.75;cursor:pointer';
+  button.style.cssText = 'position:fixed;right:120px;bottom:16px;z-index:50;font:16px/1 system-ui;padding:4px 8px;opacity:.85;cursor:pointer;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;box-shadow:0 4px 16px #0003';
   button.onclick = () => { setMuted(!muted); paintButton(); button?.blur(); };
   paintButton();
   return button;
