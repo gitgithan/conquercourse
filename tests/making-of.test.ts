@@ -140,6 +140,8 @@ describe('The Making Of public files', () => {
       if (e.image) expect(existsSync(join(DIR, e.image)), e.image).toBe(true);
     }
     type More = Ev & { more?: string; commit?: string };
+    expect(read('timeline-events.json')).not.toMatch(/\bLab \d+\b/); // a Lab is named, never numbered
+    expect(read('timeline.html')).not.toMatch(/\bLab \d+\b/);
     for (const e of ev as More[]) {
       if (e.model || e.plate || /simulator/i.test(e.title + e.text)) expect(e.more, `${e.id} needs a longer text`).toBeTruthy();
       if (e.more) {
