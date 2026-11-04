@@ -14,15 +14,22 @@ export function createSearch(env: { progress: (p: LaneProgress) => void; results
   const report = (kind: string) => { document.documentElement.dataset[env.preview ? 'previewProof' : 'laneProof'] = kind; };
   const proofFor = (course: CourseData): PresetPlan | null => {
     const stored = storedPlanFor(course), cached = results.get(keyOf(course));
-    if (stored || cached) report(stored ? 'stored' : 'cached');
-    return stored ?? cached ?? null;
+    if (stored || cached) report(cached ? 'cached' : 'stored');
+    return cached ?? stored ?? null;
+  };
+  const rememberProof = (course: CourseData, proof: Pick<PresetPlan, 'cleared' | 'plan' | 'windows' | 'routes'> & { timingWindows?: PresetPlan['windows'] }): PresetPlan | null => {
+    if (proof.cleared && !proof.plan) return null;
+    const key = keyOf(course);
+    const result: PresetPlan = { key, cleared: proof.cleared, ...(proof.cleared ? { plan: proof.plan, windows: xWindows(proof.windows ?? []), timingWindows: proof.timingWindows ?? proof.windows ?? [], ...(proof.routes ? { routes: proof.routes } : {}) } : {}) };
+    results.delete(key); results.set(key, result);
+    if (results.size > 24) results.delete(results.keys().next().value!);
+    return result;
   };
   // CC-243: the lane check. A ready-made course is answered at once from its stored proof (scripts/preset-plans.ts); an edited one is searched in a worker, and the plan it finds goes with the hand-off to the Course.
   function searchResult(course: CourseData): Promise<PresetPlan | null> {
-    const stored = storedPlanFor(course);
-    if (stored) { report('stored'); return Promise.resolve(stored); }
-    const key = keyOf(course), cached = results.get(key);
-    if (cached) { report('cached'); return Promise.resolve(cached); }
+    const cached = proofFor(course);
+    if (cached) return Promise.resolve(cached);
+    const key = keyOf(course);
     report('search');
     if (activeSearch?.key === key) return activeSearch.promise;
     stopSearch();
@@ -32,14 +39,10 @@ export function createSearch(env: { progress: (p: LaneProgress) => void; results
     catch { return Promise.resolve(null); }
     const promise = new Promise<PresetPlan | null>((resolve) => {
       searchWorker = worker; finishSearch = resolve;
-      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'>>) => {
+      worker.onmessage = (e: MessageEvent<{ id: number; progress?: LaneProgress } & Pick<SearchResult, 'plan' | 'cleared' | 'windows' | 'routes'> & { timingWindows?: PresetPlan['windows'] }>) => {
         if (e.data.id !== id || id !== searchVersion) return;
         if (e.data.progress) { env.progress(e.data.progress); return; }
-        const result: PresetPlan = { key, cleared: e.data.cleared, ...(e.data.cleared ? { plan: e.data.plan, windows: xWindows(e.data.windows ?? []), ...(e.data.routes ? { routes: e.data.routes } : {}) } : {}) };
-        // A positive verdict without its successful run cannot be handed to Play.
-        if (result.cleared && !result.plan) { searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(null); return; }
-        results.delete(key); results.set(key, result);
-        if (results.size > 24) results.delete(results.keys().next().value!);
+        const result = rememberProof(course, e.data);
         searchWorker = null; finishSearch = null; activeSearch = null; worker.terminate(); resolve(result);
       };
       worker.onerror = () => {
@@ -64,6 +67,6 @@ export function createSearch(env: { progress: (p: LaneProgress) => void; results
   const withProof = (course: CourseData): CourseData => {
     return withStoredPlan(course, proofFor(course));
   };
-  return { searchResult, stopSearch, searchClearable, withProof, proofFor };
+  return { searchResult, stopSearch, searchClearable, withProof, proofFor, rememberProof };
 }
 export type EditorSearch = ReturnType<typeof createSearch>;

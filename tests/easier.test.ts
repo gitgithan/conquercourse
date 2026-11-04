@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
-import { makeItEasier, narrowest } from '../src/slice/easier';
+import { makeItEasier, narrowest, limitingTarget } from '../src/slice/easier';
 import { holdsOf, isHold } from '../src/slice/holds-world';
 import { laneToCourse, sliceProfile } from '../src/slice/slice';
 import { piecesFromSource } from '../src/slice/roundtrip';
@@ -30,6 +30,9 @@ describe('Make it easier', () => {
     const r = await makeItEasier(ps, lane, 6, { courseOf, xOf: (p) => p.x });
     expect(r.proposal).not.toBeNull();
     expect(r.after).toBeGreaterThanOrEqual(r.before * 1.15);
+    expect(r.proof?.cleared).toBe(true);
+    expect(r.proof?.plan).toBeDefined();
+    expect(r.course).toBeDefined();
     expect(r.proposal!.source).toBe('easier');
     expect(r.proposal!.known).toBe(true);
     expect(r.proposal!.items).toHaveLength(1);
@@ -49,4 +52,24 @@ describe('Make it easier', () => {
     expect(narrowest(w)).toBe(262);
     expect(narrowest(w, 6)).toBe(314);
   });
+});
+
+it('targets the limiting obstacle and resolves bar coordinates', () => {
+  const course = courseOf(mk(['box:8:0.5:2', 0, 0]), lane);
+  const windows = [{ obstacle: 'edge at 6 m', widthMs: 80, best: 0, lo: 0, hi: 1 }, { obstacle: 'jump at edge at 17 m', widthMs: 120, best: 0, lo: 0, hi: 1 }];
+  expect(limitingTarget(course, windows, 6, 0)).toEqual({ x: 17, label: 'jump at edge at 17 m' });
+  expect(limitingTarget({ ...course, holds: [{ x: 23, y: 3 }] }, [{ ...windows[1], obstacle: 'hang on bar 1' }], 6, 0).x).toBe(23);
+});
+it('keeps cost order when a later candidate finishes first and retains the winning proof', async () => {
+  const ps = mk(['box:8:0.5:2', 0, 0], ['box:8:0.5:2', 13, 0]);
+  const window = (n: number) => [{ obstacle: 'edge at 17 m', best: 16, lo: 15, hi: 17, widthMs: n }];
+  const plan = { jumpXs: [16], releaseAfter: 0, bouncePress: 0 };
+  let calls = 0;
+  const proofs = [0, 1, 2].map((i) => ({ cleared: true, plan: { ...plan, bouncePress: i }, windows: window(i ? 140 : 100) }));
+  const done: number[] = [];
+  const r = await makeItEasier(ps, lane, 6, { courseOf, xOf: (p) => p.x, search: async () => {
+    const i = calls++; await new Promise((r) => setTimeout(r, i === 1 ? 25 : 0)); done.push(i); return proofs[i];
+  } }, 10000, undefined, { concurrency: 2 });
+  expect(done).toEqual([0, 2, 1]);
+  expect(r.proof).toBe(proofs[1]); expect(r.tried).toBe(2);
 });

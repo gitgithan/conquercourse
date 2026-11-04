@@ -813,3 +813,9 @@
 
 Photo dots on the Slicer map (CC-133): no new files; the dots and cones are drawn from the allow-lists above, and a click shows the picture live from Mapillary's own address with the creator and licence (nothing stored or copied).
 | `docs/evidence/cc-133-realism/*.png` | 1280 px screenshots of sky light and ground colour, off and on (Montmartre, Gerlev, Bryant Park) | ours, drawn from map data © OpenStreetMap contributors (ODbL 1.0) | https://www.openstreetmap.org/copyright | ODbL 1.0 (map shapes), ours (pictures) | Evidence only; credit "© OpenStreetMap contributors" |
+
+## Search optimization evidence (2026-11-04)
+
+| File | What | Made | How | Cost | Licence and notes |
+| --- | --- | --- | --- | --- | --- |
+| `data/eval/easier-search/searching.jpg`, `winner.jpg` | Candidate search and verified proposal in the World Editor | 2026-11-04 | Local Playwright desktop captures using real simulator searches | None | Ours; documentation evidence only, not shipped in the game |

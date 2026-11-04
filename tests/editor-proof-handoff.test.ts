@@ -38,6 +38,17 @@ describe('a preview proof handed to the editor and Play', () => {
     expect(playPlan(playable, playable.plan!).world.outcome).toBe('cleared');
     expect(document.documentElement.dataset.laneProof).toBe('cached');
   });
+  it('accepts a winning candidate proof and reuses it through Preview and Play', async () => {
+    const { preview, editor } = services(), actual = searchIdealRun(course);
+    const timing = { obstacle: 'hang on bar 1', best: 10, lo: 9, hi: 11, widthMs: 170 };
+    preview.rememberProof(course, { ...actual, windows: [...actual.windows, timing] });
+    expect(preview.proofFor(course)?.timingWindows).toContainEqual(timing);
+    expect(preview.proofFor(course)?.windows).not.toContainEqual(timing);
+    expect(await preview.searchResult(course)).toBe(editor.proofFor(course));
+    expect(playPlan(editor.withProof(course), actual.plan).world.outcome).toBe('cleared');
+    expect(TestWorker.all).toHaveLength(0);
+    expect(preview.rememberProof({ ...course, jumpSpeed: 6 }, { cleared: true })).toBeNull();
+  });
   it('does not reuse a proof after a physics input or device setting changes', async () => {
     const { preview, editor } = services();
     const pending = preview.searchResult(course); TestWorker.all[0].answer({ cleared: false }); await pending;

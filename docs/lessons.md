@@ -257,3 +257,17 @@
   - Reason: a live search would show photos that were never checked for close-up or large people.
   - Cost: dots exist only at places that have a list.
 - Details: `data/eval/cc-133-photo-dots/README.md`; switch `?photodots=1` (on by itself on this computer and the preview site, off on the real site).
+
+
+## Keep the successful run, not only the verdict (2026-11-04)
+
+- A search that returns a good edit but discards its successful plan forces Preview to repeat the most expensive work.
+- Carry the complete proof with its exact course input and reuse it through Apply and Play.
+- Drawing windows are incomplete search evidence: filtering to position-based markers drops bar and device timings.
+- Preserve full timing metadata separately, so “hardest press” refers to the actual measured bottleneck.
+- Cancellation needs worker termination and stale-result guards; checking a flag between long synchronous calls cannot stop the current call.
+- Parallel completion order must not decide which edit wins when the product promises small edits first.
+- Compare equally bundled one-worker and two-worker paths before claiming a parallel speedup.
+- Prefix reuse needs full controller and world snapshots, plus the loop's event and stuck bookkeeping.
+- Identical-course replay equivalence does not establish safe reuse across changed geometry.
+- [Methods, before/after diagrams and evidence](easier-search.md).

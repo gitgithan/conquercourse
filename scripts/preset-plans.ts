@@ -17,7 +17,7 @@ for (const id of ids) {
   const r = await pool.search(c, undefined, undefined, { routes: true });
   const out: PresetPlan = { key: presetKey(c), cleared: r.cleared };
   if (r.cleared) {
-    out.plan = r.plan; out.windows = xWindows(r.windows); if (r.routes) out.routes = r.routes;
+    out.plan = r.plan; out.windows = xWindows(r.windows); out.timingWindows = r.windows; if (r.routes) out.routes = r.routes;
     const sc = findShortcuts({ ...c, plan: r.plan }, { moveChoices: false }).shortcuts;
     if (sc.length) out.shortcuts = sc;
   }

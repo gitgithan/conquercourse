@@ -1,6 +1,7 @@
 import type { CourseData } from '../course/course';
-import { searchIdealRun, type Window } from '../sim/ideal';
+import { searchIdealRun, type Window, type Plan, type Route } from '../sim/ideal';
 import { isHold, type P } from './holds-world';
+import { searchInput } from './preset-plans';
 import { diffProposal, type Proposal } from './preview';
 
 // "Make it easier": the simulator already knows the course can be cleared, but a player keeps missing it. The narrowest window of presses
@@ -9,9 +10,13 @@ import { diffProposal, type Proposal } from './preview';
 export type Lane = { angle: number; offset: number; level: number };
 export interface EasierDeps {
   courseOf(pieces: P[], lane: Lane): CourseData; // the same lane the editor plays (bars, trebuchet, floor)
+  search?: (course: CourseData) => Promise<EasierProof> | EasierProof;
   xOf(p: P): number; // where along the run a piece is
 }
-export interface Easier { proposal: Proposal | null; before: number; after: number; tried: number; note: string }
+export interface EasierProof { cleared: boolean; plan?: Plan; windows?: Window[]; timingWindows?: Window[]; routes?: Route[] }
+export interface EasierProgress { index: number; total: number; state: 'testing' | 'done'; words: string; course: CourseData; before: number; after?: number; cleared?: boolean }
+export interface EasierOptions { concurrency?: number; targetLimiting?: boolean; signal?: { cancelled: boolean }; onCandidate?: (p: EasierProgress) => void }
+export interface Easier { proof?: EasierProof; course?: CourseData; target?: string; proposal: Proposal | null; before: number; after: number; tried: number; note: string }
 
 const WIDEN = 1.25; // the window must grow by a quarter to be worth a change
 const SOME = 1.15; // when nothing does that, the best change must still grow it by 15% to be offered
@@ -30,7 +35,7 @@ export function narrowest(windows: Window[], skipEdgeX?: number): number {
 interface Cand { cost: number; apply: (ps: P[]) => P[]; ids: number[] }
 
 export function candidatesFor(pieces: P[], lane: Lane, focusX: number, xOf: (p: P) => number): Cand[] {
-  const near = [...pieces].sort((a, b) => Math.abs(xOf(a) - focusX) - Math.abs(xOf(b) - focusX)).slice(0, 3);
+  const near = pieces.filter((p) => !p.src?.startsWith('device:') && !p.src?.startsWith('obj:../characters/')).sort((a, b) => Math.abs(xOf(a) - focusX) - Math.abs(xOf(b) - focusX)).slice(0, 3);
   const along = Math.cos(lane.angle), across = Math.sin(lane.angle);
   const out: Cand[] = [];
   const edit = (id: number, f: (p: P) => P) => (ps: P[]) => ps.map((p) => (p.id === id ? f(p) : p));
@@ -48,28 +53,59 @@ export function candidatesFor(pieces: P[], lane: Lane, focusX: number, xOf: (p: 
 
 const tick = () => new Promise<void>((r) => setTimeout(r, 0)); // let the page paint between two searches
 
-export async function makeItEasier(pieces: P[], lane: Lane, focusX: number, deps: EasierDeps, budgetMs = pieces.some(isHold) ? 150000 : 40000, onTry?: (tried: number, total: number) => void): Promise<Easier> {
-  const t0 = performance.now(); // a lane with bars takes a minute for each search, so it gets a longer budget
+// Resolve the weakest measured window to course coordinates, rather than defaulting to the start.
+export function limitingTarget(course: CourseData, windows: Window[], skipEdgeX: number | undefined, fallback: number): { x: number; label: string } {
+  const eligible = windows.filter((w) => narrowest([w], skipEdgeX) > 0);
+  const width = narrowest(eligible), w = eligible.find((w) => w.widthMs === width);
+  if (!w) return { x: fallback, label: 'selected area' };
+  const at = /\bat (?:edge at |step at )?(-?[\d.]+) m/.exec(w.obstacle);
+  const bar = /hang on bar (\d+)/.exec(w.obstacle);
+  const x = at ? Number(at[1]) : bar ? course.holds?.[Number(bar[1]) - 1]?.x : w.obstacle.startsWith('bars:') ? course.bars?.[0]?.x : w.obstacle.includes('trebuchet') ? course.trebuchet?.x : w.obstacle.includes('band') ? course.band?.x : undefined;
+  return { x: x ?? fallback, label: w.obstacle };
+}
+
+export async function makeItEasier(pieces: P[], lane: Lane, focusX: number, deps: EasierDeps, budgetMs = pieces.some(isHold) ? 150000 : 40000, onTry?: (tried: number, total: number) => void, options: EasierOptions = {}): Promise<Easier> {
+  const t0 = performance.now();
+  const search: NonNullable<EasierDeps['search']> = deps.search ?? searchIdealRun;
+  const check = () => { if (options.signal?.cancelled) throw new Error('cancelled'); };
   const baseCourse = deps.courseOf(pieces, lane);
-  const base = searchIdealRun(baseCourse);
+  const base = await search(baseCourse); check();
   if (!base.cleared) return { proposal: null, before: 0, after: 0, tried: 0, note: 'The simulator cannot clear this lane as it is, so use Fix it first.' };
-  const startEdge = [...baseCourse.terrain.platforms].sort((a, b) => a.x0 - b.x0)[0]?.x1; // where the start deck ends
-  const before = narrowest(base.windows, startEdge);
+  const startEdge = [...baseCourse.terrain.platforms].sort((a, b) => a.x0 - b.x0)[0]?.x1;
+  const before = narrowest(base.timingWindows ?? base.windows ?? [], startEdge);
   if (before <= 0) return { proposal: null, before, after: 0, tried: 0, note: 'There is no press to widen here: the way through needs no precise timing.' };
-  let tried = 0, best: { ps: P[]; after: number; cost: number } | null = null;
-  const cands = candidatesFor(pieces, lane, focusX, deps.xOf);
-  for (const c of cands) {
-    if (performance.now() - t0 > budgetMs) break;
+  const target = limitingTarget(baseCourse, base.timingWindows ?? base.windows ?? [], startEdge, focusX);
+  let tried = 0, best: { ps: P[]; after: number; proof: EasierProof; course: CourseData } | null = null;
+  const cands = candidatesFor(pieces, lane, options.targetLimiting ? target.x : focusX, deps.xOf);
+  const seen = new Map<string, Promise<EasierProof>>([[JSON.stringify(searchInput(baseCourse)), Promise.resolve(base)]]);
+  const width = Math.max(1, Math.min(4, options.concurrency ?? 1));
+  // Waves retain cost order even when a more expensive candidate finishes first.
+  for (let from = 0; from < cands.length; from += width) {
+    check(); if (performance.now() - t0 > budgetMs) break;
     await tick();
-    const next = c.apply(pieces);
-    tried++; onTry?.(tried, cands.length);
-    const r = searchIdealRun(deps.courseOf(next, lane));
-    if (!r.cleared) continue;
-    const after = narrowest(r.windows, startEdge);
-    if (after >= before * WIDEN) { best = { ps: next, after, cost: c.cost }; break; } // the cheapest change that is enough
-    if (after >= before * SOME && (!best || after > best.after)) best = { ps: next, after, cost: c.cost };
+    const wave = await Promise.all(cands.slice(from, from + width).map(async (c, k) => {
+      check();
+      const next = c.apply(pieces), course = deps.courseOf(next, lane), index = from + k + 1;
+      const words = diffProposal('easier', '', pieces, lane, next, lane).items.map((i) => i.words).join(' ') || 'Same course after rounding.';
+      tried++; onTry?.(tried, cands.length);
+      options.onCandidate?.({ index, total: cands.length, state: 'testing', words, course, before });
+      const key = JSON.stringify(searchInput(course));
+      let pending = seen.get(key);
+      if (!pending) { pending = Promise.resolve(search(course)); seen.set(key, pending); }
+      const proof = await pending; check();
+      const after = proof.cleared ? narrowest(proof.timingWindows ?? proof.windows ?? [], startEdge) : 0;
+      options.onCandidate?.({ index, total: cands.length, state: 'done', words, course, before, after, cleared: proof.cleared });
+      return { ps: next, after, proof, course };
+    }));
+    for (const result of wave) {
+      if (!result.proof.cleared) continue;
+      if (result.after >= before * WIDEN) { best = result; break; }
+      if (result.after >= before * SOME && (!best || result.after > best.after)) best = result;
+    }
+    if (best && best.after >= before * WIDEN) break;
   }
-  if (!best) return { proposal: null, before, after: before, tried, note: `No small change widens the narrowest press (${Math.round(before)} ms). Move things by hand in the editor.` };
+  check();
+  if (!best) return { proposal: null, before, after: before, tried, target: target.label, note: `No small change widens the narrowest press (${Math.round(before)} ms). Move things by hand in the editor.` };
   const steps = [`The narrowest press window grows from ${Math.round(before)} ms to ${Math.round(best.after)} ms.`];
-  return { proposal: diffProposal('easier', 'Make it easier', pieces, lane, best.ps, lane, steps, true), before, after: best.after, tried, note: '' };
+  return { proposal: diffProposal('easier', 'Make it easier', pieces, lane, best.ps, lane, steps, true), proof: best.proof, course: best.course, target: target.label, before, after: best.after, tried, note: '' };
 }
