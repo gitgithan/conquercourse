@@ -51,6 +51,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--cream);font:16px
 @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-5px)}}
 #crew{position:absolute;left:0;right:0;bottom:14px;height:110px;z-index:4;pointer-events:none;opacity:0}
 #crew img{position:absolute;bottom:0;width:78px;height:78px;border-radius:50%;object-fit:cover;border:3px solid #ffd37a;box-shadow:0 0 22px 4px rgba(255,200,110,.75);background:#1a1f33;animation:bob .3s ease-in-out infinite alternate}
+#walk3d{position:absolute;left:0;right:0;bottom:0;height:300px;z-index:5;pointer-events:none}
+#walk3d canvas{display:block;width:100%!important;height:100%!important}
 #top{position:absolute;left:0;right:0;top:0;z-index:6;display:flex;gap:16px;align-items:center;padding:12px 18px;font-size:14px}
 #top a{color:var(--glow);text-decoration:none;font-weight:700}
 #top a:hover{text-decoration:underline}
@@ -102,7 +104,7 @@ var MON=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'];
 var DAYS=['10-26','10-27','10-28','10-29','10-30','10-31','11-01','11-02','11-03','11-04'];
 var world=document.getElementById('world'),stage=document.getElementById('stage'),rookie=document.getElementById('rookie');
 var help=document.getElementById('help'),bar=document.querySelector('#bar i'),enter=document.getElementById('enter');
-var crewEl=document.getElementById('crew'),juno=null,junoAt=0,crewImgs=[];
+var crewEl=document.getElementById('crew'),juno=null,junoAt=0,crewImgs=[],walk=null;
 var cards=[],END=0,STAGE_Z=0,pos=0,vel=0,held=false,auto=false,last=0,moved=0;
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function sortKey(w){var m=/(\d\d)-(\d\d)(?: (\d\d):(\d\d))?$/.exec(w);return m?(+m[1]*100+ +m[2])*10000+(+(m[3]||0))*100+ +(m[4]||0):0}
@@ -143,7 +145,7 @@ juno=rookie.cloneNode(true);juno.id='junoFig';juno.className='';juno.title='Juno
 juno.querySelector('.torso').style.background='#3b82f6';juno.querySelectorAll('.arm').forEach(function(a){a.style.background='#2f6fd8'});juno.querySelectorAll('.leg').forEach(function(a){a.style.background='#3a3f4d'});juno.querySelector('.head').style.borderTopColor='#ffd37a';
 rookie.parentNode.appendChild(juno);
 fetch('/assets/characters/cast/index.json').then(function(r){return r.json()}).then(function(j){
-j.items.slice(0,8).forEach(function(it,i){var im=document.createElement('img');im.alt=it.name;im.title=it.name;im.src='/assets/characters/cast/'+it.thumb;im.style.left='50%';im.style.marginLeft=(i<4?-(i+1)*88-60:(i-4)*88+170)+'px';im.style.animationDelay=(i*0.07)+'s';crewEl.appendChild(im);});
+j.items.slice(0,8).forEach(function(it,i){var im=document.createElement('img');im.alt=it.name;im.title=it.name;im.src='/assets/characters/cast/'+it.thumb;im.style.left='50%';im.style.marginLeft=(i<4?-(i+1)*88-60:(i-4)*88+170)+'px';im.style.animationDelay=(i*0.07)+'s';crewEl.appendChild(im);crewImgs.push(im);});
 }).catch(function(){});
 var lastDepth=(slot+1)*SPACING;END=lastDepth+400;STAGE_Z=lastDepth+1100;
 }
@@ -163,6 +165,7 @@ var rs=STAGE_Z-pos;var sop=Math.min(1,Math.max(0,(3600-rs)/1600));
 stage.style.opacity=sop.toFixed(3);stage.style.transform='translate3d(0,0,'+(-STAGE_Z)+'px)';
 bar.style.width=(100*pos/END).toFixed(1)+'%';
 var cr=Math.min(1,Math.max(0,(pos-(END-2300))/700));crewEl.style.opacity=cr.toFixed(3);crewEl.style.transform='translateY('+((1-cr)*60).toFixed(0)+'px)';
+if(walk)walk.update({moving:Math.abs(vel)>8,juno:pos>junoAt,crew:cr});
 if(juno){juno.style.opacity=pos>junoAt?1:0;if(Math.abs(vel)>8)juno.classList.add('walk');else juno.classList.remove('walk')}
 enter.style.display=pos>END-700?'block':'none';if(pos>END-700)help.style.opacity=0;
 }
@@ -189,11 +192,24 @@ else if(e.key==='Escape'){location.href='/'}
 });
 addEventListener('keyup',function(e){if(e.key==='w'||e.key==='W'||e.key==='ArrowUp')held=false});
 addEventListener('blur',function(){held=false});
+// The rigged 3D walkers (Pip, Juno, the eight cast characters) load late and by themselves; until a model is ready, or if it never loads, the flat figure or portrait stays.
+// ?walkers=0 keeps the flat figures.
+function lateWalkers(){
+if(/[?&]walkers=0(?:&|$)/.test(location.search))return;
+document.addEventListener('ccwalk',function(){
+var w=window.CCWalk;if(!w)return;walk=w;
+if(w.pip)rookie.style.visibility='hidden';
+if(w.juno&&juno)juno.style.visibility='hidden';
+crewImgs.forEach(function(im,i){if(w.crew[i])im.style.visibility='hidden'});
+});
+var s=document.createElement('script');s.type='module';s.src='/assets/entrance-walkers.js';s.onerror=function(){};document.head.appendChild(s);
+}
 // Test hook: ?at=0..1 starts at that share of the walk (used by the screenshot check).
 fetch('timeline-events.json').then(function(r){return r.json()}).then(function(list){
 build(list);
 var m=/[?&]at=([\d.]+)/.exec(location.search);if(m)pos=Math.min(1,+m[1])*END;var gd=/[?&]gate=(\d+)/.exec(location.search);if(gd){var k=0;for(var q=0;q<cards.length;q++)if(cards[q].gate&&++k===+gd[1]){pos=cards[q].depth-330;break}}
 requestAnimationFrame(frame);
+setTimeout(lateWalkers,500);
 }).catch(function(){document.getElementById('fail').style.display='flex'});
 
 // Music: the game's own course loop at the game's own level, on the game's own rules (never saved off; ?music=0 silences one load; tests stay silent unless ?music=1).
