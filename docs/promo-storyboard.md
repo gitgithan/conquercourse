@@ -88,18 +88,26 @@
 - Stills: `docs/evidence/cc-133-promo-scene2/`.
 - **Music lane:** not decided.
 
-## Scene 3: Build and refine your course (time not set; was scenes 3 and 4)
+## Scene 3: Build your course (about 31 s; was scenes 3 and 4)
 
-- One scene on one map (owner, 2026-11-05): building and refining need the same map, so they are filmed as one run in the same editor with the same course; no cut back to a fresh map between them.
-- Build your course:
-  - Choose a view (Top down and 3D)
-  - Add objects
-- Refine your course:
-  - Repair with Design Partner
-  - Accept suggestions
-  - Plan this lane
-- Camera: not set.
-- Overlay: not set (one overlay per subheading, as in scenes 1 and 2).
+- One scene on one map (owner, 2026-11-05): building and refining need the same map, so they are filmed as one run in the same editor; no cut back to a fresh map between the beats.
+- Overlay "Choose your course" (8 s max, 1 s per view):
+  - Start from the Shibuya 3D slice, rotate around the editor, show the top view, click Fit, go back to the 3D view.
+  - Change the dropdown to the bulb and bench course, click Fit.
+- Overlay "Add your objects" (4 s max for the tabs, then 4 s max for the railing):
+  - Click Add Pieces; the default tab Real objects stays 1 s, then 0.5 s each for the next 7 tabs (4 s max in all).
+  - Add a canal railing, move it somewhere weird, show that the Simulator says no solution, and highlight it (4 s max).
+- Overlay "Design partner to suggest fixes" (4 s max, sped up if the Design partner is slow):
+  - Click Improve, then Ask AI for ideas.
+  - Show the Simulator suggesting piece movements; highlight the teal outlines.
+- Overlay "Accept changes" (4 s max):
+  - Click Apply.
+  - Show the Simulator now says it can clear; highlight it.
+- Overlay "Add moves by tweaking obstacles" (7 s max):
+  - Click Moves, then Find ways to add missing moves, then Show it; mouse over to highlight the suggested changes.
+  - Close the Design partner, click Play this lane, and end on a natural transition into the next scene.
+  - The wait at Find ways is cut after filming (the hang is fixed in PR 806).
+- Total: about 31 s with the caps above; time still to be confirmed by the owner.
 - **Music lane:** not decided.
 
 ## Scene 4: Set a record (time not set)
