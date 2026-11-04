@@ -115,11 +115,12 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
   function fillS1(c: SignalClip): void {
     const n = c.frames.length, base = built.get(current.id)!;
     const real = base.fps;
-    const typed30 = withFps(c, 30), typed24 = withFps(c, 24);
-    const row = (label: string, k: SignalClip) => { const v = verdict(current, k); return `<tr><td>${label}</td><td class="n">${fmt(k.fps, 2)}</td><td class="n">${fmt(((k.frames.length - 1) / k.fps), 3)} s</td><td class="${v.pass ? "ok" : "bad"}">${v.pass ? "passes" : "fails: " + v.failed.map((r) => RULE_WORDS[r]).join(", ")}</td></tr>`; };
+    const leap = files["/assets/motion/leap.json"], leapSpec = LAB_CLIPS.find((x) => x.id === "leap")!;
+    const typed30 = withFps(leap, 30), typed24 = withFps(leap, 24);
+    const row = (label: string, k: SignalClip) => { const v = verdict(leapSpec, k); return `<tr><td>${label}</td><td class="n">${fmt(k.fps, 2)}</td><td class="n">${fmt(((k.frames.length - 1) / k.fps), 3)} s</td><td class="${v.pass ? "ok" : "bad"}">${v.pass ? "passes" : "fails: " + v.failed.map((r) => RULE_WORDS[r]).join(", ")}</td></tr>`; };
     $("mo-s1").innerHTML = `<p style="margin:0 0 6px"><b>${n}</b> frames at <b>${fmt(real, 2)}</b> frames a second: frame 10 is at <b>${fmt(frameTime(10, real), 4)} s</b>, the last frame at <b>${fmt(clipSeconds(c), 3)} s</b>.</p>
-      <p class="small" style="margin:0 0 6px">The clock comes from the source. A typed-in rate is a second clock, and the gate finds it out because gravity is a clock too. Same joints, other rates:</p>
-      <table><thead><tr><th>Rate used</th><th class="n">per s</th><th class="n">Length</th><th>Gate</th></tr></thead><tbody>${row("The source's own", c)}${row("Typed as 30", typed30)}${row("Typed as 24", typed24)}</tbody></table>
+      <p class="small" style="margin:0 0 6px">The clock comes from the source. A typed-in rate is a second clock, and the gate finds it out because gravity is a clock too. Same joints, other rates, shown on the shipped leap (a clean clip with a clear jump):</p>
+      <table><thead><tr><th>Rate used</th><th class="n">per s</th><th class="n">Length</th><th>Gate</th></tr></thead><tbody>${row("The source's own", leap)}${row("Typed as 30", typed30)}${row("Typed as 24", typed24)}</tbody></table>
       <p class="small" style="margin:6px 0 0">A rate typed as 30 for a 29.97 source is ${fmt(Math.abs(clockOffPercent(29.97, 30)), 2)}% off: harmless. Typed 24 for a 30 source is ${fmt(Math.abs(clockOffPercent(30, 24)), 0)}% off.</p>`;
   }
 
@@ -146,7 +147,7 @@ export function startLabMotion(host: HTMLElement): { backend: "canvas2d" } {
     const ok = checkShape(raw), bad = checkShape(dropLastName(c));
     $("mo-s2").innerHTML = `<table><tbody>
       <tr><td>Names</td><td class="n"><b>${c.names.length}</b> (${c.names.slice(0, 3).join(", ")} ... ${c.names[c.names.length - 1]})</td></tr>
-      <tr><td>Positions in each frame</td><td class="n"><b>${c.frames[0].length}</b> numbers triples, in metres, y up</td></tr>
+      <tr><td>Positions in each frame</td><td class="n"><b>${c.frames[0].length}</b> x, y, z in metres, y up</td></tr>
       <tr><td>The game's check on this clip</td><td class="n ${ok.ok ? "ok" : "bad"}">${ok.message}</td></tr>
       <tr><td>The same clip with one name lost (off by one)</td><td class="n ${bad.ok ? "ok" : "bad"}">refused: ${bad.message}</td></tr></tbody></table>
       <p class="small" style="margin:6px 0 0">Eight frames of this clip, side view, at the time each was filmed.</p>`;
