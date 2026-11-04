@@ -17,12 +17,12 @@ function svgEl<K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<strin
 }
 
 /** Draw the map into a host element; returns a way to set the focus from code (the tests and the check script use it). */
-export function drawLabsMap(host: HTMLElement, map: LabsMap = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20 })): { focus(mode: string | null): void } {
-  const pad = 8, svg = svgEl('svg', { viewBox: `${-pad} 0 ${map.width + 2 * pad} ${map.height}`, width: map.width + 2 * pad, height: map.height, role: 'group', 'aria-label': 'Map of how the Labs depend on each other' });
+export function drawLabsMap(host: HTMLElement, map: LabsMap = layoutLabsMap(DEFAULT_SOURCE, { groupGap: 20, width: 1100, top: 46 })): { focus(mode: string | null): void } {
+  const pad = 8, padR = 72, svg = svgEl('svg', { viewBox: `${-pad} 0 ${map.width + pad + padR} ${map.height}`, width: map.width + pad + padR, height: map.height, role: 'group', 'aria-label': 'Map of how the Labs depend on each other' });
   svg.id = 'lmap-svg';
   for (const c of map.columns) {
     const t = svgEl('text', { x: c.x, y: 16, class: 'colhead' }); t.textContent = c.title; svg.append(t);
-    svg.append(svgEl('line', { x1: c.x, x2: c.x + c.w, y1: 22, y2: 22, stroke: PALE, 'stroke-width': 1 }));
+    svg.append(svgEl('line', { x1: c.x, x2: c.x + c.w, y1: 24, y2: 24, stroke: PALE, 'stroke-width': 1 }));
   }
   const first = new Set<string>();
   for (const g of LAB_GROUPS) {
