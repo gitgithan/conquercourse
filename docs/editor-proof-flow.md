@@ -15,6 +15,7 @@
 | Look for routes you did not plan | Find shortcut routes | Simulator · game physics | Simulates alternate routes that skip obstacles. |
 
 - The toolbar menu is Improve because it includes both simulator tools and AI ideas.
+- Menu order follows the design journey: Ask AI for ideas to make it work, Make it easier to relax timing, then Find shortcut routes to explore alternatives.
 - Every menu action shows the engines it uses, when to use it and what to expect.
 - Ask AI for ideas has separate Muse Spark Open and simulator-preview pills.
 - Make it easier and Find shortcut routes call simulator algorithms directly; those buttons do not call the model.

@@ -25,10 +25,12 @@ Levels: primary is filled green, secondary is outlined, quiet is plain text.
 - ? (quiet): shows or hides the "What these buttons do" card.
 - ... (quiet): Search actions (`/` or Ctrl+K), Reset to the starter scene, labs buttons.
 
-## The Fix menu (one place for every repair)
+## The Improve menu (make it work, then easier, then explore shortcuts)
+
+- [Desktop screenshot](evidence/editor-improve-order.jpg).
+- Ask AI for ideas: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
 - Make it easier: when it clears but the hardest press is tight; shows one small change.
 - Find shortcut routes: when it works and you wonder if an obstacle can be skipped; about a minute; a list with Close it / Keep it.
-- Ask AI for ideas: when you are not sure what is wrong; the design partner suggests edits that the simulator checks in a preview.
 - Each item is a stand-in for the original button (same id, hidden), so tests and the palette keep working.
 - Context buttons that appear only when needed stay where they appear: Apply, Cancel (the preview row), Close it and Keep it (each route), Make it so (a plank that would snap), Use it (drone and launcher advice).
 
