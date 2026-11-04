@@ -72,7 +72,7 @@ export function createMoves(env: MovesEnv) {
         el('div', row, { text: sg.words });
         const btns = el('div', row, { className: 'row' });
         // Show it keeps this list open, so the next suggestion is one click away; Apply is on the preview card once the simulator has checked it
-        el('button', btns, { text: 'Show it', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; document.documentElement.dataset.dock = 'both'; showProposal(roleProposal(sg)); };
+        el('button', btns, { text: 'Show it', className: 'go', title: 'See where it would go before anything changes' }).onclick = () => { ed.leadText = ''; document.documentElement.dataset.dock = 'both'; showProposal(roleProposal(sg)); };
       }
     }
   }
