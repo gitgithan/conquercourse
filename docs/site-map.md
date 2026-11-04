@@ -17,7 +17,7 @@
   - How to get there: It is on the Course, World Editor, World Slicer, Community and Dojo pages.
   - Leads to: Courses picker, World Editor, World Slicer, Community
 - **Courses picker**
-  - You do: You pick a course, a lesson or a tool from cards with pictures.
+  - You do: You pick a course, a lesson or a tool from picture cards; when switching from a course, “Opening course…” appears while it loads and a failed load keeps your current course.
   - How to get there: Press the Courses button in the top bar.
   - Leads to: The Course (play), Parts gallery, Coaster builder, World Editor, World Slicer, Dojo, University Labs
   - **Start here**
