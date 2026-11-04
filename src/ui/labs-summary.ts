@@ -70,8 +70,8 @@ export const LAB_SUMMARY: Record<string, LabSummary> = {
     learn: 'A partner can suggest a course, but the simulator checks and repairs it before you play.',
   },
   'lab-systemdesign': {
-    do: ['Drag blocks into your design and reorder them.', 'Press Play failure, then Show the real design.'],
-    learn: 'The order of the blocks decides if keys, faces and money stay safe when one part goes down.',
+    do: ['Drop one block into each of the nine cards of our pipeline, then press Run.', 'Open the hints on a red card to find out why another block fits.'],
+    learn: 'The best block depends on what you must keep: time, money, privacy or the same run; more than one design can pass.',
   },
   'lab-slicer': {
     do: ['Pick a place and turn the map settings, then watch the lane change.', 'Try the design challenges and check your answers.'],
