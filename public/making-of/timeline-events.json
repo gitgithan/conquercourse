@@ -778,6 +778,27 @@
     "commit": "3babad91"
   },
   {
+    "id": "c4-22",
+    "category": 4,
+    "when": "11-01 03:06",
+    "title": "Three characters ran backwards",
+    "text": "Skater, Banana and Potato Blob faced the wrong way. We turned their skins around.",
+    "more": "Every character shares one skeleton, and that skeleton has a front. Each made character also has its own skin with a front, and nothing checked that the two matched. For three of our eight, the skin faced backwards, so they ran backwards. Now the shoes tell us which way a skin faces, and a backwards skin is turned around when it loads.",
+    "kind": "picture",
+    "image": "timeline/facing-before-after.jpg",
+    "commit": "43211ca7"
+  },
+  {
+    "id": "c4-23",
+    "category": 4,
+    "when": "11-01 04:17",
+    "title": "We checked in the wrong view",
+    "text": "Our first check used a side view the player never sees. We re-checked in the real Course.",
+    "more": "Our first fix was tested in a side-view demo, not in the game. Players see the Course, where the camera and the turn are different, so the check could have been right for the wrong reason. We re-checked all eight characters in the real Course, pressing Right and then Left. The lesson: test in the view the player sees.",
+    "kind": "text",
+    "commit": "1b657b54"
+  },
+  {
     "id": "c5-09",
     "category": 5,
     "when": "11-01 05:54",
