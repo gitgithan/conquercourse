@@ -10,9 +10,10 @@ A ninja-warrior physics game where real parks, real streets and real objects bec
 
 Built for the Meta Global AI Developer Hackathon (2026-10-26 to 2026-11-04), indie track.
 
-### 🏁 **Take a challenge: [a sample run to beat](https://conquercourse.pages.dev/?c=segdhyvk63)**
-- It opens the course with a ghost of the run that made the link.
-- Beat its time, then press **N** to share your own run as a link.
+### 🏁 **Start with the Training run: [play it straight away](https://conquercourse.pages.dev/?course=/assets/demo/training.course.json)**
+- The link opens the Training course at once: no menu, no front door.
+- It has every move in one run: gap jump, vault, curved wall, climb, planks, hanging bar, rope swing and trampoline.
+- Beat your own time, then press **N** to share your run as a challenge link.
 
 </div>
 
