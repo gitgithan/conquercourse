@@ -111,18 +111,33 @@
 - Total: about 31 s with the caps above; time still to be confirmed by the owner.
 - **Music lane:** not decided.
 
-## Scene 4: Set a record (time not set)
+## Scene 4: Run, share and learn (timings judged by the filmer; mostly real speed)
 
-- Chase a record
-- Stretch your limits
-- Camera: not set.
-- Overlay: not set.
+- Overlay "Run your course":
+  - A smooth run from start to end on the Bench lane or bulb lane course.
+  - The character starts running after the ghost.
+- Overlay "Choose your path (High or Low)":
+  - Run jump, catch the pole during the jump, climb up the pole.
+  - Pump one full circle and swing at least once, let go down onto the bench, run on to the finish.
+- Overlay "Share your achievements":
+  - Type MetaHackathon in the Name field, click Publish, see the run enter the leaderboard.
+  - Highlight the new row.
+- Overlay "Challenge your friend, or take their challenge":
+  - Point at Copy link to challenge a friend.
+- Overlay "Watch yourself or the simulator to do better":
+  - Point at download your clip.
+  - Scroll down, click Watch the best line, watch the character jump through everything, then cut (6 s of watching at most).
+- Go fast wherever nothing needs waiting.
 - **Music lane:** not decided.
 
-## Scene 5: Unleash your creativity (time not set)
+## Scene 5: Unleash your creativity (about 10 s)
 
-- X built-in objects, infinite combinations (X is counted from the editor before the text is fixed)
-- Camera: not set.
+- Each obstacle gets 2 s (owner, 2026-11-05):
+  - A cannonball flying at us, with the cannon in view if possible.
+  - The coaster starting down from a very steep angle.
+  - Boarding and flying the drone.
+  - The pole vault.
+  - Launching from the trebuchet.
 - Overlay: not set.
 - **Music lane:** not decided.
 
