@@ -30,6 +30,7 @@ case "$command_name" in
     python3 tools/name-communities.py
     rm -f graphify-out/community-names.membership
     "$py" tools/community-explorer.py "$@"
+    python3 tools/polish-graph-html.py graphify-out/graph.html
     ;;
   query|explain|path|affected|god-nodes)
     if [[ ! -f graphify-out/graph.json ]]; then

@@ -45,6 +45,8 @@ describe('The Making Of public files', () => {
   it('the code map is the drill-down graph page and the index links to it', () => {
     const t = read('code-map.html');
     expect(t).toContain('community-panel:start');
+    expect(t).not.toMatch(/"label": "Community \d+"/);
+    expect(t).toContain('--edge-hot');
     expect(read('index.html')).toContain('href="code-map.html"');
   });
 
