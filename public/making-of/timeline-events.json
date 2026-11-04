@@ -113,8 +113,9 @@
     "when": "10-27 11:56",
     "title": "The Dojo opens",
     "text": "The Dojo has experiments from the simulator: turn the knobs, guess, then run.",
-    "kind": "text",
-    "commit": "a3286e5b"
+    "kind": "picture",
+    "commit": "a3286e5b",
+    "image": "timeline/screen-dojo.jpg"
   },
   {
     "id": "c1-07",
@@ -185,9 +186,9 @@
     "when": "10-27 22:44",
     "title": "World Editor opens",
     "text": "Place pieces on a plan view, scale them to real size, turn and move them.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "52f32076",
-    "image": "timeline/editor-screen.jpg"
+    "image": "timeline/screen-editor.jpg"
   },
   {
     "id": "c4-03",
@@ -247,9 +248,9 @@
     "when": "10-28 09:38",
     "title": "World Slicer: first cut",
     "text": "The World Slicer cuts a real place at one height and shows the lane at that height.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "ef77bc34",
-    "image": "timeline/slicer-screen.jpg"
+    "image": "timeline/screen-slicer.jpg"
   },
   {
     "id": "c6-07",
@@ -302,9 +303,9 @@
     "when": "10-28 20:34",
     "title": "Courses screen gets pictures",
     "text": "The Courses screen shows a picture card for every world.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "59e61259",
-    "image": "timeline/courses-screen.png"
+    "image": "timeline/screen-course.jpg"
   },
   {
     "id": "c4-05",
@@ -363,9 +364,9 @@
     "when": "10-29 05:24",
     "title": "Labs: the first Lab page",
     "text": "Labs let you try the ideas yourself. Lab 1 is Search, with the simulator as the test bed.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "11e97984",
-    "image": "timeline/labs-screen.png"
+    "image": "timeline/screen-labs.jpg"
   },
   {
     "id": "c1-14",
@@ -554,7 +555,7 @@
     "title": "Leaderboard of verified runs",
     "text": "Players get a tag and a personal best. Only checked runs are listed.",
     "kind": "picture",
-    "image": "timeline/cc-108-board-podium-1280.png",
+    "image": "timeline/screen-leaderboard.jpg",
     "commit": "21eb1473"
   },
   {
@@ -601,9 +602,9 @@
     "when": "10-31 13:45",
     "title": "Community is one flow",
     "text": "The Community screen gets tabs, then one stepper: Photo, Mark, Segment, Choose, Make.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "73e4d8fa",
-    "image": "timeline/community-screen.png"
+    "image": "timeline/screen-community.jpg"
   },
   {
     "id": "x-06",
@@ -611,8 +612,9 @@
     "when": "10-31 14:54",
     "title": "Home screen: the welcome park",
     "text": "The Home screen opens on a 3D park, two Rookies and four doors into the game.",
-    "kind": "text",
-    "commit": "2df783d4"
+    "kind": "picture",
+    "commit": "2df783d4",
+    "image": "timeline/screen-home.jpg"
   },
   {
     "id": "c1-18",
@@ -822,9 +824,9 @@
     "when": "11-03 02:32",
     "title": "The Making Of opens",
     "text": "A public section with the site map and the course map, both downloadable.",
-    "kind": "text",
+    "kind": "picture",
     "commit": "55829a1c",
-    "image": "timeline/making-of-screen.png"
+    "image": "timeline/screen-making-of.jpg"
   },
   {
     "id": "c4-19",
