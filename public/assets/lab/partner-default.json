@@ -1,0 +1,97 @@
+{
+  "about": "Simulator reports (testLayout) for the recorded answers of Lab 17, made offline with scripts/lab-partner-precompute.ts.",
+  "reports": {
+    "m000": {
+      "cleared": true,
+      "seconds": 5.55,
+      "jumps": 3,
+      "stoppedAtItem": null,
+      "reachedMetres": 23.3,
+      "laneMetres": 23.4,
+      "probes": []
+    },
+    "m001": {
+      "cleared": true,
+      "seconds": 5.43,
+      "jumps": 2,
+      "stoppedAtItem": null,
+      "reachedMetres": 22.55,
+      "laneMetres": 22.6,
+      "probes": []
+    },
+    "m002": {
+      "cleared": false,
+      "seconds": null,
+      "jumps": 1,
+      "stoppedAtItem": 1,
+      "reachedMetres": 7.54,
+      "laneMetres": 24.1,
+      "probes": [
+        {
+          "item": 1,
+          "text": "item 2 (block) 0.9 m high lowered to 0.51 m",
+          "clears": true,
+          "seconds": 5.62
+        },
+        {
+          "item": 3,
+          "text": "item 4 (gap) 2 m wide narrowed to 1.2 m",
+          "clears": true,
+          "seconds": 5.51
+        }
+      ]
+    },
+    "m003": {
+      "cleared": false,
+      "seconds": null,
+      "jumps": 1,
+      "stoppedAtItem": 1,
+      "reachedMetres": 7.73,
+      "laneMetres": 17.1,
+      "probes": [
+        {
+          "item": 1,
+          "text": "item 2 (block) 1.8 m high lowered to 0.72 m",
+          "clears": true,
+          "seconds": 4.79
+        }
+      ]
+    },
+    "i02": {
+      "cleared": false,
+      "seconds": null,
+      "jumps": 1,
+      "stoppedAtItem": 3,
+      "reachedMetres": 8.94,
+      "laneMetres": 15,
+      "probes": [
+        {
+          "item": 3,
+          "text": "item 4 (block) 1 m high lowered to 0.56 m",
+          "clears": true,
+          "seconds": 4.55
+        }
+      ]
+    },
+    "m006": {
+      "cleared": false,
+      "seconds": null,
+      "jumps": 1,
+      "stoppedAtItem": 1,
+      "reachedMetres": 3.99,
+      "laneMetres": 21.2,
+      "probes": []
+    }
+  },
+  "extra": {
+    "eased-wall": {
+      "cleared": true,
+      "seconds": 4.79,
+      "jumps": 2,
+      "stoppedAtItem": null,
+      "reachedMetres": 17.1,
+      "laneMetres": 17.1,
+      "probes": []
+    }
+  }
+}

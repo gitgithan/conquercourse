@@ -34,6 +34,11 @@
 | 6 | Replay | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
 | 11 | Hash | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
 
+### Idea to course
+| # | Stage | Lab | Question | URL | Tests | Biggest limit |
+|---|---|---|---|---|---|---|
+| 16 | Fix it | [Design partner loop](partner.md) | Can a design partner's course be checked and repaired by the simulator? | `?mode=lab-partner&labs=1` | `tests/lab-partner.test.ts` (13) | Fix it applies the proved easing, not the editor's search; the run trail is a sketch |
+
 ### Methods behind all three
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|

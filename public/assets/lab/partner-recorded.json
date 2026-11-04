@@ -1,0 +1,310 @@
+{
+  "about": "Recorded answers of a design partner (Muse Spark Open) for Lab 17, plus answers written by us for the cases the recording did not keep. The Lab makes no model call.",
+  "answers": [
+    {
+      "id": "m000",
+      "kind": "good",
+      "brief": "a wide gap that needs a long run-up and jump",
+      "source": "Muse Spark Open, recorded (CC-122)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 12
+          },
+          {
+            "kind": "gap",
+            "width": 3.2
+          },
+          {
+            "kind": "ground",
+            "length": 8
+          }
+        ]
+      },
+      "note": "Cleared on the first test."
+    },
+    {
+      "id": "m001",
+      "kind": "good",
+      "brief": "a chain of blocks of rising height, like stairs of different sizes",
+      "source": "Muse Spark Open, recorded (CC-122)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 8
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.4
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.6
+          },
+          {
+            "kind": "block",
+            "length": 2,
+            "height": 0.8
+          },
+          {
+            "kind": "block",
+            "length": 2.5,
+            "height": 1.05
+          },
+          {
+            "kind": "ground",
+            "length": 6
+          }
+        ]
+      },
+      "note": "Cleared on the first test: four steps rising to 1.05 m."
+    },
+    {
+      "id": "m002",
+      "kind": "tooHard",
+      "brief": "a block to vault, then a gap to jump",
+      "source": "Muse Spark Open, recorded (CC-122)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 8
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.9
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "gap",
+            "width": 2
+          },
+          {
+            "kind": "ground",
+            "length": 8
+          }
+        ]
+      },
+      "note": "The vault block is too tall; the simulator proved one lower block clears it."
+    },
+    {
+      "id": "m003",
+      "kind": "tooHard",
+      "brief": "a tall wall to climb, then a drop to the ground",
+      "source": "Muse Spark Open, recorded (CC-122)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 8
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 1.8
+          },
+          {
+            "kind": "ground",
+            "length": 8
+          }
+        ]
+      },
+      "note": "A 1.8 m wall is more than one jump climbs; the simulator proved one lower wall clears it."
+    },
+    {
+      "id": "i02",
+      "kind": "tooHard",
+      "brief": "an easy first course with a bench and a wall",
+      "source": "Muse Spark Open, recorded (CC-133 text eval, run 1)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 5
+          },
+          {
+            "kind": "block",
+            "length": 0.5,
+            "height": 0.45
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 0.3,
+            "height": 1
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "say": "Easy first course with a bench then a low wall.",
+      "note": "The partner was told the report and eased the wall to the proved height.",
+      "partnerRepair": {
+        "say": "Lowered the low wall to the proven height.",
+        "layout": {
+          "items": [
+            {
+              "kind": "ground",
+              "length": 5
+            },
+            {
+              "kind": "block",
+              "length": 0.5,
+              "height": 0.45
+            },
+            {
+              "kind": "ground",
+              "length": 4
+            },
+            {
+              "kind": "block",
+              "length": 0.3,
+              "height": 0.56
+            },
+            {
+              "kind": "ground",
+              "length": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "m006",
+      "kind": "unprovable",
+      "brief": "a high platform, a drop to the ground, then another gap",
+      "source": "Muse Spark Open, recorded (CC-122)",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 3.5,
+            "height": 2.1
+          },
+          {
+            "kind": "gap",
+            "width": 3
+          },
+          {
+            "kind": "ground",
+            "length": 2
+          },
+          {
+            "kind": "gap",
+            "width": 3.6
+          },
+          {
+            "kind": "ground",
+            "length": 5
+          }
+        ]
+      },
+      "note": "Two things are wrong at once (a 2.1 m platform, then two wide gaps), so no single change clears it."
+    },
+    {
+      "id": "x1",
+      "kind": "malformed",
+      "brief": "a long flat run with nothing in the way",
+      "source": "Written by us (the real reply was not kept); the real eval run for this brief got no usable course",
+      "raw": "Sure! Here is a calm course: just a long, flat run with nothing in the way. Enjoy!",
+      "note": "No course in the reply at all."
+    },
+    {
+      "id": "x2",
+      "kind": "malformed",
+      "brief": "a long flat run with nothing in the way",
+      "source": "Written by us, to show a second way an answer is not a course",
+      "raw": "A flat run it is.\n```json\n{\"items\":[{\"kind\":\"ground\",\"length\":20}]}\n```",
+      "note": "A course with nothing to clear in it."
+    },
+    {
+      "id": "x3",
+      "kind": "malformed",
+      "brief": "a ground, a gap to jump, and ground again",
+      "source": "Written by us, to show a reply cut off in the middle (Muse Spark counts its thinking against the token limit, see docs/lessons.md)",
+      "raw": "A short gap to jump.\n```json\n{\"items\":[{\"kind\":\"ground\",\"length\":6},{\"kind\":\"gap\",\"width\":3},{\"kind\":\"gro",
+      "note": "The reply stopped in the middle, so the json cannot be read."
+    },
+    {
+      "id": "r1",
+      "kind": "rule",
+      "brief": "twelve small obstacles in a row",
+      "source": "Written by us, to show the 10-piece rule",
+      "layout": {
+        "items": [
+          {
+            "kind": "ground",
+            "length": 4
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "block",
+            "length": 1,
+            "height": 0.3
+          },
+          {
+            "kind": "ground",
+            "length": 1.5
+          },
+          {
+            "kind": "ground",
+            "length": 4
+          }
+        ]
+      },
+      "note": "The partner is told at most 10 pieces. This one has 12."
+    }
+  ]
+}
