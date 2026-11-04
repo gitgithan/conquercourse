@@ -51,10 +51,12 @@ function highlightCommunity(nodeId) {
     const original = originalEdgeStyles.get(e.id);
     const prominent = focusedCommunity == null || String(e.from) === focusedCommunity || String(e.to) === focusedCommunity;
     const color = typeof original.color === 'string' ? {color:original.color} : {...original.color};
-    color.opacity = prominent ? (focusedCommunity == null ? 0.14 : 0.32) : 0.018;
-    color.highlight = color.color;
-    color.hover = color.color;
-    return {id:e.id,color,width:focusedCommunity != null && prominent ? 0.8 : 0.5};
+    // Bright lines (owner, 2026-11-04: "way too dim in dark mode"): the colour comes from the theme, so Light and Dark both read.
+    const rootStyle = getComputedStyle(document.documentElement);
+    color.color = rootStyle.getPropertyValue('--edge').trim() || color.color;
+    color.highlight = color.hover = rootStyle.getPropertyValue('--edge-hot').trim() || color.color;
+    color.opacity = prominent ? (focusedCommunity == null ? 0.8 : 1) : 0.07;
+    return {id:e.id,color,width:focusedCommunity != null && prominent ? 2.6 : (focusedCommunity == null ? 1.4 : 0.6)};
   }));
   if (focusedCommunity != null) network.selectNodes([focusedCommunity], false);
 }
