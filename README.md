@@ -239,6 +239,24 @@ flowchart LR
 </tr>
 </table>
 
+### 🌍 Community
+
+- Click a picture to open it full size.
+- Top row: Explore, the pieces people made; then Mark it yourself, a box dragged round the red platform.
+- Bottom row: the 3D shape being built; then the finished Platform piece.
+- Park photo in the platform pieces: Alexis Jazz, Voltaplatz skatepark, ledge, CC BY 4.0.
+
+<table>
+<tr>
+<td><a href="README_MEDIA/community-1-explore.png"><img src="README_MEDIA/community-1-explore.png" width="480" alt="Community: Explore, the pieces people made, each with the part of the photo it came from"></a></td>
+<td><a href="README_MEDIA/community-2-mark-yourself.png"><img src="README_MEDIA/community-2-mark-yourself.png" width="480" alt="Community: Make your own, a box drawn round the red platform in a park photo"></a></td>
+</tr>
+<tr>
+<td><a href="README_MEDIA/community-3-making.png"><img src="README_MEDIA/community-3-making.png" width="480" alt="Community: Making the piece, with the progress step Building the 3D shape"></a></td>
+<td><a href="README_MEDIA/community-4-done.png"><img src="README_MEDIA/community-4-done.png" width="480" alt="Community: the finished Platform piece, ready to keep, share or open in the World Editor"></a></td>
+</tr>
+</table>
+
 ## 🌳 Folder tree
 - The top level, and one level inside each folder.
 
