@@ -61,12 +61,13 @@ export function createFall(deps: FallDeps) {
   let lastFall: Fall = 'splash';
   function onFall(what: Fall) {
     const ghostCtl = deps.ghostCtl(), onboarding = deps.onboarding(), makeClip = deps.makeClip, restart = deps.restart;
-    st.falls++; track('falls');
+    const watching = !!st.plan || !!st.demo || st.idealWhole; // owner 2026-11-04: an Ideal run (watched, not played) never counts in the play statistics, even when it ends in the water
+    st.falls++; if (!watching) track('falls');
     lastFall = what;
     const r = st.world.runner;
     const zone = zoneAt(what === 'slide' && course.wall ? course.wall.x0 + 1 : r.x);
     st.lastZone = zone?.id ?? 'gap';
-    if (!analytics.failed) {
+    if (!analytics.failed && !watching) {
       analytics.failed = true; trackCourseEvent('fail', analytics.courseKey, course.name, analytics.runId, analytics.mode, st.lastZone);
       const failedZone = zone?.id ?? st.lastZone;
       if (zone) fallLog.push(zone.id);
