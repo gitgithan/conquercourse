@@ -85,6 +85,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'made', default: 'none', doc: "a course made in the editor, carried in the link", quiet: false },
   { name: 'entrance', default: 'on', doc: "0 hides The Grand Entrance, the fifth card of the first-visit tour (it opens the tunnel page of the Making Of)", quiet: false },
   { name: 'timeline', default: 'on', doc: "0 hides The Grand Entrance card of The Making Of in the Courses picker", quiet: false },
+  { name: 'walkers', default: 'on', doc: "0 keeps the flat figures in The Grand Entrance tunnel (the rigged 3D Pip, Juno and the eight cast characters are not loaded)", quiet: false },
   { name: 'making', default: 'on', doc: "0 hides the Site map and Course map cards of The Making Of (the Parts card there has its own switch, parts)", quiet: false },
   { name: 'markbox', default: 'on', doc: "0 hides the Mark it yourself box tool in the Community Pick step", quiet: false },
   { name: 'md', default: '2', doc: "macro film distance", quiet: false },

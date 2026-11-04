@@ -113,12 +113,22 @@ const previewPages = (): Plugin => ({
 });
 const PREVIEW_PAGES = process.env.PREVIEW_PAGES === '1';
 
+// CC-133: the Grand Entrance page (public/making-of/timeline.html) is a plain page; it loads the walkers (src/making-of/walkers.ts) as a bundled module from one fixed address.
+// The build writes that file under that name; the dev server answers the same address with the source file.
+const WALKERS_URL = '/assets/entrance-walkers.js';
+const entranceWalkers = (): Plugin => ({
+  name: 'entrance-walkers',
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => { if (req.url?.split('?')[0] === WALKERS_URL) req.url = '/src/making-of/walkers.ts'; next(); });
+  },
+});
+
 export default defineConfig({
-  plugins: [designerDev(), placesDev(), photosDev(), ...(PREVIEW_PAGES ? [previewPages()] : [])],
+  plugins: [entranceWalkers(), designerDev(), placesDev(), photosDev(), ...(PREVIEW_PAGES ? [previewPages()] : [])],
   build: PREVIEW_PAGES ? { rollupOptions: { input: { main: 'index.html', placeSkin: 'place-skin.html' } } } : {},
   define: { __BUILD__: JSON.stringify(build + ' ' + new Date().toISOString().slice(0, 10)) },
   // CC-133: the place scenery page ships too, so the preview site can show the photo facade
-  build: { rollupOptions: { input: { main: 'index.html', 'place-skin': 'place-skin.html' } } },
+  build: { rollupOptions: { input: { main: 'index.html', 'place-skin': 'place-skin.html', 'entrance-walkers': 'src/making-of/walkers.ts' }, output: { entryFileNames: (c) => (c.name === 'entrance-walkers' ? 'assets/entrance-walkers.js' : 'assets/[name]-[hash].js') } } },
   server: { host: 'localhost', port: Number(process.env.PORT ?? 5173) },
   test: tier === 'slow'
     ? { include: slowFiles, testTimeout: 180000 }
