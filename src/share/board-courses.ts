@@ -7,6 +7,7 @@ export const BOARD_COURSES: BoardCourse[] = [
   { key: 'demo/training', name: 'Training Course', path: '/assets/demo/training.course.json' },
   { key: 'demo/cannonballs', name: 'Cannonballs', path: '/assets/demo/cannonballs.course.json' },
   { key: 'demo/two-ways', name: 'Two ways', path: '/assets/demo/two-ways.course.json' },
+  { key: 'demo/fork-bench-bulb', name: 'Benches or bulbs', path: '/assets/demo/fork-bench-bulb.course.json' }, // CC-133: the fork, climb the pole and swing the bulb bars, or run and jump the bench floor
 ];
 
 export const FIRST_COURSE_KEY = 'default/first';

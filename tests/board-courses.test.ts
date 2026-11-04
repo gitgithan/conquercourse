@@ -1,4 +1,4 @@
-// CC-108: the four listed courses can each be published, ranked and replayed by the server (First Course, Training, Cannonballs, Two ways).
+// CC-108: the five listed courses can each be published, ranked and replayed by the server (First Course, Training, Cannonballs, Two ways, Benches or bulbs).
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { CourseData } from '../src/course/course';
@@ -19,8 +19,8 @@ const load = (key: string): CourseData => key === 'default/first'
 const planOf = (key: string, course: CourseData) => key === 'default/first' ? firstIdeal.plan : course.plan!; // the First Course keeps its ideal plan in a file of its own
 
 describe('the listed courses', () => {
-  it('are exactly the four the owner named', () => {
-    expect(BOARD_COURSES.map((c) => c.key)).toEqual(['default/first', 'demo/training', 'demo/cannonballs', 'demo/two-ways']);
+  it('are exactly the five the owner named', () => {
+    expect(BOARD_COURSES.map((c) => c.key)).toEqual(['default/first', 'demo/training', 'demo/cannonballs', 'demo/two-ways', 'demo/fork-bench-bulb']);
     expect(isBoardKey('demo/park-run')).toBe(false);
   });
   for (const { key, name } of BOARD_COURSES) {

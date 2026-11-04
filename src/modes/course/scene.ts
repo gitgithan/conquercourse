@@ -60,6 +60,16 @@ export function buildCourseScene(scene: THREE.Scene, course: CourseData, params:
     halo.position.set(h.x, h.y, LANE_DEPTH / 2 + 0.32);
     scene.add(bar, halo);
   }
+  // standing poles to climb (course.climbPoles, CC-133, the fork's bulb lane): a pole from the ground up to the top hand hold, with a bright cap so it can be found
+  const poleSkinned = !!course.scene?.some((it) => it.id.startsWith('pole')) && params.get('collider') !== '1'; // a course with its own drawn pole (a scene item, like the bench-and-bulb demo) needs no second one
+  for (const p of poleSkinned ? [] : course.climbPoles ?? []) {
+    const base = groundAt(course.terrain, p.x);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, p.top, 14), new THREE.MeshStandardMaterial({ color: 0x3b4650, emissive: 0x10161c, metalness: 0.4, roughness: 0.5 }));
+    shaft.position.set(p.x, base + p.top / 2, 0);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffd24a, emissive: 0x8a5a00 }));
+    cap.position.set(p.x, base + p.top, 0);
+    scene.add(shaft, cap);
+  }
   // monkey bars (course.bars, docs/bars.md): one amber rung per grab point across the lane, and a post at each end down to the ground, so the row reads as a frame
   // a row with a photo skin (a scene item called bars-skin, CC-133) is drawn by the photo; the amber collider shows only with ?collider=1
   const skinned = !!course.scene?.some((it) => it.id === 'bars-skin') && params.get('collider') !== '1';

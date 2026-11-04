@@ -304,11 +304,14 @@ export function startEditor(host: HTMLElement): { backend: 'webgl2' } {
   const presetPick = el('select', top, { id: 'presetpick', title: 'Open a ready-made course in place of the one on the screen' });
   el('option', presetPick, { text: 'Ready-made courses…', value: '' });
   for (const pr of PRESETS) el('option', presetPick, { text: pr.label, value: pr.id, title: pr.note });
+  const PICK_KEY = 'cc-presetpick'; // the reload below forgets the choice, so the name of the course opened is kept for the page that comes back
+  try { const k = sessionStorage.getItem(PICK_KEY); if (k && PRESETS.some((q) => q.id === k)) presetPick.value = k; } catch { /* private window */ }
   presetPick.onchange = () => {
     const pr = PRESETS.find((q) => q.id === presetPick.value);
     if (!pr) return;
     if (ed.pieces.length > 1 && !confirm('Replace the pieces on the screen with this course? Ctrl+Z will not bring them back.')) { presetPick.value = ''; return; }
     try { sessionStorage.removeItem(EDIT_KEY); } catch { /* the editor was not opened from a course */ } // a hand-off from the Course would put the old pieces back on reload
+    try { sessionStorage.setItem(PICK_KEY, pr.id); } catch { /* private window */ }
     try { localStorage.setItem(KEY, JSON.stringify({ pieces: pr.pieces, angle: 0, offset: 0, level: 0, floor: ed.floorChoice } satisfies Saved)); } catch { /* private window */ }
     location.reload();
   };
