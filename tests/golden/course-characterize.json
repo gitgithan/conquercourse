@@ -9,6 +9,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -25,6 +26,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -34,11 +36,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -48,6 +50,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -62,6 +65,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -78,6 +82,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -86,11 +91,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Press Space just before the edge to jump",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -100,6 +105,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community"
       ],
@@ -113,6 +119,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -129,6 +136,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -138,11 +146,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -152,6 +160,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -166,6 +175,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -182,6 +192,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -191,11 +202,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -205,6 +216,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -219,6 +231,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -235,6 +248,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -244,11 +258,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -258,6 +272,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -272,6 +287,7 @@
       "grounded": "0",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -288,6 +304,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -297,11 +314,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -311,6 +328,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -325,6 +343,7 @@
       "grounded": "0",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -341,6 +360,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -350,11 +370,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -364,6 +384,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -378,6 +399,7 @@
       "grounded": "0",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -394,6 +416,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -403,11 +426,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -417,6 +440,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -431,6 +455,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -447,6 +472,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -456,11 +482,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -470,6 +496,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -484,6 +511,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -500,6 +528,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -509,11 +538,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -523,6 +552,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -537,6 +567,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -553,6 +584,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -562,11 +594,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -576,6 +608,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -590,6 +623,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -606,6 +640,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -614,11 +649,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -628,6 +663,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -642,6 +678,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -666,6 +703,7 @@
         "button|What is this? ▸",
         "button|Copy state",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -674,10 +712,10 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -688,6 +726,7 @@
         "soundbutton: Sound: on (M)",
         "debugpanel: Debug – × State On the ground Mode Running Speed # m/s Height # m Energy # % Jump now Lands Landing in # s Shapes ▸ Predictions ▸ Contacts and windows ▸ Machines ▸ What is this? ▸ Copy state",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -702,6 +741,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -718,6 +758,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -726,11 +767,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -740,6 +781,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -754,6 +796,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -770,6 +813,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -778,10 +822,10 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -791,6 +835,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -805,6 +850,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -821,6 +867,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -829,11 +876,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -843,6 +890,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -857,6 +905,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -873,6 +922,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: Off N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -881,11 +931,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -895,6 +945,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: Off N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -909,6 +960,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -925,6 +977,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: working out the ideal run… N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -933,11 +986,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -947,6 +1000,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: working out the ideal run… N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -961,6 +1015,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -977,6 +1032,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: Off N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -985,11 +1041,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -999,6 +1055,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: Off N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -1013,6 +1070,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -1029,6 +1087,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: Off N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -1037,12 +1096,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
-        "msg: Working out the ideal run… (any key cancels)",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1052,6 +1110,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: Off N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -1066,6 +1125,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "restart-chip|R Restart",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
@@ -1082,6 +1142,7 @@
         "button|All time",
         "soundbutton|Sound: on (M)",
         "ghost-chip|Ghost: Off N",
+        "search-cancel|Cancel",
         "chelp|?",
         "button|Courses",
         "a|World Editor",
@@ -1090,12 +1151,11 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m R Restart",
-        "msg: Working out the ideal run… (any key cancels)",
         "keys: Controls H shows",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1105,6 +1165,7 @@
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: Off N",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
@@ -1119,6 +1180,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1139,28 +1201,30 @@
         "a|World Editor",
         "a|World Slicer",
         "a|Community",
-        "cc-feedback-btn|Feedback"
+        "cc-feedback-btn|Feedback",
+        "search-cancel|Cancel"
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
+        "toast-band: Hold → to run First toast Second toast Third toast",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold → to run",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
         "coursebtns: Edit this course Whole course (Shift+I) Customize background",
         "pickrunner: Characters",
         "cam: Rotate Camera (C)",
-        "toasts: First toast Second toast Third toast",
         "board-corner: ▾ Fastest runs Today This week All time No time yet. Be the first.",
         "soundbutton: Sound: on (M)",
         "ghost-hud: Ghost: Off N",
         "chelp: ?",
         "sitenav: Courses World Editor World Slicer Community",
-        "cc-feedback-btn: Feedback"
+        "cc-feedback-btn: Feedback",
+        "search-progress: Working out the best run for your course Looking at: edge at # m (# of #) a few seconds left Cancel"
       ],
       "drumsShown": true
     },
@@ -1172,6 +1236,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1196,8 +1261,10 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: gap",
         "drums: Drums (G)",
+        "toast-band: Hold → to run",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
         "gauge-stack: Speed # m/s Next gap: # m wide. You need at least # m/s at the edge.",
@@ -1223,6 +1290,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1244,6 +1312,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1270,6 +1339,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "button|Open the World Editor",
         "button|Open the World Slicer",
         "button|Build a coaster",
@@ -1302,6 +1372,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "msg: You made it! Press R to run it again.",
@@ -1328,6 +1399,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "button|Open the World Editor",
         "button|Open the World Slicer",
         "button|Build a coaster",
@@ -1360,6 +1432,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "msg: You made it! Press R to run it again.",
@@ -1394,6 +1467,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1416,6 +1490,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1443,6 +1518,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1464,6 +1540,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Gap jump",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1491,6 +1568,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1519,6 +1597,8 @@
         "button|Barcelona block The Eixample grid: rooft",
         "button|Sydney quay Waterfront buildings at Circ",
         "button|San Francisco hill (# m of hill) Lombard",
+        "button|Monkey bars from a photo Jump, hold E an",
+        "button|Bench lane or bulb lane The course forks",
         "button|Park run Stairs, a skate box, two rails,",
         "button|Coaster: two hills (brake on the sharp o",
         "button|Trebuchet: throw, then catch the bar Sit",
@@ -1546,16 +1626,26 @@
         "button|Dojo: Hover: push against weight How har",
         "button|Search Choose how the game looks for a c",
         "button|Optimization Pick which settings to tune",
-        "button|Posing a character Move the hand to a ba",
+        "button|Reinforcement learning Write the points ",
+        "button|Generate and test Watch a helper propose",
+        "button|Hide the wait Two lanes, the computer an",
         "button|Computer vision Move the cut-offs and se",
         "button|Camera and perspective See why one photo",
+        "button|Evaluating a detector Check whether a he",
+        "button|Posing a character Move the hand to a ba",
         "button|Numerical integration Change the step ru",
         "button|Statistics of timing Set how shaky the p",
         "button|Signal processing Smooth a wobbly captur",
-        "button|Generate and test Watch a helper propose",
-        "button|Evaluating a detector Check whether a he",
         "button|Verification and hashing Change one key ",
-        "button|Reinforcement learning Write the points ",
+        "button|Same run, any machine Replay one run on ",
+        "button|Spike the riskiest call first Rank the r",
+        "button|Cut-out, lift and bake Turn a photo into",
+        "button|Collision from a #D lift Step through ho",
+        "button|Video to motion Follow a filmed move fro",
+        "button|Design partner loop Watch a recorded AI ",
+        "button|World Slicer: map to lane Drop a pin on ",
+        "button|What the model cannot do Sort real model",
+        "button|System design: build the whole game Drag",
         "a|Site map Every screen a player can see, ",
         "a|Course map The building tasks of the pro",
         "button|Parts: moves and obstacles Every move an"
@@ -1574,6 +1664,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1595,6 +1686,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Gap jump",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1623,6 +1715,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1643,11 +1736,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Cannon gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Run onto the teal pad to clip the launcher on.",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1670,6 +1763,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1689,11 +1783,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Elastic band",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Hold ← to run away from the post and stretch the band. Then turn round (hold →): it throws you forward.",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1715,6 +1809,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1735,11 +1830,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Drone gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: Run onto the teal pad, then hold E to board the cargo drone.",
         "gauge-stack: Speed # m/s Drone battery #%",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1762,6 +1857,7 @@
       "grounded": "1",
       "runnerStarted": false,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1782,6 +1878,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1812,7 +1909,7 @@
         "backcourse|Back to the Course",
         "presetpick|Ready-made courses… Hang bar and Lache (",
         "addpiece|+ Add pieces ▾",
-        "fixmenubtn|Fix ▾",
+        "fixmenubtn|Improve ▾",
         "fitview|Fit",
         "viewmode|Top plan",
         "movesbtn|Moves",
@@ -1821,8 +1918,7 @@
         "redo|Redo (Ctrl+Y)|disabled",
         "glossarybtn|?",
         "overflow|⋯",
-        "personfind|Find the person",
-        "personhide|Hide",
+        "select|Morning Noon Golden hour Dusk",
         "turnleft|↺ #°",
         "turnright|↻ #°",
         "button|× #",
@@ -1849,7 +1945,7 @@
         "cc-feedback-btn|Feedback"
       ],
       "cards": [
-        "div: World Editor Back to the Course Ready-made courses… Hang bar and Lache (clears) Park run (clears) Coaster to a deck (clears) Broken park (needs Fix it) + Add pieces ▾ Fix ▾ Fit Top plan Moves Design partner Undo (Ctrl+Z)",
+        "div: World Editor Back to the Course Ready-made courses… Hang bar and Lache (clears) Park run (clears) Coaster to a deck (clears) Broken park (needs a repair) + Add pieces ▾ Improve ▾ Fit Top plan Moves Design partner Undo (C",
         "sitenav: Courses World Editor World Slicer Community",
         "cc-feedback-btn: Feedback"
       ],
@@ -1857,7 +1953,7 @@
       "back": [
         "backcourse"
       ],
-      "pieces": 5
+      "pieces": 4
     },
     {
       "name": "Back to the Course",
@@ -1867,6 +1963,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1887,6 +1984,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Gap",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -1913,6 +2011,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -1933,11 +2032,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Lache pair",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: A bar is coming: jump, then hold E to grab it",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -1960,6 +2059,7 @@
       "grounded": "0",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "button|Got it",
         "button|Try this Lache pair again (R)",
         "button|Start from the beginning (Shift+R)",
@@ -1985,10 +2085,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Lache pair",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
-        "div: Fell? That is how everyone starts. Press R to try again. Press I to watch the best line. Got it You touched the lava at the Lache pair. Press Space just before the edge. Lava is only dangerous below you: stay on the grou",
+        "div: Fell? That is how everyone starts. Press R to try again. Press I to watch the best line. Got it You touched the lava at the Lache pair. You got # m of # m. Press Space just before the edge. Lava is only dangerous below y",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -2010,6 +2111,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -2030,11 +2132,11 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: A bar is coming: jump, then hold E to grab it",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
@@ -2057,6 +2159,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -2076,6 +2179,7 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
@@ -2102,6 +2206,7 @@
       "grounded": "1",
       "runnerStarted": true,
       "buttons": [
+        "select|Morning Noon Golden hour Dusk",
         "dojobtn|Dojo (L)",
         "idealbtn|Ideal run (I)",
         "editcourse|Edit this course",
@@ -2121,12 +2226,12 @@
       ],
       "cards": [
         "frontview: Looking ahead (F)",
+        "timeofday: Time of day Morning Noon Golden hour Dusk",
         "strip: Vault",
         "drums: Drums (G)",
         "hudrow: Time # s · # m of # m",
         "msg: Your turn.",
         "keys: Controls H hides ← → Run (hold) R Restart (Shift+R: from the very start) Space / ↑ / W Jump · press on the trampoline ↓ / S Bend your knees (hold, on big drops) · tap while running: slide low under a head-high ball X Rol",
-        "div: A step is coming: press V as you reach it to vault over",
         "gauge-stack: Speed # m/s",
         "dojobtn: Dojo (L)",
         "idealbtn: Ideal run (I)",
