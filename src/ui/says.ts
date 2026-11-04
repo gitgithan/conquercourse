@@ -58,6 +58,8 @@ export const VOICES: Record<VoiceId, Voice> = {
 
 /** The order of the crew strip: tech first, then the characters. */
 export const CREW: VoiceId[] = ['simulator', 'partner', 'safety', 'cutter', 'builder', 'maker', 'ghost', 'street', 'pip', 'juno'];
+/** The supporting characters: the AI and the simulator behind the game. Pip and Juno are main characters (runners) and have their own cards. */
+export const SUPPORTING: VoiceId[] = CREW.filter((id) => id !== 'pip' && id !== 'juno');
 
 // Where each voice shows up (CC-243, owner request 2026-11-01). One source of truth: the crew cards and the legend both read it.
 // Derived from the code that mounts each badge; docs/ui-voices.md has the same table and the test checks they agree.
@@ -205,10 +207,9 @@ export function meetTheCrew(doc: Document = document): HTMLElement {
   ensureSaysStyle(doc);
   const wrap = doc.createElement('div'); wrap.className = 'crew-wrap'; wrap.append(crewLegend(doc));
   const ul = doc.createElement('ul'); ul.className = 'crew'; ul.id = 'crew';
-  for (const id of CREW) {
+  for (const id of SUPPORTING) {
     const v = VOICES[id], li = doc.createElement('li'); li.className = 'crew-card'; li.dataset.voice = id; li.style.setProperty('--a', v.accent);
     const badge = sayBadge(id, { doc, sub: v.poweredBy });
-    if (id === 'pip' || id === 'juno') badge.querySelector('.says-title')!.textContent = v.name;
     const job = doc.createElement('div'); job.className = 'crew-job'; job.textContent = v.job;
     const body = doc.createElement('div'); body.className = 'crew-body'; body.append(badge, job);
     const rail = doc.createElement('ul'); rail.className = 'crew-rail'; rail.setAttribute('aria-label', `${v.name} shows up in: ${VOICE_SCREENS[id].map((s) => SCREENS[s].name).join(', ')}`);
