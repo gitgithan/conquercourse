@@ -44,6 +44,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'dojo', default: 'new', doc: "old brings back the old Dojo layout", quiet: false },
   { name: 'drums', default: 'off', doc: "1 forces the drum cues", quiet: false },
   { name: 'dur', default: '4', doc: "seconds for a demo (group 4, lineup 5) or one film move", quiet: false },
+  { name: 'easierview', default: 'on in development, off in production', doc: "1 shows candidate layouts and simulator verdicts during Make it easier; 0 hides the cards while keeping cancellation", quiet: false },
   { name: 'edit', default: 'off', doc: "1 shows the edit chip at once", quiet: false },
   { name: 'editorui', default: 'new', doc: "old brings back the single-choice editor", quiet: false },
   { name: 'el', default: '32', doc: "camera up angle on the skin test page", quiet: false },
