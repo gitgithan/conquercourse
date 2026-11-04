@@ -48,7 +48,7 @@ async function main() {
       const pop = ease((t - 0.15 * i) / 0.45); // each pops in, one after the other
       a.object.visible = pop > 0;
       a.update(state(0));
-      a.object.scale.setScalar(s * Math.max(0.01, pop));
+      a.object.scale.setScalar(s * (who[i].url ? 1 : 1.9) * Math.max(0.01, pop)); // Pip and Juno (no fit) are drawn smaller than the fitted ones
       a.object.position.set((x - W / 2) / PPM, (H / 2 - fy) / PPM, 0);
       a.object.rotation.y = TOWARD;
     });
