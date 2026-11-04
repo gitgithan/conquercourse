@@ -35,6 +35,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'clip', default: 'off', doc: "auto records a clip of the shared friend's run", quiet: false },
   { name: 'coaster', default: 'on', doc: "a track as points, e.g. 0,9;7,5; in the editor, 0 hides the coaster piece", quiet: false },
   { name: 'course', default: 'none', doc: "a course file to play", quiet: false },
+  { name: 'courseswitch', default: 'on', doc: "0 reloads the document for course selections instead of reusing the renderer and loaded assets", quiet: false },
   { name: 'credit', default: 'none', doc: "credit text in a film", quiet: false },
   { name: 'crewcards', default: 'on', doc: "old brings back the strip of voice pills in Meet the crew", quiet: false },
   { name: 'debug', default: 'off', doc: "1 shows the debug view", quiet: false },

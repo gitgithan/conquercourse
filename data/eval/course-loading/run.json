@@ -321,5 +321,143 @@
       ],
       "page_errors": []
     }
+  },
+  "implementation": {
+    "date": "2026-11-05",
+    "source_commit": "405d7e900fce8b76ae8399ad9efb2243aa12e76d",
+    "changes": [
+      "Retain the document and renderer during ordinary course selection",
+      "Dispose outgoing course listeners, timers, observers, workers, DOM and owned GPU resources",
+      "Share parsed motion and default model templates; clone actor skeletons and materials",
+      "Parallelize required and optional motion requests",
+      "Pause drawing while the course gallery or loading overlay is open",
+      "Handle browser history and failed-fetch recovery"
+    ],
+    "method": "One fresh-browser sequence per variant on the same existing VM; click-dispatch to end of first application render callback. Baseline navigation timings exclude click dispatch. Vite server had been warmed by an earlier regression check.",
+    "cold_metric_limit": "The harness cold wall time includes protocol calls after the first frame and is not compared with the baseline first-frame mark.",
+    "source_runtime_matches_benchmarked_build": true,
+    "results": {
+      "dev": {
+        "switches": [
+          {
+            "label": "training",
+            "selection_to_first_frame_ms": 1197,
+            "harness_wall_ms": 1302,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "montmartre",
+            "selection_to_first_frame_ms": 4133,
+            "harness_wall_ms": 4166,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "training-repeat",
+            "selection_to_first_frame_ms": 9552,
+            "harness_wall_ms": 9565,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "retry",
+            "selection_to_first_frame_ms": 7802,
+            "harness_wall_ms": 7811,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          }
+        ],
+        "checks": [
+          "same document and canvas",
+          "one HUD and input set",
+          "Back and Forward",
+          "keyboard run and restart",
+          "failed fetch retains old course",
+          "retry succeeds"
+        ],
+        "browser_errors": [],
+        "cold_harness_wall_ms_not_comparable_to_baseline_first_frame": 2330
+      },
+      "built": {
+        "switches": [
+          {
+            "label": "training",
+            "selection_to_first_frame_ms": 1598,
+            "harness_wall_ms": 1744,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "montmartre",
+            "selection_to_first_frame_ms": 4097,
+            "harness_wall_ms": 4106,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "training-repeat",
+            "selection_to_first_frame_ms": 10725,
+            "harness_wall_ms": 10731,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          },
+          {
+            "label": "retry",
+            "selection_to_first_frame_ms": 7925,
+            "harness_wall_ms": 7930,
+            "same_document": true,
+            "same_canvas": true,
+            "motion_and_default_model_requests_total": 11,
+            "keydown_listeners": 8,
+            "keyup_listeners": 2,
+            "searches_started": 0
+          }
+        ],
+        "checks": [
+          "same document and canvas",
+          "one HUD and input set",
+          "Back and Forward",
+          "keyboard run and restart",
+          "failed fetch retains old course",
+          "retry succeeds"
+        ],
+        "browser_errors": [],
+        "cold_harness_wall_ms_not_comparable_to_baseline_first_frame": 6645
+      }
+    },
+    "remaining_limit": "Returning from Montmartre to Training still takes 9.55 s in Vite and 10.73 s in the optimized build on SwiftShader; renderer reuse does not eliminate scene construction or graphics work.",
+    "deployment": "No deployment; optimized build served locally on the worker.",
+    "additional_model_calls": 0,
+    "new_vms": 0,
+    "validation": "TypeScript and initial production build passed; browser checks passed in dev and optimized build; final full suite running on rebased source."
   }
 }

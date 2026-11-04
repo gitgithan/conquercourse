@@ -60,6 +60,25 @@ flowchart TD
 - Unit coverage checks asset coalescing/retry, independent skeletons/materials, retained shared geometry, removed input/timer handlers, and settlement of searches whose workers never answer.
 
 
+## Results after renderer and asset reuse
+
+| Course switch | Vite before | Vite after | Optimized build before | Optimized build after |
+| --- | ---: | ---: | ---: | ---: |
+| First Course → Training | 21.96 s | **1.20 s** | 19.69 s | **1.60 s** |
+| Training → Montmartre | 17.41 s | **4.13 s** | 18.65 s | **4.10 s** |
+| Montmartre → Training | 21.54 s | **9.55 s** | 19.35 s | **10.73 s** |
+
+- Both browser sequences passed Back/Forward, run/restart, failed-fetch recovery and retry, with no page errors.
+- The same document token and canvas survived every switch; exactly one course HUD remained.
+- Motion/model requests stayed at **11 total** across every switch: ten motion files and one Rookie GLB, with no repeated requests from the player or ghosts.
+- Window key listeners stayed at **8 keydown and 2 keyup**, rather than growing per course.
+- All measured courses reused their stored plans and started zero clearance searches.
+- The repeated transition after Montmartre remains slow on SwiftShader; this change does not remove new scene construction and graphics work.
+- These are one-sequence diagnostic observations on a software renderer, not latency guarantees or hardware-GPU measurements.
+- The new cold harness wall time includes protocol calls after the first frame and is deliberately not compared with the baseline cold first-frame mark.
+- The Vite server was warm from a prior regression run; neither column is a CDN measurement.
+- [Evidence: real UI after switching and retry](../../../docs/evidence/course-runtime-reuse-1280.png).
+
 ## Baseline measured results
 
 | Navigation | Vite development server | Optimized production build | Production build with VM-only menu render guard |
@@ -113,13 +132,14 @@ flowchart TD
 - Later, load fell below 10 and available memory increased to about 4 GiB; the initial figures are a snapshot, not a permanent hardware condition.
 - No other agent's jobs were stopped or modified.
 
-## Recommended implementation order
+## Follow-up order
 
-1. Move heavy captures, encoding and full tests off the laptop to the existing VM workers.
-2. Add a proper course-switch lifecycle: cancel old loops and workers, release old scene data, and reuse the graphics renderer across course selections.
-3. Cache parsed motion data and shared character assets; parallelize independent optional clip fetches.
-4. Draw a usable initial scene and loading state before waiting for every optional character asset.
-5. Benchmark cold and warm navigation on the user's actual hardware and published build before claiming a latency target.
+1. **Done:** move heavy captures and full tests to the existing VM.
+2. **Done:** reuse the renderer with a disposable course lifecycle.
+3. **Done:** cache parsed motion/default models and parallelize clip requests.
+4. Next: profile the remaining scene construction and graphics work, especially the return from Montmartre.
+5. Measure on the user's physical GPU and the published preview before setting a latency target.
+6. Consider an earlier usable cold-start scene; first entry still waits for the player's character assets.
 
 Stopping rendering while Courses is open is useful, but the prototype shows that this alone is not a complete fix.
 Explicitly losing the context is also not a complete fix; it can simply move the stall earlier.
@@ -132,7 +152,7 @@ Explicitly losing the context is also not a complete fix; it can simply move the
 - Build and preview the same copy, then run `PORT=5399 OUT=profile-built node profile.mjs`.
 - [gallery-guard-prototype.py](gallery-guard-prototype.py) applies the early render-pause ablation in that disposable copy; rebuild before measuring it.
 - `PAUSE_OLD=1` in the harness is the separate, late RAF-pause control.
-- Raw network timings and CPU profiles are kept outside Git under the shared assets `eval-full/course-loading-2026-11-04/` folder.
+- Raw baseline profiles and new browser records are kept outside Git under the shared assets `eval-full/course-loading-2026-11-04/` folder.
 - Each variant has one sequence; results are not median or p95 estimates.
 - Chromium used software WebGL rendering on a VM. Absolute GPU times cannot be transferred to the user's physical GPU.
 - The production build was served locally on the VM; this was not an end-to-end CDN benchmark of the deployed site.
