@@ -1,3 +1,4 @@
+import { mountSkinCollider } from "../labs/collision/skin-widget";
 import { mountLabsNav } from "../ui/labs-nav";
 import { labsOn } from "../ui/labs";
 import { labDefaultNote, labPopulated } from "../ui/lab-default";
@@ -100,6 +101,22 @@ export function startLabCollision(host: HTMLElement): { backend: "canvas2d" } {
           <label>Tick: <b id="lcol-tick-v"></b><input id="lcol-tick" type="range" min="0" max="1" step="1"></label>
           <p class="small" id="lcol-sim-says" style="margin:0"></p>
           <button class="go" id="lcol-search">Search a new run for this row (about 5 seconds)</button></div>
+        <div class="card" id="lskin"><h2>Step 10: Skin versus collider</h2>
+          <p class="small" style="margin:0 0 6px">A photo gives a skin to look at. The simulator needs a simple collider it can trust: the same ball, rolled over two lifts of the same photo, must run the same.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+            <label style="margin:0">Object <select id="lskin-obj"></select></label>
+            <span><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="radio" name="lskin-m" value="skin" checked> Collide with the skin</label>
+            <label style="display:flex;gap:6px;align-items:center;margin:0"><input type="radio" name="lskin-m" value="collider"> Collide with the collider (a box rounded to 5 cm)</label></span>
+            <label id="lskin-det-row" style="margin:0;min-width:260px">Skin detail: <b id="lskin-det-v"></b> triangles<input id="lskin-det" type="range" min="50" max="5820" step="10"></label>
+          </div>
+          <canvas id="lskin-cv" width="1100" height="300" style="margin-top:8px"></canvas>
+          <p class="small" style="margin:6px 0 0"><span class="sw" style="background:#5b7fa6"></span>the lifted skin <span class="sw" style="background:${ORANGE};margin-left:10px"></span>what the ball collides with <span class="sw" style="background:${TEAL};margin-left:10px"></span>run on the first lift <span class="sw" style="background:${RED};margin-left:10px"></span>run on the same photo lifted again (5 mm of change). <span id="lskin-credit"></span></p>
+          <label>Tick: <input id="lskin-tick" type="range" min="0" max="1" step="1"></label>
+          <table><thead><tr><th></th><th>Triangles</th><th>Checks</th><th>Snags</th><th>Jitter (mm)</th><th>Run hash</th><th>Gets across</th></tr></thead><tbody id="lskin-facts"></tbody></table>
+          <p class="small" id="lskin-cost" style="margin:6px 0 0"></p><p id="lskin-verdict" style="margin:4px 0 0"></p>
+          <h2 style="margin-top:12px">Challenge: pick the collider that keeps the run identical</h2>
+          <div id="lskin-pick"></div><button class="go" id="lskin-check">Check my pick</button> <span id="lskin-result"></span>
+          <table style="margin-top:8px"><thead><tr><th>Collider</th><th>Triangles</th><th>Same run on both lifts</th><th>Top off by</th><th>Keeps the run</th><th></th></tr></thead><tbody id="lskin-all"></tbody></table></div>
         <div class="card"><h2>The maths</h2><button class="link" id="lcol-eq-btn">Show the maths behind the fitted row</button><div class="eq" id="lcol-eq" hidden></div></div>
       </div>
     </div>`;
@@ -344,7 +361,7 @@ Rung i sits at first + i * gap. If gap < ${GAP_MIN} m use every ceil(${GAP_MIN} 
       const [buf, course, run] = await Promise.all([fetch(GLB_URL).then((r) => r.arrayBuffer()), fetch(DEMO_COURSE_URL).then((r) => r.json()), fetch(DEMO_RUN_URL).then((r) => r.json())]);
       mesh = readGlbMesh(buf); log = run.log as InputLog; baseline = playKeys(course, log);
       recompute();
-      labPopulated("lab-collision");
+      mountSkinCollider(wrap, () => labPopulated("lab-collision"));
     } catch (e) {
       $("lcol-title").textContent = "The lift could not be loaded"; $("lcol-does").textContent = String(e);
     }
