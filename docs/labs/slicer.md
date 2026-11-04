@@ -14,12 +14,15 @@
 - Open it at `?mode=lab-slicer&labs=1`.
 
 ## What runs
-- The game's own Slicer code, on recorded OpenStreetMap data of five ready places (`public/assets/places/*.json`):
+- The game's own Slicer code, on recorded OpenStreetMap data of every place in `public/assets/places/index.json` (`public/assets/places/<place>.json`, fetched only when a place is picked):
   - `stateAt`, `customOf` and `replayDefault` from `src/slice/slicer-default.ts` (the buildings, the roofs, the player's line).
   - `customLane` and `worldOf` from `src/slice/slicer-core.ts` (the lane read from the picked buildings, and the simulator's verdict).
   - `laneProfile` from `src/slice/world.ts`, `laneFacts`, `looksCrossable` and `whyNot` from `src/slice/why.ts`.
   - `laneToCourse` from `src/slice/slice.ts`, then `searchIdealRun` and `playPlan` from `src/sim/ideal.ts` for the run that is drawn.
 - Lab code only: `src/labs/slicer/slicer-lab-core.ts` (which buildings the circle and the tag switch leave out, the what-if limits, the challenges).
+- The place picker is a list of cards, each with the editor's completeness badge: ready (lane proven), no lane found yet, no photos or no lane, small on the map.
+  - A legend counts the places of each level, computed from the index.
+  - The test for the green badge is the editor's own (`src/modes/map-place.ts`).
 - Everything runs in the page.
   - Nothing is fetched from the internet, no street photo is shown or stored, and no paid call is made.
 
@@ -79,7 +82,8 @@
 - The data is recorded buildings only; paths, steps, rails and benches are not in the recorded files, so the tags that count are the height tag and nothing else.
 - The pin moves the circle; the recorded area, the hills grid and the stored defaults stay centred on the first pin.
 - The what-if limits change only the quick look; the simulator's limits are the game's.
-- The Lab shows five places out of 47, and the quick page check runs the search in the page, which takes up to a few seconds.
+- The Lab offers every place of the index; the counts on the page are computed from it, so they change when the index does.
+- The search runs in a worker with a bar; a big place takes about ten seconds, and until it answers the page shows the stored run, labelled as recorded.
 - The "Photos at the lane" step is a note, not a worked example.
 - The challenge answers are found with the real search, but other settings may pass too.
 

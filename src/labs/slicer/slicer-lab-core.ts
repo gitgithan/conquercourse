@@ -15,7 +15,26 @@ export { JUMP_GAP_M, MIN_GAP_M, CLIMBABLE, LANE_DROP };
 export const MIN_LANE_M = 8; // a lane shorter than this is too short to run along (src/slice/why.ts)
 export const PLACE_URL = (slug: string): string => `/assets/places/${slug}.json`;
 export const DEFAULTS_URL = '/assets/places/slicer-defaults.json';
-export const SLUGS = ['alfama-lisbon', 'montmartre-paris', 'eixample-barcelona', 'zocalo-mexico-city', 'lakeside-garden-skatepark'] as const;
+export const INDEX_URL = '/assets/places/index.json';
+/** One line of public/assets/places/index.json (only the parts the Lab reads). Every place the Lab offers comes from this list. */
+export interface IndexEntry { slug: string; name: string; country?: string; kind?: string; listed?: boolean; path?: boolean; visible?: boolean; hill_m?: number; buildings?: number; bytes?: number }
+export type Level = 'ready' | 'nolane' | 'nophotos' | 'small';
+/** The same completeness words as the world editor's ready-places gallery (src/modes/map-place.ts), in the order they are shown. */
+export const LEVELS: readonly { id: Level; label: string; tip: string }[] = [
+  { id: 'ready', label: 'ready (lane proven)', tip: 'Listed in the editor and has a lane the simulator cleared.' },
+  { id: 'nolane', label: 'no lane found yet', tip: 'A park whose search has not found a lane yet.' },
+  { id: 'nophotos', label: 'no photos or no lane', tip: 'Not listed in the editor yet (it still has a proved lane stored, but no photos).' },
+  { id: 'small', label: 'small on the map', tip: 'The mapped shape is under 1500 square metres, so it is a small patch at the editor zoom.' },
+];
+/** The same test the editor uses for its green "ready" badge. */
+export const isReady = (p: IndexEntry): boolean => p.listed !== false && (p.kind !== 'parkour' || p.path === true);
+/** The badges of one place: one of ready / no lane found yet / no photos or no lane, and "small on the map" on top when it applies. */
+export const levelsOf = (p: IndexEntry): Level[] => [isReady(p) ? 'ready' : p.kind === 'parkour' ? 'nolane' : 'nophotos', ...(p.kind === 'parkour' && p.visible === false ? ['small' as const] : [])];
+export const countLevels = (index: readonly IndexEntry[]): Record<Level, number> => {
+  const c: Record<Level, number> = { ready: 0, nolane: 0, nophotos: 0, small: 0 };
+  for (const p of index) for (const l of levelsOf(p)) c[l]++;
+  return c;
+};
 export const OSM_CREDIT = '© OpenStreetMap contributors (ODbL)';
 
 export interface PlaceData { slug: string; name: string; lat: number; lon: number; radius: number; blurb: string; answer: OverpassAnswer; ground: Ground | null }
@@ -120,7 +139,7 @@ export const CHALLENGES: readonly Challenge[] = [
     task: 'Only one building is inside this circle, so the lane has nothing to stand on. Widen the radius until a lane clears.',
     reveal: 'A lane needs buildings under the whole line. We read a circle that holds every building recorded around the pin. A wider circle costs more to search, so the Slicer proves the lane ahead of time (docs/lessons.md, CC-90).' },
   { id: 'guessed', title: 'Only the buildings we are sure of', slug: 'alfama-lisbon', kind: 'clear', start: { realOnly: true },
-    task: 'Only 64 of 278 buildings here carry a height tag. With only those counted, there is no lane. Find a setting that clears.',
+    task: 'Many buildings here have no height tag. With only the tagged ones counted, there is no lane. Find a setting that clears.',
     reveal: 'We count every building and guess 9 m when the tag is missing. A guess is imperfect, but a place with only the sure ones has no lane. The lane is a game lane, not a survey.' },
 ];
 export interface Verdict { pass: boolean; text: string }
