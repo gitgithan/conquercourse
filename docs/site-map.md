@@ -150,7 +150,7 @@
     - How to get there: Pick a lesson card, such as "Gap jump" or "Rope swing".
     - Leads to: The Course (play)
 - **University Labs**
-  - You do: You explore twelve bigger ideas, such as search or camera maths, and equations are allowed here.
+  - You do: You explore 22 bigger ideas, such as search or camera maths, and equations are allowed here.
   - How to get there: Courses picker, the "Labs:" groups (one per pipeline).
   - Leads to: Courses picker
   - **A Lab**
@@ -223,7 +223,7 @@
 2. End report
    - Open the end report.
 3. Leaderboard
-   - Optionally type a three-letter tag and publish to the leaderboard.
+   - Optionally type a short tag (up to 12 characters) and publish to the leaderboard.
 4. Share a run
    - Press "Copy link" or "Download video".
 5. A friend's challenge link
@@ -315,7 +315,7 @@
   - Browser checks: `scripts/coaster-builder-check.mjs`, `scripts/coaster-check.mjs` (no status recorded).
   - Docs: `docs/course-design.md`, `docs/input-design.md`.
 - **World Editor**
-  - Source: `src/modes/editor.ts` and the files in `src/modes/editor/` (`history.ts`, `keys.ts`), `src/ui/editor-layout.ts`, `src/ui/editor-ux.ts`, `src/ui/piece-browser.ts`, `src/slice/` (Fix it: `fixit.ts`, `fixbars.ts`, `easier.ts`, `designer.ts`).
+  - Source: `src/modes/editor.ts` and the files in `src/modes/editor/` (`history.ts`, `keys.ts`), `src/ui/editor-layout.ts`, `src/ui/editor-ux.ts`, `src/ui/piece-browser.ts`, `src/slice/` (Ask AI, Make it easier, Find shortcut: `fixit.ts`, `fixbars.ts`, `easier.ts`, `designer.ts`).
   - Unit tests: `tests/editor-defaults.test.ts`, `tests/editor-history.test.ts`, `tests/editor-keys.test.ts`, `tests/editor-holds.test.ts`, `tests/editor-presets.test.ts`, `tests/editor-plank.test.ts`, `tests/editor-trebuchet.test.ts`, `tests/fixit.test.ts`, `tests/fixbars.test.ts`, `tests/easier.test.ts`, `tests/designer.test.ts`, `tests/roles.test.ts`, `tests/selection.test.ts`.
   - Browser checks: works: `real-objects`, `editor-flow`, `editor-select`, `editor-defaults`; green: `editor-check`, `editor-layout-check`, `editor-ux-check`, `band-editor-check`, `editor-return-check`; known red: `treb-fixit-check`, `lane-cancel-check`, `lane-handover-check` (the editor says "Nothing is in the lane" after the handover).
   - Docs: `docs/editor-ui.md`, `docs/editor-buttons.md`, `docs/features.md`, `docs/multi-path.md`.
