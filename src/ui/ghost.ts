@@ -69,7 +69,7 @@ export function createGhost(o: GhostOpts): Ghost {
 
   const style = document.createElement('style');
   style.textContent = `
-    #ghost-hud{position:fixed;left:50%;top:172px;transform:translateX(-50%);z-index:12;display:flex;flex-direction:column;align-items:center;gap:4px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap} /* stacked: the gap words sit under the chip, clear of the Edit this course button */
+    #ghost-hud{position:fixed;left:50%;top:172px;transform:translateX(-50%);z-index:12;display:flex;flex-direction:row;align-items:center;gap:6px;font:600 13px system-ui,sans-serif;color:#17201d;white-space:nowrap} /* one row: the chip and the gap words sit above the obstacle strip and under the tabs (placed by sit() below) */
     #ghost-chip{display:inline-flex;align-items:center;gap:6px;border:2px solid #17201d;background:#fff;color:#17201d;border-radius:10px;padding:3px 10px;cursor:pointer;font:inherit}
     #ghost-chip[aria-pressed=true]{border-color:${COLOR};color:${COLOR};background:#eaf6fc}
     #ghost-gap{background:#fffffff0;border-radius:8px;padding:3px 9px;display:none}
@@ -80,6 +80,14 @@ export function createGhost(o: GhostOpts): Ghost {
   const chip = document.createElement('button'); chip.id = 'ghost-chip'; chip.type = 'button';
   const gap = document.createElement('span'); gap.id = 'ghost-gap'; gap.setAttribute('aria-live', 'polite');
   hud.append(chip, gap); o.parent.append(hud);
+  // the pill takes its own band under the button row and above the obstacle box: the box moves down by the pill's height, so nothing overlaps at any screen width
+  const sit = () => {
+    if (life?.closed) { clearInterval(sitTimer); return; }
+    const strip = document.getElementById('strip');
+    hud.style.left = '50%'; hud.style.transform = 'translateX(-50%)'; hud.style.top = '90px';
+    if (strip) strip.style.top = `${90 + Math.max(hud.offsetHeight, 26) + 20}px`;
+  };
+  const sitTimer = setInterval(sit, 250); sit();
 
   const paintChip = () => {
     const word = mode === 'off' ? 'Off' : mode === 'friend' ? (friendNick ? `${friendNick}\x27s run` : 'Friend\x27s run') : idealState === 'working' ? 'working out the ideal run…' : idealState === 'none' ? 'no ideal run here' : 'Ideal run';
