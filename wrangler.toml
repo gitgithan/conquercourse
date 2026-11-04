@@ -3,6 +3,10 @@ name = "conquercourse"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-10-01"
 
+# Production only (owner, 2026-11-04): every share must show a fresh photo-made receipt. Preview keeps it off for tests (a Pages preview does not inherit vars).
+[vars]
+REQUIRE_LIFT_RECEIPT = "1"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "conquercourse-feedback"
