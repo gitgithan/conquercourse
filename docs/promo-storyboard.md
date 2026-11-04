@@ -24,7 +24,7 @@
   - Then the film cuts to the Grand Entrance.
   - At most 1 second fully still, so a small movement starts at once or by the half second.
 - The same screen is reused as the end card, with the website link added.
-- Logo: the existing `public/brand/conquercourse-logo.svg` (owner, 2026-11-05: good already); it already has a row in `docs/ASSETS.md`, so no new asset.
+- Logo: `public/brand/conquercourse-logo-slogan.svg`, lettering in Nunito (owner's pick, 2026-11-05, for rounder edges); rows in `docs/ASSETS.md`; pictures in `docs/evidence/cc-133-logo/`.
 - **Music lane:** not decided.
 
 ## Scene 0: The Grand Entrance, then the run (12 s, decided)
@@ -41,14 +41,21 @@
 - The tunnel's end matches the Training course front view; the cut to first person keeps the camera in place.
 - **Music lane:** not decided.
 
-## Scene 1: Choose a location (time not set)
+## Rules for every clip (owner, 2026-11-05)
 
-- Drop a pin anywhere
-- Slice this place
-- Cut a height
-- Send to the World Editor
-- Camera: not set.
-- Overlay: not set.
+- Every click is marked: a big yellow circle over the cursor, so the viewer sees which button was pressed.
+- Clips are recorded in real time on the stepped clock, then sped up freely afterwards (retime in the build, never jerky).
+
+## Scene 1: Choose a location (about 15 s)
+
+| Part | Length | What the viewer sees | Overlay |
+|---|---|---|---|
+| 1a | 4 s or less | Start on the globe, zoom in to the top level, place a pin over Shibuya (the exact spot of our prepared course), click to show a street view photo | "Drop a pin anywhere" |
+| 1b | about 3 s or less | The slice runs in real time and ends by itself; faster is better; no jerking | "Slice this place" |
+| 1c | 8 s at most | Move the height slider up and down so the extrusions change colour; put it back to the default; scroll down; click "Send to World Editor"; the editor opens with the world fitted in view | "Cut a height" |
+
+- Subheadings kept: Drop a pin anywhere, Slice this place, Cut a height, Send to the World Editor.
+- Street photos are Mapillary's, shown live under their terms (no copies).
 - **Music lane:** not decided.
 
 ## Scene 2: Create your obstacles (time not set)
