@@ -26,7 +26,7 @@ export function flowPieces(mode: string): { top: string; end: string } | null {
   const f = flowOf(mode);
   if (!f) { // a Foundation Lab: where the pipelines use it
     const used = usedIn(mode);
-    const chips = used.map((u) => (u.lab ? chip(u.lab, `${u.title}: ${u.stage}`) : `<span class="lab-flow-chip plain" title="${u.pipeline === 'run' ? 'No Lab planned' : 'No Lab for this stage yet'}">${u.title}: ${u.stage} (${u.pipeline === 'run' ? 'no Lab planned' : 'no Lab yet'})</span>`)).join('');
+    const chips = used.map((u) => (u.lab ? chip(u.lab, `${u.title}: ${u.stage}`) : `<span class="lab-flow-chip plain" title="No Lab for this stage yet">${u.title}: ${u.stage} (no Lab yet)</span>`)).join('');
     return { top: `<div class="lab-flow-row" id="lab-flow-top"><span class="lab-flow-label">used in:</span>${chips || '<span class="lab-flow-chip plain">a method behind the pipelines</span>'}</div>`, end: '' };
   }
   const uses = usesOf(mode).map((m) => chip(m, lab(m))).join('');

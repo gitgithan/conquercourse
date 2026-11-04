@@ -1,12 +1,12 @@
 # University Labs: index
 
-*One row per Lab, grouped into the three pipelines the game was built with.*
+*One row per Lab, grouped into the pipelines the game was built with.*
 *Open a Lab at its URL; the labs switch (`labs=1`) keeps new players from seeing them.*
 *Every Lab doc has the same four sections: How it was designed, How we prove the lesson is right, Limits, How to make the lesson better.*
 *The plan and the rules for all Labs are in [university-labs](../university-labs.md).*
 
-*Read in series order: [the series map](pipelines.md) says which Lab teaches which stage, and which stages have no Lab (the run pipeline has none planned).*
-*Two tiers: Foundations (four sub-headers) and Pipelines (three).*
+*Read in series order: [the series map](pipelines.md) says which Lab teaches which stage, and which stages have no Lab.*
+*Two tiers: Foundations (four sub-headers) and Pipelines (more join as new Labs land).*
 *Pipeline Labs show "from", "uses" and "next"; Foundation Labs show "used in" (see [the series map](pipelines.md)).*
 *The numbers are the stable ids; the order below is the order the pipelines are taught.*
 
@@ -27,13 +27,6 @@
 | 3 | Clip | [Inverse kinematics](ik.md) | Where does the arm bend and break when the hand must reach a bar? | `?mode=lab-ik&labs=1` | `tests/lab-ik.test.ts` (12) | Side plane only, and the joint limits are round numbers |
 | 13 | Gate (the whole video pipeline) | [Video to motion](motion.md) | Which step of a filmed move can go wrong, and what stops it before the character moves? | `?mode=lab-motion&labs=1` | `tests/lab-motion.test.ts` (20) | The broken clips are made by us; only two failures are recorded, and the page runs the TypeScript gate, not the Python one |
 
-### Run to shared link
-| # | Stage | Lab | Question | URL | Tests | Biggest limit |
-|---|---|---|---|---|---|---|
-| 7 | Keys | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
-| 6 | Replay | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
-| 11 | Hash | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
-
 ### Idea to course
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
@@ -44,12 +37,15 @@
 |---|---|---|---|---|---|---|
 | 18 | Map to lane | [World Slicer: map to lane](slicer.md) | How does a pin on a real map become a lane the simulator can prove? | `?mode=lab-slicer&labs=1` | `tests/lab-slicer.test.ts` (23) | Buildings only (no trees or fences), five of 47 places, and the what-if limits change only the quick look |
 
-### Methods behind all three
+### Methods behind the pipelines
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
 |---|---|---|---|---|---|---|
 | 1 | Search | [Search](search.md) | Which way of looking finds a clear run, and what does it cost? | `?mode=lab-search&labs=1` | `tests/lab-search.test.ts` (7) | The heuristic sliders are untested, and "what the game does" is a sentence, not a measured run |
 | 2 | Optimize | [Optimization](optimization.md) | Which settings are fastest, and how many tries to find them? | `?mode=lab-optimization&labs=1` | `tests/lab-optimization.test.ts` (15) | Only 24 cells per map are replayed live, and the rope claim is pinned at 4 peaks, not 6 |
 | 12 | Learn | [Reinforcement learning](rl.md) | Can a character learn the course from points you write? | `?mode=lab-rl&labs=1` | `tests/lab-rl.test.ts` (11) | One course and one seed per claim; several "What we saw" claims are not pinned |
+| 7 | Keys | [Statistics of timing](timing.md) | How does shaky timing change how often a run clears? | `?mode=lab-timing&labs=1` | `tests/lab-timing.test.ts` (15) | Presses are independent errors and only jumps move; the Park run gap between maths and simulator is not pinned |
+| 6 | Replay | [Numerical integration](integration.md) | How much energy does a step rule invent, and does a replay match? | `?mode=lab-integration&labs=1` | `tests/lab-integration.test.ts` (10) | Several quoted numbers are not pinned, and the "recording" is the Lab's own RK4 run |
+| 11 | Hash | [Verification and hashing](hashing.md) | Which part of a run do you hash so a changed tick shows up? | `?mode=lab-hashing&labs=1` | `tests/lab-hashing.test.ts` (14) | One course, one tick per change; the "what the game hashes" card is not checked against the golden files |
 
 ### Finale
 | # | Stage | Lab | Question | URL | Tests | Biggest limit |
