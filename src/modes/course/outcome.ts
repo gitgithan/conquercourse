@@ -1,3 +1,4 @@
+import { courseTimeout } from './lifetime';
 import type { InputLog } from '../../sim/replay';
 import { logTicks } from '../../sim/run-checks';
 import { courseHash, encodeLog } from '../../sim/replay';
@@ -67,7 +68,7 @@ export function createOutcome(ctx: CourseCtx, d: OutcomeDeps) {
     }
     if (st.phoneWatch && prev === 'running' && st.world.outcome === 'cleared') { // the friend's run, watched on a phone: no report, no What next card; play it again in a moment (CC-138)
       const again = st.phoneWatch;
-      setTimeout(() => { if (again) { d.restart(course.startX); feed.play(again); } }, 2500);
+      courseTimeout(() => { if (again) { d.restart(course.startX); feed.play(again); } }, 2500);
     } else if (prev === 'running' && st.world.outcome === 'cleared' && !st.clip.on) {
       if (!st.plan && !st.demo && !st.idealWhole) { stats.clearFinishZone(st.world.runner.x); ctx.everCleared = true; track('clears'); stats.finishRun(true, analytics.runId); trackCourseEvent('success', analytics.courseKey, course.name, analytics.runId, analytics.mode); } // an Ideal run is watched, not played: it is not counted
       offerClear();

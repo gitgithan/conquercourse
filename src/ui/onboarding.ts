@@ -1,3 +1,4 @@
+import { courseListen, courseTimeout } from '../modes/course/lifetime';
 // The first-visit tour, the Help chip and the "What next" card (CC-100). Plain words, no formulas, no grading.
 // The Course keeps its own keys: while the tour is open the game waits (the same event the Courses gallery uses),
 // the camera keys still work so the first step can be tried, and every other key only lights up its chip.
@@ -165,9 +166,9 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
     const next = btn(last ? "Let's go" : 'Next', () => (last ? finish() : show(i + 1)), true); next.id = 'tour-next';
     const skip = btn('Skip (Esc)', () => finish()); skip.id = 'tour-skip';
     card.append(bar, h('div', { cls: 'row' }, skip, next));
-    timer = window.setTimeout(() => (last ? finish() : show(i + 1)), stepS * 1000);
+    timer = courseTimeout(() => (last ? finish() : show(i + 1)), stepS * 1000);
     // hovering or focusing the card holds the clock; leaving it starts the step's time again
-    card.onmouseleave = () => { clearTimeout(timer); timer = window.setTimeout(() => (last ? finish() : show(i + 1)), stepS * 1000); };
+    card.onmouseleave = () => { clearTimeout(timer); timer = courseTimeout(() => (last ? finish() : show(i + 1)), stepS * 1000); };
     card.onmouseenter = () => clearTimeout(timer);
   };
   const onKey = (e: KeyboardEvent) => { // while the tour or the tips card is open, only the keys the tour names reach the game, so nothing starts the run
@@ -179,7 +180,7 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
     const label = labelOf(e.code);
     document.querySelectorAll<HTMLElement>('#tour .ccchip').forEach((c) => { if (c.dataset.keys === label) c.classList.add('lit'); });
     if (e.code === 'Enter') { e.stopImmediatePropagation(); e.preventDefault(); if (step === STEPS.length - 1) finish(); else show(step + 1); return; }
-    if (s.codes.includes(e.code)) setTimeout(() => { if (tourEl && step === STEPS.indexOf(s)) { if (step === STEPS.length - 1) finish(); else show(step + 1); } }, 450);
+    if (s.codes.includes(e.code)) courseTimeout(() => { if (tourEl && step === STEPS.indexOf(s)) { if (step === STEPS.length - 1) finish(); else show(step + 1); } }, 450);
     if (!s.pass || !s.codes.includes(e.code)) { e.stopImmediatePropagation(); e.preventDefault(); } // only the step's own camera, restart and controls keys reach the game
   };
   const start = () => {
@@ -202,13 +203,13 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
     document.body.append(menuEl); { const k = keysCard(); if (k) k.style.visibility = 'hidden'; } chipEl.setAttribute('aria-expanded', 'true'); (menuEl.firstChild as HTMLElement).focus({ preventScroll: true });
   };
   chipEl.onclick = openMenu;
-  addEventListener('keydown', (e) => { if (e.code === 'Escape' && menuEl) closeMenu(); });
+  courseListen(window, 'keydown', (e) => { if (e.code === 'Escape' && menuEl) closeMenu(); });
   document.body.append(chipEl);
 
   const closeTips = () => { tipsEl?.remove(); tipsEl = null; };
   function showTips() { if (tipsEl) return; tipsEl = buildNextCard(env, 'What you can do', closeTips); tipsEl.classList.add('modal'); document.body.append(tipsEl); }
 
-  addEventListener('keydown', onKey, true);
+  courseListen(window, 'keydown', onKey, true);
   if (env.tour) start();
 
   return {
@@ -223,7 +224,7 @@ export function startOnboarding(env: OnboardingEnv): Onboarding {
       env.store.set(FALL_SEEN, '1');
       fallEl = h('section', { id: 'ccfirstfall' }, h('b', {}, 'Fell? That is how everyone starts.'), h('p', {}, 'Press R to try again.'), h('p', {}, 'Press I to watch the best line.'), btn('Got it', () => { fallEl?.remove(); fallEl = null; }, true));
       if (panel) { fallEl.classList.add('inpanel'); panel.prepend(fallEl); } else document.body.append(fallEl); // CC-191: in the report, not on top of it
-      setTimeout(() => { fallEl?.remove(); fallEl = null; }, 12000);
+      courseTimeout(() => { fallEl?.remove(); fallEl = null; }, 12000);
     },
     replay: start,
     destroy() { finish(); closeMenu(); closeTips(); removeEventListener('keydown', onKey, true); chipEl.remove(); style.remove(); },

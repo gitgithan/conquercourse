@@ -1,3 +1,5 @@
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { retainGeometry, retainTexture } from './shared-assets';
 import { Matrix4, Object3D, Quaternion, SkinnedMesh, Vector3 } from 'three/webgpu';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { solveBones, type Rig } from '../motion/pose';
@@ -17,10 +19,25 @@ export interface PosedRookie {
   world(): Vector3[]; // where the bones are now
 }
 
+const models = new Map<string, Promise<Awaited<ReturnType<GLTFLoader['loadAsync']>>>>();
+
 // `url` swaps in another body built on the Rookie's 34 bones (the custom look, CC-41); the default is rookie-<id>.glb
 export async function loadRookie(id: RookieId, names: string[], parents: number[], base = '/assets/characters', url?: string, fit = false): Promise<PosedRookie> {
-  const gltf = await new GLTFLoader().loadAsync(url ?? `${base}/rookie-${id}.glb`);
-  const object = gltf.scene;
+  const src = url ?? `${base}/rookie-${id}.glb`;
+  let loading = !url ? models.get(src) : undefined;
+  if (!loading) {
+    loading = new GLTFLoader().loadAsync(src);
+    if (!url) { models.set(src, loading); loading.catch(() => models.delete(src)); }
+  }
+  const gltf = await loading;
+  const object = url ? gltf.scene : clone(gltf.scene);
+  if (!url) object.traverse((o) => {
+    const m = o as SkinnedMesh;
+    if (!m.geometry) return;
+    retainGeometry(m.geometry);
+    for (const material of Array.isArray(m.material) ? m.material : [m.material]) for (const value of Object.values(material)) if (value?.isTexture) retainTexture(value);
+    m.material = Array.isArray(m.material) ? m.material.map((v) => v.clone()) : m.material.clone();
+  });
   const fitted = fit && url ? fitSkins(object, url.match(/\/([0-9a-f]{16})\.glb/)?.[1]) : null; // a made character: stretch the skin to the one skeleton before anything reads the rest pose
   object.updateMatrixWorld(true);
   object.traverse((o) => (o.frustumCulled = false)); // skinned meshes keep their bind-pose bounds

@@ -369,3 +369,16 @@
 - Do not hard-code Lab numbers in a script (names only); read them from the page by their visible text and keep the text in the params file.
 - The Design partner needs a model key; a capture machine without one answers the call with a stand-in in the live format, and the docs say so.
 - After pulling the latest `origin/main`, reshoot the segments that show changed screens; the drums, toasts and hint band changed between two pulls on the same day.
+
+
+## Course switching: retain the expensive runtime (2026-11-04)
+
+- A fast HTML response does not mean a fast course transition.
+- Measure the outgoing document, renderer initialization, asset loading and first draw separately; the largest observed wait was before the next document's scripts began.
+- Pausing the simulator alone leaves the old 3D scene drawing behind its gallery.
+- Share immutable character assets, but clone skeletons and materials so the ghost cannot change the player's pose or opacity.
+- Reusing a renderer requires an explicit course lifetime: close keys, timers, observers, searches, worker waits, DOM and owned GPU resources together.
+- Terminating a worker is insufficient if its callers still await a promise; reject those requests during pool closure.
+- Keep a runtime facade for application callers, so they follow the active course rather than retaining the disposed first session.
+- Keep cold-load and course-switch measurements separate; software-renderer timings are diagnostic observations, not hardware-GPU or CDN promises.
+- Method, before/after flow and results: [course loading](../data/eval/course-loading/README.md).

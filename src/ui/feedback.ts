@@ -100,7 +100,7 @@ export function initFeedback(mode: string): void {
   if (pageQuery().get('feedback') !== 'old') { initFeedbackCard(mode); return; } // the new card; ?feedback=old brings the old round form back
   const btn = document.createElement('button');
   btn.textContent = 'Feedback';
-  btn.id = 'cc-feedback-btn';
+  btn.dataset.coursePersistent = ''; btn.id = 'cc-feedback-btn';
   btn.title = 'Tell us what you think. Every field is optional, and you can send at any time.';
   btn.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:50;font:700 15px system-ui,sans-serif;border:2px solid #0f6b5c;background:#0f6b5c;color:#fff;border-radius:999px;padding:9px 18px;cursor:pointer;box-shadow:0 4px 16px #0005';
   btn.onclick = () => openForm(mode);

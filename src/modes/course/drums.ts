@@ -1,3 +1,4 @@
+import { courseTimeout } from './lifetime';
 import type { CourseData } from '../../course/course';
 import type { RunSearch } from './search';
 import { workSeconds, type Plan } from '../../sim/ideal';
@@ -32,7 +33,7 @@ export function mountDrums(c: DrumsCtx) {
       if (drumLane.shown !== forceDrums) drumLane.toggle();
     }
   };
-  setTimeout(() => {
+  courseTimeout(() => {
     if (course.track) { drumLane.set([]); if (drumLane.shown) drumLane.toggle(); return; }
     // CC-243: a course that carries its plan (a demo course, a ready-made editor course, or an edited one the lane check already proved) shows its drums at once;
     // any other is searched in the workers, never on the page's thread (a whole-course search there froze the Course for up to two minutes)

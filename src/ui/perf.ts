@@ -1,3 +1,4 @@
+import { courseListen } from '../modes/course/lifetime';
 import { pageQuery } from '../flags';
 // The performance overlay (CC-75): ?perf=1 shows it, key P toggles it, in the Course, the editor 3D view and the map.
 // It shows the frame time and fps, draw calls, triangles, how many meshes and instances are in the scene, the renderer and the
@@ -52,7 +53,7 @@ export function createPerf(src: PerfSource): Perf {
   };
   const toggle = () => { shown = !shown; box.style.display = shown ? 'block' : 'none'; if (shown) show(); };
   box.style.display = shown ? 'block' : 'none';
-  addEventListener('keydown', (e) => {
+  courseListen(window, 'keydown', (e) => {
     if (e.code !== 'KeyP' || e.ctrlKey || e.metaKey || e.altKey) return;
     const t = e.target as HTMLElement | null;
     if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;

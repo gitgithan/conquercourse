@@ -95,7 +95,7 @@ export function startMusic(s: Screen): void {
   };
   const refused = () => {
     if (c.state === 'running' || chip) return;
-    chip = document.createElement('div');
+    chip = document.createElement('div'); chip.dataset.coursePersistent = '';
     chip.id = 'music-chip'; chip.textContent = 'Music is on, click anywhere to hear it';
     chip.style.cssText = 'position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:50;padding:6px 14px;border-radius:999px;background:rgba(20,30,28,.82);color:#fff;font:13px system-ui,sans-serif;pointer-events:none';
     document.body.append(chip);
@@ -121,7 +121,7 @@ function speakerButton() {
     b.innerHTML = isMuted() ? ICON_OFF : ICON_ON; b.setAttribute('aria-pressed', String(!isMuted()));
     b.title = 'Music on/off (M)'; b.setAttribute('aria-label', isMuted() ? 'Music is off, press to turn on (M)' : 'Music is on, press to turn off (M)');
   };
-  const b = document.createElement('button');
+  const b = document.createElement('button'); b.dataset.coursePersistent = '';
   b.id = 'music-button'; b.type = 'button';
   b.style.cssText = 'position:fixed;left:10px;bottom:60px;z-index:5;width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(0,0,0,.25);border-radius:50%;background:rgba(255,255,255,.9);color:#17201d;cursor:pointer;padding:0';
   b.onclick = () => { setMuted(!isMuted()); b.blur(); };

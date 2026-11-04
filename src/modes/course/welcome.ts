@@ -1,3 +1,4 @@
+import { openCourseHref } from '../../ui/course-navigation';
 import type { CourseData } from '../../course/course';
 import { BUTTON_PLACE, buildGallery, currentWorld, DEMOS, modalAttrs, mountWorldGallery, worldHref } from '../../ui/world-picker';
 import { browserStore, rememberCourse, tourDecision } from '../../ui/onboarding-flags';
@@ -23,9 +24,9 @@ export function createWelcome(c: { course: CourseData; params: URLSearchParams; 
   welcomeCopy.textContent = `Welcome to ConquerCourse. Click a picture: ${demos.length} worlds, from obstacle courses to real places, or make your own.`;
   welcomeCopy.style.cssText = 'margin:0 0 12px;color:#58635d;font:500 16px/1.45 system-ui,sans-serif';
   welcome.append(welcomeCard);
-  const courseButton = mountWorldGallery(document.body, { current: here, place: BUTTON_PLACE.course, onPick: (v) => { rememberWorldWelcome(); location.href = worldHref(v); } });
+  const courseButton = mountWorldGallery(document.body, { current: here, place: BUTTON_PLACE.course, onPick: (v) => { rememberWorldWelcome(); openCourseHref(worldHref(v)); } });
   const closeWelcome = () => { welcome.remove(); courseButton.button.focus({ preventScroll: true }); };
-  const welcomeGallery = buildGallery({ current: here, heading: 'Courses', onClose: () => { rememberWorldWelcome(); closeWelcome(); }, onPick: (v) => { rememberWorldWelcome(); if (v === 'stay' || v === here.value) closeWelcome(); else location.href = worldHref(v); } });
+  const welcomeGallery = buildGallery({ current: here, heading: 'Courses', onClose: () => { rememberWorldWelcome(); closeWelcome(); }, onPick: (v) => { rememberWorldWelcome(); if (v === 'stay' || v === here.value) closeWelcome(); else openCourseHref(worldHref(v)); } });
   welcomeCard.append(welcomeTitle, welcomeCopy, welcomeGallery.el);
   let worldWelcomeSeen = false;
   try { worldWelcomeSeen = localStorage.getItem('cc.worldWelcome.seen') === '1'; } catch { /* use the one-time URL option when storage is unavailable */ }

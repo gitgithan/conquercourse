@@ -1,3 +1,5 @@
+import { disposeGeometry, disposeTexture } from '../render/shared-assets';
+import { CourseLifetime, activateCourse, courseListen } from './course/lifetime';
 import { backgroundOn, savedBackground } from '../ui/background';
 import { createKeydown, isTyping } from './course/keydown';
 import type { CourseCtx } from './course/context';
@@ -81,9 +83,26 @@ export interface CourseGame {
   backend: 'webgpu' | 'webgl2';
   world: () => WorldState;
   restart: () => void;
+  renderer: THREE.WebGPURenderer;
+  dispose(): void;
+  suspend(on: boolean): void;
+  busy(): boolean;
 }
 
 export async function startCourse(host: HTMLElement, course: CourseData = defaultCourse): Promise<CourseGame> {
+  const game = await createCourseSession(host, course);
+  const params = pageQuery();
+  if ((params.get('mode') ?? 'course') === 'course' && params.get('courseswitch') !== '0' && !params.has('film') && !params.get('fx') && params.get('trail') !== '1' && params.get('clip') !== 'auto' && !params.has('touch')) {
+    const { installCourseRuntime } = await import('./course/runtime');
+    return installCourseRuntime(host, game, createCourseSession);
+  }
+  return game;
+}
+
+export async function createCourseSession(host: HTMLElement, course: CourseData = defaultCourse, sharedRenderer?: THREE.WebGPURenderer): Promise<CourseGame> {
+  const life = new CourseLifetime();
+  activateCourse(life);
+  try {
   const params = pageQuery();
   const loadedIsDefault = course === defaultCourse, loadedHash = courseHash(course); // CC-108: the course as the page opened it; a ground edit or any other change makes the hash differ, and then the run is no longer on a ranked board
   // Coming back from the Dojo: the Course is put back exactly as it was (same course, same place), not started again.
@@ -104,20 +123,43 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   const startAt = params.get('startx') === null ? undefined : Number(params.get('startx')); // ?startx=45 begins there (for tests and films)
   const st = createCourseState({ world: resume?.world ?? newWorld(course, resume ? resume.retryX : startAt), paused: !!resume?.world, retryX: resume ? resume.retryX : course.startX, falls: resume ? resume.falls : 0, frontOverride: params.has('front') ? params.get('front') === '1' : null, clipLayout: clipLayoutFor(pageSearch()) });
-  const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
-  await renderer.init();
+  const renderer = sharedRenderer ?? new THREE.WebGPURenderer({ antialias: true, forceWebGL: params.get('backend') === 'webgl2' });
+  if (!sharedRenderer) await renderer.init();
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setSize(host.clientWidth, host.clientHeight);
   host.appendChild(renderer.domElement);
+  renderer.setViewport(0, 0, host.clientWidth, host.clientHeight);
+  renderer.setScissorTest(false);
+  life.watchDOM(document);
+  let suspended = false, galleryOpen = false;
+  let raf = 0;
+  life.own(() => cancelAnimationFrame(raf));
 
   const scene = new THREE.Scene();
+  life.own(() => {
+    const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>();
+    scene.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (mesh.geometry) geometries.add(mesh.geometry);
+      if (mesh.material) for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) materials.add(m);
+      (o as THREE.SkinnedMesh).skeleton?.dispose();
+      if (o instanceof THREE.Light) o.dispose();
+    });
+    for (const g of geometries) disposeGeometry(g);
+    for (const m of materials) {
+      for (const value of Object.values(m)) if (value?.isTexture) disposeTexture(value);
+      m.dispose();
+    }
+    if (scene.background instanceof THREE.Texture) scene.background.dispose();
+    scene.clear();
+  });
   scene.background = new THREE.Color(/^[0-9a-f]{6}$/i.test(params.get('bg') ?? '') ? parseInt(params.get('bg')!, 16) : 0x9fc5e8); // ?bg=rrggbb only for pictures over other backgrounds (CC-167)
   // CC-249: the player's own picture behind every course, kept in this browser only; ?bg= (pictures over other backgrounds) wins
   const skyColor = scene.background;
   const paintBackground = () => {
     const url = backgroundOn(params) && !params.get('bg') ? savedBackground() : null;
     if (!url) { scene.background = skyColor; return; }
-    new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.SRGBColorSpace; scene.background = t; });
+    new THREE.TextureLoader().load(url, (t) => { if (life.closed) { t.dispose(); return; } t.colorSpace = THREE.SRGBColorSpace; scene.background = t; });
   };
   paintBackground();
   let actor: Awaited<ReturnType<typeof createRookieActor>> | null = null;
@@ -129,6 +171,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   const built = buildCourseScene(scene, course, params);
   // CC-133: a real sky, sun, fog and soft shadows (src/render/sky-light.ts); off, the flat light above stays exactly as it was
   const sky: SkyLight | null = courseSkyOn(params) ? installSkyLight(THREE as never, scene as never, { lat: Number(params.get('sunlat') ?? 48.85) || 48.85, preset: params.get('sunat') ?? (() => { try { return localStorage.getItem('cc.sunat'); } catch { return null; } })(), shadows: shadowsOn(params), renderer: renderer as never, far: camera.far, mirrorSouth: true }) : null;
+  life.own(() => { sky?.sun.dispose(); sky?.dispose(); });
   let skyN = 0;
   if (sky) host.appendChild(timeOfDayPicker(sky, () => undefined, 'left:10px;bottom:10px'));
   const { trackView, plankView, hazard, floor, chunks, ropeLen } = built;
@@ -149,18 +192,20 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let reportWas = false;
   const nextCam = cam.nextCam;
   const { courseButton, tour } = createWelcome({ course, params, resume: !!resume });
-  let onboarding: Pick<Onboarding, 'onCleared' | 'onFall'> = { onCleared() {}, onFall() {} };
+  let onboarding: Pick<Onboarding, 'onCleared' | 'onFall'> & Partial<Pick<Onboarding, 'destroy'>> = { onCleared() {}, onFall() {} };
   // The drum lane is on by default wherever the course has a planned player route; a coaster is mostly passive cart motion.
+  life.own(() => onboarding.destroy?.());
   const forceDrums = params.get('drums') === '1';
   const runSearch = createSearch(params);
   const { drumLane, toastDrums: toastDrumsNow } = mountDrums({ course, params, forceDrums, runSearch });
   const { dbgBtn } = mountChrome({ params, hud: hudParts, pick: wear.pick, camButton: cam.button, restart: () => restart() });
   // CC-85: a real place shows its real photos (credit under each, a large view on click); ?photos=0 or the Hide switch turns them off
   const placeSlug = slugOfCourse(course.name);
-  let livePhotos: { update(x: number): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
-  if (placeSlug && pageQuery().get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { livePhotos = h; });
-  if (placeSlug && FURNITURE_ON(pageQuery())) void mountFurniture(scene, course); // CC-187: real street furniture, looks only, off by default
-  { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd).then((h) => { if (h?.lat != null) sky?.setPlace(h.lat); }); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
+  let livePhotos: { update(x: number): void; destroy(): void } | null = null; // CC-90: street photos from the allow-list change as the runner moves; the CC-85 strip is the fallback
+  if (placeSlug && pageQuery().get('photos') !== '0') void mountLivePhotos(document.body, course).then((h) => { if (life.closed) h?.destroy(); else livePhotos = h; });
+  life.own(() => livePhotos?.destroy());
+  if (placeSlug && FURNITURE_ON(pageQuery())) void mountFurniture(scene, course).then((h) => { if (h) life.own(() => h.destroy()); }); // CC-187: real street furniture, looks only, off by default
+  { const bd = params.get('backdrop'); if (bd) void mountBackdrop(scene, course, bd).then((h) => { if (h) life.own(() => h.destroy()); if (!life.closed && h?.lat != null) sky?.setPlace(h.lat); }); } // CC-234: the place's buildings and street furniture behind the hero lane, looks only, off by default
   const sayer = createSay(params, st);
   const say = sayer.say;
   sayNow = say;
@@ -171,7 +216,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   addLabels(course, specs, zoneOf, ropeLen);
 
   // input
-  addEventListener('keydown', createKeydown({
+  courseListen(window, 'keydown', createKeydown({
     st, typing: isTyping, course, VIEW_KEYS,
     get botMode() { return botMode; },
     restart: (x) => restart(x),
@@ -183,10 +228,10 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     get ghostCtl() { return ghostCtl; },
     paintKeys: (o) => paintKeys(o),
   }));
-  addEventListener('keyup', (e) => st.keys.delete(e.code));
+  courseListen(window, 'keyup', (e) => st.keys.delete(e.code));
   const touchControls = touchOn(params, browserPointing); // CC-139: on a touch device the buttons press the same keys; ?touch=0 turns them off
   if (touchControls) { mountTouch(document.body, { cannon: !!course.recoil }); gaugeStack.lift(150); st.keysOpen = false; st.keysTouched = true; paintKeys(false); st.frontOverride = false; } // the keys card is for keyboards; the small corner view would hide the runner on a narrow screen
-  addEventListener('resize', () => {
+  courseListen(window, 'resize', () => {
     renderer.setSize(host.clientWidth, host.clientHeight);
     camera.aspect = host.clientWidth / host.clientHeight;
     camera.updateProjectionMatrix();
@@ -238,7 +283,7 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   }
   const feed = createFeed();
   // CC-158: a click outside the end report does what R does (a try again, with the ghost); there is no Close button
-  document.addEventListener('pointerdown', (e) => {
+  courseListen(document, 'pointerdown', (e) => {
     if (panel.style.display === 'none' || !panel.querySelector('#report-actions') || panel.contains(e.target as Node)) return;
     if ((e.target as HTMLElement).closest?.('#sitenav, #courses-btn, #feedback-btn, .gallery')) return; // the top bar and open pop-ups keep their own clicks
     restart();
@@ -301,17 +346,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
   let studioHold = false; // the Graph Studio has the clock stopped (not the Dojo's "press any key" pause)
   // Graph Studio (CC-86): Tab pauses the Course and opens the ground as a graph to drag; "Play from here" carries on with the edited course
   if (!botMode) installGraphStudio({ env: () => ({ course, retryX: st.retryX, facing, falls: st.falls, runnerX: st.world.runner.x }), pause: () => { studioHold = true; st.paused = true; }, resume: () => { studioHold = false; st.paused = false; st.last = performance.now(); st.keys.clear(); }, chipWhen: () => st.falls > 0 || params.get('edit') === '1' });
-  { let heldBefore = false; window.addEventListener(GALLERY_EVENT, (ev) => { if ((ev as CustomEvent).detail.open) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
+  { let heldBefore = false; courseListen(window, GALLERY_EVENT, (ev) => { galleryOpen = (ev as CustomEvent).detail.open; if (galleryOpen) { heldBefore = st.paused; st.paused = true; st.keys.clear(); } else { st.paused = heldBefore; st.last = performance.now(); } }); } // the Courses gallery stops the game while it is open
   if (!botMode || params.get('next') === '1') onboarding = startOnboarding({ params, store: browserStore, course, tour: tour === 'tour', resetRun: () => { if (st.world.outcome === 'running' && Math.abs(st.world.runner.x - course.startX) < 0.01) restart(course.startX); }, openCourses: () => courseButton.open(), toggleKeys: () => { st.keysTouched = true; st.keysOpen = !st.keysOpen; paintKeys(st.keysOpen); } }); // CC-100: the Help chip, and the tour on a first visit
   // ?fx=bloom,vignette,dof (or all): picture polish for stills (CC-188); off unless asked, loaded only then
   let fxPipe: { render(): void } | null = null;
-  if (pageQuery().get('fx')) void import('../render/fx').then((m) => { const on = m.fxOf(pageSearch()); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
+  if (pageQuery().get('fx')) void import('../render/fx').then((m) => { if (life.closed) return; const on = m.fxOf(pageSearch()); if (on.size) fxPipe = m.createFx(renderer as any, scene, camera, on, () => camera.position.distanceTo(body.position)); });
   // ?trail=1: a light trail behind the runner for film shots (CC-209); loaded only then
   let trailPush: ((x: number, y: number) => void) | null = null;
-  if (pageQuery().get('trail') === '1') void import('../render/trail').then((m) => { trailPush = m.createTrail(scene).push; });
+  if (pageQuery().get('trail') === '1') void import('../render/trail').then((m) => { if (life.closed) return; trailPush = m.createTrail(scene).push; });
   let lastPlankNow = 0; // the clock of the last plank step
   const timeScale = Number(params.get('timescale') ?? 1); // ?timescale=0.1 runs the game at a tenth of its speed (for stills)
   function frame(now: number, stepped = false) {
+    if (life.closed) return;
+    if ((suspended || galleryOpen) && !stepped) { st.last = now; raf = requestAnimationFrame(frame); return; }
     if (cam.filmShot) now = performance.now(); // a film runs the game on the stepped film clock; the real animation-frame time would let the run race ahead at the speed the machine draws
     if (st.clip.on && !stepped) return; // the clip drives the game by hand; the loop starts again when it ends
     perf.frame(now);
@@ -402,11 +449,19 @@ export async function startCourse(host: HTMLElement, course: CourseData = defaul
     document.documentElement.dataset.outcome = st.world.outcome;
     if (playedSounds().length !== soundCount) { soundCount = playedSounds().length; document.documentElement.dataset.sounds = playedSounds().join(','); } // for the bot check: headless cannot be heard
     document.documentElement.dataset.mode = st.world.mode;
-    if (!st.clip.on) requestAnimationFrame(frame);
+    if (!st.clip.on) raf = requestAnimationFrame(frame);
   }
   const perf = createPerf({ label: 'Course', backend: (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2', renderer: renderer as unknown as PerfSource['renderer'], scene });
-  requestAnimationFrame(frame);
+  raf = requestAnimationFrame((now) => {
+    frame(now);
+    performance.mark('course:first-frame');
+    document.documentElement.dataset.courseName = course.name;
+  });
 
   const backend = (renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend ? 'webgpu' : 'webgl2';
-  return { backend, world: () => st.world, restart };
+  return { backend, renderer, world: () => st.world, restart, busy: () => st.clip.on,
+    dispose: () => { st.keys.clear(); life.close(); },
+    suspend: (on) => { suspended = on; st.keys.clear(); st.last = performance.now(); },
+  };
+  } catch (e) { life.close(); throw e; }
 }

@@ -36,10 +36,21 @@ export function parseClip(raw: unknown): Clip {
   return c;
 }
 
-export async function loadClip(phase: Phase, base = '/assets/motion'): Promise<Clip> {
-  const res = await fetch(`${base}/${PHASE_FILES[phase]}.json`);
-  if (!res.ok) throw new Error(`clip ${phase}: HTTP ${res.status}`);
-  return parseClip(await res.json());
+const clips = new Map<string, Promise<Clip>>();
+export function loadClipUrl(url: string): Promise<Clip> {
+  let pending = clips.get(url);
+  if (!pending) {
+    pending = fetch(url).then(async (res) => {
+      if (!res.ok) throw new Error(`clip: HTTP ${res.status}`);
+      return parseClip(await res.json());
+    });
+    clips.set(url, pending);
+    pending.catch(() => { if (clips.get(url) === pending) clips.delete(url); });
+  }
+  return pending;
+}
+export function loadClip(phase: Phase, base = '/assets/motion'): Promise<Clip> {
+  return loadClipUrl(`${base}/${PHASE_FILES[phase]}.json`);
 }
 
 export const clipDuration = (c: Clip): number => (c.frames.length - 1) / c.fps;

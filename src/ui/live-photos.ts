@@ -1,3 +1,4 @@
+import { courseLifetime } from '../modes/course/lifetime';
 // The photo strip of a real-place course follows the runner (CC-90): street photos from the per-place allow-list change as the runner moves.
 // The stored CC-85 strip is what shows first and whenever there is no live photo (no allow-list, nothing nearby, offline, or the photo service fails).
 import { loadPlacePhotos, mountPlacePhotos, slugOfCourse, type PhotosHandle, type PlacePhotos } from './place-photos';
@@ -17,19 +18,23 @@ export async function resolveThumbs(ids: string[], f: typeof fetch = fetch): Pro
 export interface LiveStrip { update(x: number): void; destroy(): void }
 
 export async function mountLivePhotos(host: HTMLElement, course: { name: string; startX: number; finishX: number }, f: typeof fetch = fetch): Promise<LiveStrip | null> {
+  const life = courseLifetime();
+  let closed = false; life?.own(() => { closed = true; });
   const slug = slugOfCourse(course.name);
   if (!slug) return null;
   const [stored, place, allow] = await Promise.all([loadPlacePhotos(slug, f), getJson<PlaceLine>(`/assets/places/${slug}.json`, f), getJson<AllowList>(`/assets/photos-live/${slug}.json`, f)]);
+  if (closed) return null;
   let handle: PhotosHandle | null = null, shown: PlacePhotos | null = null;
   const status = place?.lane?.line ? levelWords[levelOf(laneShare(allow, place))] : levelWords.none; // CC-90: one line under the strip, from the offline list
   const paint = (d0: PlacePhotos | null) => {
+    if (closed) return;
     const d = d0 ? { ...d0, status } : d0;
     if (d0 === shown || document.getElementById('placephotos-view')) return; // the large view is open: the strip waits
     handle?.destroy(); shown = d0;
     handle = d ? mountPlacePhotos(host, d) : null;
   };
   paint(stored);
-  if (!place?.lane?.line || !allow?.photos?.length) return { update() {}, destroy: () => handle?.destroy() };
+  if (!place?.lane?.line || !allow?.photos?.length) return { update() {}, destroy: () => { closed = true; handle?.destroy(); } };
   const live = createLive({ place, allow, course, resolve: (ids) => resolveThumbs(ids, f), show: (d) => paint(d ?? stored) });
-  return { update: (x) => void live.update(x), destroy: () => handle?.destroy() };
+  return { update: (x) => void live.update(x), destroy: () => { closed = true; handle?.destroy(); } };
 }

@@ -14,7 +14,7 @@ let styled = false;
 export interface JobBar { el: HTMLElement; update(p: Progress): void; finish(): void; fail(): void }
 
 export function jobProgress(parent: HTMLElement, steps: Step[], onCancel: () => void): JobBar {
-  if (!styled) { styled = true; document.head.append(Object.assign(document.createElement('style'), { textContent: STYLE })); }
+  if (!styled) { styled = true; document.head.append(Object.assign(document.createElement('style'), { id: 'job-progress-style', textContent: STYLE })); }
   const box = Object.assign(document.createElement('div'), { className: 'jp' });
   box.setAttribute('role', 'status'); box.dataset.stage = steps[0].id;
   const list = document.createElement('ol'), lis = steps.map((s) => Object.assign(document.createElement('li'), { textContent: s.words }));

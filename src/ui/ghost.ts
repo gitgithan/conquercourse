@@ -1,3 +1,4 @@
+import { courseLifetime } from '../modes/course/lifetime';
 // The ghost (CC-99): a see-through runner that replays another run on the same clock, so you can chase it.
 // It is only a drawing: it never blocks a key and nothing can touch it. The gap is a fact in plain words, never a grade.
 import * as THREE from 'three';
@@ -47,6 +48,7 @@ export interface Ghost {
 const ICON = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21 V11 a7 7 0 0 1 14 0 V21 l-3.5 -2.5 L12 21 l-3.5 -2.5 Z"/><circle cx="9.5" cy="11" r="1" fill="currentColor"/><circle cx="14.5" cy="11" r="1" fill="currentColor"/></svg>`;
 
 export function createGhost(o: GhostOpts): Ghost {
+  const life = courseLifetime();
   let mode: GhostMode = 'ideal'; // CC-180: the ghost and the player are both shown unless the player turned the ghost off (N)
   try { if (localStorage.getItem(MODE_KEY) === 'off') mode = 'off'; } catch { /* the chip still works for this visit */ }
   const recorder = new InputRecorder();
@@ -89,6 +91,7 @@ export function createGhost(o: GhostOpts): Ghost {
     if (idealState !== 'idle') return;
     idealState = 'working'; paintChip();
     o.idealPlan().then((plan) => {
+      if (life?.closed) return;
       if (!plan) { idealState = 'none'; return; }
       ideal = trackFromPlan(o.course, plan);
       idealState = ideal.cleared ? 'ready' : 'none';

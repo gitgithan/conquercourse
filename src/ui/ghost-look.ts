@@ -1,3 +1,4 @@
+import { courseLifetime } from '../modes/course/lifetime';
 // The ghost wears the runner's own shape (CC-167): the same Rookie model, drawn as a see-through amber silhouette with a dark amber outline,
 // so it stays visible on a blue sky, green grass and a dark tunnel alike. ?ghost=old brings back the light-blue capsule.
 // A challenge link adds nothing for the first Rookie and "&rk=b" (5 characters) for the second.
@@ -39,12 +40,15 @@ export interface GhostFigure {
 
 /** One amber fill actor and one slightly larger dark-amber back-face actor behind it for the outline. */
 export function createGhostFigure(scene: THREE.Scene, first: RookieLook): GhostFigure {
+  const life = courseLifetime();
+  life?.own(() => { fill?.dispose(); rim?.dispose(); fillMat.dispose(); rimMat.dispose(); });
   let fill: RookieActor | null = null, rim: RookieActor | null = null, look: RookieLook | null = null, loading: Promise<void> | null = null;
   const fillMat = new THREE.MeshBasicMaterial({ color: FILL, transparent: true, opacity: GHOST_OPACITY, depthWrite: false });
   const rimMat = new THREE.MeshBasicMaterial({ color: RIM, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.BackSide });
   async function load(want: RookieLook): Promise<void> {
     try {
       const [f, r] = await Promise.all([createRookieActor(scene, { rookie: want }), createRookieActor(scene, { rookie: want })]);
+      if (life?.closed) { f.dispose(); r.dispose(); return; }
       paint(f, fillMat, -3); paint(r, rimMat, -4); // drawn before the player, which stays on top; laid over it the amber hid the player
       r.object.scale.setScalar(RIM_SCALE); // a little larger than the fill: the dark back faces show round its edge
       f.object.visible = false; r.object.visible = false;
@@ -53,6 +57,7 @@ export function createGhostFigure(scene: THREE.Scene, first: RookieLook): GhostF
     } catch (e) { console.warn('Ghost look not loaded', e); }
   }
   const setLook = (want: RookieLook): Promise<void> => {
+    if (life?.closed) return Promise.resolve();
     if (want === look || (loading && want === pending)) return loading ?? Promise.resolve();
     pending = want; loading = load(want).finally(() => { loading = null; });
     return loading;

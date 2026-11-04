@@ -11,6 +11,7 @@ export type NoteFn = (label: string, step: number, of: number) => void;
 export type RunSearch = (c: CourseData, sig: Sig, onNote?: NoteFn, budget?: number, kind?: SearchKind) => Promise<SearchResult>;
 export interface PanelHandle { note(label: string, step: number, of: number): void; done(cleared: boolean): void; close(): void }
 export interface ShareOptions {
+  signal?: AbortSignal;
   openPanel?: (onCancel: () => void) => PanelHandle; // omitted: no panel
   onKeyCancel?: (cancelIdeal: () => void) => () => void; // adds the "any key cancels" listener for an ideal asker, returns its remover
   stats?: SearchStats;
@@ -37,9 +38,17 @@ export function shareSearches(raw: (c: CourseData, sig: Sig, onNote: NoteFn, bud
   const done = new Map<string, SearchResult>();
   const flying = new Map<string, Flight>();
   const stats = opts.stats;
+  opts.signal?.addEventListener('abort', () => {
+    for (const f of flying.values()) {
+      f.sig.cancelled = true;
+      for (const a of [...f.askers]) { a.sig.cancelled = true; a.reject(cancelled()); }
+      f.panel?.close();
+    }
+    flying.clear(); done.clear();
+  }, { once: true });
 
   const run: RunSearch = (c, sig, onNote, budget, kind) => {
-    if (sig.cancelled) return Promise.reject(cancelled());
+    if (sig.cancelled || opts.signal?.aborted) return Promise.reject(cancelled());
     const key = searchKey(c);
     const hit = done.get(key);
     if (hit) { if (stats) stats.reused++; return Promise.resolve(hit); }

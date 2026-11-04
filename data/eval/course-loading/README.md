@@ -1,11 +1,66 @@
 # Course loading investigation — 2026-11-04
 
-Selecting a course rebuilds the entire game document and graphics runtime.
-In this controlled software-rendering environment, switching courses was far slower than opening the first course in a fresh browser context.
-The laptop was also overloaded when the investigation began.
-No game-code fix was applied or deployed.
+Course selections now reuse the document, renderer, default character models and parsed motion clips.
+Each selection creates a fresh course session and disposes the previous session's controls, timers, workers, HUD and scene resources.
+The improvement applies to Vite, preview builds and production builds once this code is deployed.
+No deployment is part of this change.
 
-## Measured results
+## What changed and what still blocks
+
+```mermaid
+flowchart TD
+  A["Before: choose a course"] --> B["Unload old document and graphics runtime"]
+  B --> C["New document loads application modules"]
+  C --> D["Create and initialize a renderer"]
+  D --> E["Load four motion clips together"]
+  E --> F["Load six more clips in sequence"]
+  F --> G["Load and parse character model"]
+  G --> H["Build HUD and draw first frame"]
+  B -.-> I["Observed long stall before new scripts begin"]
+```
+
+```mermaid
+flowchart TD
+  A["After: choose a course"] --> B["Pause outgoing drawing; show Opening course"]
+  B --> C["Fetch selected course JSON"]
+  C --> D{"Course available?"}
+  D -->|No| E["Keep old course and show retry message"]
+  D -->|Yes| F["Close old course lifetime"]
+  F --> G["Build fresh scene and controls on existing renderer"]
+  G --> H{"Assets already loaded?"}
+  H -->|Yes| I["Reuse parsed clips and model geometry and textures"]
+  H -->|No| J["Load required and optional clips together; load model"]
+  I --> K["Independent runner and ghost skeletons and materials"]
+  J --> K
+  K --> L["Draw first frame and resume play"]
+```
+
+- **Removed from ordinary course switches:** document unload, application reload, renderer initialization and repeated default model/clip loading.
+- **Still required:** fetching the course JSON, building its scene, cloning character skeletons/materials, and drawing its first frame.
+- New scene materials can still need shader compilation; a first visit still initializes the renderer and loads assets.
+- The gallery pauses scene updates and rendering, rather than only pausing physics.
+- Browser Back/Forward selects the corresponding course without replacing the renderer.
+- Failed course fetches leave the existing course available; a construction failure falls back to reloading the selected URL.
+- Other modes and special film/effects/trail/automatic-clip/explicit-touch pages continue to use document navigation.
+- `?courseswitch=0` opts out of in-place switching and is retained on subsequent gallery selections.
+- Default model templates share geometry and textures; player and ghost skeletons and materials remain independent.
+- Custom character models keep their existing loading path; this change does not cache arbitrary custom URLs.
+- The course lifetime aborts input handlers, cancels RAF and timers, disconnects observers, rejects search callers, terminates workers, removes course DOM and releases owned GPU resources.
+- Shared app chrome and keyed style sheets remain; asynchronous character/photo/challenge callbacks check that their course is still alive.
+
+## Verification method
+
+- [reuse-browser.mjs](reuse-browser.mjs) exercises First Course → Training → Montmartre → Training, then Back/Forward, keyboard run/restart, a failed JSON request and a successful retry.
+- It asserts document/canvas identity and exactly one course HUD after repeated switches, and records event listener counts and model/motion request totals.
+- Its switch metric runs from immediately before the gallery card click to the end of the first application render callback.
+- Baseline navigation timings below start at navigation rather than before the click; the new measurement includes click dispatch overhead.
+- Run on an idle worker against both `npm run dev -- --port 5399` and `npm run build` followed by `npm exec vite preview -- --port 5399`.
+- Example: `PORT=5399 OUT=reuse-output node data/eval/course-loading/reuse-browser.mjs`.
+- The browser uses real local course and character assets, not model-call stand-ins.
+- Unit coverage checks asset coalescing/retry, independent skeletons/materials, retained shared geometry, removed input/timer handlers, and settlement of searches whose workers never answer.
+
+
+## Baseline measured results
 
 | Navigation | Vite development server | Optimized production build | Production build with VM-only menu render guard |
 | --- | ---: | ---: | ---: |
@@ -25,7 +80,7 @@ No game-code fix was applied or deployed.
 - A storage-neutral control reproduced long switches, so the harness's initial localStorage write does not explain the stall.
 - These results strongly implicate the outgoing graphics/browser lifecycle associated with full-page navigation; they do not prove that one particular browser cleanup function is responsible.
 
-## Source findings
+## Baseline source findings
 
 - [world-picker.ts](../../../src/ui/world-picker.ts): choosing a card assigns `location.href`; there is no in-place course switch.
 - [course.ts](../../../src/modes/course.ts): the gallery event pauses physics, while the animation loop still updates and draws the scene underneath the modal.
