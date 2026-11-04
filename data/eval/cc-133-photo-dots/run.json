@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "dotsDrawn": true,
+    "photoOpens": true,
+    "creditAndLicence": true,
+    "noPinDropped": true,
+    "hiddenWhenFar": true,
+    "switchOff": true
+  },
+  "notes": [
+    "dots in view set: 200"
+  ]
+}

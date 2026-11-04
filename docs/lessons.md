@@ -248,3 +248,12 @@
   - The hands-up rule caught the bar just let go of, a second hang that was not in the plan.
 - Still open: row after row (more than one row on a course) and a row that needs a different kip per rung are not searched; the window widths are one timing at a time with the others at their best.
 - Details: `docs/bars.md`, `tests/ideal-bars.test.ts`.
+
+## Photo dots on the Slicer map (CC-133)
+- Mapillary gives a photo's spot as `geometry` and a corrected `computed_geometry` (both GeoJSON, longitude first), and the compass the same way (`compass_angle`, `computed_compass_angle`).
+  - Use the corrected one first; the camera's own compass can be far off (14.9 against 343.8 for one Edinburgh photo).
+- `license` is not a Graph API field; asking for it makes the whole request fail, so the licence text is fixed (CC BY-SA 4.0) in the game.
+- The dots come from the person-checked allow-lists, never from a live search of the view.
+  - Reason: a live search would show photos that were never checked for close-up or large people.
+  - Cost: dots exist only at places that have a list.
+- Details: `data/eval/cc-133-photo-dots/README.md`; switch `?photodots=1` (on by itself on this computer and the preview site, off on the real site).

@@ -95,6 +95,7 @@ export const SWITCHES: readonly Switch[] = [
   { name: 'phone', default: 'auto', doc: "1 pretends to be a phone, 0 never does", quiet: false },
   { name: 'photo', default: 'none', doc: "a film photo file", quiet: false },
   { name: 'photos', default: 'on', doc: "0 hides live street photos", quiet: true },
+  { name: 'photodots', default: 'off', doc: "1 shows a dot and a facing cone for each checked street photo on the Slicer map (on by itself while testing, off on the real site); 0 hides them", quiet: false },
   { name: 'place', default: 'montmartre-paris', doc: "a place slug", quiet: false },
   { name: 'planktest', default: 'none', doc: "a number: starts the runner on the first plank at that share of its length", quiet: false },
   { name: 'pole', default: 'off', doc: "1 loads the pole course", quiet: false },
